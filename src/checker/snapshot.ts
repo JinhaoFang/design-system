@@ -7,9 +7,12 @@
  * text blocks also get textBox (tight bounds of their rendered characters) and textSizes ([font-size px, non-space character count] pairs). PageSnapshot.viewport is the page's inner size,
  * which is the canvas for social and slides and the first viewport for web (snapshots are taken at scroll 0).
  * collectSnapshot(page, scope) limits the pass to the elements inside the first node matching the CSS selector scope (used per slide).
+ * Text blocks also get fonts: the platform fonts Chromium used to draw their glyphs (font-usage.ts, through the DevTools protocol).
  * To give a new rule more input, add properties here (and fields to ElementSnapshot) instead of querying the browser from the rule.
  */
 import type { Page } from 'playwright';
+import { PROBE_ATTRIBUTE, collectFontUsage } from './font-usage.ts';
+import type { PlatformFont } from './font-usage.ts';
 
 export const SNAPSHOT_STYLE_PROPERTIES = [
   'color',
@@ -68,6 +71,7 @@ export interface ElementSnapshot {
   hasOwnText: boolean;
   textChunks?: TextChunk[];
   lines?: LineSnapshot[];
+  fonts?: PlatformFont[];
   styles: Record<string, string>;
   rect: Rect;
   parent?: number;
@@ -82,7 +86,7 @@ export interface PageSnapshot {
 }
 
 export async function collectSnapshot(page: Page, scope?: string): Promise<PageSnapshot> {
-  const { elements, viewport } = await page.evaluate(({ properties, scope: scopeSelector }) => {
+  const { elements, viewport } = await page.evaluate(({ properties, scope: scopeSelector, probe }) => {
     const skipped = new Set(['STYLE', 'SCRIPT', 'LINK', 'META', 'TITLE']);
     const describe = (el: Element): string => {
       const parts: string[] = [];
@@ -183,6 +187,7 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
         if (nodes.length) {
           entry.textChunks = collectChunks(nodes);
           entry.lines = collectLines(nodes);
+          el.setAttribute(probe, String(result.length));
         }
       }
       if (entry.textChunks) {
@@ -214,6 +219,8 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
       result.push(entry);
     }
     return { elements: result, viewport: { width: window.innerWidth, height: window.innerHeight } };
-  }, { properties: [...SNAPSHOT_STYLE_PROPERTIES], scope: scope ?? '' });
+  }, { properties: [...SNAPSHOT_STYLE_PROPERTIES], scope: scope ?? '', probe: PROBE_ATTRIBUTE });
+  const usage = await collectFontUsage(page);
+  for (const [index, fonts] of usage) elements[index]!.fonts = fonts;
   return { elements, viewport };
 }

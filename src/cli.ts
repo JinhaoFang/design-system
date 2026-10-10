@@ -1,22 +1,26 @@
 /*
- * Command line entry: node src/cli.ts build --system <dir> --work <file> --out <dir> [--library <dir>]
+ * Command line entry: node src/cli.ts build --system <dir> --work <file> --out <dir> [--library <dir>] [--font-cache <dir>]
  *                     node src/cli.ts validate-system --system <dir> [--library <dir>]   (only the system validation stage; nothing is rendered)
- * Exit status: 0 = built / valid, no errors in the report; 1 = the report has errors; 2 = usage problem or validation failure (reason on stderr, no report).
- * Later tickets add fetch-fonts and regress here.
+ *                     node src/cli.ts fetch-fonts [--library <dir>] [--font-cache <dir>] [--font <id>...]   (download the font list into the local font cache, verify checksums)
+ * Exit status: 0 = built / valid / fetched, no errors in the report; 1 = the report has errors; 2 = usage problem or validation failure (reason on stderr, no report).
+ * --font-cache defaults to .cache/fonts (git-ignored). Later tickets add regress here.
  */
 import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { buildAndCheck, validateSystem } from './build-and-check.ts';
+import { fetchFonts } from './fetch-fonts.ts';
+import { DEFAULT_FONT_CACHE } from './fonts.ts';
 import { BuildError } from './types.ts';
 
 const USAGE = [
-  'usage: node src/cli.ts build --system <dir> --work <file> --out <dir> [--library <dir>]',
+  'usage: node src/cli.ts build --system <dir> --work <file> --out <dir> [--library <dir>] [--font-cache <dir>]',
   '       node src/cli.ts validate-system --system <dir> [--library <dir>]',
+  '       node src/cli.ts fetch-fonts [--library <dir>] [--font-cache <dir>] [--font <id>...]',
 ].join('\n');
 
 async function main(argv: string[]): Promise<number> {
   const [command, ...rest] = argv;
-  if (command !== 'build' && command !== 'validate-system') {
+  if (command !== 'build' && command !== 'validate-system' && command !== 'fetch-fonts') {
     console.error(USAGE);
     return 2;
   }
@@ -27,23 +31,35 @@ async function main(argv: string[]): Promise<number> {
       work: { type: 'string' },
       out: { type: 'string' },
       library: { type: 'string', default: 'library' },
+      'font-cache': { type: 'string', default: DEFAULT_FONT_CACHE },
+      font: { type: 'string', multiple: true },
     },
   });
-  if (!values.system || (command === 'build' && (!values.work || !values.out))) {
+  if (command !== 'fetch-fonts' && (!values.system || (command === 'build' && (!values.work || !values.out)))) {
     console.error(USAGE);
     return 2;
   }
   try {
+    if (command === 'fetch-fonts') {
+      const result = await fetchFonts({
+        libraryDir: resolve(values.library),
+        fontCacheDir: resolve(values['font-cache']),
+        ...(values.font && { ids: values.font }),
+      });
+      console.log(`已下载 ${result.fetched.length} 款，本地缓存已有 ${result.cached.length} 款。缓存目录：${resolve(values['font-cache'])}`);
+      return 0;
+    }
     if (command === 'validate-system') {
-      const system = await validateSystem({ systemDir: resolve(values.system), libraryDir: resolve(values.library) });
+      const system = await validateSystem({ systemDir: resolve(values.system!), libraryDir: resolve(values.library) });
       console.log(`体系「${system.meta.name}」（${system.meta.id}）校验通过。`);
       return 0;
     }
     const result = await buildAndCheck({
-      systemDir: resolve(values.system),
+      systemDir: resolve(values.system!),
       workPath: resolve(values.work!),
       outDir: resolve(values.out!),
       libraryDir: resolve(values.library),
+      fontCacheDir: resolve(values['font-cache']),
     });
     const { errors, warnings } = result.report.summary;
     console.log(`${errors} 个错误，${warnings} 个警告。产物目录：${result.artifacts.outDir}`);

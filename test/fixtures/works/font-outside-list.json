@@ -1,0 +1,13 @@
+{
+  "system": "mini",
+  "carrier": "social",
+  "canvas": "xiaohongshu",
+  "concept": "标题用了字体清单以外的字体的违规夹具",
+  "sequence": [
+    {
+      "unit": "title",
+      "layout": "system-font",
+      "content": { "title": "发布二点零", "subtitle": "更快的搜索，更稳的同步" }
+    }
+  ]
+}

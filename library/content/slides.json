@@ -1,0 +1,71 @@
+{
+  "cover.title": "苇简 2.0 发布",
+  "cover.subtitle": "重写搜索与同步，插件接口进入稳定版本",
+  "cover.presenter": "苇简核心团队",
+  "cover.date": "2026年10月28日",
+
+  "agenda.heading": "今天讲什么",
+  "agenda.items": ["为什么要重写", "搜索：从秒级到毫秒级", "同步：不再弹冲突框", "插件：接口稳定下来", "发布历程与下一步"],
+
+  "section.why.number": "01",
+  "section.why.title": "为什么要重写",
+  "section.why.summary": "1.x 的地基，撑不住一万条以上的笔记。",
+
+  "section.sync.number": "02",
+  "section.sync.title": "同步不再弹冲突框",
+  "section.sync.summary": "改动按段落合并，不再整个文件覆盖。",
+
+  "statement.slow.claim": "笔记过万之后，1.x 开始变慢",
+  "statement.slow.support": "资料库越攒越大，1.x 的索引在 3 万条笔记时要等 1.3 秒，冲突提示每周都有人来问。",
+  "statement.slow.source": "社区问卷，2026年2月，2,140 份回答",
+
+  "statement.plugin.claim": "插件接口从 2.0 起保持稳定",
+  "statement.plugin.support": "接口 v1 带版本号和权限声明，2.x 期间不做破坏性改动。38 个社区插件已经完成迁移。",
+  "statement.plugin.source": "插件接口文档 v1.0",
+
+  "data.search.heading": "搜索",
+  "data.search.value": "86ms",
+  "data.search.label": "3 万条笔记的搜索延迟",
+  "data.search.context": "1.x 为 1,290 毫秒。2.0 重建了本地索引，只更新改动的部分。",
+  "data.search.source": "内部基准测试，M2 笔记本，2026年9月",
+
+  "data.startup.heading": "启动",
+  "data.startup.value": "0.9s",
+  "data.startup.label": "冷启动到可输入",
+  "data.startup.context": "1.x 为 2.8 秒。启动后直接回到上次编辑的笔记。",
+  "data.startup.source": "内部基准测试，M2 笔记本，2026年9月",
+
+  "compare.heading": "同步：1.x 与 2.0",
+  "compare.leftTitle": "1.x",
+  "compare.leftPoints": ["整个文件覆盖，冲突时弹窗", "离线一周后合并常出错", "同步状态只有一个转圈"],
+  "compare.rightTitle": "2.0",
+  "compare.rightPoints": ["按段落合并，自动解决", "离线两周的改动可无损合并", "每台设备的状态一目了然"],
+  "compare.verdict": "每千次同步的冲突提示，从 14 次降到 0.3 次",
+
+  "image.editor.visual": { "src": "assets/editor.png", "alt": "苇简 2.0 主界面：笔记列表、编辑区和反向链接" },
+  "image.editor.heading": "界面没有变",
+  "image.editor.caption": "笔记列表、编辑区和反向链接都在原来的位置，升级后不用重新适应。",
+
+  "image.sync.visual": { "src": "assets/sync.png", "alt": "同步设置页：设备列表和最近一次按段落合并的记录" },
+  "image.sync.heading": "看得见的同步状态",
+  "image.sync.caption": "设备、最近同步时间和待合并的改动，都在同一个页面里。",
+
+  "process.heading": "2.0 的发布历程",
+  "process.steps": ["征求意见", "Alpha", "公开 Beta", "发布候选", "正式发布", "2.1 规划"],
+  "process.stepNotes": [
+    "3 月，公开 14 份设计文档",
+    "5 月，核心团队每天使用",
+    "7 月，9,400 人参与测试",
+    "9 月，只修复缺陷",
+    "10 月 28 日，2.0.0 上线",
+    "12 月，插件市场与移动端同步"
+  ],
+
+  "quote.quote": "我有两万三千条笔记，1.x 里搜一次要等一秒多。Beta 里基本是敲完就出结果。",
+  "quote.by": "周以宁",
+  "quote.role": "独立研究员，使用苇简四年",
+
+  "closing.headline": "现在就升级到 2.0",
+  "closing.contact": "reedslip.example",
+  "closing.action": "下载 2.0"
+}

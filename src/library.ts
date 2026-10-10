@@ -1,5 +1,5 @@
 /*
- * Library data shared by all systems, loaded from a library directory: skeleton/<carrier>.json (narrative units and slots), fonts/manifest.json (font list)
+ * Library data shared by all systems, loaded from a library directory: skeleton/<carrier>.json (narrative units and slots), fonts/manifest.json (font list, format in fonts.ts)
  * and content/<carrier>.json (optional shared content, a flat map of key -> string | string[] | {src, alt}; works reference it as {"ref": "key"}).
  * Skeleton file: { carrier, units: { <unit-id>: { label, slots: { <slotName>: { type: text|data|image|action, priority: primary|secondary|tertiary, maxChars, maxItems?, group? } } } } }.
  *   maxChars is in characters per item (for image slots: the alt text); maxItems makes a slot a list; list slots with the same group must get equal item counts in a work.
@@ -31,20 +31,8 @@ export interface Skeleton {
   units: Record<string, UnitSpec>;
 }
 
-export interface FontEntry {
-  id: string;
-  family: string;
-  postScriptName: string;
-  weight: number;
-  file: string;
-  license: { name: string; url: string; file: string };
-  source: { url: string; sha256: string };
-}
-
-export interface FontManifest {
-  dir: string;
-  fonts: FontEntry[];
-}
+export { loadFontManifest } from './fonts.ts';
+export type { FontEntry, FontManifest } from './fonts.ts';
 
 export type SharedValue = string | string[] | { src: string; alt: string };
 
@@ -131,10 +119,4 @@ export function mergeUnits(shared: Skeleton, own: Record<string, UnitSpec>, carr
 export async function loadSharedContent(libraryDir: string, carrier: string): Promise<Record<string, SharedValue> | undefined> {
   const data = await readOptionalJson(join(libraryDir, 'content', `${carrier}.json`), `「${carrier}」共享内容`);
   return data as Record<string, SharedValue> | undefined;
-}
-
-export async function loadFontManifest(libraryDir: string): Promise<FontManifest> {
-  const dir = join(libraryDir, 'fonts');
-  const data = await readJson<{ fonts: FontEntry[] }>(join(dir, 'manifest.json'), '字体清单');
-  return { dir, fonts: data.fonts };
 }
