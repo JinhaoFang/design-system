@@ -1,11 +1,12 @@
 /*
  * Layout (排法) rendering with LiquidJS: layouts/<carrier>/<unit>/<layout>.liquid is an HTML fragment with slots ({{ slots.name }}) and an optional <style>.
  * Autoescaped, strict variables; a layout may only reference slots declared by its unit. Each slot value is wrapped in <span data-ds-slot>, and the whole
- * unit in <section data-ds-unit data-ds-layout>, so the checker can map DOM nodes back to unit/layout/slot. <style> blocks are scoped with @scope to that section.
+ * unit in <section data-ds-unit data-ds-layout>, so the checker can map DOM nodes back to unit/layout/slot. Slot text gets CJK-Latin spacing (cjk-spacing.ts) before escaping. <style> blocks are scoped with @scope to that section.
  */
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Liquid } from 'liquidjs';
+import { spaceCjkLatin } from './cjk-spacing.ts';
 import type { UnitSpec } from './library.ts';
 import { BuildError } from './types.ts';
 import type { WorkItem } from './work.ts';
@@ -72,7 +73,7 @@ export async function renderUnit(
   const slots: Record<string, Markup> = {};
   for (const name of Object.keys(unit.slots)) {
     const text = item.content?.[name] ?? '';
-    slots[name] = new Markup(`<span data-ds-slot="${name}">${escapeHtml(String(text))}</span>`);
+    slots[name] = new Markup(`<span data-ds-slot="${name}">${escapeHtml(spaceCjkLatin(String(text)))}</span>`);
   }
   const body = liquid
     .renderSync(template, { slots })
