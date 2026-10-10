@@ -2,3 +2,6 @@ references/
 .claude/settings.local.json
 .DS_Store
 Thumbs.db
+node_modules/
+out/
+.cache/

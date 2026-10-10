@@ -1,0 +1,12 @@
+{
+  "carrier": "social",
+  "units": {
+    "title": {
+      "label": "标题型",
+      "slots": {
+        "title": { "type": "text", "priority": "primary", "maxChars": 16 },
+        "subtitle": { "type": "text", "priority": "secondary", "maxChars": 30 }
+      }
+    }
+  }
+}

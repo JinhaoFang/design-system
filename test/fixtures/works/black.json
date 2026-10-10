@@ -1,0 +1,13 @@
+{
+  "system": "mini",
+  "carrier": "social",
+  "canvas": "xiaohongshu",
+  "concept": "用了纯黑文字的违规夹具",
+  "sequence": [
+    {
+      "unit": "title",
+      "layout": "blackout",
+      "content": { "title": "发布二点零", "subtitle": "更快的搜索，更稳的同步" }
+    }
+  ]
+}

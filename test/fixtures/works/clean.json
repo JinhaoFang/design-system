@@ -1,0 +1,13 @@
+{
+  "system": "mini",
+  "carrier": "social",
+  "canvas": "xiaohongshu",
+  "concept": "一张安静的标题配图，只验证流程",
+  "sequence": [
+    {
+      "unit": "title",
+      "layout": "stack",
+      "content": { "title": "发布二点零", "subtitle": "更快的搜索，更稳的同步" }
+    }
+  ]
+}

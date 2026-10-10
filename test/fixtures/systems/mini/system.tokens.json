@@ -1,0 +1,34 @@
+{
+  "color": {
+    "$type": "color",
+    "paper": { "$value": { "colorSpace": "oklch", "components": [0.97, 0.012, 85], "hex": "#f7f3ea" } },
+    "ink": { "$value": { "colorSpace": "oklch", "components": [0.27, 0.02, 60], "hex": "#3a3128" } },
+    "accent": { "$value": { "colorSpace": "oklch", "components": [0.52, 0.14, 35], "hex": "#a4552f" } }
+  },
+  "font": {
+    "$type": "fontFamily",
+    "body": {
+      "$value": ["Noto Sans SC"],
+      "$extensions": { "io.github.jinhaofang.design-system": { "fontId": "noto-sans-sc-fixture" } }
+    }
+  },
+  "ratio": {
+    "$type": "number",
+    "type": {
+      "0": { "$value": 1 },
+      "1": { "$value": 1.5 },
+      "2": { "$value": 2.5 }
+    },
+    "space": {
+      "1": { "$value": 0.5 },
+      "2": { "$value": 1 },
+      "3": { "$value": 2 }
+    }
+  },
+  "carrier": {
+    "social": {
+      "body": { "$type": "dimension", "$value": { "value": 40, "unit": "px" } },
+      "spaceUnit": { "$type": "dimension", "$value": { "value": 24, "unit": "px" } }
+    }
+  }
+}

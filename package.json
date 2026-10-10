@@ -1,0 +1,28 @@
+{
+  "name": "design-system",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.7.0",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "ds": "node src/cli.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "fixture-font": "node scripts/make-fixture-font.ts"
+  },
+  "dependencies": {
+    "culori": "4.0.2",
+    "liquidjs": "10.29.0",
+    "playwright": "1.63.0"
+  },
+  "devDependencies": {
+    "@types/culori": "4.0.1",
+    "@types/node": "22.20.4",
+    "@types/subset-font": "2.3.0",
+    "subset-font": "2.9.0",
+    "typescript": "7.0.2",
+    "vitest": "5.0.2"
+  }
+}
