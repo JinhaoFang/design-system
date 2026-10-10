@@ -67,3 +67,46 @@ describe('texture floor: shadow direction', () => {
     expect(result.report.findings.map((f) => f.ruleId)).toEqual(['texture-floor/shadow-direction']);
   });
 });
+
+const radiusWork = (edit: (css: string) => string) =>
+  patchedWork('radius-nested', (work) => {
+    work.sequence[0].custom = edit(work.sequence[0].custom);
+  });
+
+describe('texture floor: radius nesting', () => {
+  test('inner and outer radius both 24 with padding 12 is a warning at the inner element, exit status stays 0', async () => {
+    const result = await run(fixtures.work('radius-mismatch'));
+    expect(result.exitCode).toBe(0);
+    expect(result.report.findings).toEqual([
+      expect.objectContaining({
+        ruleId: 'texture-floor/radius-nesting',
+        category: 'texture-floor',
+        severity: 'warning',
+        location: expect.objectContaining({ unit: 'custom', selector: expect.stringContaining('div:nth-of-type(1) > div:nth-of-type(1)') }),
+      }),
+    ]);
+  });
+
+  test('outer radius equal to inner radius plus padding passes', async () => {
+    expect((await run(fixtures.work('radius-nested'))).report.findings).toEqual([]);
+  });
+
+  test('a deviation of 0.5px passes and a deviation of 1.5px is a warning', async () => {
+    const within = await run(await radiusWork((css) => css.replace('border-radius:12px', 'border-radius:11.5px')));
+    expect(within.report.findings).toEqual([]);
+    const beyond = await run(await radiusWork((css) => css.replace('border-radius:12px', 'border-radius:10.5px')));
+    expect(beyond.report.findings.map((f) => f.ruleId)).toEqual(['texture-floor/radius-nesting']);
+  });
+
+  test('a rounded child that is not in the corner of its parent is not checked', async () => {
+    const floating = await run(
+      await radiusWork((css) => css.replace('.inner{', '.inner{margin:40px;').replace('border-radius:12px', 'border-radius:30px')),
+    );
+    expect(floating.report.findings).toEqual([]);
+  });
+
+  test('a child with no radius is not checked', async () => {
+    const square = await run(await radiusWork((css) => css.replace('border-radius:12px', 'border-radius:0')));
+    expect(square.report.findings).toEqual([]);
+  });
+});

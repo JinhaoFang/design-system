@@ -3,6 +3,9 @@
  * whether it directly holds text, and the computed values of SNAPSHOT_STYLE_PROPERTIES. Rules read this plain data in Node; they never touch the page.
  * Text blocks (non-inline elements owning text) also get textChunks (their text nodes in order, each with its slot) and lines (the rendered visual lines,
  * found by measuring every character with Range.getClientRects; a character whose left edge falls behind the previous one starts a new line).
+ * Every element also has rect (viewport coordinates), parent (index of its parent element in elements, when that parent is in the snapshot) and isImage (img/svg/video/canvas/picture or a url() background);
+ * text blocks also get textBox (tight bounds of their rendered characters) and textSizes ([font-size px, non-space character count] pairs). PageSnapshot.viewport is the page's inner size,
+ * which is the canvas for social and slides and the first viewport for web (snapshots are taken at scroll 0).
  * collectSnapshot(page, scope) limits the pass to the elements inside the first node matching the CSS selector scope (used per slide).
  * To give a new rule more input, add properties here (and fields to ElementSnapshot) instead of querying the browser from the rule.
  */
@@ -25,7 +28,25 @@ export const SNAPSHOT_STYLE_PROPERTIES = [
   'border-left-style',
   'box-shadow',
   'text-shadow',
+  'font-size',
+  'padding-top',
+  'padding-right',
+  'padding-bottom',
+  'padding-left',
+  'border-top-left-radius',
+  'border-top-right-radius',
+  'border-bottom-right-radius',
+  'border-bottom-left-radius',
+  'background-image',
+  'visibility',
 ] as const;
+
+export interface Rect {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
 
 export interface TextChunk {
   text: string;
@@ -48,14 +69,20 @@ export interface ElementSnapshot {
   textChunks?: TextChunk[];
   lines?: LineSnapshot[];
   styles: Record<string, string>;
+  rect: Rect;
+  parent?: number;
+  isImage: boolean;
+  textBox?: Rect;
+  textSizes?: [number, number][];
 }
 
 export interface PageSnapshot {
   elements: ElementSnapshot[];
+  viewport: { width: number; height: number };
 }
 
 export async function collectSnapshot(page: Page, scope?: string): Promise<PageSnapshot> {
-  const elements = await page.evaluate(({ properties, scope: scopeSelector }) => {
+  const { elements, viewport } = await page.evaluate(({ properties, scope: scopeSelector }) => {
     const skipped = new Set(['STYLE', 'SCRIPT', 'LINK', 'META', 'TITLE']);
     const describe = (el: Element): string => {
       const parts: string[] = [];
@@ -129,6 +156,9 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
         };
       });
     };
+    const toRect = (r: DOMRect) => ({ left: r.left, top: r.top, width: r.width, height: r.height });
+    const indexOf = new Map<Element, number>();
+    const IMAGE_TAGS = new Set(['IMG', 'SVG', 'VIDEO', 'CANVAS', 'PICTURE']);
     const result: ElementSnapshot[] = [];
     for (const el of (scopeSelector ? document.querySelector(scopeSelector)! : document.body).querySelectorAll('*')) {
       if (skipped.has(el.tagName)) continue;
@@ -142,13 +172,39 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
         tag: el.tagName.toLowerCase(),
         hasOwnText: [...el.childNodes].some((child) => child.nodeType === 3 && (child.textContent ?? '').trim() !== ''),
         styles,
+        rect: toRect(el.getBoundingClientRect()),
+        isImage: IMAGE_TAGS.has(el.tagName.toUpperCase()) || styles['background-image']!.includes('url('),
       };
+      const parentIndex = el.parentElement ? indexOf.get(el.parentElement) : undefined;
+      if (parentIndex !== undefined) entry.parent = parentIndex;
+      indexOf.set(el, result.length);
       if (computed.display !== 'none' && !isInline(el)) {
         const nodes = ownedTextNodes(el);
         if (nodes.length) {
           entry.textChunks = collectChunks(nodes);
           entry.lines = collectLines(nodes);
         }
+      }
+      if (entry.textChunks) {
+        const nodes = ownedTextNodes(el);
+        const sizes = new Map<number, number>();
+        let box: { left: number; top: number; right: number; bottom: number } | undefined;
+        for (const node of nodes) {
+          const chars = node.data.replace(/\s/g, '').length;
+          if (chars === 0) continue;
+          const size = parseFloat(getComputedStyle(node.parentElement!).fontSize);
+          sizes.set(size, (sizes.get(size) ?? 0) + chars);
+          const range = document.createRange();
+          range.selectNodeContents(node);
+          for (const r of range.getClientRects()) {
+            if (r.width === 0 || r.height === 0) continue;
+            box = box
+              ? { left: Math.min(box.left, r.left), top: Math.min(box.top, r.top), right: Math.max(box.right, r.right), bottom: Math.max(box.bottom, r.bottom) }
+              : { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
+          }
+        }
+        if (box) entry.textBox = { left: box.left, top: box.top, width: box.right - box.left, height: box.bottom - box.top };
+        entry.textSizes = [...sizes.entries()];
       }
       if (unit) {
         entry.unit = unit.getAttribute("data-ds-unit") ?? "";
@@ -157,7 +213,7 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
       if (slot) entry.slot = slot.getAttribute("data-ds-slot") ?? "";
       result.push(entry);
     }
-    return result;
+    return { elements: result, viewport: { width: window.innerWidth, height: window.innerHeight } };
   }, { properties: [...SNAPSHOT_STYLE_PROPERTIES], scope: scope ?? '' });
-  return { elements };
+  return { elements, viewport };
 }
