@@ -1,0 +1,13 @@
+{
+  "system": "mini",
+  "carrier": "social",
+  "canvas": "xiaohongshu",
+  "concept": "句号被挤到行首的违规夹具",
+  "sequence": [
+    {
+      "unit": "title",
+      "layout": "column-anywhere",
+      "content": { "title": "发布二点零新版。更新很快" }
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "system": "mini",
+  "carrier": "social",
+  "canvas": "xiaohongshu",
+  "concept": "开引号被留在行尾的违规夹具",
+  "sequence": [
+    {
+      "unit": "title",
+      "layout": "column-anywhere",
+      "content": { "title": "发布二点零新「版本」更新" }
+    }
+  ]
+}

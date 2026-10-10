@@ -2,11 +2,12 @@
  * Layout (排法) rendering with LiquidJS: layouts/<carrier>/<unit>/<layout>.liquid is an HTML fragment with slots ({{ slots.name }}) and an optional <style>.
  * Autoescaped, strict variables; a layout may only reference slots declared by its unit. Each slot value is wrapped in <span data-ds-slot> (image slots: <img data-ds-slot>,
  * list slots: an array of such nodes with data-ds-index), and the whole unit in <section data-ds-unit data-ds-layout>, so the checker can map DOM nodes back to unit/layout/slot.
- * Custom fragments become <section data-ds-unit="custom" data-ds-custom="<n>">. <style> blocks are scoped with @scope to that section.
+ * Slot text gets CJK-Latin spacing (cjk-spacing.ts) before escaping. Custom fragments become <section data-ds-unit="custom" data-ds-custom="<n>">. <style> blocks are scoped with @scope to that section.
  */
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Liquid } from 'liquidjs';
+import { spaceCjkLatin } from './cjk-spacing.ts';
 import type { SlotSpec, UnitSpec } from './library.ts';
 import { BuildError } from './types.ts';
 import type { CustomWorkItem, SlotItem, UnitWorkItem } from './work.ts';
@@ -34,7 +35,7 @@ function slotNode(name: string, spec: SlotSpec, value: SlotItem, index?: number)
   if (spec.type === 'image' && typeof value !== 'string') {
     return new Markup(`<img ${marks} src="${escapeHtml(value.src)}" alt="${escapeHtml(value.alt)}">`);
   }
-  return new Markup(`<span ${marks}>${escapeHtml(String(value))}</span>`);
+  return new Markup(`<span ${marks}>${escapeHtml(spaceCjkLatin(String(value)))}</span>`);
 }
 
 function scopeStyles(html: string, scope: string): string {
