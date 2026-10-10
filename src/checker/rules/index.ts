@@ -4,5 +4,6 @@
 import type { Rule } from '../registry.ts';
 import { lineEndForbidden, lineStartForbidden, missingSpacing, orphanLine } from './cjk-typography.ts';
 import { pureBlackWhite } from './texture-floor.ts';
+import { colorFromSystem } from './value-compliance.ts';
 
-export const ALL_RULES: Rule[] = [pureBlackWhite, missingSpacing, lineStartForbidden, lineEndForbidden, orphanLine];
+export const ALL_RULES: Rule[] = [pureBlackWhite, missingSpacing, lineStartForbidden, lineEndForbidden, orphanLine, colorFromSystem];

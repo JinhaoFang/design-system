@@ -3,6 +3,8 @@
  * whether it directly holds text, and the computed values of SNAPSHOT_STYLE_PROPERTIES. Rules read this plain data in Node; they never touch the page.
  * Text blocks (non-inline elements owning text) also get textChunks (their text nodes in order, each with its slot) and lines (the rendered visual lines,
  * found by measuring every character with Range.getClientRects; a character whose left edge falls behind the previous one starts a new line).
+ * Elements owning text also get backdrop: the background-color/has-background-image of the element and all its ancestors (nearest first, up to <html>, even beyond the scope), and mediaOverlap (the text line boxes intersect an img/video/canvas/background-image element that is not an ancestor).
+ * Margins that compute to auto are recorded as the string "auto" (getComputedStyle would give the used px instead).
  * collectSnapshot(page, scope) limits the pass to the elements inside the first node matching the CSS selector scope (used per slide).
  * To give a new rule more input, add properties here (and fields to ElementSnapshot) instead of querying the browser from the rule.
  */
@@ -25,7 +27,34 @@ export const SNAPSHOT_STYLE_PROPERTIES = [
   'border-left-style',
   'box-shadow',
   'text-shadow',
+  'display',
+  'font-size',
+  'font-weight',
+  'padding-top',
+  'padding-right',
+  'padding-bottom',
+  'padding-left',
+  'margin-top',
+  'margin-right',
+  'margin-bottom',
+  'margin-left',
+  'row-gap',
+  'column-gap',
+  'border-top-left-radius',
+  'border-top-right-radius',
+  'border-bottom-right-radius',
+  'border-bottom-left-radius',
 ] as const;
+
+export interface BackdropLayer {
+  color: string;
+  image: boolean;
+}
+
+export interface Backdrop {
+  chain: BackdropLayer[];
+  mediaOverlap: boolean;
+}
 
 export interface TextChunk {
   text: string;
@@ -48,6 +77,7 @@ export interface ElementSnapshot {
   textChunks?: TextChunk[];
   lines?: LineSnapshot[];
   styles: Record<string, string>;
+  backdrop?: Backdrop;
 }
 
 export interface PageSnapshot {
@@ -129,12 +159,46 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
         };
       });
     };
+    const mediaElements = [...document.body.querySelectorAll('*')].filter(
+      (node) =>
+        ['IMG', 'VIDEO', 'CANVAS', 'PICTURE'].includes(node.tagName) || getComputedStyle(node).backgroundImage !== 'none',
+    );
+    const backdropOf = (el: Element): Backdrop => {
+      const chain: BackdropLayer[] = [];
+      for (let node: Element | null = el; node; node = node.parentElement) {
+        const computed = getComputedStyle(node);
+        chain.push({ color: computed.backgroundColor, image: computed.backgroundImage !== 'none' });
+      }
+      const rects: DOMRect[] = [];
+      for (const child of el.childNodes) {
+        if (child.nodeType !== 3 || (child.textContent ?? '').trim() === '') continue;
+        const range = document.createRange();
+        range.selectNodeContents(child);
+        rects.push(...[...range.getClientRects()].filter((rect) => rect.width > 0 && rect.height > 0));
+      }
+      const mediaOverlap = mediaElements.some((media) => {
+        if (media === el || media.contains(el)) return false;
+        const box = media.getBoundingClientRect();
+        return rects.some(
+          (rect) =>
+            Math.min(rect.right, box.right) - Math.max(rect.left, box.left) > 1 &&
+            Math.min(rect.bottom, box.bottom) - Math.max(rect.top, box.top) > 1,
+        );
+      });
+      return { chain, mediaOverlap };
+    };
+    const marginKeyword = (el: Element, property: string): boolean => {
+      const value = el.computedStyleMap().get(property);
+      return value instanceof CSSKeywordValue && value.value === 'auto';
+    };
     const result: ElementSnapshot[] = [];
     for (const el of (scopeSelector ? document.querySelector(scopeSelector)! : document.body).querySelectorAll('*')) {
       if (skipped.has(el.tagName)) continue;
       const computed = getComputedStyle(el);
       const styles: Record<string, string> = {};
-      for (const property of properties) styles[property] = computed.getPropertyValue(property);
+      for (const property of properties) {
+        styles[property] = property.startsWith('margin-') && marginKeyword(el, property) ? 'auto' : computed.getPropertyValue(property);
+      }
       const unit = el.closest('[data-ds-unit]');
       const slot = el.closest('[data-ds-slot]');
       const entry: ElementSnapshot = {
@@ -143,6 +207,7 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
         hasOwnText: [...el.childNodes].some((child) => child.nodeType === 3 && (child.textContent ?? '').trim() !== ''),
         styles,
       };
+      if (entry.hasOwnText && computed.display !== 'none') entry.backdrop = backdropOf(el);
       if (computed.display !== 'none' && !isInline(el)) {
         const nodes = ownedTextNodes(el);
         if (nodes.length) {
