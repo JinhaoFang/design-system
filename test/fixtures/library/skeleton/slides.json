@@ -1,0 +1,26 @@
+{
+  "carrier": "slides",
+  "units": {
+    "cover": {
+      "label": "封面",
+      "slots": {
+        "title": { "type": "text", "priority": "primary", "maxChars": 20 },
+        "subtitle": { "type": "text", "priority": "secondary", "maxChars": 40 }
+      }
+    },
+    "statement": {
+      "label": "观点",
+      "slots": {
+        "claim": { "type": "text", "priority": "primary", "maxChars": 32 },
+        "support": { "type": "text", "priority": "secondary", "maxChars": 80 }
+      }
+    },
+    "closing": {
+      "label": "结尾",
+      "slots": {
+        "headline": { "type": "text", "priority": "primary", "maxChars": 20 },
+        "contact": { "type": "text", "priority": "secondary", "maxChars": 40 }
+      }
+    }
+  }
+}

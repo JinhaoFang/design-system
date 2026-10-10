@@ -10,7 +10,7 @@ import { collectSnapshot } from './checker/snapshot.ts';
 import type { PageSnapshot } from './checker/snapshot.ts';
 import { BuildError } from './types.ts';
 
-async function settle(page: Page): Promise<void> {
+export async function settle(page: Page): Promise<void> {
   const failed = await page.evaluate(async () => {
     const faces = [...document.fonts];
     const results = await Promise.allSettled(faces.map((face) => face.load()));

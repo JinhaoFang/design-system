@@ -1,7 +1,7 @@
 /*
  * The build-and-check pipeline (the product's one entry point): validate system -> validate work -> tokens to CSS -> render layouts to HTML -> render PNG -> run rules -> write report.
  * Input: system directory, work description file, output directory, library directory (skeleton + font list + optional shared content).
- * Output files in outDir: index.html, fonts/, social-<canvas>.png, report.json, report.md. Returns the Report, artifact paths and the exit status (0 = no errors, 1 = errors found).
+ * Output files in outDir: index.html, fonts/, report.json, report.md, plus per carrier: social-<canvas>.png (social); slide-<nn>.png, slides.pdf, slides.webm (slides, built by slides.ts; the stage canvas is reported as "stage"). Returns the Report, artifact paths and the exit status (0 = no errors, 1 = errors found).
  * validateSystem is the first stage on its own (the validate-system subcommand): SYSTEM.md, token file, font references and system units; it throws one BuildError listing every problem.
  * Validation problems (bad system, work or fonts) throw BuildError before or during rendering and produce no report. Carriers without a renderer yet (see RENDERABLE_CARRIERS) fail after validation.
  */
@@ -12,19 +12,21 @@ import { runRules } from './checker/registry.ts';
 import { RENDERABLE_CARRIERS, SOCIAL_CANVASES } from './carriers.ts';
 import type { CarrierId } from './carriers.ts';
 import { loadFontManifest, loadSharedContent, loadSkeleton, loadSystemUnits, mergeUnits } from './library.ts';
-import type { FontManifest, Skeleton } from './library.ts';
+import type { FontEntry, FontManifest, Skeleton } from './library.ts';
 import { DEFAULT_FONT_CACHE } from './fonts.ts';
 import { renderCustom, renderUnit } from './layout.ts';
 import { buildPage } from './page.ts';
 import { renderImage } from './render.ts';
+import { buildSlides } from './slides.ts';
 import { exitCodeFor, makeReport, reportToMarkdown } from './report.ts';
 import { validateSystemDoc } from './system.ts';
 import type { SystemMeta } from './system.ts';
 import { checkTokenRequirements, readTokenFile, resolveForCarrier } from './tokens.ts';
-import type { ParsedTokens } from './tokens.ts';
+import type { ParsedTokens, ResolvedTokens } from './tokens.ts';
 import { BuildError } from './types.ts';
 import type { Report } from './types.ts';
 import { loadWork, validateWork } from './work.ts';
+import type { Work } from './work.ts';
 
 export interface BuildOptions {
   systemDir: string;
@@ -49,7 +51,7 @@ export interface ValidatedSystem {
 export interface BuildResult {
   exitCode: 0 | 1;
   report: Report;
-  artifacts: { outDir: string; index: string; images: string[]; reportJson: string; reportMarkdown: string };
+  artifacts: { outDir: string; index: string; images: string[]; pdf?: string; video?: string; reportJson: string; reportMarkdown: string };
 }
 
 async function collect<T>(issues: string[], action: () => Promise<T>): Promise<T | undefined> {
@@ -90,6 +92,43 @@ export async function validateSystem(options: ValidateOptions): Promise<Validate
   return { meta: doc.meta, tokens: tokenFile.parsed, manifest, skeletons };
 }
 
+async function copyFonts(fontCacheDir: string, fonts: FontEntry[], outDir: string): Promise<void> {
+  await mkdir(join(outDir, 'fonts'), { recursive: true });
+  for (const font of fonts) {
+    try {
+      await copyFile(join(fontCacheDir, font.file), join(outDir, 'fonts', font.file));
+    } catch {
+      throw new BuildError([`本地字体缓存里没有字体文件：${join(fontCacheDir, font.file)}（先运行「抓取字体」：pnpm ds fetch-fonts）`]);
+    }
+  }
+}
+
+async function writeReport(outDir: string, report: Report): Promise<{ reportJson: string; reportMarkdown: string }> {
+  const reportJson = join(outDir, 'report.json');
+  const reportMarkdown = join(outDir, 'report.md');
+  await writeFile(reportJson, `${JSON.stringify(report, null, 2)}\n`);
+  await writeFile(reportMarkdown, reportToMarkdown(report));
+  return { reportJson, reportMarkdown };
+}
+
+async function finishSlides(input: {
+  systemDir: string;
+  work: Work;
+  tokens: ResolvedTokens;
+  usedFonts: FontEntry[];
+  unitsHtml: string[];
+  outDir: string;
+}): Promise<BuildResult> {
+  const { systemDir, work, tokens, usedFonts, unitsHtml, outDir } = input;
+  const slides = await buildSlides({ work, tokens, fonts: usedFonts, unitsHtml, outDir });
+  const report = makeReport(
+    { system: basename(systemDir), work: { concept: work.concept, carrier: work.carrier, canvas: work.canvas ?? 'stage' } },
+    slides.findings,
+  );
+  const files = await writeReport(outDir, report);
+  return { exitCode: exitCodeFor(report), report, artifacts: { outDir, index: slides.index, images: slides.images, pdf: slides.pdf, video: slides.video, ...files } };
+}
+
 export async function buildAndCheck(options: BuildOptions): Promise<BuildResult> {
   const { systemDir, workPath, outDir, libraryDir } = options;
   const fontCacheDir = options.fontCacheDir ?? DEFAULT_FONT_CACHE;
@@ -114,16 +153,11 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
     );
   }
 
+  await copyFonts(fontCacheDir, usedFonts, outDir);
+  if (work.carrier === 'slides') return finishSlides({ systemDir, work, tokens, usedFonts, unitsHtml, outDir });
+
   const canvas = work.canvas as keyof typeof SOCIAL_CANVASES;
   const size = SOCIAL_CANVASES[canvas];
-  await mkdir(join(outDir, 'fonts'), { recursive: true });
-  for (const font of usedFonts) {
-    try {
-      await copyFile(join(fontCacheDir, font.file), join(outDir, 'fonts', font.file));
-    } catch {
-      throw new BuildError([`本地字体缓存里没有字体文件：${join(fontCacheDir, font.file)}（先运行「抓取字体」：pnpm ds fetch-fonts）`]);
-    }
-  }
   const index = join(outDir, 'index.html');
   await writeFile(
     index,
@@ -138,10 +172,7 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
     { system: basename(systemDir), work: { concept: work.concept, carrier: work.carrier, canvas } },
     findings,
   );
-  const reportJson = join(outDir, 'report.json');
-  const reportMarkdown = join(outDir, 'report.md');
-  await writeFile(reportJson, `${JSON.stringify(report, null, 2)}\n`);
-  await writeFile(reportMarkdown, reportToMarkdown(report));
+  const files = await writeReport(outDir, report);
 
-  return { exitCode: exitCodeFor(report), report, artifacts: { outDir, index, images: [png], reportJson, reportMarkdown } };
+  return { exitCode: exitCodeFor(report), report, artifacts: { outDir, index, images: [png], ...files } };
 }

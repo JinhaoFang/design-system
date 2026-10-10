@@ -24,6 +24,7 @@ const SEVERITY_LABEL = { error: '错误', warning: '警告' } as const;
 
 function describeLocation(location: Location): string {
   const parts: string[] = [];
+  if (location.slide !== undefined) parts.push(`第 ${location.slide} 页`);
   if (location.unit) parts.push(`单元 ${location.unit}`);
   if (location.layout) parts.push(`排法 ${location.layout}`);
   if (location.slot) parts.push(`槽位 ${location.slot}`);

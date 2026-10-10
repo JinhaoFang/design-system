@@ -1,0 +1,22 @@
+{
+  "system": "mini",
+  "carrier": "slides",
+  "concept": "第二页用了纯黑文字的违规夹具",
+  "sequence": [
+    {
+      "unit": "cover",
+      "layout": "stack",
+      "content": { "title": "发布二点零", "subtitle": "更快的搜索，更稳的同步" }
+    },
+    {
+      "unit": "statement",
+      "layout": "blackout",
+      "content": { "claim": "更快的搜索", "support": "更稳的同步" }
+    },
+    {
+      "unit": "closing",
+      "layout": "plain",
+      "content": { "headline": "发布二点零", "contact": "更稳的同步" }
+    }
+  ]
+}
