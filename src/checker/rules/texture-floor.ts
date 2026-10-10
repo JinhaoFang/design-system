@@ -9,7 +9,7 @@ import type { Hit, Rule } from '../registry.ts';
 const COLOR_FUNCTION = /\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\([^)]*\)/g;
 const SIDES = ['top', 'right', 'bottom', 'left'] as const;
 
-function pureKind(css: string): 'black' | 'white' | undefined {
+export function pureKind(css: string): 'black' | 'white' | undefined {
   const color = parse(css);
   if (!color || (color.alpha ?? 1) < 1) return undefined;
   const { r, g, b } = rgb(color);

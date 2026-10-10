@@ -76,7 +76,7 @@ describe('system-specific narrative units', () => {
     },
   };
   const verseLayout =
-    '<style>:scope{padding:24px;font-family:var(--ds-font-body);color:var(--ds-color-ink);background:var(--ds-color-paper)}</style><p>{{ slots.line }}</p>{% for l in slots.lines %}<p>{{ l }}</p>{% endfor %}';
+    '<style>:scope{padding:var(--ds-space-2);font-family:var(--ds-font-body);font-size:var(--ds-type-1);color:var(--ds-color-ink);background:var(--ds-color-paper)}p{margin:0}</style><p>{{ slots.line }}</p>{% for l in slots.lines %}<p>{{ l }}</p>{% endfor %}';
 
   test('a system can add its own unit with a layout and build a work with it', async () => {
     const system = await patchedSystem(async (d) => {

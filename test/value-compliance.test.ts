@@ -62,3 +62,89 @@ describe('value-compliance/color', () => {
     expect(findings).toEqual([expect.objectContaining({ message: expect.stringContaining('阴影颜色') })]);
   });
 });
+
+describe('value-compliance/font-size', () => {
+  const RULE = 'value-compliance/font-size';
+
+  test('a font size outside the type scale is an error', async () => {
+    const { result, findings } = await runCustom(box('font-size:17px;'), RULE);
+    expect(findings).toEqual([
+      expect.objectContaining({ severity: 'error', category: 'value-compliance', location: expect.objectContaining({ unit: 'custom' }), message: expect.stringContaining('17px') }),
+    ]);
+    expect(result.exitCode).toBe(1);
+  });
+
+  test('sizes within 0.5px of a scale step pass and beyond it fail (social body 40px, ratio 1.5 -> 60px)', async () => {
+    expect((await runCustom(box('font-size:60.4px;'), RULE)).findings).toEqual([]);
+    expect((await runCustom(box('font-size:59.6px;'), RULE)).findings).toEqual([]);
+    expect((await runCustom(box('font-size:60.7px;'), RULE)).findings).toHaveLength(1);
+  });
+
+  test('a computed size that lands on the scale passes however it is written', async () => {
+    const { findings } = await runCustom(box('font-size:calc(var(--ds-type-0) * 1.5);'), RULE);
+    expect(findings).toEqual([]);
+  });
+
+  test('slides are judged against the slides base values', async () => {
+    const { findings } = await runCustom(box('font-size:17px;'), RULE, 'slides');
+    expect(findings).toHaveLength(1);
+  });
+});
+
+describe('value-compliance/spacing', () => {
+  const RULE = 'value-compliance/spacing';
+
+  test('padding outside the space ladder is an error naming the property', async () => {
+    const { result, findings } = await runCustom(box('padding:13px;'), RULE);
+    expect(findings).toEqual([
+      expect.objectContaining({ severity: 'error', category: 'value-compliance', location: expect.objectContaining({ unit: 'custom' }), message: expect.stringContaining('padding') }),
+    ]);
+    expect(result.exitCode).toBe(1);
+  });
+
+  test('margin and gap outside the ladder are errors', async () => {
+    const margin = await runCustom(box('margin-bottom:7px;'), RULE);
+    expect(margin.findings).toEqual([expect.objectContaining({ message: expect.stringContaining('margin-bottom') })]);
+    const gap = await runCustom(`<style>.row{display:flex;gap:10px;margin:0;padding:0}</style><div class="row"><p>甲</p><p>乙</p></div>`, RULE);
+    expect(gap.findings.map((f) => f.message).join()).toContain('gap');
+  });
+
+  test('tolerance is 0.5px around a ladder value (social space unit 24px)', async () => {
+    expect((await runCustom(box('padding:24.4px;'), RULE)).findings).toEqual([]);
+    expect((await runCustom(box('padding:24.7px;'), RULE)).findings).toHaveLength(1);
+  });
+
+  test('zero, auto margins and normal gaps are fine', async () => {
+    const html = `<style>.row{display:flex;margin:0;padding:0}.in{width:300px;margin:0 auto;padding:0}</style><div class="row"><p class="in">甲</p></div>`;
+    expect((await runCustom(html, RULE)).findings).toEqual([]);
+  });
+
+  test('browser default margins on unstyled elements are reported', async () => {
+    const { findings } = await runCustom(`<p>未重置边距</p>`, RULE);
+    expect(findings).not.toEqual([]);
+  });
+});
+
+describe('value-compliance/radius', () => {
+  const RULE = 'value-compliance/radius';
+
+  test('a corner radius outside the radius ladder is an error', async () => {
+    const { result, findings } = await runCustom(box('border-radius:7px;'), RULE);
+    expect(findings).toEqual([
+      expect.objectContaining({ severity: 'error', category: 'value-compliance', location: expect.objectContaining({ unit: 'custom' }), message: expect.stringContaining('7px') }),
+    ]);
+    expect(result.exitCode).toBe(1);
+  });
+
+  test('ladder values pass (social space unit 24px, ratio 0.5 -> 12px) and 50% does not', async () => {
+    expect((await runCustom(box('border-radius:var(--ds-radius-2);'), RULE)).findings).toEqual([]);
+    expect((await runCustom(box('border-radius:12.4px;'), RULE)).findings).toEqual([]);
+    expect((await runCustom(box('border-radius:50%;'), RULE)).findings).toHaveLength(1);
+  });
+
+  test('only the offending corner is reported', async () => {
+    const { findings } = await runCustom(box('border-radius:var(--ds-radius-2) var(--ds-radius-2) 9px var(--ds-radius-2);'), RULE);
+    expect(findings).toHaveLength(1);
+    expect(findings[0]!.message).toContain('bottom-right');
+  });
+});
