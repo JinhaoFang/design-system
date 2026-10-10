@@ -4,7 +4,7 @@
  * It must not suggest any seed design system, so every system can reuse the rendered shots.
  */
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { width: 1600px; height: 1000px; background: #d9d9d9; }
+html, body { width: 1600px; height: 1000px; background: transparent; }
 body { font-family: "Noto Sans CJK SC", sans-serif; font-size: 16px; line-height: 1.6; color: #2b2b2b; display: flex; align-items: center; justify-content: center; }
 .window { width: 1520px; height: 920px; background: #fafafa; border: 1px solid #b5b5b5; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
 .titlebar { height: 44px; flex: none; background: #ececec; border-bottom: 1px solid #cfcfcf; display: flex; align-items: center; padding: 0 16px; gap: 8px; }

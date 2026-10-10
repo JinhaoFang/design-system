@@ -1,6 +1,6 @@
 /*
  * Renders the Reedslip UI mocks and fictional logos in this folder to PNG files under ../assets (run: node library/content/assets-src/render.ts).
- * Screens: editor, search, sync, plugins at 1600x1000. Logos: each .logo element of logos.html with a transparent background, at 2x for crisp edges.
+ * Screens: editor, search, sync, plugins, each cropped tightly to its window or panel at 2x with a transparent background outside the rounded corners and no shadow. Logos: each .logo element of logos.html with a transparent background, at 2x for crisp edges.
  */
 import { mkdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
@@ -15,12 +15,12 @@ const LOGOS = ['beichen', 'yunling', 'halden', 'qinghe', 'meridian', 'dukou'];
 await mkdir(join(assets, 'logos'), { recursive: true });
 const browser = await chromium.launch();
 try {
-  const screens = await browser.newContext({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: 1 });
+  const screens = await browser.newContext({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: 2 });
   for (const name of SCREENS) {
     const page = await screens.newPage();
     await page.goto(pathToFileURL(join(here, `${name}.html`)).href);
     await page.evaluate(() => document.fonts.ready);
-    await page.screenshot({ path: join(assets, `${name}.png`) });
+    await page.locator('.window, .panel').first().screenshot({ path: join(assets, `${name}.png`), omitBackground: true });
     await page.close();
   }
   const logos = await browser.newContext({ viewport: { width: 420, height: 900 }, deviceScaleFactor: 2 });
