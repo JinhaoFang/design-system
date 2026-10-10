@@ -1,0 +1,66 @@
+{
+  "hero.eyebrow": "苇简 2.0 发布",
+  "hero.headline": "笔记再多，也是秒搜",
+  "hero.lead": "苇简是开源的本地优先 Markdown 笔记软件。2.0 重写了搜索和同步，插件接口也定为稳定版本。",
+  "hero.cta": "下载 2.0",
+  "hero.visual": { "src": "assets/editor.png", "alt": "苇简 2.0 主界面：笔记列表、编辑区和反向链接" },
+
+  "problem.heading": "笔记越攒越多，软件越来越慢",
+  "problem.body": "资料库过万条之后，1.x 搜一次要等一秒多。多设备同步一有冲突就弹窗，让你自己挑保留哪一份。每次大版本升级，还总有几个常用插件失效。",
+  "problem.points": [
+    "3 万条笔记，搜索要 1,290 毫秒",
+    "每千次同步弹出 14 次冲突提示",
+    "每个大版本都有常用插件失效",
+    "冷启动要等 2.8 秒"
+  ],
+
+  "solution.heading": "重写地基，笔记还是原来的样子",
+  "solution.body": "笔记仍是你文件夹里的普通 Markdown 文件。2.0 换掉的是下面三层：重建的本地索引负责搜索，按段落合并的同步取代整文件覆盖，带版本号的插件接口让扩展不再随升级失效。",
+  "solution.visual": { "src": "assets/search.png", "alt": "搜索面板：3 万条笔记里 86 毫秒找到 1,248 条结果" },
+
+  "features.heading": "2.0 的六处改动",
+  "features.lead": "每一项都来自社区问卷里被提得最多的抱怨。",
+  "features.itemTitles": ["毫秒级搜索", "按段落同步", "稳定的插件接口", "更快的启动", "长笔记不卡顿", "一键导入"],
+  "features.itemBodies": [
+    "重建本地索引，3 万条笔记平均 86 毫秒出结果。",
+    "改动按段落合并，冲突提示降到每千次同步 0.3 次。",
+    "插件接口 v1 带版本号和权限声明，2.x 内不做破坏性改动。",
+    "冷启动从 2.8 秒降到 0.9 秒，直接回到上次的笔记。",
+    "10 MB 的长笔记 0.4 秒打开，滚动保持流畅。",
+    "支持导入其他笔记软件导出的 Markdown 和 HTML 文件。"
+  ],
+
+  "evidence.heading": "已经有人在用",
+  "evidence.stats": ["86ms", "0.3", "9,400", "312"],
+  "evidence.statLabels": ["3 万条笔记的搜索延迟", "每千次同步的冲突提示", "参与 Beta 的测试者", "贡献过代码的开发者"],
+  "evidence.quote": "我有两万三千条笔记，1.x 里搜一次要等一秒多。Beta 里基本是敲完就出结果。",
+  "evidence.quoteBy": "周以宁，独立研究员",
+  "evidence.logos": [
+    { "src": "assets/logos/beichen.png", "alt": "北辰实验室标识" },
+    { "src": "assets/logos/yunling.png", "alt": "云岭大学图书馆标识" },
+    { "src": "assets/logos/halden.png", "alt": "Halden Press 标识" },
+    { "src": "assets/logos/qinghe.png", "alt": "青禾出版社标识" },
+    { "src": "assets/logos/meridian.png", "alt": "Meridian Works 标识" },
+    { "src": "assets/logos/dukou.png", "alt": "渡口工作室标识" }
+  ],
+
+  "process.heading": "从征求意见到正式发布",
+  "process.steps": ["征求意见", "Alpha", "公开 Beta", "发布候选", "正式发布", "2.1 规划"],
+  "process.stepNotes": [
+    "3 月，公开 14 份设计文档",
+    "5 月，核心团队每天使用",
+    "7 月，9,400 人参与测试",
+    "9 月，只修复缺陷",
+    "10 月 28 日，2.0.0 上线",
+    "12 月，插件市场与移动端同步"
+  ],
+
+  "cta.headline": "现在就升级到 2.0",
+  "cta.action": "下载 2.0",
+  "cta.lead": "支持 macOS、Windows 和 Linux，Android 版同日上架。",
+  "cta.note": "笔记始终是普通文件，随时可以带走。",
+
+  "footer.brand": "苇简Reedslip",
+  "footer.links": ["下载", "文档", "更新日志", "插件", "社区", "源代码", "隐私", "赞助"],
+  "footer.legal": "苇简是虚构的开源软件，以 MPL-2.0 协议发布。本页内容仅作设计体系测试之用。"
+}

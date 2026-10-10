@@ -2,7 +2,7 @@
  * Regenerates the fixture font: a woff2 subset of Noto Sans SC Regular (SIL OFL 1.1).
  * Run: pnpm fixture-font   (downloads the pinned source OTF into .cache/ on first use, checks its sha256)
  * Output: test/fixtures/font-cache/NotoSansSC-Regular.subset.woff2
- * Glyph set: printable ASCII + common Chinese punctuation + every character found in test/fixtures text files and in test/*.ts (works built inside tests),
+ * Glyph set: printable ASCII + common Chinese punctuation + every character found in test/fixtures text files, in library/content (the shared standard-sample content tests build) and in test/*.ts (works built inside tests),
  * minus UNCOVERED, the characters the font checker fixtures rely on being absent (a CJK character the subset lacks, so a system font draws it; a private-use character no font has).
  * After adding fixture text with new characters, rerun this script and commit the result.
  * The OFL text sits in test/fixtures/library/fonts/OFL.txt; the subset keeps the original name table (copyright, license URL).
@@ -24,6 +24,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const cached = join(root, '.cache', 'src', 'NotoSansSC-Regular.otf');
 const testDir = join(root, 'test');
 const fixturesDir = join(testDir, 'fixtures');
+const contentDir = join(root, 'library', 'content');
 const output = join(fixturesDir, 'font-cache', 'NotoSansSC-Regular.subset.woff2');
 
 async function loadSource(): Promise<Buffer> {
@@ -51,8 +52,10 @@ async function glyphText(): Promise<string> {
   const chars = new Set<string>();
   for (let code = 0x20; code <= 0x7e; code++) chars.add(String.fromCharCode(code));
   for (const ch of '、，。：；！？“”‘’（）《》—…·') chars.add(ch);
-  for await (const file of walk(fixturesDir)) {
-    for (const ch of await readFile(file, 'utf8')) chars.add(ch);
+  for (const dir of [fixturesDir, contentDir]) {
+    for await (const file of walk(dir)) {
+      for (const ch of await readFile(file, 'utf8')) chars.add(ch);
+    }
   }
   for (const file of await readdir(testDir)) {
     if (file.endsWith('.ts')) for (const ch of await readFile(join(testDir, file), 'utf8')) chars.add(ch);
