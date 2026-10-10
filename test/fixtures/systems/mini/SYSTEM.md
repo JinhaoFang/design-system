@@ -6,6 +6,7 @@ scenarios:
   - 测试「构建并检查」流程
 carriers:
   - social
+  - web
 tone:
   calm-lively: 2
   airy-dense: 2
