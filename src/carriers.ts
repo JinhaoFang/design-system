@@ -2,7 +2,7 @@
  * Carrier registry: the single place that defines each carrier (web, slides, social), its label, its canvases and whether a work must name a canvas.
  * Canvases: social has three exact sizes; slides one fixed 1920x1080 stage; web two viewport widths (height is flow, so absent).
  * Per-carrier base values (body, spaceUnit, durationBase) are supplied by each system's token file under carrier.<id>.*; CARRIER_BASES lists them with their DTCG type.
- * RENDERABLE_CARRIERS lists carriers the pipeline can render today; later tickets add web and slides there when their renderers exist.
+ * RENDERABLE_CARRIERS lists carriers the pipeline can render today; slides renders through slides.ts; a later ticket adds web there when its renderer exists.
  */
 
 export interface Canvas {
@@ -46,7 +46,7 @@ export type CarrierId = keyof typeof CARRIERS;
 
 export const CARRIER_IDS = Object.keys(CARRIERS) as CarrierId[];
 
-export const RENDERABLE_CARRIERS: readonly CarrierId[] = ['social'];
+export const RENDERABLE_CARRIERS: readonly CarrierId[] = ['social', 'slides'];
 
 export const CARRIER_BASES = {
   body: { type: 'dimension', label: '正文字号' },

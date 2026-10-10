@@ -1,0 +1,22 @@
+{
+  "system": "mini",
+  "carrier": "slides",
+  "concept": "三页安静的幻灯片，只验证放映与渲染流程",
+  "sequence": [
+    {
+      "unit": "cover",
+      "layout": "stack",
+      "content": { "title": "发布二点零", "subtitle": "更快的搜索，更稳的同步" }
+    },
+    {
+      "unit": "statement",
+      "layout": "centered",
+      "content": { "claim": "更快的搜索", "support": "更稳的同步" }
+    },
+    {
+      "unit": "closing",
+      "layout": "plain",
+      "content": { "headline": "发布二点零", "contact": "更稳的同步" }
+    }
+  ]
+}

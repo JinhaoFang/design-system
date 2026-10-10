@@ -3,6 +3,7 @@
  * whether it directly holds text, and the computed values of SNAPSHOT_STYLE_PROPERTIES. Rules read this plain data in Node; they never touch the page.
  * Text blocks (non-inline elements owning text) also get textChunks (their text nodes in order, each with its slot) and lines (the rendered visual lines,
  * found by measuring every character with Range.getClientRects; a character whose left edge falls behind the previous one starts a new line).
+ * collectSnapshot(page, scope) limits the pass to the elements inside the first node matching the CSS selector scope (used per slide).
  * To give a new rule more input, add properties here (and fields to ElementSnapshot) instead of querying the browser from the rule.
  */
 import type { Page } from 'playwright';
@@ -53,8 +54,8 @@ export interface PageSnapshot {
   elements: ElementSnapshot[];
 }
 
-export async function collectSnapshot(page: Page): Promise<PageSnapshot> {
-  const elements = await page.evaluate((properties) => {
+export async function collectSnapshot(page: Page, scope?: string): Promise<PageSnapshot> {
+  const elements = await page.evaluate(({ properties, scope: scopeSelector }) => {
     const skipped = new Set(['STYLE', 'SCRIPT', 'LINK', 'META', 'TITLE']);
     const describe = (el: Element): string => {
       const parts: string[] = [];
@@ -129,7 +130,7 @@ export async function collectSnapshot(page: Page): Promise<PageSnapshot> {
       });
     };
     const result: ElementSnapshot[] = [];
-    for (const el of document.body.querySelectorAll('*')) {
+    for (const el of (scopeSelector ? document.querySelector(scopeSelector)! : document.body).querySelectorAll('*')) {
       if (skipped.has(el.tagName)) continue;
       const computed = getComputedStyle(el);
       const styles: Record<string, string> = {};
@@ -157,6 +158,6 @@ export async function collectSnapshot(page: Page): Promise<PageSnapshot> {
       result.push(entry);
     }
     return result;
-  }, [...SNAPSHOT_STYLE_PROPERTIES]);
+  }, { properties: [...SNAPSHOT_STYLE_PROPERTIES], scope: scope ?? '' });
   return { elements };
 }
