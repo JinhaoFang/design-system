@@ -6,9 +6,11 @@
 
 ## 文档
 
-- [方案 v0.2](docs/面向%20AI%20Agent%20的设计体系库_v0.2.md)
+- [方案 v0.3](docs/面向%20AI%20Agent%20的设计体系库_v0.3.md)
+- [术语表](GLOSSARY.md)
+- [架构决策记录](docs/adr/)
 
 ## 协作
 
 - Agent 工作约定见 [AGENTS.md](AGENTS.md)，技能在 `.agents/skills/`。
-- 参考项目克隆在 `references/`，不纳入版本控制，清单见方案文档第 13 节。
+- 参考项目克隆在 `references/`，不纳入版本控制，清单见方案文档「参考项目」一节。
