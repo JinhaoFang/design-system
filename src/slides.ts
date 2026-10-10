@@ -14,6 +14,7 @@ import { chromium } from 'playwright';
 import type { Browser } from 'playwright';
 import { ALL_RULES } from './checker/rules/index.ts';
 import { runRules, sortFindings } from './checker/registry.ts';
+import type { FontCheckData } from './checker/font-data.ts';
 import { collectSnapshot } from './checker/snapshot.ts';
 import type { FontEntry } from './library.ts';
 import { settle } from './render.ts';
@@ -26,6 +27,7 @@ export interface SlidesInput {
   work: Work;
   tokens: ResolvedTokens;
   fonts: FontEntry[];
+  fontCheck: FontCheckData;
   unitsHtml: string[];
   outDir: string;
 }
@@ -96,7 +98,7 @@ export async function buildSlides(input: SlidesInput): Promise<SlidesOutput> {
       await page.evaluate((target) => (window as any).dsSlides.go(target), number - 1);
       await settle(page);
       const snapshot = await collectSnapshot(page, `[data-ds-slide="${number}"]`);
-      for (const finding of runRules(ALL_RULES, { snapshot, work, tokens, slide: number })) {
+      for (const finding of runRules(ALL_RULES, { snapshot, work, tokens, fonts: input.fontCheck, slide: number })) {
         findings.push({ ...finding, location: { slide: number, ...finding.location } });
       }
       const png = join(outDir, slideFileName(number, count));

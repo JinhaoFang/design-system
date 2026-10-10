@@ -1,0 +1,13 @@
+{
+  "system": "mini",
+  "carrier": "social",
+  "canvas": "xiaohongshu",
+  "concept": "标题里有一个字体子集缺的字，会回退到系统字体的违规夹具",
+  "sequence": [
+    {
+      "unit": "title",
+      "layout": "stack",
+      "content": { "title": "发布龘点零", "subtitle": "更快的搜索，更稳的同步" }
+    }
+  ]
+}

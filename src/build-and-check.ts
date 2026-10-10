@@ -8,6 +8,8 @@
 import { copyFile, mkdir, writeFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import { ALL_RULES } from './checker/rules/index.ts';
+import { loadFontCheckData } from './checker/font-data.ts';
+import type { FontCheckData } from './checker/font-data.ts';
 import { runRules } from './checker/registry.ts';
 import { RENDERABLE_CARRIERS, SOCIAL_CANVASES } from './carriers.ts';
 import type { CarrierId } from './carriers.ts';
@@ -116,11 +118,12 @@ async function finishSlides(input: {
   work: Work;
   tokens: ResolvedTokens;
   usedFonts: FontEntry[];
+  fontCheck: FontCheckData;
   unitsHtml: string[];
   outDir: string;
 }): Promise<BuildResult> {
-  const { systemDir, work, tokens, usedFonts, unitsHtml, outDir } = input;
-  const slides = await buildSlides({ work, tokens, fonts: usedFonts, unitsHtml, outDir });
+  const { systemDir, work, tokens, usedFonts, fontCheck, unitsHtml, outDir } = input;
+  const slides = await buildSlides({ work, tokens, fonts: usedFonts, fontCheck, unitsHtml, outDir });
   const report = makeReport(
     { system: basename(systemDir), work: { concept: work.concept, carrier: work.carrier, canvas: work.canvas ?? 'stage' } },
     slides.findings,
@@ -154,7 +157,8 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
   }
 
   await copyFonts(fontCacheDir, usedFonts, outDir);
-  if (work.carrier === 'slides') return finishSlides({ systemDir, work, tokens, usedFonts, unitsHtml, outDir });
+  const fontCheck = await loadFontCheckData(system.manifest.fonts, usedFonts, fontCacheDir);
+  if (work.carrier === 'slides') return finishSlides({ systemDir, work, tokens, usedFonts, fontCheck, unitsHtml, outDir });
 
   const canvas = work.canvas as keyof typeof SOCIAL_CANVASES;
   const size = SOCIAL_CANVASES[canvas];
@@ -167,7 +171,7 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
   const png = join(outDir, `social-${canvas}.png`);
   const snapshot = await renderImage(index, size, png);
 
-  const findings = runRules(ALL_RULES, { snapshot, work, tokens });
+  const findings = runRules(ALL_RULES, { snapshot, work, tokens, fonts: fontCheck });
   const report = makeReport(
     { system: basename(systemDir), work: { concept: work.concept, carrier: work.carrier, canvas } },
     findings,

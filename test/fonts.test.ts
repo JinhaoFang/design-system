@@ -11,7 +11,8 @@ import { promisify } from 'node:util';
 import { describe, expect, test } from 'vitest';
 import { validateSystem } from '../src/build-and-check.ts';
 import { fetchFonts } from '../src/fetch-fonts.ts';
-import { fixtures, repoRoot, tempDir } from './helpers.ts';
+import type { BuildResult } from '../src/build-and-check.ts';
+import { fixtures, repoRoot, run, tempDir } from './helpers.ts';
 import { editJson, patchedLibrary } from './system-helpers.ts';
 
 const execFileAsync = promisify(execFile);
@@ -215,5 +216,80 @@ describe('fetch-fonts', () => {
       code: 2,
       stderr: expect.stringContaining('校验和'),
     });
+  });
+});
+
+const fontFindings = (result: BuildResult) => result.report.findings.filter((finding) => finding.category === 'fonts');
+
+describe('font checks', () => {
+  test('a clean work renders only with fonts from the list and has no font findings', async () => {
+    const result = await run(fixtures.work('clean'));
+    expect(fontFindings(result)).toEqual([]);
+  });
+
+  test('a font outside the list is an error located at the text block', async () => {
+    const result = await run(fixtures.work('font-outside-list'));
+    expect(result.exitCode).toBe(1);
+    expect(result.report.findings).toEqual([
+      expect.objectContaining({
+        ruleId: 'fonts/not-in-manifest',
+        category: 'fonts',
+        severity: 'error',
+        location: expect.objectContaining({ unit: 'title', layout: 'system-font', slot: 'title' }),
+        message: expect.stringContaining('不在字体清单里'),
+      }),
+    ]);
+  });
+
+  test('a glyph the list font lacks, shown by a fallback font, is one missing-glyph error naming the character', async () => {
+    const result = await run(fixtures.work('font-missing-glyph'));
+    expect(result.exitCode).toBe(1);
+    expect(result.report.findings).toEqual([
+      expect.objectContaining({
+        ruleId: 'fonts/missing-glyph',
+        category: 'fonts',
+        severity: 'error',
+        location: expect.objectContaining({ unit: 'title', layout: 'stack', slot: 'title' }),
+        message: expect.stringMatching(/龘[\s\S]*Noto Sans SC/),
+      }),
+    ]);
+  });
+
+  test('a glyph that no installed font has (drawn as a box) is also a missing-glyph error', async () => {
+    const result = await run(fixtures.work('font-no-glyph-anywhere'));
+    expect(result.report.findings).toEqual([
+      expect.objectContaining({ ruleId: 'fonts/missing-glyph', location: expect.objectContaining({ slot: 'title' }), message: expect.stringContaining('U+E000') }),
+    ]);
+  });
+
+  test('a font whose license does not allow the carrier is an error naming the font and the carrier', async () => {
+    const library = await patchedLibrary((dir) =>
+      editJson(join(dir, 'fonts', 'manifest.json'), (m) => {
+        m.fonts[0].carriers = ['web', 'slides'];
+      }),
+    );
+    const result = await run(fixtures.work('clean'), { libraryDir: library });
+    expect(result.exitCode).toBe(1);
+    expect(result.report.findings).toEqual([
+      expect.objectContaining({
+        ruleId: 'fonts/license-carrier',
+        category: 'fonts',
+        severity: 'error',
+        location: expect.objectContaining({ unit: 'title' }),
+        message: expect.stringMatching(/noto-sans-sc-fixture[\s\S]*social/),
+      }),
+    ]);
+  });
+
+  test('the font checks also run on every slide of the slides carrier', async () => {
+    const library = await patchedLibrary((dir) =>
+      editJson(join(dir, 'fonts', 'manifest.json'), (m) => {
+        m.fonts[0].carriers = ['social'];
+      }),
+    );
+    const result = await run(fixtures.work('slides-clean'), { libraryDir: library });
+    const found = fontFindings(result);
+    expect(found.length).toBeGreaterThan(0);
+    expect(found.every((finding) => finding.ruleId === 'fonts/license-carrier' && finding.location.slide !== undefined)).toBe(true);
   });
 });

@@ -4,9 +4,12 @@
  * Text blocks (non-inline elements owning text) also get textChunks (their text nodes in order, each with its slot) and lines (the rendered visual lines,
  * found by measuring every character with Range.getClientRects; a character whose left edge falls behind the previous one starts a new line).
  * collectSnapshot(page, scope) limits the pass to the elements inside the first node matching the CSS selector scope (used per slide).
+ * Text blocks also get fonts: the platform fonts Chromium used to draw their glyphs (font-usage.ts, through the DevTools protocol).
  * To give a new rule more input, add properties here (and fields to ElementSnapshot) instead of querying the browser from the rule.
  */
 import type { Page } from 'playwright';
+import { PROBE_ATTRIBUTE, collectFontUsage } from './font-usage.ts';
+import type { PlatformFont } from './font-usage.ts';
 
 export const SNAPSHOT_STYLE_PROPERTIES = [
   'color',
@@ -47,6 +50,7 @@ export interface ElementSnapshot {
   hasOwnText: boolean;
   textChunks?: TextChunk[];
   lines?: LineSnapshot[];
+  fonts?: PlatformFont[];
   styles: Record<string, string>;
 }
 
@@ -55,7 +59,7 @@ export interface PageSnapshot {
 }
 
 export async function collectSnapshot(page: Page, scope?: string): Promise<PageSnapshot> {
-  const elements = await page.evaluate(({ properties, scope: scopeSelector }) => {
+  const elements = await page.evaluate(({ properties, scope: scopeSelector, probe }) => {
     const skipped = new Set(['STYLE', 'SCRIPT', 'LINK', 'META', 'TITLE']);
     const describe = (el: Element): string => {
       const parts: string[] = [];
@@ -148,6 +152,7 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
         if (nodes.length) {
           entry.textChunks = collectChunks(nodes);
           entry.lines = collectLines(nodes);
+          el.setAttribute(probe, String(result.length));
         }
       }
       if (unit) {
@@ -158,6 +163,8 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
       result.push(entry);
     }
     return result;
-  }, { properties: [...SNAPSHOT_STYLE_PROPERTIES], scope: scope ?? '' });
+  }, { properties: [...SNAPSHOT_STYLE_PROPERTIES], scope: scope ?? '', probe: PROBE_ATTRIBUTE });
+  const usage = await collectFontUsage(page);
+  for (const [index, fonts] of usage) elements[index]!.fonts = fonts;
   return { elements };
 }
