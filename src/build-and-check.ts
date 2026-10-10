@@ -4,10 +4,12 @@
  * Output files in outDir: index.html, fonts/, report.json, report.md, plus per carrier: social-<canvas>.png (social); web-desktop.png, web-mobile.png (full page) and web-scroll.webm (web, built by web.ts; canvas reported as "1440+390");
  * slide-<nn>.png, slides.pdf, slides.webm (slides, built by slides.ts; the stage canvas is reported as "stage"). Returns the Report, artifact paths and the exit status (0 = no errors, 1 = errors found).
  * validateSystem is the first stage on its own (the validate-system subcommand): SYSTEM.md, token file, font references and system units; it throws one BuildError listing every problem.
- * Validation problems (bad system, work or fonts) throw BuildError before or during rendering and produce no report. Carriers without a renderer yet (see RENDERABLE_CARRIERS) fail after validation.
+ * Image assets referenced by the work (paths relative to <library>/content) are copied into outDir at the same relative path (assets.ts).
+ * Validation problems (bad system, work, fonts or image files) throw BuildError before or during rendering and produce no report. Carriers without a renderer yet (see RENDERABLE_CARRIERS) fail after validation.
  */
 import { copyFile, mkdir, writeFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
+import { copyWorkImages } from './assets.ts';
 import { ALL_RULES } from './checker/rules/index.ts';
 import { runRules } from './checker/registry.ts';
 import { RENDERABLE_CARRIERS, SOCIAL_CANVASES } from './carriers.ts';
@@ -153,6 +155,7 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
   }
 
   await copyFonts(system.manifest.dir, usedFonts, outDir);
+  await copyWorkImages(work, libraryDir, outDir);
   if (work.carrier === 'slides') return finishSlides({ systemDir, work, tokens, usedFonts, unitsHtml, outDir });
 
   let index: string;
