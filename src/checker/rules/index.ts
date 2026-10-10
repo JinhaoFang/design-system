@@ -3,6 +3,7 @@
  */
 import type { Rule } from '../registry.ts';
 import { lineEndForbidden, lineStartForbidden, missingSpacing, orphanLine } from './cjk-typography.ts';
+import { insufficientContrast, textOverImage } from './contrast.ts';
 import { pureBlackWhite } from './texture-floor.ts';
 import { colorFromSystem, fontSizeFromSystem, radiusFromSystem, spacingFromSystem } from './value-compliance.ts';
 
@@ -16,4 +17,6 @@ export const ALL_RULES: Rule[] = [
   fontSizeFromSystem,
   spacingFromSystem,
   radiusFromSystem,
+  insufficientContrast,
+  textOverImage,
 ];
