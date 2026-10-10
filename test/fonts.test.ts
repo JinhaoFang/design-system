@@ -292,4 +292,15 @@ describe('font checks', () => {
     expect(found.length).toBeGreaterThan(0);
     expect(found.every((finding) => finding.ruleId === 'fonts/license-carrier' && finding.location.slide !== undefined)).toBe(true);
   });
+
+  test('the font checks also run on the web carrier and a font license problem is reported once, not per viewport', async () => {
+    const library = await patchedLibrary((dir) =>
+      editJson(join(dir, 'fonts', 'manifest.json'), (m) => {
+        m.fonts[0].carriers = ['social'];
+      }),
+    );
+    const result = await run(fixtures.work('web-clean'), { libraryDir: library });
+    expect(fontFindings(result)).toEqual([expect.objectContaining({ ruleId: 'fonts/license-carrier', severity: 'error' })]);
+    expect(fontFindings(result)[0]!.message).not.toContain('手机宽度');
+  });
 });

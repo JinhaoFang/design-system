@@ -158,7 +158,10 @@ describe('work description header', () => {
       w.carrier = 'web';
       delete w.canvas;
     });
-    await expect(run(work)).rejects.toThrow(/不支持载体 web/);
+    const socialOnly = await patchedSystem((dir) =>
+      editText(join(dir, 'SYSTEM.md'), (t) => t.replace(/carriers:\n(  - \w+\n)+/, 'carriers:\n  - social\n')),
+    );
+    await expect(run(work, { systemDir: socialOnly })).rejects.toThrow(/不支持载体 web/);
   });
 
   test('a work written for another system still builds (reskinning)', async () => {
