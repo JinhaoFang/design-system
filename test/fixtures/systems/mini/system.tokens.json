@@ -73,9 +73,19 @@
     "max": { "$value": 0.04 }
   },
   "carrier": {
+    "slides": {
+      "body": { "$type": "dimension", "$value": { "value": 40, "unit": "px" } },
+      "spaceUnit": { "$type": "dimension", "$value": { "value": 32, "unit": "px" } },
+      "durationBase": { "$type": "duration", "$value": { "value": 240, "unit": "ms" } }
+    },
     "social": {
       "body": { "$type": "dimension", "$value": { "value": 40, "unit": "px" } },
       "spaceUnit": { "$type": "dimension", "$value": { "value": 24, "unit": "px" } },
+      "durationBase": { "$type": "duration", "$value": { "value": 240, "unit": "ms" } }
+    },
+    "web": {
+      "body": { "$type": "dimension", "$value": { "value": 18, "unit": "px" } },
+      "spaceUnit": { "$type": "dimension", "$value": { "value": 16, "unit": "px" } },
       "durationBase": { "$type": "duration", "$value": { "value": 240, "unit": "ms" } }
     }
   },
@@ -86,7 +96,9 @@
         "grainMax": 0.06,
         "accentBudget": 0.1,
         "composition": {
-          "social": { "jumpRate": [2, 4], "layoutRate": [0.3, 0.7], "imageRate": [0, 0.4] }
+          "slides": { "jumpRate": [2, 4], "layoutRate": [0.3, 0.7], "imageRate": [0, 0.4] },
+          "social": { "jumpRate": [2, 4], "layoutRate": [0.3, 0.7], "imageRate": [0, 0.4] },
+          "web": { "jumpRate": [2, 4], "layoutRate": [0.3, 0.7], "imageRate": [0, 0.4] }
         }
       }
     }

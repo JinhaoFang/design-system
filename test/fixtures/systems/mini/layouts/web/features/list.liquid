@@ -1,0 +1,15 @@
+<style>
+  :scope {
+    box-sizing: border-box;
+    padding: calc(var(--ds-space-3) * 2) var(--ds-space-3);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+  }
+  .heading { margin: 0 0 var(--ds-space-3); font-weight: 400; font-size: var(--ds-type-2); line-height: 1.3; }
+  .row { margin: 0 0 var(--ds-space-2); }
+  .row-title { margin: 0; font-weight: 400; font-size: var(--ds-type-1); line-height: 1.4; }
+  .row-body { margin: 0; font-size: var(--ds-type-0); line-height: 1.6; }
+</style>
+<h2 class="heading">{{ slots.heading }}</h2>
+{% for title in slots.itemTitles %}<div class="row"><h3 class="row-title">{{ title }}</h3><p class="row-body">{{ slots.itemBodies[forloop.index0] }}</p></div>{% endfor %}

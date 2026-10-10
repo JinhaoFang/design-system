@@ -80,7 +80,7 @@ export async function renderUnit(
   const used = await liquid.globalFullVariables(template);
   const issues: string[] = [];
   for (const variable of used) {
-    const [root, slot] = variable.split('.');
+    const [, root, slot] = /^(\w+)(?:\.(\w+))?/.exec(variable) ?? [];
     if (root !== 'slots' || !slot) issues.push(`${at} 引用了槽位以外的变量 "${variable}"`);
     else if (!(slot in unit.slots)) {
       issues.push(`${at} 引用了不存在的槽位 "${slot}"，该单元的槽位：${Object.keys(unit.slots).join('、')}`);

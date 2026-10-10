@@ -15,16 +15,24 @@ export interface PageInput {
 
 const FORMATS: Record<string, string> = { woff2: 'woff2', woff: 'woff', otf: 'opentype', ttf: 'truetype' };
 
-export function buildPage(input: PageInput): string {
-  const fontFaces = input.fonts
+export function fontFaceCss(fonts: FontEntry[]): string {
+  return fonts
     .map((font) => {
       const format = FORMATS[font.file.split('.').pop() ?? ''] ?? 'woff2';
       return `@font-face{font-family:"${font.family}";font-weight:${font.weight};src:url("fonts/${font.file}") format("${format}");}`;
     })
     .join('\n');
-  const vars = Object.entries(input.cssVars)
+}
+
+export function rootVarsCss(cssVars: Record<string, string>): string {
+  return Object.entries(cssVars)
     .map(([name, value]) => `${name}:${value};`)
     .join('');
+}
+
+export function buildPage(input: PageInput): string {
+  const fontFaces = fontFaceCss(input.fonts);
+  const vars = rootVarsCss(input.cssVars);
   return `<!doctype html>
 <html lang="zh-CN">
 <head>
