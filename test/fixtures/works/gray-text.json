@@ -1,0 +1,12 @@
+{
+  "system": "mini",
+  "carrier": "social",
+  "canvas": "xiaohongshu",
+  "concept": "文字用了不带色相的灰的违规夹具",
+  "sequence": [
+    {
+      "custom": "<style>:scope{box-sizing:border-box;width:100%;height:100%;padding:calc(var(--ds-space-3) * 2);background:var(--ds-color-paper);font-family:var(--ds-font-body);display:flex;flex-direction:column;justify-content:center} p{margin:0;font-size:var(--ds-type-1);line-height:1.5;color:oklch(0.6 0 0)}</style><p>发布二点零</p>",
+      "serves": "验证不带色相的灰"
+    }
+  ]
+}
