@@ -6,6 +6,7 @@ scenarios:
   - 测试「构建并检查」流程
 carriers:
   - social
+  - slides
   - web
 tone:
   calm-lively: 2
@@ -71,7 +72,7 @@ license: CC0-1.0
 
 ## 结构骨架
 
-使用全库社交配图骨架，不增加专属单元。
+使用全库社交配图与幻灯片骨架，不增加专属单元。
 
 ## 范例
 

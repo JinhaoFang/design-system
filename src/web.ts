@@ -16,7 +16,7 @@ import type { Page } from 'playwright';
 import { collectSnapshot } from './checker/snapshot.ts';
 import type { PageSnapshot } from './checker/snapshot.ts';
 import { ALL_RULES } from './checker/rules/index.ts';
-import { runRules } from './checker/registry.ts';
+import { runRules, sortFindings } from './checker/registry.ts';
 import type { CheckContext } from './checker/registry.ts';
 import { CARRIERS } from './carriers.ts';
 import type { FontEntry } from './library.ts';
@@ -51,7 +51,7 @@ export function buildWebPage(input: WebPageInput): string {
 <title>${input.title}</title>
 <style>
 ${fontFaceCss(input.fonts)}
-${rootVarsCss(input.cssVars)}
+:root{${rootVarsCss(input.cssVars)}}
 html,body{margin:0;padding:0}
 </style>
 </head>
@@ -165,5 +165,5 @@ export function checkWeb(snapshots: Record<WebViewport, PageSnapshot>, context: 
   const mobile = runRules(ALL_RULES, { ...context, snapshot: snapshots.mobile })
     .filter((finding) => !seen.has(key(finding)))
     .map((finding) => ({ ...finding, message: `${finding.message}（手机宽度 ${WEB_VIEWPORTS.mobile.width}）` }));
-  return [...desktop, ...mobile];
+  return sortFindings([...desktop, ...mobile]);
 }
