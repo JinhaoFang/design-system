@@ -1,0 +1,43 @@
+<!doctype html>
+<!--
+  Reedslip mock: plugin page with API version and permission declarations. Rendered to assets/plugins.png by render.ts.
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="ui.css">
+</head>
+<body>
+<div class="window">
+  <div class="titlebar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="name">苇简 · 设置</span></div>
+  <div class="main">
+    <div class="sidebar">
+      <h4>设置</h4>
+      <div class="nav"><span>通用</span><span></span></div>
+      <div class="nav"><span>编辑器</span><span></span></div>
+      <div class="nav"><span>同步</span><span></span></div>
+      <div class="nav active"><span>插件</span><span>38</span></div>
+      <div class="nav"><span>快捷键</span><span></span></div>
+      <div class="nav"><span>关于</span><span></span></div>
+    </div>
+    <div class="page">
+      <h1>插件</h1>
+      <div class="sub">当前插件接口版本 v1。2.x 期间不做破坏性改动。</div>
+      <div class="card">
+        <h3>已安装</h3>
+        <div class="row"><div class="icon"></div><div class="grow"><b>日历视图</b><p>读取笔记标题与日期 · 接口 v1</p></div><span class="tag on">已启用</span></div>
+        <div class="row"><div class="icon"></div><div class="grow"><b>参考文献管理</b><p>读取笔记内容，写入“文献”文件夹 · 接口 v1</p></div><span class="tag on">已启用</span></div>
+        <div class="row"><div class="icon"></div><div class="grow"><b>公式渲染</b><p>仅修改编辑区显示 · 接口 v1</p></div><span class="tag on">已启用</span></div>
+        <div class="row"><div class="icon"></div><div class="grow"><b>网页剪藏</b><p>需要网络访问 · 接口 v1</p></div><span class="tag">已停用</span></div>
+        <div class="row" style="border-bottom:0"><div class="icon"></div><div class="grow"><b>旧版任务看板</b><p>基于接口 0.9，尚未迁移</p></div><span class="tag">不兼容</span></div>
+      </div>
+      <div class="card">
+        <h3>权限声明 · 参考文献管理</h3>
+        <div class="diff">读取笔记内容<br>写入文件夹：文献/<br>不访问网络<br>不读取文件夹以外的文件</div>
+      </div>
+    </div>
+  </div>
+  <div class="status"><span>插件在独立沙箱中运行</span><span>2.0.0</span></div>
+</div>
+</body>
+</html>

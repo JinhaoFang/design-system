@@ -1,0 +1,64 @@
+/*
+ * Shared styles for the Reedslip UI mocks (editor, search, sync, plugins).
+ * Deliberately plain: grayscale, system CJK sans, square-ish corners, no shadows beyond a hairline.
+ * It must not suggest any seed design system, so every system can reuse the rendered shots.
+ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1600px; height: 1000px; background: #d9d9d9; }
+body { font-family: "Noto Sans CJK SC", sans-serif; font-size: 16px; line-height: 1.6; color: #2b2b2b; display: flex; align-items: center; justify-content: center; }
+.window { width: 1520px; height: 920px; background: #fafafa; border: 1px solid #b5b5b5; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
+.titlebar { height: 44px; flex: none; background: #ececec; border-bottom: 1px solid #cfcfcf; display: flex; align-items: center; padding: 0 16px; gap: 8px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; background: #bdbdbd; }
+.titlebar .name { margin-left: 16px; font-size: 14px; color: #6b6b6b; }
+.main { flex: 1; display: flex; min-height: 0; }
+.sidebar { width: 240px; flex: none; background: #f0f0f0; border-right: 1px solid #d4d4d4; padding: 20px 14px; }
+.sidebar h4 { font-size: 12px; font-weight: 500; color: #8a8a8a; margin: 18px 8px 6px; letter-spacing: 0.04em; }
+.sidebar h4:first-child { margin-top: 0; }
+.nav { display: flex; justify-content: space-between; padding: 6px 10px; border-radius: 6px; font-size: 15px; color: #3a3a3a; }
+.nav span:last-child { color: #8a8a8a; font-size: 13px; }
+.nav.active { background: #dcdcdc; color: #1f1f1f; }
+.list { width: 340px; flex: none; border-right: 1px solid #d4d4d4; background: #f7f7f7; overflow: hidden; }
+.item { padding: 14px 20px; border-bottom: 1px solid #e3e3e3; }
+.item.active { background: #e6e6e6; }
+.item b { display: block; font-weight: 500; font-size: 16px; color: #222; }
+.item p { font-size: 13.5px; color: #7a7a7a; margin-top: 2px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.item small { font-size: 12px; color: #9a9a9a; }
+.editor { flex: 1; padding: 36px 56px; background: #fafafa; overflow: hidden; }
+.editor h1 { font-size: 30px; font-weight: 600; margin-bottom: 6px; }
+.meta { font-size: 13px; color: #8a8a8a; margin-bottom: 24px; }
+.editor h2 { font-size: 20px; font-weight: 600; margin: 24px 0 8px; }
+.editor p { margin-bottom: 12px; }
+.editor code, .mono { font-family: "Noto Sans Mono CJK SC", monospace; font-size: 14px; background: #ececec; padding: 1px 6px; border-radius: 4px; }
+.editor ul { margin: 0 0 12px 22px; }
+.editor .link { color: #4a4a4a; text-decoration: underline; text-decoration-color: #9a9a9a; }
+.editor pre { font-family: "Noto Sans Mono CJK SC", monospace; font-size: 14px; background: #efefef; border: 1px solid #dcdcdc; border-radius: 6px; padding: 14px 16px; margin-bottom: 14px; line-height: 1.7; }
+.aside { width: 300px; flex: none; border-left: 1px solid #d4d4d4; background: #f4f4f4; padding: 24px 20px; }
+.aside h3 { font-size: 13px; font-weight: 500; color: #8a8a8a; margin-bottom: 10px; letter-spacing: 0.04em; }
+.backlink { background: #fafafa; border: 1px solid #dddddd; border-radius: 6px; padding: 10px 12px; margin-bottom: 10px; }
+.backlink b { display: block; font-weight: 500; font-size: 14.5px; }
+.backlink p { font-size: 13px; color: #7a7a7a; }
+.status { height: 30px; flex: none; border-top: 1px solid #d4d4d4; background: #ececec; font-size: 12.5px; color: #7a7a7a; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; }
+.panel { margin: auto; width: 880px; background: #fafafa; border: 1px solid #bdbdbd; border-radius: 10px; overflow: hidden; }
+.input { display: flex; align-items: center; gap: 12px; padding: 18px 22px; border-bottom: 1px solid #dcdcdc; font-size: 20px; }
+.input .caret { width: 2px; height: 26px; background: #444; }
+.input .count { margin-left: auto; font-size: 14px; color: #7a7a7a; }
+.result { padding: 14px 22px; border-bottom: 1px solid #ebebeb; }
+.result.active { background: #e8e8e8; }
+.result b { font-weight: 500; font-size: 17px; }
+.result p { font-size: 14px; color: #6f6f6f; margin-top: 2px; }
+mark { background: #d0d0d0; color: inherit; padding: 0 1px; }
+.row { display: flex; align-items: center; gap: 18px; padding: 16px 24px; border-bottom: 1px solid #e3e3e3; }
+.row .icon { width: 40px; height: 40px; border: 1px solid #b5b5b5; border-radius: 8px; background: #ececec; flex: none; }
+.row .grow { flex: 1; }
+.row b { font-weight: 500; font-size: 16.5px; display: block; }
+.row p { font-size: 13.5px; color: #7a7a7a; }
+.tag { font-size: 12.5px; border: 1px solid #b5b5b5; border-radius: 999px; padding: 1px 12px; color: #4a4a4a; background: #f0f0f0; }
+.tag.on { background: #3a3a3a; color: #f0f0f0; border-color: #3a3a3a; }
+.page { flex: 1; padding: 36px 48px; overflow: hidden; }
+.page h1 { font-size: 28px; font-weight: 600; margin-bottom: 4px; }
+.page .sub { color: #7a7a7a; margin-bottom: 22px; }
+.card { background: #fafafa; border: 1px solid #d4d4d4; border-radius: 8px; overflow: hidden; margin-bottom: 20px; }
+.card h3 { font-size: 14px; font-weight: 500; color: #6f6f6f; padding: 12px 24px; background: #f0f0f0; border-bottom: 1px solid #dcdcdc; }
+.diff { font-family: "Noto Sans Mono CJK SC", monospace; font-size: 14px; padding: 12px 24px; line-height: 1.8; }
+.diff .add { background: #e3e3e3; display: block; }
+.diff .del { color: #8a8a8a; text-decoration: line-through; display: block; }
