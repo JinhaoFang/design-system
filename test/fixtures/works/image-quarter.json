@@ -1,0 +1,12 @@
+{
+  "system": "mini",
+  "carrier": "social",
+  "canvas": "square",
+  "concept": "方形画布上放一张 540x540 的图，图版率恰为 0.25",
+  "sequence": [
+    {
+      "custom": "<style>:scope{box-sizing:border-box;width:100%;height:100%;padding:calc(var(--ds-space-3) * 2);background:var(--ds-color-paper);font-family:var(--ds-font-body);color:var(--ds-color-ink)} img{display:block;width:540px;height:540px} p{margin:0;font-size:var(--ds-type-1);line-height:1.5}</style><img alt=\"\" src=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='540' height='540'%3E%3Crect width='540' height='540' fill='%23a4552f'/%3E%3C/svg%3E\"><p>发布二点零</p>",
+      "serves": "验证图版率与版面率的测量"
+    }
+  ]
+}

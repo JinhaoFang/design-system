@@ -96,9 +96,9 @@
         "grainMax": 0.06,
         "accentBudget": 0.1,
         "composition": {
-          "slides": { "jumpRate": [2, 4], "layoutRate": [0.3, 0.7], "imageRate": [0, 0.4] },
-          "social": { "jumpRate": [2, 4], "layoutRate": [0.3, 0.7], "imageRate": [0, 0.4] },
-          "web": { "jumpRate": [2, 4], "layoutRate": [0.3, 0.7], "imageRate": [0, 0.4] }
+          "slides": { "jumpRate": [1, 4], "layoutRate": [0, 1], "imageRate": [0, 0.6] },
+          "social": { "jumpRate": [1, 4], "layoutRate": [0, 1], "imageRate": [0, 0.6] },
+          "web": { "jumpRate": [1, 4], "layoutRate": [0, 1], "imageRate": [0, 0.6] }
         }
       }
     }

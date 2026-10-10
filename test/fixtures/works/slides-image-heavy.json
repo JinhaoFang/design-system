@@ -1,0 +1,21 @@
+{
+  "system": "mini",
+  "carrier": "slides",
+  "concept": "只有第二页放了 960x540 的图（图版率 0.25）的幻灯片夹具",
+  "sequence": [
+    {
+      "unit": "cover",
+      "layout": "stack",
+      "content": { "title": "发布二点零", "subtitle": "更快的搜索，更稳的同步" }
+    },
+    {
+      "custom": "<style>:scope{box-sizing:border-box;width:100%;height:100%;padding:calc(var(--ds-space-3) * 2);background:var(--ds-color-paper);font-family:var(--ds-font-body);color:var(--ds-color-ink)} img{display:block;width:960px;height:540px} p{margin:0;font-size:var(--ds-type-1);line-height:1.5}</style><img alt=\"\" src=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='960' height='540'%3E%3Crect width='960' height='540' fill='%23a4552f'/%3E%3C/svg%3E\"><p>发布二点零</p>",
+      "serves": "验证每页单独计算图版率"
+    },
+    {
+      "unit": "closing",
+      "layout": "plain",
+      "content": { "headline": "发布二点零", "contact": "更稳的同步" }
+    }
+  ]
+}
