@@ -1,0 +1,21 @@
+{
+  "system": "mini",
+  "carrier": "web",
+  "concept": "一页安静的发布说明，只验证网页流程",
+  "sequence": [
+    {
+      "unit": "hero",
+      "layout": "split",
+      "content": { "headline": "发布二点零", "lead": "更快的搜索，更稳的同步" }
+    },
+    {
+      "unit": "features",
+      "layout": "list",
+      "content": {
+        "heading": "三处改进",
+        "itemTitles": ["搜索更快", "同步更稳", "笔记更轻"],
+        "itemBodies": ["全文搜索提速", "离线后自动合并", "体积减少一半"]
+      }
+    }
+  ]
+}

@@ -7,6 +7,7 @@ scenarios:
 carriers:
   - social
   - slides
+  - web
 tone:
   calm-lively: 2
   airy-dense: 2

@@ -1,0 +1,19 @@
+<style>
+  :scope {
+    box-sizing: border-box;
+    min-height: 100vh;
+    padding: calc(var(--ds-space-3) * 2) var(--ds-space-3);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--ds-space-2);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+  }
+  .headline { margin: 0; font-weight: 400; font-size: var(--ds-type-2); line-height: 1.3; animation: rise var(--ds-duration-slow) var(--ds-easing-settle) both; }
+  .lead { margin: 0; font-size: var(--ds-type-1); line-height: 1.5; color: var(--ds-color-accent); animation: rise var(--ds-duration-slow) var(--ds-easing-settle) var(--ds-stagger-tight) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+</style>
+<h1 class="headline">{{ slots.headline }}</h1>
+<p class="lead">{{ slots.lead }}</p>
