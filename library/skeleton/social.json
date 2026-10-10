@@ -1,0 +1,39 @@
+{
+  "carrier": "social",
+  "units": {
+    "title": {
+      "label": "标题型",
+      "slots": {
+        "title": {"type": "text", "priority": "primary", "maxChars": 16},
+        "subtitle": {"type": "text", "priority": "secondary", "maxChars": 30},
+        "kicker": {"type": "text", "priority": "tertiary", "maxChars": 12},
+        "brand": {"type": "text", "priority": "tertiary", "maxChars": 12}
+      }
+    },
+    "quote": {
+      "label": "金句型",
+      "slots": {
+        "quote": {"type": "text", "priority": "primary", "maxChars": 40},
+        "by": {"type": "text", "priority": "secondary", "maxChars": 16},
+        "brand": {"type": "text", "priority": "tertiary", "maxChars": 12}
+      }
+    },
+    "list": {
+      "label": "清单型",
+      "slots": {
+        "heading": {"type": "text", "priority": "primary", "maxChars": 16},
+        "items": {"type": "text", "priority": "primary", "maxChars": 20, "maxItems": 7},
+        "footnote": {"type": "text", "priority": "tertiary", "maxChars": 24}
+      }
+    },
+    "data": {
+      "label": "数据型",
+      "slots": {
+        "value": {"type": "data", "priority": "primary", "maxChars": 8},
+        "label": {"type": "text", "priority": "primary", "maxChars": 20},
+        "context": {"type": "text", "priority": "secondary", "maxChars": 40},
+        "heading": {"type": "text", "priority": "tertiary", "maxChars": 16}
+      }
+    }
+  }
+}

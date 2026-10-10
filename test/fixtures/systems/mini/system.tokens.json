@@ -10,6 +10,10 @@
     "body": {
       "$value": ["Noto Sans SC"],
       "$extensions": { "io.github.jinhaofang.design-system": { "fontId": "noto-sans-sc-fixture" } }
+    },
+    "cjk": {
+      "$value": ["Noto Sans SC"],
+      "$extensions": { "io.github.jinhaofang.design-system": { "fontId": "noto-sans-sc-fixture" } }
     }
   },
   "ratio": {
@@ -23,12 +27,68 @@
       "1": { "$value": 0.5 },
       "2": { "$value": 1 },
       "3": { "$value": 2 }
+    },
+    "radius": {
+      "1": { "$value": 0.25 },
+      "2": { "$value": 0.5 }
+    },
+    "duration": {
+      "quick": { "$value": 0.5 },
+      "base": { "$value": 1 },
+      "slow": { "$value": 2 }
+    },
+    "stagger": {
+      "tight": { "$value": 0.25 }
     }
+  },
+  "easing": {
+    "$type": "cubicBezier",
+    "settle": { "$value": [0.2, 0.8, 0.2, 1] },
+    "drag": { "$value": [0.4, 0, 0.6, 1] }
+  },
+  "spring": {
+    "$type": "number",
+    "soft": {
+      "stiffness": { "$value": 120 },
+      "damping": { "$value": 24 },
+      "mass": { "$value": 1 }
+    }
+  },
+  "shadow": {
+    "$type": "shadow",
+    "raised": {
+      "$value": [
+        {
+          "color": { "colorSpace": "oklch", "components": [0.27, 0.02, 60], "alpha": 0.12 },
+          "offsetX": { "value": 2, "unit": "px" },
+          "offsetY": { "value": 4, "unit": "px" },
+          "blur": { "value": 12, "unit": "px" },
+          "spread": { "value": 0, "unit": "px" }
+        }
+      ]
+    }
+  },
+  "grain": {
+    "$type": "number",
+    "max": { "$value": 0.04 }
   },
   "carrier": {
     "social": {
       "body": { "$type": "dimension", "$value": { "value": 40, "unit": "px" } },
-      "spaceUnit": { "$type": "dimension", "$value": { "value": 24, "unit": "px" } }
+      "spaceUnit": { "$type": "dimension", "$value": { "value": 24, "unit": "px" } },
+      "durationBase": { "$type": "duration", "$value": { "value": 240, "unit": "ms" } }
+    }
+  },
+  "$extensions": {
+    "io.github.jinhaofang.design-system": {
+      "constraints": {
+        "lightAngleDeg": 135,
+        "grainMax": 0.06,
+        "accentBudget": 0.1,
+        "composition": {
+          "social": { "jumpRate": [2, 4], "layoutRate": [0.3, 0.7], "imageRate": [0, 0.4] }
+        }
+      }
     }
   }
 }

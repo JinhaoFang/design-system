@@ -1,18 +1,22 @@
 /*
  * Command line entry: node src/cli.ts build --system <dir> --work <file> --out <dir> [--library <dir>]
- * Exit status: 0 = built, no errors in the report; 1 = the report has errors; 2 = usage problem or validation failure (reason on stderr, no report).
- * Only the build subcommand exists so far; later tickets add validate-system, fetch-fonts and regress here.
+ *                     node src/cli.ts validate-system --system <dir> [--library <dir>]   (only the system validation stage; nothing is rendered)
+ * Exit status: 0 = built / valid, no errors in the report; 1 = the report has errors; 2 = usage problem or validation failure (reason on stderr, no report).
+ * Later tickets add fetch-fonts and regress here.
  */
 import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
-import { buildAndCheck } from './build-and-check.ts';
+import { buildAndCheck, validateSystem } from './build-and-check.ts';
 import { BuildError } from './types.ts';
 
-const USAGE = 'usage: node src/cli.ts build --system <dir> --work <file> --out <dir> [--library <dir>]';
+const USAGE = [
+  'usage: node src/cli.ts build --system <dir> --work <file> --out <dir> [--library <dir>]',
+  '       node src/cli.ts validate-system --system <dir> [--library <dir>]',
+].join('\n');
 
 async function main(argv: string[]): Promise<number> {
   const [command, ...rest] = argv;
-  if (command !== 'build') {
+  if (command !== 'build' && command !== 'validate-system') {
     console.error(USAGE);
     return 2;
   }
@@ -25,15 +29,20 @@ async function main(argv: string[]): Promise<number> {
       library: { type: 'string', default: 'library' },
     },
   });
-  if (!values.system || !values.work || !values.out) {
+  if (!values.system || (command === 'build' && (!values.work || !values.out))) {
     console.error(USAGE);
     return 2;
   }
   try {
+    if (command === 'validate-system') {
+      const system = await validateSystem({ systemDir: resolve(values.system), libraryDir: resolve(values.library) });
+      console.log(`体系「${system.meta.name}」（${system.meta.id}）校验通过。`);
+      return 0;
+    }
     const result = await buildAndCheck({
       systemDir: resolve(values.system),
-      workPath: resolve(values.work),
-      outDir: resolve(values.out),
+      workPath: resolve(values.work!),
+      outDir: resolve(values.out!),
       libraryDir: resolve(values.library),
     });
     const { errors, warnings } = result.report.summary;
