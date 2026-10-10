@@ -1,0 +1,76 @@
+{
+  "carrier": "web",
+  "units": {
+    "hero": {
+      "label": "首屏",
+      "slots": {
+        "eyebrow": {"type": "text", "priority": "tertiary", "maxChars": 16},
+        "headline": {"type": "text", "priority": "primary", "maxChars": 24},
+        "lead": {"type": "text", "priority": "secondary", "maxChars": 70},
+        "cta": {"type": "action", "priority": "secondary", "maxChars": 10},
+        "visual": {"type": "image", "priority": "tertiary", "maxChars": 40}
+      }
+    },
+    "problem": {
+      "label": "问题",
+      "slots": {
+        "heading": {"type": "text", "priority": "primary", "maxChars": 28},
+        "body": {"type": "text", "priority": "secondary", "maxChars": 120},
+        "points": {"type": "text", "priority": "tertiary", "maxChars": 28, "maxItems": 4}
+      }
+    },
+    "solution": {
+      "label": "方案",
+      "slots": {
+        "heading": {"type": "text", "priority": "primary", "maxChars": 28},
+        "body": {"type": "text", "priority": "secondary", "maxChars": 140},
+        "visual": {"type": "image", "priority": "tertiary", "maxChars": 40}
+      }
+    },
+    "features": {
+      "label": "特性",
+      "slots": {
+        "heading": {"type": "text", "priority": "primary", "maxChars": 24},
+        "lead": {"type": "text", "priority": "secondary", "maxChars": 60},
+        "itemTitles": {"type": "text", "priority": "secondary", "maxChars": 14, "maxItems": 6, "group": "items"},
+        "itemBodies": {"type": "text", "priority": "tertiary", "maxChars": 50, "maxItems": 6, "group": "items"}
+      }
+    },
+    "evidence": {
+      "label": "证据",
+      "slots": {
+        "heading": {"type": "text", "priority": "primary", "maxChars": 24},
+        "stats": {"type": "data", "priority": "secondary", "maxChars": 8, "maxItems": 4, "group": "stats"},
+        "statLabels": {"type": "text", "priority": "tertiary", "maxChars": 20, "maxItems": 4, "group": "stats"},
+        "quote": {"type": "text", "priority": "secondary", "maxChars": 80},
+        "quoteBy": {"type": "text", "priority": "tertiary", "maxChars": 24},
+        "logos": {"type": "image", "priority": "tertiary", "maxChars": 24, "maxItems": 8}
+      }
+    },
+    "process": {
+      "label": "流程",
+      "slots": {
+        "heading": {"type": "text", "priority": "primary", "maxChars": 24},
+        "steps": {"type": "text", "priority": "secondary", "maxChars": 16, "maxItems": 6, "group": "steps"},
+        "stepNotes": {"type": "text", "priority": "tertiary", "maxChars": 40, "maxItems": 6, "group": "steps"}
+      }
+    },
+    "cta": {
+      "label": "行动号召",
+      "slots": {
+        "headline": {"type": "text", "priority": "primary", "maxChars": 24},
+        "action": {"type": "action", "priority": "primary", "maxChars": 10},
+        "lead": {"type": "text", "priority": "secondary", "maxChars": 50},
+        "note": {"type": "text", "priority": "tertiary", "maxChars": 30}
+      }
+    },
+    "footer": {
+      "label": "页脚",
+      "slots": {
+        "brand": {"type": "text", "priority": "primary", "maxChars": 16},
+        "links": {"type": "action", "priority": "secondary", "maxChars": 8, "maxItems": 8},
+        "legal": {"type": "text", "priority": "tertiary", "maxChars": 60}
+      }
+    }
+  }
+}

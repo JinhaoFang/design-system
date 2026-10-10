@@ -12,9 +12,10 @@
 需要 Node 22.18 及以上和 pnpm 12（`packageManager` 字段会自动切换版本）。
 
 - 安装：`pnpm install`，然后 `pnpm exec playwright install --with-deps --only-shell chromium`（只需 Chromium headless shell）。
-- 构建并检查：`pnpm ds build --system <体系目录> --work <作品描述.json> --out <产物目录> [--library <共享资产目录>]`。产物目录里有 `index.html`、`fonts/`、渲染出的 PNG、`report.json` 和 `report.md`。`--library` 默认是当前目录下的 `library/`（放结构骨架 `skeleton/<载体>.json` 和字体清单 `fonts/manifest.json`）。
+- 构建并检查：`pnpm ds build --system <体系目录> --work <作品描述.json> --out <产物目录> [--library <共享资产目录>]`。产物目录里有 `index.html`、`fonts/`、渲染出的 PNG、`report.json` 和 `report.md`。`--library` 默认是当前目录下的 `library/`（放结构骨架 `skeleton/<载体>.json`、字体清单 `fonts/manifest.json`，以及可选的共享内容 `content/<载体>.json`，作品描述用 `{"ref": "键名"}` 引用）。
   - 退出状态：0 表示没有错误（只有警告也是 0）；1 表示报告里有错误；2 表示体系或作品描述校验失败、没有报告，原因打印在 stderr。
   - 试跑夹具：`pnpm ds build --system test/fixtures/systems/mini --work test/fixtures/works/clean.json --out out/clean --library test/fixtures/library`。
+- 校验体系：`pnpm ds validate-system --system <体系目录> [--library <共享资产目录>]`，只跑体系校验（SYSTEM.md、数值文件、字体引用、体系专属单元），一次列出全部问题；退出状态 0 通过，2 失败。体系格式见 `src/system.ts`、`src/tokens.ts` 文件头；体系专属叙事单元放在体系目录的 `skeleton/<载体>.json`。
 - 范例库：每条范例一个目录 `library/exemplars/<id>/`，里面是 `exemplar.json` 和媒体文件（截图或录屏）。目录名必须等于 `id`。
   - 字段：`id`、`title`、`sourceType`（`external` 外部收集 / `copy` 临摹 / `original` 原创）、`sourceUrl`（外部收集和临摹必填）、`copyright`（版权方）、`carrier`（`web` / `slides` / `social`）、`systems`（支撑哪些种子体系，如 `paper-editorial`、`precision-industrial`、`riso-print`）、`media`（`kind`：`screenshot` / `recording`；`status`：`present` 时 `file` 必须存在，`pending` 表示待补，已批准的范例不能是待补）、`annotation`（`highlights` 出色之处、`reasons` 原因、`scenes` 适合的场景、`materialAnchor` 材质锚点、`tonality` 调性位置）、`approval`（`status`：`candidate` / `approved` / `rejected`；已批准和已拒绝必须带 `date`，格式 `YYYY-MM-DD`，候选不带）。
   - `tonality` 五个键 `静动`、`疏密`、`冷暖`、`轻重`、`庄谐`，值 1–5，1 靠近键名第一个字（静、疏、冷、轻、庄），5 靠近第二个字。
@@ -22,7 +23,7 @@
   - 按来源类型列出：`pnpm ds list-exemplars [--source external|copy|original] [--paths] [--library <目录>]`。默认每行一条（标识、来源类型、批准状态、载体、来源链接、媒体文件，制表符分隔）；`--paths` 只打印存在的媒体文件路径。仓库公开之前移除外部截图：`pnpm ds list-exemplars --source external --paths | xargs rm`，再把相应范例的 `media.status` 改成 `pending`。
   - agent 只提交候选（`approval.status` 为 `candidate`），批准和拒绝由裁判决定。
 - 类型检查：`pnpm typecheck`。
-- 测试：`pnpm test`。测试只通过 `buildAndCheck()`（`src/build-and-check.ts`，命令行入口 `src/cli.ts` 是它的薄封装）驱动夹具体系和夹具作品，断言报告和产物规格，不测内部函数，不做像素比对。
+- 测试：`pnpm test`。测试只通过 `buildAndCheck()`（`src/build-and-check.ts`，命令行入口 `src/cli.ts` 是它的薄封装）驱动夹具体系和夹具作品，断言报告和产物规格，不测内部函数，不做像素比对。范例库的测试在 `test/exemplars.test.ts`，通过 `validateExemplars()` 和 `listExemplars()` 两个入口及 CLI 命令驱动临时目录里的范例。
 - 重新生成夹具字体：`pnpm fixture-font`。夹具文字里新增汉字后要重跑并提交结果。
 
 ## 代码约定

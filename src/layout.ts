@@ -1,14 +1,16 @@
 /*
  * Layout (排法) rendering with LiquidJS: layouts/<carrier>/<unit>/<layout>.liquid is an HTML fragment with slots ({{ slots.name }}) and an optional <style>.
- * Autoescaped, strict variables; a layout may only reference slots declared by its unit. Each slot value is wrapped in <span data-ds-slot>, and the whole
- * unit in <section data-ds-unit data-ds-layout>, so the checker can map DOM nodes back to unit/layout/slot. <style> blocks are scoped with @scope to that section.
+ * Autoescaped, strict variables; a layout may only reference slots declared by its unit. Each slot value is wrapped in <span data-ds-slot> (image slots: <img data-ds-slot>,
+ * list slots: an array of such nodes with data-ds-index), and the whole unit in <section data-ds-unit data-ds-layout>, so the checker can map DOM nodes back to unit/layout/slot.
+ * Slot text gets CJK-Latin spacing (cjk-spacing.ts) before escaping. Custom fragments become <section data-ds-unit="custom" data-ds-custom="<n>">. <style> blocks are scoped with @scope to that section.
  */
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Liquid } from 'liquidjs';
-import type { UnitSpec } from './library.ts';
+import { spaceCjkLatin } from './cjk-spacing.ts';
+import type { SlotSpec, UnitSpec } from './library.ts';
 import { BuildError } from './types.ts';
-import type { WorkItem } from './work.ts';
+import type { CustomWorkItem, SlotItem, UnitWorkItem } from './work.ts';
 
 class Markup {
   html: string;
@@ -28,6 +30,23 @@ const liquid = new Liquid({
   jsTruthy: true,
 });
 
+function slotNode(name: string, spec: SlotSpec, value: SlotItem, index?: number): Markup {
+  const marks = `data-ds-slot="${name}"${index === undefined ? '' : ` data-ds-index="${index}"`}`;
+  if (spec.type === 'image' && typeof value !== 'string') {
+    return new Markup(`<img ${marks} src="${escapeHtml(value.src)}" alt="${escapeHtml(value.alt)}">`);
+  }
+  return new Markup(`<span ${marks}>${escapeHtml(spaceCjkLatin(String(value)))}</span>`);
+}
+
+function scopeStyles(html: string, scope: string): string {
+  return html.replace(/<style>([\s\S]*?)<\/style>/g, (_match: string, css: string) => `<style>@scope (${scope}) {${css}}</style>`);
+}
+
+export function renderCustom(item: CustomWorkItem, index: number): string {
+  const body = scopeStyles(item.html, `[data-ds-custom="${index}"]`);
+  return `<section data-ds-unit="custom" data-ds-custom="${index}">${body}</section>`;
+}
+
 async function availableLayouts(dir: string): Promise<string[]> {
   try {
     return (await readdir(dir)).filter((name) => name.endsWith('.liquid')).map((name) => name.slice(0, -'.liquid'.length));
@@ -39,7 +58,7 @@ async function availableLayouts(dir: string): Promise<string[]> {
 export async function renderUnit(
   systemDir: string,
   carrier: string,
-  item: WorkItem,
+  item: UnitWorkItem,
   unit: UnitSpec,
 ): Promise<string> {
   const dir = join(systemDir, 'layouts', carrier, item.unit);
@@ -69,16 +88,13 @@ export async function renderUnit(
   }
   if (issues.length) throw new BuildError(issues);
 
-  const slots: Record<string, Markup> = {};
-  for (const name of Object.keys(unit.slots)) {
-    const text = item.content?.[name] ?? '';
-    slots[name] = new Markup(`<span data-ds-slot="${name}">${escapeHtml(String(text))}</span>`);
+  const slots: Record<string, Markup | Markup[]> = {};
+  for (const [name, spec] of Object.entries(unit.slots)) {
+    const value = item.content[name];
+    slots[name] = spec.maxItems !== undefined
+      ? ((value as SlotItem[] | undefined) ?? []).map((entry, index) => slotNode(name, spec, entry, index))
+      : slotNode(name, spec, (value as SlotItem | undefined) ?? '');
   }
-  const body = liquid
-    .renderSync(template, { slots })
-    .replace(/<style>([\s\S]*?)<\/style>/g, (_match: string, css: string) => {
-      const scope = `[data-ds-unit="${item.unit}"][data-ds-layout="${item.layout}"]`;
-      return `<style>@scope (${scope}) {${css}}</style>`;
-    });
+  const body = scopeStyles(liquid.renderSync(template, { slots }), `[data-ds-unit="${item.unit}"][data-ds-layout="${item.layout}"]`);
   return `<section data-ds-unit="${item.unit}" data-ds-layout="${item.layout}">${body}</section>`;
 }
