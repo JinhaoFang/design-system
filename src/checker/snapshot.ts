@@ -4,6 +4,7 @@
  * Text blocks (non-inline elements owning text) also get textChunks (their text nodes in order, each with its slot) and lines (the rendered visual lines,
  * found by measuring every character with Range.getClientRects; a character whose left edge falls behind the previous one starts a new line).
  * collectSnapshot(page, scope) limits the pass to the elements inside the first node matching the CSS selector scope (used per slide).
+ * Every element also gets box (page-coordinate rectangle, px) and parent (index of its parent element in this list, absent for the scope's direct children), so rules can reason about siblings and geometry.
  * Text blocks also get fonts: the platform fonts Chromium used to draw their glyphs (font-usage.ts, through the DevTools protocol).
  * To give a new rule more input, add properties here (and fields to ElementSnapshot) instead of querying the browser from the rule.
  */
@@ -41,8 +42,17 @@ export interface LineSnapshot {
   endSlot?: string;
 }
 
+export interface BoxSnapshot {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface ElementSnapshot {
   selector: string;
+  box: BoxSnapshot;
+  parent?: number;
   tag: string;
   unit?: string;
   layout?: string;
@@ -134,6 +144,7 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
       });
     };
     const result: ElementSnapshot[] = [];
+    const indexOf = new Map<Element, number>();
     for (const el of (scopeSelector ? document.querySelector(scopeSelector)! : document.body).querySelectorAll('*')) {
       if (skipped.has(el.tagName)) continue;
       const computed = getComputedStyle(el);
@@ -141,8 +152,10 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
       for (const property of properties) styles[property] = computed.getPropertyValue(property);
       const unit = el.closest('[data-ds-unit]');
       const slot = el.closest('[data-ds-slot]');
+      const rect = el.getBoundingClientRect();
       const entry: ElementSnapshot = {
         selector: describe(el),
+        box: { x: rect.left + window.scrollX, y: rect.top + window.scrollY, width: rect.width, height: rect.height },
         tag: el.tagName.toLowerCase(),
         hasOwnText: [...el.childNodes].some((child) => child.nodeType === 3 && (child.textContent ?? '').trim() !== ''),
         styles,
@@ -155,6 +168,9 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
           el.setAttribute(probe, String(result.length));
         }
       }
+      const parentIndex = el.parentElement ? indexOf.get(el.parentElement) : undefined;
+      if (parentIndex !== undefined) entry.parent = parentIndex;
+      indexOf.set(el, result.length);
       if (unit) {
         entry.unit = unit.getAttribute("data-ds-unit") ?? "";
         entry.layout = unit.getAttribute("data-ds-layout") ?? "";
