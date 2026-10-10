@@ -117,10 +117,15 @@ describe('validation before rendering', () => {
 
 describe('fonts', () => {
   test('a font file that cannot be loaded fails the build instead of rendering with a fallback', async () => {
-    const library = join(await tempDir(), 'library');
-    await cp(fixtures.library, library, { recursive: true });
-    await writeFile(join(library, 'fonts', 'NotoSansSC-Regular.subset.woff2'), 'not a font');
-    await expect(run(fixtures.work('clean'), { libraryDir: library })).rejects.toThrow(/字体加载失败/);
+    const cache = join(await tempDir(), 'font-cache');
+    await cp(fixtures.fontCache, cache, { recursive: true });
+    await writeFile(join(cache, 'NotoSansSC-Regular.subset.woff2'), 'not a font');
+    await expect(run(fixtures.work('clean'), { fontCacheDir: cache })).rejects.toThrow(/字体加载失败/);
+  });
+
+  test('a font missing from the local font cache fails the build and points at fetch-fonts', async () => {
+    const cache = await tempDir('ds-empty-cache-');
+    await expect(run(fixtures.work('clean'), { fontCacheDir: cache })).rejects.toThrow(/本地字体缓存[\s\S]*fetch-fonts/);
   });
 });
 
@@ -128,7 +133,7 @@ describe('command line entry', () => {
   const cli = (work: string, out: string) =>
     execFileAsync(
       process.execPath,
-      ['src/cli.ts', 'build', '--system', fixtures.system, '--work', work, '--out', out, '--library', fixtures.library],
+      ['src/cli.ts', 'build', '--system', fixtures.system, '--work', work, '--out', out, '--library', fixtures.library, '--font-cache', fixtures.fontCache],
       { cwd: join(import.meta.dirname, '..') },
     );
 

@@ -13,6 +13,7 @@ import { RENDERABLE_CARRIERS, SOCIAL_CANVASES } from './carriers.ts';
 import type { CarrierId } from './carriers.ts';
 import { loadFontManifest, loadSharedContent, loadSkeleton, loadSystemUnits, mergeUnits } from './library.ts';
 import type { FontManifest, Skeleton } from './library.ts';
+import { DEFAULT_FONT_CACHE } from './fonts.ts';
 import { renderCustom, renderUnit } from './layout.ts';
 import { buildPage } from './page.ts';
 import { renderImage } from './render.ts';
@@ -30,6 +31,7 @@ export interface BuildOptions {
   workPath: string;
   outDir: string;
   libraryDir: string;
+  fontCacheDir?: string;
 }
 
 export interface ValidateOptions {
@@ -90,6 +92,7 @@ export async function validateSystem(options: ValidateOptions): Promise<Validate
 
 export async function buildAndCheck(options: BuildOptions): Promise<BuildResult> {
   const { systemDir, workPath, outDir, libraryDir } = options;
+  const fontCacheDir = options.fontCacheDir ?? DEFAULT_FONT_CACHE;
   const system = await validateSystem({ systemDir, libraryDir });
 
   const rawWork = await loadWork(workPath);
@@ -116,9 +119,9 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
   await mkdir(join(outDir, 'fonts'), { recursive: true });
   for (const font of usedFonts) {
     try {
-      await copyFile(join(system.manifest.dir, font.file), join(outDir, 'fonts', font.file));
+      await copyFile(join(fontCacheDir, font.file), join(outDir, 'fonts', font.file));
     } catch {
-      throw new BuildError([`字体文件不存在：${join(system.manifest.dir, font.file)}`]);
+      throw new BuildError([`本地字体缓存里没有字体文件：${join(fontCacheDir, font.file)}（先运行「抓取字体」：pnpm ds fetch-fonts）`]);
     }
   }
   const index = join(outDir, 'index.html');

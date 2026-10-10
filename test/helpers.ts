@@ -7,8 +7,10 @@ import { buildAndCheck } from '../src/build-and-check.ts';
 import type { BuildResult } from '../src/build-and-check.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
+export const repoRoot = join(here, '..');
 export const fixtures = {
   library: join(here, 'fixtures', 'library'),
+  fontCache: join(here, 'fixtures', 'font-cache'),
   system: join(here, 'fixtures', 'systems', 'mini'),
   work: (name: string) => join(here, 'fixtures', 'works', `${name}.json`),
 };
@@ -27,13 +29,14 @@ export async function patchedWork(name: string, patch: (work: any) => void): Pro
 
 export async function run(
   workPath: string,
-  options: { libraryDir?: string; systemDir?: string } = {},
+  options: { libraryDir?: string; systemDir?: string; fontCacheDir?: string } = {},
 ): Promise<BuildResult> {
   return buildAndCheck({
     systemDir: options.systemDir ?? fixtures.system,
     workPath,
     outDir: await tempDir(),
     libraryDir: options.libraryDir ?? fixtures.library,
+    fontCacheDir: options.fontCacheDir ?? fixtures.fontCache,
   });
 }
 

@@ -5,12 +5,16 @@
       "family": "Noto Sans SC",
       "postScriptName": "NotoSansSC-Regular",
       "weight": 400,
+      "scripts": ["cjk", "latin"],
       "file": "NotoSansSC-Regular.subset.woff2",
       "license": {
         "name": "OFL-1.1",
         "url": "https://openfontlicense.org",
         "file": "OFL.txt"
       },
+      "permissions": { "commercial": true, "webEmbed": true, "fileEmbed": true },
+      "carriers": ["web", "slides", "social"],
+      "pptSafe": false,
       "source": {
         "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/165c01b46ea533872e002e0785ff17e44f6d97d8/Sans/SubsetOTF/SC/NotoSansSC-Regular.otf",
         "sha256": "faa6c9df652116dde789d351359f3d7e5d2285a2b2a1f04a2d7244df706d5ea9"
