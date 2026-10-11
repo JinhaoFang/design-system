@@ -13,6 +13,7 @@
 
 - 安装：`pnpm install`，然后 `pnpm exec playwright install --with-deps --only-shell chromium`（只需 Chromium headless shell）。
 - 构建并检查：`pnpm ds build --system <体系目录> --work <作品描述.json> --out <产物目录> [--library <共享资产目录>]`。产物目录里有 `index.html`、`fonts/`、渲染出的 PNG、`report.json` 和 `report.md`。网页作品输出 `web-desktop.png`（宽 1440）、`web-mobile.png`（宽 390）两张整页截图和一段加载并滚动到底的录屏 `web-scroll.webm`；检查器在两个宽度上各跑一遍，只在手机宽度出现的问题会在说明末尾标注。网页版式里按滚动才显示的内容，要放在 `html[data-render="static"]` 下直接显示（截图和检查时页面带这个标记，录屏时没有）。`--library` 默认是当前目录下的 `library/`（放结构骨架 `skeleton/<载体>.json`、字体清单 `fonts/manifest.json`，以及可选的共享内容 `content/<载体>.json`，作品描述用 `{"ref": "键名"}` 引用）。
+  - 定制片段文件：作品描述里 `custom` 除了内嵌 HTML 字符串，也可以写成 `{"file": "fragments/hero.html"}`，引用体系目录下 `works/fragments/*.html`（路径相对体系的 `works/`，必须以 `fragments/` 开头、以 `.html` 结尾，不能含 `..`、不能是绝对路径，符号链接解析后也必须还在 `works/fragments/` 内）。`serves` 照常必填。文件不存在、路径不合规或文件为空，按作品描述错误处理（退出状态 2）。规则见 `src/work.ts` 文件头。
   - 入场动效：排法和定制片段里给元素写 `data-ds-enter="fade|rise|fall|left|right"`，可选 `data-ds-order`（组内顺序）、`data-ds-stagger`（写在组容器上）、`data-ds-step`、`data-ds-ease`、`data-ds-distance`，取值名都来自体系的时长阶梯、缓动集、错峰和间距；用法见 `src/choreography.ts` 文件头。检查器会在正常和「减少动态效果」两种条件下记录动画并检查动效规则（`src/checker/rules/motion.ts`）。
   - 退出状态：0 表示没有错误（只有警告也是 0）；1 表示报告里有错误；2 表示体系或作品描述校验失败、没有报告，原因打印在 stderr。
   - 试跑夹具：`pnpm ds build --system test/fixtures/systems/mini --work test/fixtures/works/clean.json --out out/clean --library test/fixtures/library`。
@@ -29,6 +30,7 @@
 - 排法总览：`pnpm ds overview --system <体系目录> --out <产物目录> [--library <共享资产目录>] [--carrier <载体>...] [--canvas <画幅>...]`。为任意体系生成作品：网页、幻灯片各一件（按骨架顺序，每个单元的每种排法依次出现一次），社交配图每个画幅、每种排法一张；内容取共享内容里该单元的第一个实例，只用 `{"ref": 键名}` 引用，不依赖具体键名。每件作品走一遍「构建并检查」，产物在 `<载体>/` 和 `social/<画幅>/<单元>-<排法>/` 下，`overview.md` 汇总各构建的错误和警告数；体系没有排法或共享内容没覆盖的单元列为「未覆盖」，不算错误。退出状态同 `build`（有构建失败也是 1）。
 - 回归：`pnpm ds regress [--systems <目录>] [--out <目录>] [--library <目录>]`（默认 `systems`、`out/regress`）。种子体系放在顶层 `systems/<体系标识>/`（`SYSTEM.md`、`system.tokens.json`、`layouts/` 等，格式同体系目录），该体系的标准样张作品描述放在 `systems/<体系标识>/works/*.json`（一份文件一件作品，社交配图每个画幅一份）。对每套体系先跑全部标准样张，再跑它的排法总览，产物在 `<out>/<体系标识>/works/<文件名>/` 和 `<out>/<体系标识>/overview/`；任何错误、构建失败、缺少标准样张都以退出状态 1 结束，体系目录不存在为 2。CI 里有手动触发的 `regress` 工作流（`.github/workflows/regress.yml`），缓存 `.cache/fonts`。
 - 抓取字体：`pnpm ds fetch-fonts [--library <目录>] [--font-cache <目录>]`，按字体清单把字体下载到 git 忽略的 `.cache/fonts`并核对 sha256，走环境变量 HTTPS_PROXY；构建只读这个缓存。检查器用字体文件内部的 PostScript 名匹配清单，并用 cmap 检查缺字。
+  - 斜体：清单条目可选 `style`（`normal` 或 `italic`，不写按 `normal`）。斜体字面单独建一条，有自己的文件和 PostScript 名，按 PostScript 名匹配；构建生成的 `@font-face` 带 `font-style`。体系要用斜体，就在数值文件里再加一个 `font.<角色>`（如 `font.body-italic`）并用 `fontId` 引用斜体条目，这样它的 `@font-face` 才会进产物。检查器规则 `fonts/style-mismatch`：斜体文字用到的字体里没有斜体字面（浏览器会硬倾斜正体），或正体文字用上了斜体字面，都是错误。
 - 重新生成夹具字体：`pnpm fixture-font`（输出到 `test/fixtures/font-cache/`；缺字夹具用的 `龘` 和 U+E000 被故意排除在子集之外）。夹具文字里新增汉字后要重跑并提交结果。
 
 ## 代码约定
