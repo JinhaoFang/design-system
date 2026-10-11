@@ -18,7 +18,9 @@
 - 校验体系：`pnpm ds validate-system --system <体系目录> [--library <共享资产目录>]`，只跑体系校验（SYSTEM.md、数值文件、字体引用、体系专属单元），一次列出全部问题；退出状态 0 通过，2 失败。体系格式见 `src/system.ts`、`src/tokens.ts` 文件头；体系专属叙事单元放在体系目录的 `skeleton/<载体>.json`。
 - 标准样张内容：`library/content/`（设定见 `SETTING.md`，共享内容 `web.json`、`slides.json`、`social.json`，键名为 `<单元>.<槽位>` 或 `<单元>.<实例>.<槽位>`，图片在 `assets/`，图片源文件和渲染脚本 `node library/content/assets-src/render.ts` 在 `assets-src/`）。
 - 类型检查：`pnpm typecheck`。
-- 测试：`pnpm test`。测试只通过 `buildAndCheck()`（`src/build-and-check.ts`，命令行入口 `src/cli.ts` 是它的薄封装）驱动夹具体系和夹具作品，断言报告和产物规格，不测内部函数，不做像素比对。
+- 测试：`pnpm test`。测试只通过 `buildAndCheck()`（`src/build-and-check.ts`，命令行入口 `src/cli.ts` 是它的薄封装）以及它之上的 `buildOverview()`（`src/overview.ts`）、`regress()`（`src/regress.ts`）驱动夹具体系和夹具作品，断言报告和产物规格，不测内部函数，不做像素比对。
+- 排法总览：`pnpm ds overview --system <体系目录> --out <产物目录> [--library <共享资产目录>] [--carrier <载体>...] [--canvas <画幅>...]`。为任意体系生成作品：网页、幻灯片各一件（按骨架顺序，每个单元的每种排法依次出现一次），社交配图每个画幅、每种排法一张；内容取共享内容里该单元的第一个实例，只用 `{"ref": 键名}` 引用，不依赖具体键名。每件作品走一遍「构建并检查」，产物在 `<载体>/` 和 `social/<画幅>/<单元>-<排法>/` 下，`overview.md` 汇总各构建的错误和警告数；体系没有排法或共享内容没覆盖的单元列为「未覆盖」，不算错误。退出状态同 `build`（有构建失败也是 1）。
+- 回归：`pnpm ds regress [--systems <目录>] [--out <目录>] [--library <目录>]`（默认 `systems`、`out/regress`）。种子体系放在顶层 `systems/<体系标识>/`（`SYSTEM.md`、`system.tokens.json`、`layouts/` 等，格式同体系目录），该体系的标准样张作品描述放在 `systems/<体系标识>/works/*.json`（一份文件一件作品，社交配图每个画幅一份）。对每套体系先跑全部标准样张，再跑它的排法总览，产物在 `<out>/<体系标识>/works/<文件名>/` 和 `<out>/<体系标识>/overview/`；任何错误、构建失败、缺少标准样张都以退出状态 1 结束，体系目录不存在为 2。CI 里有手动触发的 `regress` 工作流（`.github/workflows/regress.yml`），缓存 `.cache/fonts`。
 - 抓取字体：`pnpm ds fetch-fonts [--library <目录>] [--font-cache <目录>]`，按字体清单把字体下载到 git 忽略的 `.cache/fonts`并核对 sha256，走环境变量 HTTPS_PROXY；构建只读这个缓存。检查器用字体文件内部的 PostScript 名匹配清单，并用 cmap 检查缺字。
 - 重新生成夹具字体：`pnpm fixture-font`（输出到 `test/fixtures/font-cache/`；缺字夹具用的 `龘` 和 U+E000 被故意排除在子集之外）。夹具文字里新增汉字后要重跑并提交结果。
 
