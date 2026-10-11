@@ -219,6 +219,25 @@ describe('fetch-fonts', () => {
     }
   });
 
+  test('the real library has the light and medium Noto Serif SC weights and Source Serif 4 light and italic faces, italics marked by style', async () => {
+    const manifest = await loadFontManifest(join(repoRoot, 'library'));
+    const byId = new Map(manifest.fonts.map((font) => [font.id, font]));
+    const expected: [string, string, number, string | undefined][] = [
+      ['noto-serif-sc-200', 'NotoSerifSC-ExtraLight', 200, undefined],
+      ['noto-serif-sc-300', 'NotoSerifSC-Light', 300, undefined],
+      ['noto-serif-sc-500', 'NotoSerifSC-Medium', 500, undefined],
+      ['noto-serif-sc-600', 'NotoSerifSC-SemiBold', 600, undefined],
+      ['source-serif-4-200', 'SourceSerif4-ExtraLight', 200, undefined],
+      ['source-serif-4-300', 'SourceSerif4-Light', 300, undefined],
+      ['source-serif-4-300-italic', 'SourceSerif4-LightIt', 300, 'italic'],
+      ['source-serif-4-400-italic', 'SourceSerif4-It', 400, 'italic'],
+    ];
+    for (const [id, postScriptName, weight, style] of expected) {
+      expect(byId.get(id), id).toMatchObject({ postScriptName, weight, license: { name: 'OFL-1.1' } });
+      expect(byId.get(id)!.style, id).toBe(style);
+    }
+  });
+
   test('the fetch-fonts command fills the cache, and exits 2 with the reason on a checksum mismatch', async () => {
     const source = join(await tempDir(), 'source.woff2');
     await writeFile(source, FONT_BYTES);
