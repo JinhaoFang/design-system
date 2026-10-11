@@ -28,7 +28,8 @@
     }
   },
   "approval": {
-    "status": "candidate"
+    "status": "approved",
+    "date": "2026-10-11"
   },
   "notes": "这是一页报道，不是作品官网，仅取其首图和排版；原作的高清图需到 RISOTTO 官网或 Riso Club 页面核对，动效不适用。"
 }

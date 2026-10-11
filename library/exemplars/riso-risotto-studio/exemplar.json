@@ -28,7 +28,8 @@
     }
   },
   "approval": {
-    "status": "candidate"
+    "status": "approved",
+    "date": "2026-10-11"
   },
   "notes": "首屏下方有 2027 日历月份的横向滚动与「Lunar Key」图例，动效未录屏核对；左下角的黄色气泡提示是站点浮层，参考时应忽略。"
 }

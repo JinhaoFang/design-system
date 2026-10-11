@@ -28,7 +28,8 @@
     }
   },
   "approval": {
-    "status": "candidate"
+    "status": "approved",
+    "date": "2026-10-11"
   },
   "notes": "站内切换页面与悬停时的动效未录屏核对；首屏是静态海报式构图，是否有进场动画需裁判确认。"
 }
