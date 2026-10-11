@@ -53,7 +53,9 @@
         "图版率": "高"
       },
       "recommendation": {
-        "system": "riso-print"
+        "system": "临时方向",
+        "borrowLayoutsFrom": "riso-print",
+        "direction": "蜡笔与铅笔的手绘涂鸦线条配歪歪扭扭的手写字，排法借孔版印刷的多色叠放与错位。"
       },
       "samples": {
         "status": "pending"

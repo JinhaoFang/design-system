@@ -11,12 +11,12 @@
     {
       "name": "排版驱动",
       "description": "大胆的字体与字号对比，不对称的构图，在网格里故意打破一处；设计感来自字。",
-      "materialAnchor": "专业设计刊物的排版",
+      "materialAnchor": "暖白哑光纸上的油墨印刷，设计刊物的排版",
       "tonality": {
         "静动": 3,
         "疏密": 3,
-        "冷暖": 3,
-        "轻重": 3,
+        "冷暖": 4,
+        "轻重": 2,
         "庄谐": 3
       },
       "composition": {
@@ -37,7 +37,7 @@
     {
       "name": "色块与形状",
       "description": "大面积的几何色块，撞色，形状本身当图像；像一张构成主义的海报。",
-      "materialAnchor": "丝网印刷的几何色块",
+      "materialAnchor": "Riso 孔版印刷的几何色块与套色错位",
       "tonality": {
         "静动": 4,
         "疏密": 3,
@@ -77,7 +77,9 @@
         "图版率": "中"
       },
       "recommendation": {
-        "system": "paper-editorial"
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "以信封、邮戳、票据这类与内容相关的实物作画面主角，排法借纸本编辑的留白与单栏版式。"
       },
       "samples": {
         "status": "pending"

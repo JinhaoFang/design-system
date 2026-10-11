@@ -5,7 +5,7 @@
  * Body (headings outside code fences, exact titles): ## 意图, ## 材质锚点, ## 视觉语言 (### 色彩, 字体, 版面, 形态, 图像与画风, 识别符号), ## 动效语言, ## 结构骨架, ## 范例.
  * Five required contents, each checked where it lives: 材质锚点 (header field + non-empty section), 动效语言 (section + non-empty "### 高光时刻"; ladder and easing are in the token file),
  *   中文字体搭配 (non-empty "#### 中文搭配" under 字体; font.cjk is in the token file), 识别符号 (1-3 top-level "- " items), 无图方案 (non-empty "#### 无图方案" under 图像与画风).
- * Every message says what is missing and where.
+ * Every message says what is missing and where. splitHeader and parseSections (header/body split and the heading tree outside code fences) are exported for readers of the body, such as the system page.
  */
 import { readFile } from 'node:fs/promises';
 import { parse as parseYaml } from 'yaml';
@@ -37,7 +37,7 @@ export interface SystemDocResult {
   issues: string[];
 }
 
-interface Section {
+export interface Section {
   level: number;
   title: string;
   own: string[];
@@ -48,13 +48,13 @@ const FILE = 'SYSTEM.md';
 const REQUIRED_SECTIONS = ['意图', '材质锚点', '视觉语言', '动效语言', '结构骨架', '范例'];
 const VISUAL_PARTS = ['色彩', '字体', '版面', '形态', '图像与画风', '识别符号'];
 
-function splitHeader(text: string): { header: string | undefined; body: string } {
+export function splitHeader(text: string): { header: string | undefined; body: string } {
   const match = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/.exec(text);
   if (!match) return { header: undefined, body: text };
   return { header: match[1]!, body: text.slice(match[0].length) };
 }
 
-function parseSections(body: string): Section[] {
+export function parseSections(body: string): Section[] {
   const root: Section = { level: 0, title: '', own: [], children: [] };
   const stack: Section[] = [root];
   let fence: string | undefined;

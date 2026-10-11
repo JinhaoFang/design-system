@@ -25,7 +25,9 @@
         "图版率": "中"
       },
       "recommendation": {
-        "system": "precision-industrial"
+        "system": "临时方向",
+        "borrowLayoutsFrom": "precision-industrial",
+        "direction": "暖灰白纸面上的刻度尺、十字准星与等宽小号标签，发丝细线网格，排法借精密工业的标签与刻度导航。"
       },
       "samples": {
         "status": "present",

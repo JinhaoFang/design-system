@@ -25,7 +25,9 @@
         "图版率": "低"
       },
       "recommendation": {
-        "system": "riso-print"
+        "system": "临时方向",
+        "borrowLayoutsFrom": "riso-print",
+        "direction": "整面红底配白色巨字，色块平涂不带网点，排法借孔版印刷的大字叠放，并补上套色错位与墨粒。"
       },
       "samples": {
         "status": "present",

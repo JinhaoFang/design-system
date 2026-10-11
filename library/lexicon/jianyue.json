@@ -11,11 +11,11 @@
     {
       "name": "只留必要的",
       "description": "元素少到不能再少：单色、无装饰、一屏一个重点，连图标都省掉，靠字号和位置分主次。",
-      "materialAnchor": "暖白纸面上的黑色油墨",
+      "materialAnchor": "暖白哑光纸上的油墨印刷，只用单色黑墨",
       "tonality": {
         "静动": 1,
         "疏密": 1,
-        "冷暖": 3,
+        "冷暖": 4,
         "轻重": 2,
         "庄谐": 2
       },
@@ -51,7 +51,9 @@
         "图版率": "低"
       },
       "recommendation": {
-        "system": "precision-industrial"
+        "system": "临时方向",
+        "borrowLayoutsFrom": "precision-industrial",
+        "direction": "单色或双色的无衬线字压在严格网格上，层级只靠字号与位置，排法借精密工业的网格与对齐规则。"
       },
       "samples": {
         "status": "pending"
