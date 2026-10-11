@@ -1,11 +1,11 @@
 /*
  * Preview (预览): a local static file server for any output directory (one work, a layout overview, a regression output, a system page), so a judge can operate the pages by hand.
  * startPreview({ dir, port?, host? }) -> { url, close(), dir }. Defaults: host 127.0.0.1, port 4173 (0 picks a free port). Nothing is written to dir.
- * Routes: "/" is the navigation index (a generated page listing every artifact under dir, found by artifact-scan.ts, with system, carrier, canvas, concept, error and warning counts, plus the screenshots,
- * recordings, PDFs and reports next to each one); every other path is a file under dir. A directory path serves its index.html (a path without the trailing slash redirects, so relative links to fonts/ and
- * images/ resolve); an artifact at the root of dir is listed first and opened as /index.html. Byte ranges are supported so recordings seek; MIME types cover the files builds produce (html, css, js, json,
- * png, webp, jpg, svg, woff2, webm, pdf, md). Paths outside dir are refused (404).
- * Groups on the navigation page follow the first path segment of each artifact (for a regression output: the system, then works, overview and system pages as sub-paths).
+ * Routes: "/" is the navigation index; "/_overview/<folder>/" is the generated listing of one system's layout-overview builds (preview-nav.ts); every other path is a file under dir.
+ * A directory path serves its index.html (a path without the trailing slash redirects, so relative links to fonts/ and images/ resolve); an artifact at the root of dir is listed first and opened as /index.html.
+ * Byte ranges are supported so recordings seek; MIME types cover the files builds produce (html, css, js, json, png, webp, jpg, svg, woff2, webm, pdf, md). Paths outside dir are refused (404).
+ * Navigation index: for regression output, a single system folder or a lone layout overview (preview-nav.ts) it is grouped per system (system page, sample thumbnails, one 排法总览 entry);
+ * for any other shape it is the flat list of every artifact found by artifact-scan.ts, grouped by first path segment, with system, carrier, canvas, concept, error and warning counts and the screenshots, recordings, PDFs and reports next to each one.
  * Web pages scroll and slide pages turn with the arrow keys because they are served exactly as built.
  */
 import { createReadStream } from 'node:fs';
@@ -17,6 +17,7 @@ import { extname, join, normalize, resolve, sep } from 'node:path';
 import { scanArtifacts } from './artifact-scan.ts';
 import type { ArtifactEntry } from './artifact-scan.ts';
 import { escapeHtml } from './layout.ts';
+import { FLAT_CSS, OVERVIEW_ROUTE, countsText, detectLayout, encodePath, groupedHome, listingBases, overviewListing, pageShell } from './preview-nav.ts';
 import { BuildError } from './types.ts';
 
 export interface PreviewOptions {
@@ -54,10 +55,6 @@ const MIME: Record<string, string> = {
 
 const MEDIA = new Set(['.png', '.webm', '.pdf', '.md']);
 
-function encodePath(rel: string): string {
-  return rel.split('/').map(encodeURIComponent).join('/');
-}
-
 function hrefOf(entry: ArtifactEntry): string {
   return entry.rel === '' ? '/index.html' : `/${encodePath(entry.rel)}/`;
 }
@@ -72,54 +69,40 @@ function groupOf(entry: ArtifactEntry): string {
   return entry.rel === '' ? '' : entry.rel.split('/')[0]!;
 }
 
-export async function navigationPage(dir: string): Promise<string> {
-  const entries = await scanArtifacts(dir);
+async function flatSections(entries: ArtifactEntry[]): Promise<string> {
   const groups = new Map<string, ArtifactEntry[]>();
   for (const entry of entries) groups.set(groupOf(entry), [...(groups.get(groupOf(entry)) ?? []), entry]);
   const sections: string[] = [];
   for (const [group, items] of groups) {
     const rows: string[] = [];
     for (const entry of items) {
-      const counts = entry.errors !== undefined ? `<span class="n${entry.errors > 0 ? ' bad' : ''}">${entry.errors} 个错误 · ${entry.warnings ?? 0} 个警告</span>` : '';
       const meta = [entry.system, entry.carrier, entry.canvas].filter(Boolean).map((part) => escapeHtml(String(part))).join(' / ');
       const media = (await mediaOf(entry)).map((file) => `<a class="m" href="${file.href}">${escapeHtml(file.name)}</a>`).join('');
       rows.push(
         `<li><a class="open" href="${hrefOf(entry)}"><b>${escapeHtml(entry.rel === '' ? '当前目录' : entry.rel.split('/').slice(1).join('/') || entry.rel)}</b>` +
-          `${entry.concept ? `<i>${escapeHtml(entry.concept)}</i>` : ''}</a><span class="meta">${meta}</span>${counts}<span class="files">${media}</span></li>`,
+          `${entry.concept ? `<i>${escapeHtml(entry.concept)}</i>` : ''}</a><span class="meta">${meta}</span>${countsText(entry.errors, entry.warnings)}<span class="files">${media}</span></li>`,
       );
     }
-    sections.push(`<section><h2>${escapeHtml(group === '' ? '本目录' : group)}</h2><ul>${rows.join('')}</ul></section>`);
+    sections.push(`<section><h2>${escapeHtml(group === '' ? '本目录' : group)}</h2><ul class="flat">${rows.join('')}</ul></section>`);
   }
-  const body = sections.length ? sections.join('\n') : '<p class="empty">这个目录下没有可打开的产物（含 index.html 的子目录）。</p>';
-  return `<!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>预览导航</title>
-<style>
-:root{color-scheme:light dark;--bg:#f4efe6;--fg:#1d1a16;--mute:#7a7266;--line:#d9d0c0;--bad:#b3261e}
-@media (prefers-color-scheme:dark){:root{--bg:#171512;--fg:#efe9dd;--mute:#9b9384;--line:#38332b;--bad:#ff8a80}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 "Noto Serif SC","Source Han Serif SC","Songti SC",Georgia,serif;padding:clamp(24px,6vw,96px) clamp(16px,6vw,96px)}
-h1{font-size:clamp(32px,5vw,56px);line-height:1.1;margin:0 0 8px;font-weight:600;letter-spacing:.02em}
-.dir{color:var(--mute);margin:0 0 56px;word-break:break-all;font-size:14px}
-h2{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);border-top:1px solid var(--fg);padding-top:12px;margin:48px 0 0;font-weight:500}
-ul{list-style:none;margin:0;padding:0}
-li{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr) auto;gap:4px 24px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--line)}
-a{color:inherit}
-a.open{display:flex;flex-direction:column;text-decoration:none}
-a.open b{font-size:20px;font-weight:600}
-a.open i{font-style:normal;color:var(--mute);font-size:14px}
-a.open:hover b{text-decoration:underline;text-underline-offset:4px}
-.meta,.n{font-size:13px;color:var(--mute)}
-.n.bad{color:var(--bad)}
-.files{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px}
-.m{color:var(--mute)}
-.empty{color:var(--mute)}
-@media (max-width:640px){li{grid-template-columns:1fr}}
-</style></head><body>
-<h1>预览导航</h1>
-<p class="dir">${escapeHtml(dir)}</p>
-${body}
-</body></html>
-`;
+  return sections.join('\n');
+}
+
+export async function navigationPage(dir: string): Promise<string> {
+  const entries = await scanArtifacts(dir);
+  const layout = await detectLayout(dir, entries);
+  if (layout.kind !== 'flat') return groupedHome(dir, layout, flatSections);
+  const body = entries.length ? await flatSections(entries) : '<p class="empty">这个目录下没有可打开的产物（含 index.html 的子目录）。</p>';
+  return pageShell('预览导航', dir, body, FLAT_CSS);
+}
+
+async function overviewPage(root: string, pathname: string): Promise<string | undefined> {
+  if (pathname !== OVERVIEW_ROUTE.slice(0, -1) && !pathname.startsWith(OVERVIEW_ROUTE)) return undefined;
+  const base = pathname.slice(OVERVIEW_ROUTE.length).replace(/\/+$/, '');
+  const entries = await scanArtifacts(root);
+  const layout = await detectLayout(root, entries);
+  if (!listingBases(layout).includes(base)) return undefined;
+  return overviewListing(root, entries, base, false);
 }
 
 function send(res: ServerResponse, status: number, type: string, body: string): void {
@@ -158,6 +141,8 @@ async function handle(root: string, req: IncomingMessage, res: ServerResponse): 
     return send(res, 400, 'text/plain; charset=utf-8', '路径无法解析');
   }
   if (pathname === '/') return send(res, 200, MIME['.html']!, await navigationPage(root));
+  const listing = await overviewPage(root, pathname);
+  if (listing !== undefined) return send(res, 200, MIME['.html']!, listing);
   const target = resolve(join(root, normalize(pathname)));
   if (target !== root && !target.startsWith(root + sep)) return send(res, 404, 'text/plain; charset=utf-8', '找不到');
   let info;
