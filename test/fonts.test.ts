@@ -14,6 +14,7 @@ import { fetchFonts } from '../src/fetch-fonts.ts';
 import { loadFontManifest } from '../src/fonts.ts';
 import type { BuildResult } from '../src/build-and-check.ts';
 import { fixtures, repoRoot, run, tempDir } from './helpers.ts';
+import { box, customWork } from './custom-work.ts';
 import { editJson, patchedLibrary } from './system-helpers.ts';
 
 const execFileAsync = promisify(execFile);
@@ -57,6 +58,12 @@ describe('font list format', () => {
     await expect(attempt).rejects.toThrow(/license\.url/);
     await expect(attempt).rejects.toThrow(/sha256/);
     await expect(attempt).rejects.toThrow(/weight/);
+  });
+
+  test('style is optional, defaults to normal, and only normal or italic are allowed', async () => {
+    await expect(validateWithManifest((m) => (m.fonts[0].style = 'italic'))).resolves.toBeDefined();
+    await expect(validateWithManifest((m) => (m.fonts[0].style = 'normal'))).resolves.toBeDefined();
+    await expect(validateWithManifest((m) => (m.fonts[0].style = 'oblique'))).rejects.toThrow(/noto-sans-sc-fixture[\s\S]*style/);
   });
 
   test('rejects duplicate ids', async () => {
@@ -311,5 +318,49 @@ describe('font checks', () => {
     const result = await run(fixtures.work('web-clean'), { libraryDir: library });
     expect(fontFindings(result)).toEqual([expect.objectContaining({ ruleId: 'fonts/license-carrier', severity: 'error' })]);
     expect(fontFindings(result)[0]!.message).not.toContain('手机宽度');
+  });
+});
+
+describe('font style (italic faces)', () => {
+  const styleLibrary = (style: string) =>
+    patchedLibrary((dir) =>
+      editJson(join(dir, 'fonts', 'manifest.json'), (m) => {
+        m.fonts[0].style = style;
+      }),
+    );
+  const italicText = box('font-style:italic;');
+  const upright = box();
+  const fontFaces = async (result: BuildResult) => (await readFile(result.artifacts.index, 'utf8')).match(/@font-face\{[^}]*\}/g) ?? [];
+
+  test('the generated @font-face states font-style, normal by default and italic for an italic entry', async () => {
+    const plain = await run(await customWork(upright));
+    expect(await fontFaces(plain)).toEqual([expect.stringContaining('font-style:normal')]);
+    const italic = await run(await customWork(upright), { libraryDir: await styleLibrary('italic') });
+    expect(await fontFaces(italic)).toEqual([expect.stringContaining('font-style:italic')]);
+  });
+
+  test('italic text drawn only by upright faces is one error naming the font', async () => {
+    const result = await run(await customWork(italicText));
+    expect(result.exitCode).toBe(1);
+    expect(fontFindings(result)).toEqual([
+      expect.objectContaining({
+        ruleId: 'fonts/style-mismatch',
+        severity: 'error',
+        location: expect.objectContaining({ unit: 'custom' }),
+        message: expect.stringMatching(/斜体[\s\S]*Noto Sans SC/),
+      }),
+    ]);
+  });
+
+  test('italic text resolves to the italic entry and is clean', async () => {
+    const result = await run(await customWork(italicText), { libraryDir: await styleLibrary('italic') });
+    expect(fontFindings(result)).toEqual([]);
+  });
+
+  test('upright text drawn by an italic face is an error', async () => {
+    const result = await run(await customWork(upright), { libraryDir: await styleLibrary('italic') });
+    expect(fontFindings(result)).toEqual([
+      expect.objectContaining({ ruleId: 'fonts/style-mismatch', severity: 'error', message: expect.stringMatching(/正体[\s\S]*Noto Sans SC/) }),
+    ]);
   });
 });

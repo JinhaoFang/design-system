@@ -1,7 +1,8 @@
 /*
- * HTML page assembly for a social image: :root custom properties from the system's tokens, @font-face for the manifest fonts the system uses
+ * HTML page assembly for a social image: :root custom properties from the system's tokens, @font-face (family, weight, style) for the manifest fonts the system uses
  * (relative fonts/<file> URLs, so the artifact also opens straight from disk), and one fixed-size canvas holding the rendered units.
  */
+import { fontStyleOf } from './fonts.ts';
 import type { FontEntry } from './library.ts';
 
 export interface PageInput {
@@ -19,7 +20,7 @@ export function fontFaceCss(fonts: FontEntry[]): string {
   return fonts
     .map((font) => {
       const format = FORMATS[font.file.split('.').pop() ?? ''] ?? 'woff2';
-      return `@font-face{font-family:"${font.family}";font-weight:${font.weight};src:url("fonts/${font.file}") format("${format}");}`;
+      return `@font-face{font-family:"${font.family}";font-weight:${font.weight};font-style:${fontStyleOf(font)};src:url("fonts/${font.file}") format("${format}");}`;
     })
     .join('\n');
 }

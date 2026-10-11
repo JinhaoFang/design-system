@@ -39,6 +39,7 @@ export const SNAPSHOT_STYLE_PROPERTIES = [
   'display',
   'font-size',
   'font-weight',
+  'font-style',
   'padding-top',
   'padding-right',
   'padding-bottom',
