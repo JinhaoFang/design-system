@@ -25,6 +25,14 @@
   - 校验：`pnpm ds validate-exemplars [--library <目录>]`。退出状态 0 表示全部完整，1 表示有问题（逐条打印在 stderr，写明范例标识和字段）。
   - 按来源类型列出：`pnpm ds list-exemplars [--source external|copy|original] [--paths] [--library <目录>]`。默认每行一条（标识、来源类型、批准状态、载体、来源链接、媒体文件，制表符分隔）；`--paths` 只打印存在的媒体文件路径。仓库公开之前移除外部截图：`pnpm ds list-exemplars --source external --paths | xargs rm`，再把相应范例的 `media.status` 改成 `pending`。
   - agent 只提交候选（`approval.status` 为 `candidate`），批准和拒绝由裁判决定。
+- 感觉词词典：每个词一个文件 `library/lexicon/<id>.json`，文件名（拼音）必须等于 `id`。格式见 `src/lexicon.ts` 文件头。
+  - 字段：`id`、`word`（感觉词本身）、`phrasings`（需求方常见说法，至少一条）、`interpretations`（解读，至少两种；同一个词内 `name` 和 `materialAnchor` 不能重复）。
+  - 每种解读：`name`、`description`（大白话，要落到色彩、字体、版面、动效等具体决定上）、`materialAnchor`、`tonality`（五个键同范例，值 1–5）、`composition`（构图比率倾向，`跳跃率`、`版面率`、`图版率` 三个键，值 `低` / `中` / `高`）、`recommendation`、`samples`、`approval`。
+  - `recommendation`：`{"system": "paper-editorial" | "precision-industrial" | "riso-print"}`，或临时方向 `{"system": "临时方向", "borrowLayoutsFrom": <种子体系>, "direction": <一句话方向>}`。
+  - `samples`：`{"status": "pending"}`（待补）或 `{"status": "present", "exemplars": [范例标识...]}`，标识必须在 `library/exemplars/` 中存在。样图可以在任何确认状态下待补。
+  - `approval`：按解读逐条确认，规则同范例（候选不带 `date`，已批准和已拒绝必须带 `YYYY-MM-DD`）。agent 只提交候选。
+  - 校验：`pnpm ds validate-lexicon [--library <目录>]`，退出状态 0 表示全部完整，1 表示有问题（逐条打印在 stderr，写明词条标识和字段）。
+  - 列出：`pnpm ds list-lexicon [--status candidate|approved|rejected] [--system <种子体系>|临时方向] [--library <目录>]`，每种解读一行（词条标识、词、解读名、推荐体系、确认状态、样图标识或「待补」，制表符分隔）；状态或体系写错时退出状态 2。
 - 测试：`pnpm test`。测试只通过 `buildAndCheck()`（`src/build-and-check.ts`，命令行入口 `src/cli.ts` 是它的薄封装）以及它之上的 `buildOverview()`（`src/overview.ts`）、`regress()`（`src/regress.ts`）驱动夹具体系和夹具作品，断言报告和产物规格，不测内部函数，不做像素比对。范例库的测试在 `test/exemplars.test.ts`，通过 `validateExemplars()` 和 `listExemplars()` 两个入口及 CLI 命令驱动临时目录里的范例。
 - 排法总览：`pnpm ds overview --system <体系目录> --out <产物目录> [--library <共享资产目录>] [--carrier <载体>...] [--canvas <画幅>...]`。为任意体系生成作品：网页、幻灯片各一件（按骨架顺序，每个单元的每种排法依次出现一次），社交配图每个画幅、每种排法一张；内容取共享内容里该单元的第一个实例，只用 `{"ref": 键名}` 引用，不依赖具体键名。每件作品走一遍「构建并检查」，产物在 `<载体>/` 和 `social/<画幅>/<单元>-<排法>/` 下，`overview.md` 汇总各构建的错误和警告数；体系没有排法或共享内容没覆盖的单元列为「未覆盖」，不算错误。退出状态同 `build`（有构建失败也是 1）。
 - 回归：`pnpm ds regress [--systems <目录>] [--out <目录>] [--library <目录>]`（默认 `systems`、`out/regress`）。种子体系放在顶层 `systems/<体系标识>/`（`SYSTEM.md`、`system.tokens.json`、`layouts/` 等，格式同体系目录），该体系的标准样张作品描述放在 `systems/<体系标识>/works/*.json`（一份文件一件作品，社交配图每个画幅一份）。对每套体系先跑全部标准样张，再跑它的排法总览，产物在 `<out>/<体系标识>/works/<文件名>/` 和 `<out>/<体系标识>/overview/`；任何错误、构建失败、缺少标准样张都以退出状态 1 结束，体系目录不存在为 2。CI 里有手动触发的 `regress` 工作流（`.github/workflows/regress.yml`），缓存 `.cache/fonts`。

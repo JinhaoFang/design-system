@@ -1,0 +1,97 @@
+{
+  "id": "keji",
+  "word": "有科技感",
+  "phrasings": [
+    "要有科技感",
+    "科技范儿",
+    "看起来很智能",
+    "硬核一点"
+  ],
+  "interpretations": [
+    {
+      "name": "仪器面板",
+      "description": "细线、刻度、坐标十字、等宽小字标签，数字当主角；冷静精确，像在看一台设备的读数。",
+      "materialAnchor": "精密仪器的刻度与标注，放在暖灰白的纸面上",
+      "tonality": {
+        "静动": 3,
+        "疏密": 4,
+        "冷暖": 2,
+        "轻重": 3,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "高",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "precision-industrial"
+      },
+      "samples": {
+        "status": "present",
+        "exemplars": [
+          "industrial-artcraft"
+        ]
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "暗室发光",
+      "description": "深蓝黑底，青蓝色发光细线与光晕，局部渐变；动效像光在流动，酷但不能糊。",
+      "materialAnchor": "暗室里的发光屏幕",
+      "tonality": {
+        "静动": 4,
+        "疏密": 3,
+        "冷暖": 1,
+        "轻重": 3,
+        "庄谐": 2
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "中",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "precision-industrial",
+        "direction": "深蓝黑底配青蓝发光线，排法借精密工业的网格与标签体系，光晕只用在一处。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "产品发布会",
+      "description": "纯黑或纯白底，一个超大的产品图，字极少；随滚动一步步展开细节，像新品发布会。",
+      "materialAnchor": "展台上被聚光灯打亮的金属产品",
+      "tonality": {
+        "静动": 3,
+        "疏密": 1,
+        "冷暖": 1,
+        "轻重": 2,
+        "庄谐": 2
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "低",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "precision-industrial",
+        "direction": "纯底色配超大产品图与极少文字，排法借精密工业的居中版式，滚动驱动细节展开。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    }
+  ]
+}

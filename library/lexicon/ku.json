@@ -1,0 +1,92 @@
+{
+  "id": "ku",
+  "word": "酷",
+  "phrasings": [
+    "要酷",
+    "酷一点",
+    "有态度",
+    "帅一点"
+  ],
+  "interpretations": [
+    {
+      "name": "暗黑金属",
+      "description": "黑底，银灰，锐利的斜切，粗体字；像一辆摩托车的仪表盘。",
+      "materialAnchor": "拉丝金属与碳纤维",
+      "tonality": {
+        "静动": 4,
+        "疏密": 3,
+        "冷暖": 1,
+        "轻重": 5,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "中",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "precision-industrial",
+        "direction": "黑底银灰配锐利斜切与粗体字，排法借精密工业的网格与标签。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "复印机朋克",
+      "description": "黑黄撞色，胶带，复印出来的颗粒，字是剪贴拼出来的；毛糙，带态度。",
+      "materialAnchor": "复印机复印的小册子与胶带",
+      "tonality": {
+        "静动": 5,
+        "疏密": 4,
+        "冷暖": 3,
+        "轻重": 4,
+        "庄谐": 5
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "高",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "riso-print"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "冷峻极简",
+      "description": "黑白灰，大量留白，字细而冷，不主动讨好；酷在不说话。",
+      "materialAnchor": "黑白灰的哑光纸",
+      "tonality": {
+        "静动": 1,
+        "疏密": 1,
+        "冷暖": 1,
+        "轻重": 3,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "低",
+        "图版率": "低"
+      },
+      "recommendation": {
+        "system": "paper-editorial"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    }
+  ]
+}

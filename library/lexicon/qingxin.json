@@ -1,0 +1,94 @@
+{
+  "id": "qingxin",
+  "word": "清新",
+  "phrasings": [
+    "清新一点",
+    "小清新",
+    "干干净净的清爽",
+    "清爽自然"
+  ],
+  "interpretations": [
+    {
+      "name": "草木绿白",
+      "description": "浅绿加白，植物插画，圆体字，通透；像清晨阳光里的叶子。",
+      "materialAnchor": "晨光里的植物叶片与白瓷",
+      "tonality": {
+        "静动": 2,
+        "疏密": 2,
+        "冷暖": 2,
+        "轻重": 1,
+        "庄谐": 3
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "浅绿加白底配植物插画与圆体字，排法借纸本编辑的图文版式。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "冷调水感",
+      "description": "浅蓝加白，水彩晕染的边缘，轻盈；像夏天的一杯冰水。",
+      "materialAnchor": "水彩纸上的淡蓝水彩",
+      "tonality": {
+        "静动": 2,
+        "疏密": 2,
+        "冷暖": 1,
+        "轻重": 1,
+        "庄谐": 3
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "低",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "浅蓝白底配水彩晕染与细字，排法借纸本编辑的留白版式。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "柠檬汽水",
+      "description": "黄绿高亮色加白，跳色，爽快，字偏大；像气泡冲上来的感觉。",
+      "materialAnchor": "Riso 孔版印刷的荧光黄绿墨",
+      "tonality": {
+        "静动": 4,
+        "疏密": 3,
+        "冷暖": 3,
+        "轻重": 1,
+        "庄谐": 4
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "中",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "riso-print"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    }
+  ]
+}

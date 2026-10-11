@@ -1,0 +1,92 @@
+{
+  "id": "guochao",
+  "word": "国潮",
+  "phrasings": [
+    "国潮风",
+    "要有中国味",
+    "国风潮牌",
+    "新国货的感觉"
+  ],
+  "interpretations": [
+    {
+      "name": "传统纹样新做",
+      "description": "朱红、靛蓝与描金，云纹回纹作装饰，书法大字，部分竖排；传统元素，但版面是新的。",
+      "materialAnchor": "朱砂与靛蓝在宣纸上的描金",
+      "tonality": {
+        "静动": 3,
+        "疏密": 3,
+        "冷暖": 5,
+        "轻重": 4,
+        "庄谐": 3
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "中",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "朱红靛蓝描金配传统纹样与书法大字，排法借纸本编辑的竖排与分栏。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "街头潮牌混搭",
+      "description": "大红加黑，汉字大字报，印章和粗黑体并用，带一点涂鸦；国风元素放进街头语境。",
+      "materialAnchor": "丝网印刷的红黑大字报",
+      "tonality": {
+        "静动": 5,
+        "疏密": 4,
+        "冷暖": 5,
+        "轻重": 4,
+        "庄谐": 4
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "中",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "riso-print"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "新中式留白",
+      "description": "水墨淡彩，大量留白，一两处朱红印章，宋体字；安静、有意境。",
+      "materialAnchor": "宣纸上的水墨",
+      "tonality": {
+        "静动": 1,
+        "疏密": 1,
+        "冷暖": 3,
+        "轻重": 1,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "低",
+        "图版率": "低"
+      },
+      "recommendation": {
+        "system": "paper-editorial"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    }
+  ]
+}
