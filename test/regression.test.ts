@@ -36,6 +36,7 @@ describe('regression', () => {
     const systemsDir = await tempDir('ds-systems-');
     await installSystem(systemsDir, 'good', { clean: true, samples: ['clean', 'slides-clean', 'web-clean'] });
     const result = await run(systemsDir);
+    expect(result.systems.flatMap((system) => system.problems)).toEqual([]);
     expect(result.exitCode).toBe(0);
     expect(result.systems.map((system) => system.id)).toEqual(['good']);
     const good = result.systems[0]!;

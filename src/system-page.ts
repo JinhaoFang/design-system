@@ -93,7 +93,7 @@ function linkTo(outDir: string, entry: ArtifactEntry): string {
 
 function noteOf(entry: ArtifactEntry): string {
   const counts = entry.errors !== undefined ? `${entry.errors} 个错误，${entry.warnings ?? 0} 个警告` : '';
-  return [entry.concept, counts].filter(Boolean).join(' · ');
+  return [entry.concept, counts].filter(Boolean).join('  ');
 }
 
 async function overviewLinks(outDir: string, overviewDir: string | undefined): Promise<LinkGroup[]> {
