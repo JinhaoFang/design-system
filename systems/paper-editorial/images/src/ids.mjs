@@ -1,6 +1,6 @@
 /*
  * The nine image ids of the standard-sample image briefs (library/content/images.json), in the order the contact sheet shows them.
- * Shared by build.mjs (writes images/<id>.svg) and preview.mjs (renders them to PNG).
+ * Used by preview.mjs (renders them to PNG); seven are drawn by build.mjs as SVG, primary-mirror and eyepiece-night are generated WebP (prompts/).
  */
 export const IMAGE_IDS = [
   'dome-night',

@@ -1,17 +1,16 @@
 /*
  * Entry point: regenerates every code-drawn asset of the paper-editorial system. Run from the repository root:
  *   node systems/paper-editorial/images/src/build.mjs
- * Writes the nine standard-sample images images/<id>.svg (dome-night, primary-mirror, summit-road, eyepiece-night, five partner marks) and the three custom fragments
+ * Writes the seven code-drawn standard-sample images images/<id>.svg (dome-night, summit-road, five partner marks) and the three custom fragments
  * works/fragments/*.html (xingtu-tiqian, guang-zou-le, ba-ge-zhouliu). The fragments embed generated inline SVG, so the files are build products and are overwritten on every run.
+ * primary-mirror and eyepiece-night are not drawn here: code-drawn people looked stiff, so they come from the image model (recipes in prompts/, files images/<id>.webp, see prompts/README.md).
  * Needs the font cache (pnpm ds fetch-fonts, or .cache/fonts linked in) because labels are outlined from the real fonts. Deterministic: two runs give identical bytes.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { HEX } from './lib/palette.mjs';
 import { domeNight } from './art/dome-night.mjs';
-import { primaryMirror } from './art/primary-mirror.mjs';
 import { summitRoad } from './art/summit-road.mjs';
-import { eyepieceNight } from './art/eyepiece-night.mjs';
 import { marks } from './art/marks.mjs';
 import { xingtuTiqian } from './works/xingtu-tiqian.mjs';
 import { guangZouLe } from './works/guang-zou-le.mjs';
@@ -24,9 +23,7 @@ export function buildAll() {
   mkdirSync(fragmentsDir, { recursive: true });
   const images = {
     'dome-night': domeNight(HEX),
-    'primary-mirror': primaryMirror(HEX),
     'summit-road': summitRoad(HEX),
-    'eyepiece-night': eyepieceNight(HEX),
     ...marks(HEX),
   };
   for (const [id, svg] of Object.entries(images)) writeFileSync(`${imagesDir}${id}.svg`, svg);
