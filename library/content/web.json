@@ -1,66 +1,65 @@
 {
-  "hero.eyebrow": "苇简 2.0 发布",
-  "hero.headline": "笔记再多，也是秒搜",
-  "hero.lead": "苇简是开源的本地优先 Markdown 笔记软件。2.0 重写了搜索和同步，插件接口也定为稳定版本。",
-  "hero.cta": "下载 2.0",
-  "hero.visual": { "src": "assets/editor.png", "alt": "苇简 2.0 主界面：笔记列表、编辑区和反向链接" },
+  "hero.eyebrow": "新望远镜落成",
+  "hero.headline": "新望远镜落成，山顶开放观测夜",
+  "hero.lead": "鹞岭天文台建在海拔 2,860 米的山顶。口径 1.6 米的新望远镜落成后，每月两个周六的晚上向公众开放，每场 60 人。",
+  "hero.cta": "预约观测夜",
+  "hero.visual": { "image": "dome-night" },
 
-  "problem.heading": "笔记越攒越多，软件越来越慢",
-  "problem.body": "资料库过万条之后，1.x 搜一次要等一秒多。多设备同步一有冲突就弹窗，让你自己挑保留哪一份。每次大版本升级，还总有几个常用插件失效。",
+  "problem.heading": "旧镜够不到，普通人也上不来",
+  "problem.body": "鹞岭的旧望远镜 1987 年建成，口径 0.6 米，极限星等 22 等。山顶没有接待区，每年只接待约 60 位科研访客，普通人上不了山。",
   "problem.points": [
-    "3 万条笔记，搜索要 1,290 毫秒",
-    "每千次同步弹出 14 次冲突提示",
-    "每个大版本都有常用插件失效",
-    "冷启动要等 2.8 秒"
+    "旧镜口径只有 0.6 米",
+    "极限星等 22 等",
+    "山顶没有接待区",
+    "每年约 60 位科研访客"
   ],
 
-  "solution.heading": "重写地基，笔记还是原来的样子",
-  "solution.body": "笔记仍是你文件夹里的普通 Markdown 文件。2.0 换掉的是下面三层：重建的本地索引负责搜索，按段落合并的同步取代整文件覆盖，带版本号的插件接口让扩展不再随升级失效。",
-  "solution.visual": { "src": "assets/search.png", "alt": "搜索面板：3 万条笔记里 86 毫秒找到 1,248 条结果" },
+  "solution.heading": "新镜、新圆顶和一座接待厅",
+  "solution.body": "1.6 米的新望远镜装在直径 10 米的圆顶里。圆顶旁新建了可坐 60 人的接待厅，访客先在这里取暖、听讲解，再轮流到目镜前观看。",
+  "solution.visual": { "image": "primary-mirror" },
 
-  "features.heading": "2.0 的六处改动",
-  "features.lead": "每一项都来自社区问卷里被提得最多的抱怨。",
-  "features.itemTitles": ["毫秒级搜索", "按段落同步", "稳定的插件接口", "更快的启动", "长笔记不卡顿", "一键导入"],
+  "features.heading": "新望远镜的六项参数",
+  "features.lead": "数字来自 2025 年首光之后一年的试观测。",
+  "features.itemTitles": ["口径 1.6 米", "极限星等 24 等", "10 米圆顶", "海拔 2,860 米", "目视目镜", "暗夜天空"],
   "features.itemBodies": [
-    "重建本地索引，3 万条笔记平均 86 毫秒出结果。",
-    "改动按段落合并，冲突提示降到每千次同步 0.3 次。",
-    "插件接口 v1 带版本号和权限声明，2.x 内不做破坏性改动。",
-    "冷启动从 2.8 秒降到 0.9 秒，直接回到上次的笔记。",
-    "10 MB 的长笔记 0.4 秒打开，滚动保持流畅。",
-    "支持导入其他笔记软件导出的 Markdown 和 HTML 文件。"
+    "主镜直径 1.6 米，集光面积约为旧镜的 7 倍。",
+    "累积曝光可拍到暗至 24 等的天体，比旧镜深 2 等。",
+    "圆顶直径 10 米，转一圈 90 秒。",
+    "每年晴夜约 210 个，大气稳定。",
+    "镜旁装有目视目镜，访客直接用眼睛看。",
+    "天顶天空亮度 21.7 等 / 平方角秒，银河肉眼可见。"
   ],
 
-  "evidence.heading": "已经有人在用",
-  "evidence.stats": ["86ms", "0.3", "9,400", "312"],
-  "evidence.statLabels": ["3 万条笔记的搜索延迟", "每千次同步的冲突提示", "参与 Beta 的测试者", "贡献过代码的开发者"],
-  "evidence.quote": "我有两万三千条笔记，1.x 里搜一次要等一秒多。Beta 里基本是敲完就出结果。",
-  "evidence.quoteBy": "周以宁，独立研究员",
+  "evidence.heading": "数字和人",
+  "evidence.stats": ["1.6m", "2,860m", "210", "480"],
+  "evidence.statLabels": ["新望远镜主镜口径", "天文台所在海拔", "每年晴夜约数", "首批观测夜名额"],
+  "evidence.quote": "首光那晚，我们对准仙女星系。进入镜筒的光已经走了 250 万年，比人类的历史还长。",
+  "evidence.quoteBy": "沈砚秋，鹞岭天文台台长",
   "evidence.logos": [
-    { "src": "assets/logos/beichen.png", "alt": "北辰实验室标识" },
-    { "src": "assets/logos/yunling.png", "alt": "云岭大学图书馆标识" },
-    { "src": "assets/logos/halden.png", "alt": "Halden Press 标识" },
-    { "src": "assets/logos/qinghe.png", "alt": "青禾出版社标识" },
-    { "src": "assets/logos/meridian.png", "alt": "Meridian Works 标识" },
-    { "src": "assets/logos/dukou.png", "alt": "渡口工作室标识" }
+    { "image": "mark-beizhu-univ" },
+    { "image": "mark-xingye-optics" },
+    { "image": "mark-luxi-town" },
+    { "image": "mark-wandu-society" },
+    { "image": "mark-jiahe-school" }
   ],
 
-  "process.heading": "从征求意见到正式发布",
-  "process.steps": ["征求意见", "Alpha", "公开 Beta", "发布候选", "正式发布", "2.1 规划"],
+  "process.heading": "从奠基到落成",
+  "process.steps": ["奠基", "圆顶封顶", "主镜运抵", "首光", "落成典礼", "首场观测夜"],
   "process.stepNotes": [
-    "3 月，公开 14 份设计文档",
-    "5 月，核心团队每天使用",
-    "7 月，9,400 人参与测试",
-    "9 月，只修复缺陷",
-    "10 月 28 日，2.0.0 上线",
-    "12 月，插件市场与移动端同步"
+    "2022 年 4 月，圆顶基础动工",
+    "2023 年 9 月，钢结构圆顶合拢",
+    "2024 年 11 月，主镜经盘山路运抵",
+    "2025 年 10 月，首次拍摄仙女星系",
+    "2026 年 11 月 14 日，落成典礼",
+    "2026 年 11 月 21 日，对公众开放"
   ],
 
-  "cta.headline": "现在就升级到 2.0",
-  "cta.action": "下载 2.0",
-  "cta.lead": "支持 macOS、Windows 和 Linux，Android 版同日上架。",
-  "cta.note": "笔记始终是普通文件，随时可以带走。",
+  "cta.headline": "预约 11 月的观测夜",
+  "cta.action": "预约观测夜",
+  "cta.lead": "11 月 21 日起，每月第 3、第 4 个周六，每场 60 人，每人最多订 4 席。",
+  "cta.note": "10 月 20 日开放预约，山下接驳车每人 40 元。",
 
-  "footer.brand": "苇简Reedslip",
-  "footer.links": ["下载", "文档", "更新日志", "插件", "社区", "源代码", "隐私", "赞助"],
-  "footer.legal": "苇简是虚构的开源软件，以 MPL-2.0 协议发布。本页内容仅作设计体系测试之用。"
+  "footer.brand": "鹞岭天文台",
+  "footer.links": ["预约", "望远镜", "建设历程", "交通", "参观须知", "新闻", "联系", "常见问题"],
+  "footer.legal": "鹞岭天文台（Kestrel Ridge Observatory）是虚构机构，本页内容仅作设计体系测试之用。"
 }

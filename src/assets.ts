@@ -1,46 +1,57 @@
 /*
- * Image assets referenced by a work: every image slot value {src, alt} whose src is a relative path is resolved against <library>/content and copied to the same relative path in the output directory,
- * so the generated index.html (which sits in the output directory) shows the image. Absolute URLs (http, https, data, file) and root-absolute paths are left alone.
- * A relative src that leaves the content directory or points at a missing file is a validation problem and throws BuildError listing all of them; nothing is copied in that case.
+ * Image resolution: every image id a work references (image slot values {image: <id>}) is looked up in the current system directory as <system>/images/<id>.<ext>
+ * with ext one of svg, webp, png, jpg, jpeg, avif, gif. Each found file is copied to <outDir>/images/<id>.<ext> and the returned work carries src "images/<id>.<ext>" on those items
+ * (the generated index.html sits in outDir). Ids with no file, or with more than one file of different formats, are validation problems: BuildError lists all of them and nothing is copied.
  */
 import { copyFile, mkdir, stat } from 'node:fs/promises';
-import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
+import { join } from 'node:path';
 import { BuildError } from './types.ts';
-import type { Work } from './work.ts';
+import type { ImageItem, SlotItem, Work } from './work.ts';
 
-const EXTERNAL = /^([a-z][a-z0-9+.-]*:|\/\/|\/)/i;
+export const IMAGE_DIR = 'images';
+export const IMAGE_EXTENSIONS = ['svg', 'webp', 'png', 'jpg', 'jpeg', 'avif', 'gif'] as const;
 
-function imageSources(work: Work): string[] {
-  const sources = new Set<string>();
+const isImage = (entry: SlotItem): entry is ImageItem => typeof entry === 'object';
+
+function imageIds(work: Work): string[] {
+  const ids = new Set<string>();
   for (const item of work.sequence) {
     if (item.kind !== 'unit') continue;
     for (const value of Object.values(item.content)) {
-      for (const entry of Array.isArray(value) ? value : [value]) {
-        if (typeof entry === 'object' && !EXTERNAL.test(entry.src)) sources.add(entry.src);
-      }
+      for (const entry of Array.isArray(value) ? value : [value]) if (isImage(entry)) ids.add(entry.image);
     }
   }
-  return [...sources];
+  return [...ids];
 }
 
-export async function copyWorkImages(work: Work, libraryDir: string, outDir: string): Promise<void> {
-  const root = resolve(libraryDir, 'content');
+const exists = (path: string) => stat(path).then((info) => info.isFile(), () => false);
+
+export async function resolveWorkImages(work: Work, systemDir: string, outDir: string): Promise<Work> {
   const issues: string[] = [];
-  const copies: { from: string; to: string }[] = [];
-  for (const src of imageSources(work)) {
-    const from = resolve(root, src);
-    const inside = relative(root, from);
-    if (inside.startsWith('..') || isAbsolute(inside)) {
-      issues.push(`图片路径 "${src}" 超出了共享内容目录 ${root}`);
-      continue;
-    }
-    const found = await stat(from).then((info) => info.isFile(), () => false);
-    if (!found) issues.push(`图片文件不存在：${from}（图片路径 "${src}" 相对于共享内容目录）`);
-    else copies.push({ from, to: join(outDir, inside) });
+  const found = new Map<string, { from: string; name: string }>();
+  for (const id of imageIds(work)) {
+    const names = [];
+    for (const ext of IMAGE_EXTENSIONS) if (await exists(join(systemDir, IMAGE_DIR, `${id}.${ext}`))) names.push(`${id}.${ext}`);
+    if (names.length === 0) issues.push(`缺少图像「${id}」：体系目录 ${join(systemDir, IMAGE_DIR)} 下没有 ${id}.(${IMAGE_EXTENSIONS.join('|')})`);
+    else if (names.length > 1) issues.push(`图像「${id}」在 ${join(systemDir, IMAGE_DIR)} 下有多个文件：${names.join('、')}，只保留一个`);
+    else found.set(id, { from: join(systemDir, IMAGE_DIR, names[0]!), name: names[0]! });
   }
   if (issues.length) throw new BuildError(issues);
-  for (const { from, to } of copies) {
-    await mkdir(dirname(to), { recursive: true });
-    await copyFile(from, to);
-  }
+  if (found.size) await mkdir(join(outDir, IMAGE_DIR), { recursive: true });
+  for (const { from, name } of found.values()) await copyFile(from, join(outDir, IMAGE_DIR, name));
+
+  const withSrc = (entry: SlotItem): SlotItem => (isImage(entry) ? { ...entry, src: `${IMAGE_DIR}/${found.get(entry.image)!.name}` } : entry);
+  return {
+    ...work,
+    sequence: work.sequence.map((item) =>
+      item.kind !== 'unit'
+        ? item
+        : {
+            ...item,
+            content: Object.fromEntries(
+              Object.entries(item.content).map(([slot, value]) => [slot, Array.isArray(value) ? value.map(withSrc) : withSrc(value)]),
+            ),
+          },
+    ),
+  };
 }
