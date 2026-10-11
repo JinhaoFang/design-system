@@ -2,12 +2,15 @@
  * Work description (作品描述): loading and validation against the carrier's skeleton, before any rendering.
  * Shape: { system, carrier, canvas? (required for social), concept, sequence: [ {unit, layout, content} | {custom, serves} ] }.
  *   content maps slot name -> string | {image: <id>} (image slots; the alt text comes from the library's image briefs, content/images.json) | list of those (slots with maxItems) | {"ref": "<key>"} pointing at the library's shared content (library/content/<carrier>.json).
- *   custom is an HTML fragment (may carry one <style>) for the work concept; serves says which part of the work concept it serves. "system" names the system the work was written for; building with another system (reskinning) is allowed.
+ *   custom is an HTML fragment (may carry one <style>) for the work concept, either an inline string or {"file": "fragments/<name>.html"} naming a fragment file; serves says which part of the work concept it serves.
+ *   A fragment file lives at <system>/works/fragments/*.html and the path is relative to <system>/works/: it must start with fragments/, end in .html, contain no .. segment, and (after resolving symlinks) stay inside <system>/works/fragments/.
+ *   resolveFragments(raw, systemDir) replaces each {file} by the file's text before validateWork; a missing, unsafe or empty file is a BuildError listing every such problem. "system" names the system the work was written for; building with another system (reskinning) is allowed.
  * validateWork returns the work with refs resolved and fails with BuildError listing every problem: unknown unit/slot, missing primary slot, over the character or item limit, wrong value shape, unequal list-group lengths, missing shared key, missing serves.
  * Image ids are checked against the image briefs; assets.ts later resolves each id to a picture in the system directory and fills src.
  * Layout existence and layout-slot checks happen in layout.ts. Social works hold exactly one sequence item.
  */
-import { readFile } from 'node:fs/promises';
+import { readFile, realpath } from 'node:fs/promises';
+import { isAbsolute, join, sep } from 'node:path';
 import { CARRIERS, CARRIER_IDS, isCarrierId } from './carriers.ts';
 import type { CarrierId } from './carriers.ts';
 import type { ImageBrief, SharedValue, Skeleton, SlotSpec } from './library.ts';
@@ -53,6 +56,69 @@ export interface RawWork {
   sequence: any[];
 }
 
+const isFragmentRef = (value: unknown): value is { file: string } =>
+  value !== null && typeof value === 'object' && !Array.isArray(value) && typeof (value as { file?: unknown }).file === 'string';
+
+const FRAGMENT_DIR = 'fragments';
+
+function fragmentPathProblem(file: string): string | undefined {
+  const segments = file.split(/[\\/]/);
+  if (isAbsolute(file) || segments.includes('..') || segments.includes('.') || segments.includes('')) {
+    return '路径需要是相对 works/ 的相对路径，且不能含 .. 或空段';
+  }
+  if (segments[0] !== FRAGMENT_DIR || segments.length < 2) return `片段文件必须放在 works/${FRAGMENT_DIR}/ 下`;
+  if (!file.endsWith('.html')) return '片段文件必须是 .html 文件';
+  return undefined;
+}
+
+export async function resolveFragments(raw: RawWork, systemDir: string): Promise<RawWork> {
+  const issues: string[] = [];
+  const worksDir = join(systemDir, 'works');
+  const sequence = await Promise.all(
+    raw.sequence.map(async (item: any, index: number) => {
+      if (!isFragmentRef(item?.custom)) return item;
+      const file = item.custom.file;
+      const at = `第 ${index + 1} 项：定制片段文件「${file}」`;
+      const problem = fragmentPathProblem(file);
+      if (problem) {
+        issues.push(`${at}不合规：${problem}（${FRAGMENT_DIR}/*.html，相对 ${worksDir}）`);
+        return item;
+      }
+      let real: string;
+      try {
+        real = await realpath(join(worksDir, file));
+      } catch {
+        issues.push(`${at}不存在：${join(worksDir, file)}`);
+        return item;
+      }
+      let root: string;
+      try {
+        root = await realpath(join(worksDir, FRAGMENT_DIR));
+      } catch {
+        root = join(worksDir, FRAGMENT_DIR);
+      }
+      if (!real.startsWith(root + sep)) {
+        issues.push(`${at}不合规：解析后的位置跑出了 works/${FRAGMENT_DIR}/`);
+        return item;
+      }
+      let html: string;
+      try {
+        html = await readFile(real, 'utf8');
+      } catch (error) {
+        issues.push(`${at}无法读取：${(error as Error).message}`);
+        return item;
+      }
+      if (html.trim() === '') {
+        issues.push(`${at}是空的`);
+        return item;
+      }
+      return { ...item, custom: html };
+    }),
+  );
+  if (issues.length) throw new BuildError(issues);
+  return { ...raw, sequence };
+}
+
 export async function loadWork(path: string): Promise<RawWork> {
   let raw: any;
   try {
@@ -78,7 +144,11 @@ export async function loadWork(path: string): Promise<RawWork> {
     raw.sequence.forEach((item: any, index: number) => {
       const at = `第 ${index + 1} 项`;
       if (item?.custom !== undefined) {
-        if (typeof item.custom !== 'string' || item.custom.trim() === '') issues.push(`${at}：定制片段 custom 需要是非空的 HTML 字符串`);
+        if (isFragmentRef(item.custom)) {
+          if (item.custom.file.trim() === '') issues.push(`${at}：定制片段的文件名 file 不能为空`);
+        } else if (typeof item.custom !== 'string' || item.custom.trim() === '') {
+          issues.push(`${at}：定制片段 custom 需要是非空的 HTML 字符串，或 {"file": "fragments/名称.html"} 形式的片段文件引用`);
+        }
         if (item.unit !== undefined || item.layout !== undefined) issues.push(`${at}：定制片段不能同时写 unit 或 layout`);
         if (typeof item.serves !== 'string' || item.serves.trim() === '') {
           issues.push(`${at}：定制片段必须用 serves 说明它服务于作品概念的哪一处`);

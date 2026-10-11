@@ -1,0 +1,94 @@
+{
+  "id": "qingshe",
+  "word": "轻奢",
+  "phrasings": [
+    "轻奢风",
+    "有点奢华但不夸张",
+    "轻奢感",
+    "低调的贵气"
+  ],
+  "interpretations": [
+    {
+      "name": "香槟金米白",
+      "description": "米白底，香槟金的细线与小面积烫金，衬线字；贵气但不张扬。",
+      "materialAnchor": "米白卡纸与香槟金烫印",
+      "tonality": {
+        "静动": 1,
+        "疏密": 2,
+        "冷暖": 4,
+        "轻重": 2,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "低",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "paper-editorial"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "大理石黄铜",
+      "description": "白大理石纹作底，拉丝黄铜的线条与角标；像高档公寓的大堂。",
+      "materialAnchor": "白大理石与拉丝黄铜",
+      "tonality": {
+        "静动": 1,
+        "疏密": 2,
+        "冷暖": 3,
+        "轻重": 4,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "白大理石纹作底配黄铜线条，排法借纸本编辑的居中版式。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "深色丝绒",
+      "description": "墨绿或酒红的丝绒质感底色，金色小字，光线柔；像剧院的幕布。",
+      "materialAnchor": "墨绿丝绒与金线刺绣",
+      "tonality": {
+        "静动": 1,
+        "疏密": 2,
+        "冷暖": 4,
+        "轻重": 5,
+        "庄谐": 2
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "低",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "墨绿或酒红丝绒底配金色小字，排法借纸本编辑的单栏版式，动效缓慢。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    }
+  ]
+}

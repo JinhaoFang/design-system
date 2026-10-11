@@ -1,0 +1,94 @@
+{
+  "id": "zhiyu",
+  "word": "治愈",
+  "phrasings": [
+    "治愈系",
+    "让人放松",
+    "看了心里暖",
+    "安慰人心"
+  ],
+  "interpretations": [
+    {
+      "name": "软糯手绘",
+      "description": "柔和的插画，暖黄，圆润的线条，文字短而轻；像一个拥抱。",
+      "materialAnchor": "水彩纸上的柔和色铅笔",
+      "tonality": {
+        "静动": 1,
+        "疏密": 2,
+        "冷暖": 5,
+        "轻重": 1,
+        "庄谐": 4
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "低",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "柔和手绘插画配暖黄底与短句，排法借纸本编辑的留白版式。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "自然安静",
+      "description": "森林和植物的照片，淡绿，大量留白，动效像呼吸一样慢；让人慢下来。",
+      "materialAnchor": "林间的晨雾与苔藓",
+      "tonality": {
+        "静动": 1,
+        "疏密": 1,
+        "冷暖": 3,
+        "轻重": 1,
+        "庄谐": 2
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "低",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "森林植物照片配淡绿与大量留白，排法借纸本编辑的大图版式，动效像呼吸一样慢。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "旧照片怀旧",
+      "description": "暖褪色的老照片，手写信，纸边微卷；想起一些旧日子。",
+      "materialAnchor": "褪色的老照片与手写信纸",
+      "tonality": {
+        "静动": 1,
+        "疏密": 3,
+        "冷暖": 5,
+        "轻重": 2,
+        "庄谐": 3
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "paper-editorial"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    }
+  ]
+}

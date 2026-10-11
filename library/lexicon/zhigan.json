@@ -1,0 +1,92 @@
+{
+  "id": "zhigan",
+  "word": "有质感",
+  "phrasings": [
+    "要有质感",
+    "质感好一点",
+    "别太塑料",
+    "看起来扎实"
+  ],
+  "interpretations": [
+    {
+      "name": "真实材料",
+      "description": "实拍的纸纹、布纹、木纹和金属，光影真实，近看能摸出来；质感来自材料的真实感。",
+      "materialAnchor": "实拍的纸、布、木与金属材料特写",
+      "tonality": {
+        "静动": 2,
+        "疏密": 2,
+        "冷暖": 4,
+        "轻重": 4,
+        "庄谐": 2
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "低",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "实拍材料特写作为底，排法借纸本编辑的图文版式，光影保持真实。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "印刷工艺",
+      "description": "油墨的浓淡，压凹的字，烫金，纸纹；像一件印得很好的印刷品。",
+      "materialAnchor": "厚卡纸上的压凹与烫金工艺",
+      "tonality": {
+        "静动": 1,
+        "疏密": 2,
+        "冷暖": 4,
+        "轻重": 3,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "中",
+        "图版率": "低"
+      },
+      "recommendation": {
+        "system": "paper-editorial"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "金属加工",
+      "description": "拉丝金属，倒角高光，精细的刻线；像一块机加工过的零件。",
+      "materialAnchor": "机加工拉丝铝件的倒角与刻线",
+      "tonality": {
+        "静动": 2,
+        "疏密": 3,
+        "冷暖": 1,
+        "轻重": 4,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "precision-industrial"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    }
+  ]
+}

@@ -1,6 +1,66 @@
 {
   "fonts": [
     {
+      "id": "noto-serif-sc-200",
+      "family": "Noto Serif SC",
+      "postScriptName": "NotoSerifSC-ExtraLight",
+      "weight": 200,
+      "scripts": [
+        "cjk",
+        "latin"
+      ],
+      "file": "NotoSerifSC-ExtraLight.otf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Serif/LICENSE"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Serif/SubsetOTF/SC/NotoSerifSC-ExtraLight.otf",
+        "sha256": "92ba4ac9f99074844cff7ed14d168f6783062cd53e3095643b40910a60792ff9"
+      }
+    },
+    {
+      "id": "noto-serif-sc-300",
+      "family": "Noto Serif SC",
+      "postScriptName": "NotoSerifSC-Light",
+      "weight": 300,
+      "scripts": [
+        "cjk",
+        "latin"
+      ],
+      "file": "NotoSerifSC-Light.otf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Serif/LICENSE"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Serif/SubsetOTF/SC/NotoSerifSC-Light.otf",
+        "sha256": "87b656cbb4fb809095b13bb9dc165953995c7595ab63cedd8f5a8415520caca2"
+      }
+    },
+    {
       "id": "noto-serif-sc-400",
       "family": "Noto Serif SC",
       "postScriptName": "NotoSerifSC-Regular",
@@ -28,6 +88,66 @@
       "source": {
         "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Serif/SubsetOTF/SC/NotoSerifSC-Regular.otf",
         "sha256": "e8f396decc1f0963a016a989c3d8852e863d1350996f573860a80767c83a1cd3"
+      }
+    },
+    {
+      "id": "noto-serif-sc-500",
+      "family": "Noto Serif SC",
+      "postScriptName": "NotoSerifSC-Medium",
+      "weight": 500,
+      "scripts": [
+        "cjk",
+        "latin"
+      ],
+      "file": "NotoSerifSC-Medium.otf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Serif/LICENSE"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Serif/SubsetOTF/SC/NotoSerifSC-Medium.otf",
+        "sha256": "e4e9beb5aaeb951e101aa8f122e2a6801ea9e48ac9f9b6bdfeef2436b55bc8ee"
+      }
+    },
+    {
+      "id": "noto-serif-sc-600",
+      "family": "Noto Serif SC",
+      "postScriptName": "NotoSerifSC-SemiBold",
+      "weight": 600,
+      "scripts": [
+        "cjk",
+        "latin"
+      ],
+      "file": "NotoSerifSC-SemiBold.otf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Serif/LICENSE"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Serif/SubsetOTF/SC/NotoSerifSC-SemiBold.otf",
+        "sha256": "517d9736136b3b4e9aea742a7e1acda1922aea91a4425bd8db79281934055bf5"
       }
     },
     {
@@ -211,6 +331,94 @@
       }
     },
     {
+      "id": "source-serif-4-200",
+      "family": "Source Serif 4",
+      "postScriptName": "SourceSerif4-ExtraLight",
+      "weight": 200,
+      "scripts": [
+        "latin"
+      ],
+      "file": "SourceSerif4-ExtraLight.otf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/adobe-fonts/source-serif/2823e993c53fca27c5c8749f529b56a5a7c77b6b/LICENSE.md"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/adobe-fonts/source-serif/2823e993c53fca27c5c8749f529b56a5a7c77b6b/OTF/SourceSerif4-ExtraLight.otf",
+        "sha256": "29b8e7e8179978ce9b608460d9af71ac3da723687712e291fb0bedadede7f97a"
+      }
+    },
+    {
+      "id": "source-serif-4-300",
+      "family": "Source Serif 4",
+      "postScriptName": "SourceSerif4-Light",
+      "weight": 300,
+      "scripts": [
+        "latin"
+      ],
+      "file": "SourceSerif4-Light.otf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/adobe-fonts/source-serif/2823e993c53fca27c5c8749f529b56a5a7c77b6b/LICENSE.md"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/adobe-fonts/source-serif/2823e993c53fca27c5c8749f529b56a5a7c77b6b/OTF/SourceSerif4-Light.otf",
+        "sha256": "4128f8b2af440ca367c0c42fec1c32ccce7bc45dc1672af997518300e5e53d3c"
+      }
+    },
+    {
+      "id": "source-serif-4-300-italic",
+      "family": "Source Serif 4",
+      "postScriptName": "SourceSerif4-LightIt",
+      "weight": 300,
+      "style": "italic",
+      "scripts": [
+        "latin"
+      ],
+      "file": "SourceSerif4-LightIt.otf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/adobe-fonts/source-serif/2823e993c53fca27c5c8749f529b56a5a7c77b6b/LICENSE.md"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/adobe-fonts/source-serif/2823e993c53fca27c5c8749f529b56a5a7c77b6b/OTF/SourceSerif4-LightIt.otf",
+        "sha256": "f8ade752fd54e49d7f69150c21092a27a88ee690330873fcf84d033971d1cccc"
+      }
+    },
+    {
       "id": "source-serif-4-400",
       "family": "Source Serif 4",
       "postScriptName": "SourceSerif4-Regular",
@@ -237,6 +445,36 @@
       "source": {
         "url": "https://raw.githubusercontent.com/adobe-fonts/source-serif/2823e993c53fca27c5c8749f529b56a5a7c77b6b/OTF/SourceSerif4-Regular.otf",
         "sha256": "edf160d0d584deee8a3bb2c3371b2a7624ca63580fbe02c57c1f4c91e84d8787"
+      }
+    },
+    {
+      "id": "source-serif-4-400-italic",
+      "family": "Source Serif 4",
+      "postScriptName": "SourceSerif4-It",
+      "weight": 400,
+      "style": "italic",
+      "scripts": [
+        "latin"
+      ],
+      "file": "SourceSerif4-It.otf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/adobe-fonts/source-serif/2823e993c53fca27c5c8749f529b56a5a7c77b6b/LICENSE.md"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/adobe-fonts/source-serif/2823e993c53fca27c5c8749f529b56a5a7c77b6b/OTF/SourceSerif4-It.otf",
+        "sha256": "f8062257f4693e438a8e317c9fe2b4393f0d4eed84d897edcbfd733c30a1c1a1"
       }
     },
     {

@@ -1,0 +1,92 @@
+{
+  "id": "jingzhi",
+  "word": "精致",
+  "phrasings": [
+    "精致一点",
+    "要精致",
+    "做工细一点",
+    "讲究细节"
+  ],
+  "interpretations": [
+    {
+      "name": "工艺细节",
+      "description": "发丝细线、精确到像素的对齐、字距调到位、阴影淡到几乎看不见；精致来自没有一处随意。",
+      "materialAnchor": "精工钟表的表盘刻线",
+      "tonality": {
+        "静动": 2,
+        "疏密": 3,
+        "冷暖": 2,
+        "轻重": 3,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "低"
+      },
+      "recommendation": {
+        "system": "precision-industrial"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "雅致书卷",
+      "description": "细腻的纸纹，细线边框，小号衬线字，淡雅的配色；像精装书的内页。",
+      "materialAnchor": "线装书的宣纸与细线",
+      "tonality": {
+        "静动": 1,
+        "疏密": 3,
+        "冷暖": 4,
+        "轻重": 1,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "低"
+      },
+      "recommendation": {
+        "system": "paper-editorial"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "糕点盒般的精巧",
+      "description": "马卡龙般柔和的颜色，小圆角卡片，细腻的插画和花边；像一盒包得很好看的点心。",
+      "materialAnchor": "糕点盒与丝带",
+      "tonality": {
+        "静动": 2,
+        "疏密": 3,
+        "冷暖": 5,
+        "轻重": 1,
+        "庄谐": 3
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "柔和的马卡龙色配小圆角卡片与细花边，排法借纸本编辑的网格与精排字。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    }
+  ]
+}

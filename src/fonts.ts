@@ -2,7 +2,7 @@
  * Font list (字体清单) format, validation and loading. File: <library>/fonts/manifest.json = { fonts: FontEntry[] }. Font files are never committed;
  * they live in the git-ignored local font cache (DEFAULT_FONT_CACHE, option fontCacheDir) under the entry's `file` name and are filled by the fetch-fonts command.
  * Entry fields: id (kebab-case, unique; token files reference it), family (CSS family used in @font-face), postScriptName (the name Chromium reports for the file, from the
- * font's own name table; the checker matches rendered fonts on it), weight (1-1000), scripts (cjk | latin: what the font covers), file (cache file name),
+ * font's own name table; the checker matches rendered fonts on it), weight (1-1000), style (optional, normal | italic, default normal; an italic face is its own entry with its own file and PostScript name, and its @font-face carries font-style:italic), scripts (cjk | latin: what the font covers), file (cache file name),
  * license { name, url (official license page), file? (license text next to the manifest) }, permissions { commercial, webEmbed, fileEmbed } (booleans, checked against the
  * official license), carriers (carrier ids the license allows), pptSafe (a common system font that survives PPT without embedding), source { url (http, https or file), sha256 of the downloaded file }.
  * Consistency: a carrier that ships the font inside HTML (web, slides) requires permissions.webEmbed.
@@ -15,6 +15,7 @@ import { BuildError } from './types.ts';
 
 export const DEFAULT_FONT_CACHE = resolve('.cache', 'fonts');
 export const FONT_SCRIPTS = ['cjk', 'latin'] as const;
+export const FONT_STYLES = ['normal', 'italic'] as const;
 export const WEB_EMBEDDING_CARRIERS = ['web', 'slides'] as const;
 
 export interface FontEntry {
@@ -22,6 +23,7 @@ export interface FontEntry {
   family: string;
   postScriptName: string;
   weight: number;
+  style?: (typeof FONT_STYLES)[number];
   scripts: (typeof FONT_SCRIPTS)[number][];
   file: string;
   license: { name: string; url: string; file?: string };
@@ -30,6 +32,8 @@ export interface FontEntry {
   pptSafe: boolean;
   source: { url: string; sha256: string };
 }
+
+export const fontStyleOf = (font: FontEntry): (typeof FONT_STYLES)[number] => font.style ?? 'normal';
 
 export interface FontManifest {
   dir: string;
@@ -68,6 +72,9 @@ export function checkFontEntries(fonts: unknown, source: string): string[] {
     if (!isString(entry.postScriptName)) issues.push(`${at} 缺少 postScriptName（字体文件自身的 PostScript 名）`);
     if (!Number.isInteger(entry.weight) || (entry.weight as number) < 1 || (entry.weight as number) > 1000) {
       issues.push(`${at} 的字重 weight 需为 1–1000 的整数`);
+    }
+    if (entry.style !== undefined && !FONT_STYLES.includes(entry.style as never)) {
+      issues.push(`${at} 的字形风格 style 需为 ${FONT_STYLES.join(' 或 ')}（当前 ${JSON.stringify(entry.style)}），不写时按 normal`);
     }
     if (!Array.isArray(entry.scripts) || entry.scripts.length === 0 || entry.scripts.some((s: unknown) => !FONT_SCRIPTS.includes(s as never))) {
       issues.push(`${at} 的覆盖文字 scripts 需为非空数组，取值：${FONT_SCRIPTS.join('、')}（当前 ${JSON.stringify(entry.scripts)}）`);

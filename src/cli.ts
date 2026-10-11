@@ -8,6 +8,8 @@
  *                     node src/cli.ts regress [--systems <dir>] [--out <dir>] [--library <dir>] [--font-cache <dir>]   (every system under <systems>/<id>/: its works/*.json and its layout overview; exit 1 on any error)
  *                     node src/cli.ts validate-exemplars [--library <dir>]   (exemplar library completeness; see exemplar-command.ts)
  *                     node src/cli.ts list-exemplars [--source external|copy|original] [--paths] [--library <dir>]
+ *                     node src/cli.ts validate-lexicon [--library <dir>]   (feeling-word lexicon completeness; see lexicon-command.ts)
+ *                     node src/cli.ts list-lexicon [--status candidate|approved|rejected] [--system <id>|临时方向] [--library <dir>]
  * Exit status: 0 = built / valid / fetched, no errors in the report; 1 = the report has errors; 2 = usage problem or validation failure (reason on stderr, no report).
  * system-page exits like build (0 = no errors on the page, 1 = errors, 2 = validation failure); preview prints the address and keeps running (2 = missing directory or port in use).
  * overview and regress exit like build: 0 = no errors, 1 = some build has errors, 2 = usage problem or a validation failure that stops the whole command.
@@ -25,6 +27,7 @@ import { startPreview } from './preview.ts';
 import { formatRegression, regress } from './regress.ts';
 import { buildSystemPage } from './system-page.ts';
 import { EXEMPLAR_COMMANDS, exemplarCommand } from './exemplar-command.ts';
+import { LEXICON_COMMANDS, lexiconCommand } from './lexicon-command.ts';
 import { BuildError } from './types.ts';
 
 const USAGE = [
@@ -37,6 +40,8 @@ const USAGE = [
   '       node src/cli.ts regress [--systems <dir>] [--out <dir>] [--library <dir>] [--font-cache <dir>]',
   '       node src/cli.ts validate-exemplars [--library <dir>]',
   '       node src/cli.ts list-exemplars [--source external|copy|original] [--paths] [--library <dir>]',
+  '       node src/cli.ts validate-lexicon [--library <dir>]',
+  '       node src/cli.ts list-lexicon [--status candidate|approved|rejected] [--system <id>] [--library <dir>]',
 ].join('\n');
 
 async function main(argv: string[]): Promise<number> {
@@ -44,6 +49,9 @@ async function main(argv: string[]): Promise<number> {
   const commands = ['build', 'validate-system', 'fetch-fonts', 'overview', 'regress', 'system-page', 'preview'];
   if (command !== undefined && EXEMPLAR_COMMANDS.includes(command)) {
     return exemplarCommand(command, rest);
+  }
+  if (command !== undefined && LEXICON_COMMANDS.includes(command)) {
+    return lexiconCommand(command, rest);
   }
   if (!command || !commands.includes(command)) {
     console.error(USAGE);

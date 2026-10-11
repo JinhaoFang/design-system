@@ -33,7 +33,7 @@ import { checkTokenRequirements, readTokenFile, resolveForCarrier } from './toke
 import type { ParsedTokens, ResolvedTokens } from './tokens.ts';
 import { BuildError } from './types.ts';
 import type { Finding, Report } from './types.ts';
-import { loadWork, validateWork } from './work.ts';
+import { loadWork, resolveFragments, validateWork } from './work.ts';
 import { WEB_VIEWPORTS, checkWeb, renderWeb } from './web.ts';
 import type { Work } from './work.ts';
 
@@ -144,7 +144,7 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
   const fontCacheDir = options.fontCacheDir ?? DEFAULT_FONT_CACHE;
   const system = await validateSystem({ systemDir, libraryDir });
 
-  const rawWork = await loadWork(workPath);
+  const rawWork = await resolveFragments(await loadWork(workPath), systemDir);
   const skeleton = system.skeletons[rawWork.carrier];
   if (!skeleton) {
     throw new BuildError([`体系「${system.meta.id}」不支持载体 ${rawWork.carrier}，它支持：${system.meta.carriers.join('、')}`]);
