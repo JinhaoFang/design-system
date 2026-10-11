@@ -5,7 +5,7 @@
  * found by measuring every character with Range.getClientRects; a character that falls behind the previous one along the block's inline axis starts a new line.
  * The inline axis follows the block's writing-mode and direction: left to right in horizontal text, top to bottom in vertical-rl / vertical-lr, reversed for rtl and sideways-lr, so in vertical text every column is one line and its first/last characters are the top/bottom ones).
  * Every element also has rect (viewport coordinates), parent (index of its parent element in elements, when that parent is in the snapshot) and isImage (img/svg/video/canvas/picture or a url() background);
- * text blocks also get textBox (tight bounds of their rendered characters) and textSizes ([font-size px, non-space character count] pairs). PageSnapshot.viewport is the page's inner size,
+ * text blocks also get textBox (tight bounds of their rendered characters), textSizes ([font-size px, non-space character count] pairs) and textStyles (the font styles, italic or normal, of their owned non-space text, inline children included). PageSnapshot.viewport is the page's inner size,
  * which is the canvas for social and slides and the first viewport for web (snapshots are taken at scroll 0).
  * Elements owning text also get backdrop: the background-color/has-background-image of the element and all its ancestors (nearest first, up to <html>, even beyond the scope), and mediaOverlap (the text line boxes intersect an img/video/canvas/background-image element that is not an ancestor).
  * Margins that compute to auto are recorded as the string "auto" (getComputedStyle would give the used px instead).
@@ -103,6 +103,7 @@ export interface ElementSnapshot {
   slot?: string;
   hasOwnText: boolean;
   textChunks?: TextChunk[];
+  textStyles?: ('italic' | 'normal')[];
   lines?: LineSnapshot[];
   fonts?: PlatformFont[];
   styles: Record<string, string>;
@@ -271,12 +272,15 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
       if (entry.textChunks) {
         const nodes = ownedTextNodes(el);
         const sizes = new Map<number, number>();
+        const textStyles = new Set<'italic' | 'normal'>();
         let box: { left: number; top: number; right: number; bottom: number } | undefined;
         for (const node of nodes) {
           const chars = node.data.replace(/\s/g, '').length;
           if (chars === 0) continue;
-          const size = parseFloat(getComputedStyle(node.parentElement!).fontSize);
+          const nodeStyle = getComputedStyle(node.parentElement!);
+          const size = parseFloat(nodeStyle.fontSize);
           sizes.set(size, (sizes.get(size) ?? 0) + chars);
+          textStyles.add(/^(italic|oblique)/.test(nodeStyle.fontStyle) ? "italic" : "normal");
           const range = document.createRange();
           range.selectNodeContents(node);
           for (const r of range.getClientRects()) {
@@ -288,6 +292,7 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
         }
         if (box) entry.textBox = { left: box.left, top: box.top, width: box.right - box.left, height: box.bottom - box.top };
         entry.textSizes = [...sizes.entries()];
+        entry.textStyles = [...textStyles].sort();
       }
       if (unit) {
         entry.unit = unit.getAttribute("data-ds-unit") ?? "";

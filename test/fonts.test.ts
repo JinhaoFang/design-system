@@ -382,4 +382,10 @@ describe('font style (italic faces)', () => {
       expect.objectContaining({ ruleId: 'fonts/style-mismatch', severity: 'error', message: expect.stringMatching(/正体[\s\S]*Noto Sans SC/) }),
     ]);
   });
+
+  test('an upright paragraph is not blamed for the italic face of an italic child it contains', async () => {
+    const nested = box('', '<em style="font-style:italic">二点零</em>');
+    const result = await run(await customWork(nested), { libraryDir: await styleLibrary('italic') });
+    expect(fontFindings(result)).toEqual([]);
+  });
 });

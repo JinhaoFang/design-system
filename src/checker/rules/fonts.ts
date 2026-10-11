@@ -6,6 +6,8 @@
  *   fonts/style-mismatch    the block's computed font-style disagrees with the faces that drew it: italic text with no italic list face among them (the browser would slant an upright face), or upright text drawn by an italic list face;
  *   fonts/license-carrier   a list font used by the page is not licensed for the work's carrier (entry.carriers); reported once per font and snapshot, at its first block.
  * A nested text block repeats its descendants' fonts in the parent (Chromium counts descendant text), so a hit is dropped when a descendant block has the same hit.
+ *   style-mismatch judges the styles of the block's own text (ElementSnapshot.textStyles, inline children such as <em> included): italic text needs an italic list face; an italic face with no italic text,
+ *   or upright text drawn only by italic faces, is an error.
  */
 import { fontStyleOf } from '../../fonts.ts';
 import type { FontEntry } from '../../fonts.ts';
@@ -121,16 +123,16 @@ export const styleMismatch: Rule = {
     const found: { block: Block; key: string; hit: Hit }[] = [];
     for (const block of analyze(context)) {
       if (!block.listed.length) continue;
-      const italic = /^(italic|oblique)/.test(block.element.styles['font-style'] ?? 'normal');
+      const styles = block.element.textStyles ?? [/^(italic|oblique)/.test(block.element.styles['font-style'] ?? 'normal') ? 'italic' : 'normal'];
       const names = (entries: FontEntry[]) => entries.map((entry) => `「${entry.family}」（${entry.id}）`).join('、');
+      const slanted = block.listed.filter((entry) => fontStyleOf(entry) === 'italic');
       let message: string | undefined;
-      if (italic && !block.listed.some((entry) => fontStyleOf(entry) === 'italic')) {
+      if (styles.includes('italic') && !slanted.length) {
         message = `文字是斜体，但用到的字体都没有斜体字面：${names(block.listed)}。浏览器会把正体硬倾斜；请在字体清单里补上该字体的斜体条目（style 为 italic）并在数值文件里引用`;
-      } else if (!italic) {
-        const slanted = block.listed.filter((entry) => fontStyleOf(entry) === 'italic');
-        if (slanted.length) message = `文字是正体，却用上了斜体字面：${names(slanted)}。请同时提供该字体的正体条目`;
+      } else if (slanted.length && (!styles.includes('italic') || slanted.length === block.listed.length && styles.includes('normal'))) {
+        message = `文字是正体，却用上了斜体字面：${names(slanted)}。请同时提供该字体的正体条目`;
       }
-      if (message) found.push({ block, key: `${italic}|${block.listed.map((entry) => entry.id).sort().join('|')}`, hit: { location: locate(block.element), message } });
+      if (message) found.push({ block, key: `${styles.join('+')}|${block.listed.map((entry) => entry.id).sort().join('|')}`, hit: { location: locate(block.element), message } });
     }
     return withoutRepeatedAncestors(found);
   },

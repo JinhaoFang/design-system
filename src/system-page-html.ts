@@ -11,7 +11,7 @@
  * a switch (data-ds-reduce-toggle) flips the page into "reduced motion" (initially the OS setting), where replays drop displacement and stagger and only fade for the shortest duration step, like the choreography runtime.
  * Replays use element.animate with durations and easings straight from the system's ladders; the duration and easing cells carry the 用在 note of the SYSTEM.md tables.
  * Constraints kept so the page passes the checker: no default margins (all spacing from the space ladder), every text element has a type-ladder size, only system colors, no monospace/system fonts, buttons and links restyled,
- * code in tables does not wrap (a wrapped curve would start a line with a forbidden character), italic specimens are set in italic.
+ * code in tables does not wrap (a wrapped curve would start a line with a forbidden character), italic specimens are set in italic; *emphasis* is real italic when the system loads an italic face, otherwise upright with an underline.
  */
 import { TONE_PAIRS } from './system.ts';
 import type { SystemMeta, ToneKey } from './system.ts';
@@ -209,6 +209,7 @@ function styleSheet(model: PageModel): string {
   const body = fontStack(model, 'body') || fontStack(model, 'cjk');
   const display = body;
   const nameWeight = displayFont ? displayFont.entry.weight : 400;
+  const hasItalic = model.fonts.some((font) => fontStyleOf(font.entry) === 'italic');
   const hasGrain = tokens.entries.some((entry) => entry.cssVar === '--ds-grain-max');
   const grainSvg = encodeURIComponent(
     "<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(#n)'/></svg>",
@@ -251,7 +252,7 @@ button[aria-pressed="true"]{background:${ink};color:${bg}}
 .sp-prose li:has(> ul){display:grid;grid-template-columns:minmax(0,1fr);gap:${S(0.1)} ${S(0.4)};padding:${S(0.15)} 0 ${S(0.15)};border-left:0;border-top:1px solid ${line}}
 .sp-prose li:has(> ul) > ul{display:contents}
 .sp-prose li:has(> ul) > ul > li{padding-left:0;border-left:0;font-size:${small};color:${soft}}
-.md-em{text-decoration:underline;text-decoration-color:${line};text-underline-offset:0.25em}
+em{font-style:${hasItalic ? 'italic' : 'normal'}}${hasItalic ? '' : `em{text-decoration:underline;text-decoration-color:${line};text-underline-offset:0.25em}`}
 .sp-label{display:block;color:${ink};letter-spacing:0.12em}
 .sp-prose table{border-collapse:collapse;width:100%;font-size:${small}}
 .sp-prose th{text-align:left;font-weight:inherit;letter-spacing:0.08em;color:${soft};padding:${S(0.05)} ${S(0.2)} ${S(0.05)} 0;border-bottom:1px solid ${ink}}

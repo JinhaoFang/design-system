@@ -1,6 +1,6 @@
 /*
  * Tiny Markdown renderer for the prose of SYSTEM.md sections (system page): paragraphs, "-" / "*" bullet lists, numbered lists with one level of indented bullets nested under an item, GFM tables, fenced code,
- * **bold**, *emphasis* (a <span class="md-em">, not <em>: the font checker flags an upright block that holds italic runs of the same family), `code` and [text](url) links.
+ * **bold**, *emphasis* (<em>), `code` and [text](url) links.
  * renderMarkdown(lines) -> HTML string; every text run is HTML-escaped and gets CJK-Latin spacing (cjk-spacing.ts), so the page passes the same spacing check as works.
  * Tables render as <table> (header row in <thead>, a body row per line, cells through inline()); findTables(lines) lists the tables of a line array with their line ranges [start, end) and raw cell text,
  * so a caller can take a table out of the prose and use its rows as data.
@@ -14,7 +14,7 @@ export function inline(text: string): string {
   return spaced
     .replace(/`([^`]+)`/g, '<code>$1</code>')
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/(^|[^*])\*([^*\s][^*]*)\*/g, '$1<span class="md-em">$2</span>')
+    .replace(/(^|[^*])\*([^*\s][^*]*)\*/g, '$1<em>$2</em>')
     .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
 }
 
