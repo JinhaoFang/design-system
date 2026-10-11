@@ -1,0 +1,492 @@
+{
+  "color": {
+    "$type": "color",
+    "paper": {
+      "$value": {
+        "colorSpace": "oklch",
+        "components": [
+          0.9415,
+          0.0172,
+          84.6
+        ],
+        "hex": "#f1ebdf"
+      }
+    },
+    "paper-light": {
+      "$value": {
+        "colorSpace": "oklch",
+        "components": [
+          0.959,
+          0.0155,
+          86.4
+        ],
+        "hex": "#f6f1e6"
+      }
+    },
+    "paper-deep": {
+      "$value": {
+        "colorSpace": "oklch",
+        "components": [
+          0.9059,
+          0.026,
+          84.6
+        ],
+        "hex": "#e8dfcd"
+      }
+    },
+    "paper-shade": {
+      "$value": {
+        "colorSpace": "oklch",
+        "components": [
+          0.8668,
+          0.032,
+          84.6
+        ],
+        "hex": "#ddd2bc"
+      }
+    },
+    "ink": {
+      "$value": {
+        "colorSpace": "oklch",
+        "components": [
+          0.222,
+          0.014,
+          74
+        ],
+        "hex": "#1f1a14"
+      }
+    },
+    "ink-2": {
+      "$value": {
+        "colorSpace": "oklch",
+        "components": [
+          0.4052,
+          0.0201,
+          79.2
+        ],
+        "hex": "#4f483d"
+      }
+    },
+    "ink-3": {
+      "$value": {
+        "colorSpace": "oklch",
+        "components": [
+          0.513,
+          0.0264,
+          84.6
+        ],
+        "hex": "#6e6656"
+      }
+    },
+    "rule": {
+      "$value": {
+        "colorSpace": "oklch",
+        "components": [
+          0.7543,
+          0.0318,
+          83.6
+        ],
+        "hex": "#b9ae99"
+      }
+    },
+    "rule-light": {
+      "$value": {
+        "colorSpace": "oklch",
+        "components": [
+          0.8479,
+          0.0293,
+          84.6
+        ],
+        "hex": "#d6ccb8"
+      }
+    },
+    "zhu": {
+      "$value": {
+        "colorSpace": "oklch",
+        "components": [
+          0.52,
+          0.1594,
+          32
+        ],
+        "hex": "#b23a26"
+      }
+    }
+  },
+  "font": {
+    "$type": "fontFamily",
+    "body": {
+      "$value": [
+        "Source Serif 4",
+        "Noto Serif SC"
+      ],
+      "$extensions": {
+        "io.github.jinhaofang.design-system": {
+          "fontId": "source-serif-4-400"
+        }
+      }
+    },
+    "cjk": {
+      "$value": [
+        "Noto Serif SC"
+      ],
+      "$extensions": {
+        "io.github.jinhaofang.design-system": {
+          "fontId": "noto-serif-sc-400"
+        }
+      }
+    },
+    "cjk-display": {
+      "$value": [
+        "Noto Serif SC"
+      ],
+      "$extensions": {
+        "io.github.jinhaofang.design-system": {
+          "fontId": "noto-serif-sc-200"
+        }
+      }
+    },
+    "cjk-strong": {
+      "$value": [
+        "Noto Serif SC"
+      ],
+      "$extensions": {
+        "io.github.jinhaofang.design-system": {
+          "fontId": "noto-serif-sc-600"
+        }
+      }
+    },
+    "kai": {
+      "$value": [
+        "LXGW WenKai"
+      ],
+      "$extensions": {
+        "io.github.jinhaofang.design-system": {
+          "fontId": "lxgw-wenkai-400"
+        }
+      }
+    },
+    "latin": {
+      "$value": [
+        "Source Serif 4"
+      ],
+      "$extensions": {
+        "io.github.jinhaofang.design-system": {
+          "fontId": "source-serif-4-400"
+        }
+      }
+    },
+    "latin-light": {
+      "$value": [
+        "Source Serif 4"
+      ],
+      "$extensions": {
+        "io.github.jinhaofang.design-system": {
+          "fontId": "source-serif-4-300"
+        }
+      }
+    },
+    "latin-italic": {
+      "$value": [
+        "Source Serif 4"
+      ],
+      "$extensions": {
+        "io.github.jinhaofang.design-system": {
+          "fontId": "source-serif-4-400-italic"
+        }
+      }
+    }
+  },
+  "ratio": {
+    "$type": "number",
+    "type": {
+      "caption": {
+        "$value": 0.75
+      },
+      "note": {
+        "$value": 0.875
+      },
+      "body": {
+        "$value": 1
+      },
+      "lead": {
+        "$value": 1.25
+      },
+      "sub": {
+        "$value": 1.625
+      },
+      "head": {
+        "$value": 2.375
+      },
+      "title": {
+        "$value": 3.75
+      },
+      "display": {
+        "$value": 6
+      },
+      "colossal": {
+        "$value": 9.5
+      }
+    },
+    "space": {
+      "1": {
+        "$value": 0.5
+      },
+      "2": {
+        "$value": 1
+      },
+      "3": {
+        "$value": 1.5
+      },
+      "4": {
+        "$value": 2
+      },
+      "5": {
+        "$value": 3
+      },
+      "6": {
+        "$value": 4
+      },
+      "7": {
+        "$value": 6
+      },
+      "8": {
+        "$value": 8
+      },
+      "9": {
+        "$value": 12
+      },
+      "10": {
+        "$value": 18
+      },
+      "11": {
+        "$value": 27
+      }
+    },
+    "radius": {
+      "hair": {
+        "$value": 0.25
+      }
+    },
+    "duration": {
+      "dot": {
+        "$value": 4
+      },
+      "turn": {
+        "$value": 7
+      },
+      "ink": {
+        "$value": 12
+      },
+      "glide": {
+        "$value": 20
+      },
+      "lift": {
+        "$value": 30
+      }
+    },
+    "stagger": {
+      "line": {
+        "$value": 1.75
+      }
+    }
+  },
+  "easing": {
+    "$type": "cubicBezier",
+    "paper": {
+      "$value": [
+        0.2,
+        0.65,
+        0.15,
+        1
+      ]
+    },
+    "ink": {
+      "$value": [
+        0.4,
+        0,
+        0.2,
+        1
+      ]
+    },
+    "press": {
+      "$value": [
+        0.3,
+        0.8,
+        0.3,
+        1
+      ]
+    },
+    "brush": {
+      "$value": [
+        0.6,
+        0.05,
+        0.3,
+        1
+      ]
+    }
+  },
+  "shadow": {
+    "$type": "shadow",
+    "sheet": {
+      "$value": [
+        {
+          "color": {
+            "colorSpace": "oklch",
+            "components": [
+              0.222,
+              0.014,
+              74
+            ],
+            "alpha": 0.28
+          },
+          "offsetX": {
+            "value": 6,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 6,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 22,
+            "unit": "px"
+          },
+          "spread": {
+            "value": -12,
+            "unit": "px"
+          }
+        }
+      ]
+    }
+  },
+  "grain": {
+    "$type": "number",
+    "max": {
+      "$value": 0.05
+    }
+  },
+  "carrier": {
+    "web": {
+      "body": {
+        "$type": "dimension",
+        "$value": {
+          "value": 17,
+          "unit": "px"
+        }
+      },
+      "spaceUnit": {
+        "$type": "dimension",
+        "$value": {
+          "value": 8,
+          "unit": "px"
+        }
+      },
+      "durationBase": {
+        "$type": "duration",
+        "$value": {
+          "value": 40,
+          "unit": "ms"
+        }
+      }
+    },
+    "slides": {
+      "body": {
+        "$type": "dimension",
+        "$value": {
+          "value": 32,
+          "unit": "px"
+        }
+      },
+      "spaceUnit": {
+        "$type": "dimension",
+        "$value": {
+          "value": 16,
+          "unit": "px"
+        }
+      },
+      "durationBase": {
+        "$type": "duration",
+        "$value": {
+          "value": 40,
+          "unit": "ms"
+        }
+      }
+    },
+    "social": {
+      "body": {
+        "$type": "dimension",
+        "$value": {
+          "value": 32,
+          "unit": "px"
+        }
+      },
+      "spaceUnit": {
+        "$type": "dimension",
+        "$value": {
+          "value": 12,
+          "unit": "px"
+        }
+      },
+      "durationBase": {
+        "$type": "duration",
+        "$value": {
+          "value": 40,
+          "unit": "ms"
+        }
+      }
+    }
+  },
+  "$extensions": {
+    "io.github.jinhaofang.design-system": {
+      "constraints": {
+        "lightAngleDeg": 135,
+        "grainMax": 0.06,
+        "accentBudget": 0.06,
+        "composition": {
+          "web": {
+            "jumpRate": [
+              3,
+              10
+            ],
+            "layoutRate": [
+              0.12,
+              0.5
+            ],
+            "imageRate": [
+              0,
+              0.55
+            ]
+          },
+          "slides": {
+            "jumpRate": [
+              2,
+              10
+            ],
+            "layoutRate": [
+              0.1,
+              0.6
+            ],
+            "imageRate": [
+              0,
+              0.65
+            ]
+          },
+          "social": {
+            "jumpRate": [
+              2.5,
+              10
+            ],
+            "layoutRate": [
+              0.12,
+              0.6
+            ],
+            "imageRate": [
+              0,
+              0.55
+            ]
+          }
+        }
+      }
+    }
+  }
+}

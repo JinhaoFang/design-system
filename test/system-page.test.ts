@@ -1,10 +1,11 @@
 /*
  * Behavior tests for the system page (体系总览页), driven through buildSystemPage with the fixture system and the fixture library.
  * They assert artifact specs only: the files that come out, the system's values appearing in the page text, the animation records the replays produce under normal and reduced motion,
- * the links to the layout overview, standard samples and approved exemplars, and the checker report (zero errors, composition and anti-homogeneity skipped). No DOM structure, no pixels.
- * One page is built once for the whole file (a real Chromium run), with a layout overview, a standard sample and a few exemplars linked into it.
+ * the links and thumbnails of the layout overview, standard samples and approved exemplars, the tables of SYSTEM.md, the fonts grouped by family, and the checker report (zero errors, composition and anti-homogeneity skipped). No DOM structure, no pixels.
+ * One page is built once for the whole file (a real Chromium run), with a layout overview, a standard sample and a few exemplars linked into it; the paper-editorial page is built once more when the font cache exists (italic specimens, tables, zero errors).
  */
-import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { beforeAll, describe, expect, test } from 'vitest';
 import { buildAndCheck } from '../src/build-and-check.ts';
@@ -13,7 +14,7 @@ import { buildSystemPage } from '../src/system-page.ts';
 import type { SystemPageResult } from '../src/system-page.ts';
 import { fixtures, pngSize, tempDir } from './helpers.ts';
 import { overviewLibrary } from './overview-helpers.ts';
-import { patchedSystem, writeFileDeep } from './system-helpers.ts';
+import { editText, patchedSystem, systemMd, writeFileDeep } from './system-helpers.ts';
 
 async function writeExemplar(library: string, id: string, patch: Record<string, unknown>): Promise<void> {
   const dir = join(library, 'exemplars', id);
@@ -35,7 +36,21 @@ async function writeExemplar(library: string, id: string, patch: Record<string, 
   await writeFile(join(dir, 'exemplar.json'), JSON.stringify(record));
 }
 
+const COLOR_TABLE = '纸色打底，墨色写字，一个强调色。\n\n| 角色 | 色值 | 用在 |\n| --- | --- | --- |\n| `paper` | `#f7f3ea` | 底色 |\n| `ink` | `#3a3128` | 文字 |';
+const LAYOUT_TABLE =
+  '单栏居中偏上，留白充足。\n\n| 单元 | 排法 | 说明 |\n| --- | --- | --- |\n| 标题型 | `stack` 堆叠 | 标题与副题上下堆叠 |\n| 标题型 | `column` 竖栏 | 标题竖排成一栏 |';
+
+async function tabledSystem(): Promise<string> {
+  return patchedSystem(async (dir) => {
+    for (const name of ['blackout', 'whiteout', 'system-font', 'unspaced', 'unspaced-inline', 'spaced-inline', 'column-anywhere']) {
+      await rm(join(dir, 'layouts', 'social', 'title', `${name}.liquid`), { force: true });
+    }
+    await editText(systemMd(dir), (text) => text.replace('纸色打底，墨色写字，一个强调色。', COLOR_TABLE).replace('单栏居中偏上，留白充足。', LAYOUT_TABLE));
+  });
+}
+
 let library: string;
+let system: string;
 let overviewDir: string;
 let worksDir: string;
 let page: SystemPageResult;
@@ -51,11 +66,12 @@ beforeAll(async () => {
   const base = await tempDir('ds-system-page-');
   overviewDir = join(base, 'overview');
   worksDir = join(base, 'works');
-  await buildOverview({ systemDir: fixtures.system, outDir: overviewDir, libraryDir: library, fontCacheDir: fixtures.fontCache, carriers: ['web'] });
-  await buildAndCheck({ systemDir: fixtures.system, workPath: fixtures.work('web-clean'), outDir: join(worksDir, 'web-clean'), libraryDir: library, fontCacheDir: fixtures.fontCache });
+  system = await tabledSystem();
+  await buildOverview({ systemDir: system, outDir: overviewDir, libraryDir: library, fontCacheDir: fixtures.fontCache, carriers: ['web', 'social'], canvases: ['square'] });
+  await buildAndCheck({ systemDir: system, workPath: fixtures.work('web-clean'), outDir: join(worksDir, 'web-clean'), libraryDir: library, fontCacheDir: fixtures.fontCache });
 
   page = await buildSystemPage({
-    systemDir: fixtures.system,
+    systemDir: system,
     outDir: join(base, 'system'),
     libraryDir: library,
     fontCacheDir: fixtures.fontCache,
@@ -102,12 +118,40 @@ describe('system page content', () => {
 
   test('shows the composition ratio constraints and the layouts of every carrier', () => {
     expect(html).toContain('web');
-    for (const layout of ['corner', 'blackout', 'cards', 'columns', 'split', 'whiteout']) expect(html).toContain(layout);
+    for (const layout of ['corner', 'blackout', 'cards', 'columns', 'split']) expect(html).toContain(layout);
   });
 });
 
 const slotsOf = (records: SystemPageResult['replays']['animations']) => new Set(records.map((record) => record.slot));
 const exists = (path: string) => access(path).then(() => true, () => false);
+
+describe('tables, fonts and thumbnails', () => {
+  test('renders the Markdown tables of SYSTEM.md as tables instead of text with bars', () => {
+    expect(html).toContain('<table');
+    expect(html).toContain('#f7f3ea');
+    expect(html).not.toContain('| ---');
+    expect(html).not.toContain('| `paper`');
+  });
+
+  test('groups fonts by family: one block per family with the license once, as a link to the full text', () => {
+    expect(html.split('OFL-1.1').length - 1).toBe(1);
+    expect(html).toContain('授权全文');
+    expect(html).not.toContain('>https://openfontlicense.org<');
+  });
+
+  test('shows each layout with its Chinese name, its description and the thumbnail of its overview build, linked to that build', () => {
+    expect(html).toContain('堆叠');
+    expect(html).toContain('标题与副题上下堆叠');
+    expect(html).toContain('href="../overview/social/square/title-stack/index.html"');
+    expect(html).toContain('src="../overview/social/square/title-stack/social-square.png"');
+    expect(html).not.toContain('`stack`');
+  });
+
+  test('shows each standard sample as a thumbnail linked to its build', () => {
+    expect(html).toContain('href="../works/web-clean/index.html"');
+    expect(html).toContain('src="../works/web-clean/web-desktop.png"');
+  });
+});
 
 describe('motion replays', () => {
   test('replaying every control records an animation for each entrance type, duration step, easing and stagger step', () => {
@@ -168,11 +212,12 @@ describe('checks on the page', () => {
 });
 
 describe('links', () => {
-  const localLinks = () => [...html.matchAll(/href="([^"#:]+)"/g)].map((match) => match[1]!);
+  const localLinks = () => [...html.matchAll(/(?:href|src)="([^"#:]+)"/g)].map((match) => match[1]!);
 
   test('links to the layout overview and the standard samples, and every local link points at something that exists', async () => {
     const links = localLinks();
     expect(links).toContain('../overview/web/index.html');
+    expect(links).toContain('../overview/social/square/title-column/index.html');
     expect(links).toContain('../works/web-clean/index.html');
     for (const link of links) expect(await exists(join(page.artifacts.outDir, link)), link).toBe(true);
   });
@@ -185,6 +230,15 @@ describe('links', () => {
     expect(html).not.toContain('other-system');
     expect(await exists(join(page.artifacts.outDir, 'exemplars', 'shown-web', 'screenshot.png'))).toBe(true);
   });
+});
+
+const realFonts = existsSync(join(process.cwd(), '.cache', 'fonts'));
+
+describe.skipIf(!realFonts)('the paper-editorial system page', () => {
+  test('has zero errors: italic specimens are set in italic and the Markdown tables do not reach the line-start rules', async () => {
+    const result = await buildSystemPage({ systemDir: join(process.cwd(), 'systems', 'paper-editorial'), outDir: await tempDir(), libraryDir: join(process.cwd(), 'library') });
+    expect(result.report.summary.errors, JSON.stringify(result.report.findings, null, 1)).toBe(0);
+  }, 240_000);
 });
 
 describe('the page without links and with a custom header', () => {

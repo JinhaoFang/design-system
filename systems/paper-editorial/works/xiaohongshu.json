@@ -1,0 +1,12 @@
+{
+  "system": "paper-editorial",
+  "carrier": "social",
+  "canvas": "xiaohongshu",
+  "concept": "一页星图题签：把鹞岭天文台的公众观测夜做成古籍扉页。文武边栏框住整张，上半是一幅真实坐标的北天星图，仙女星系用朱笔圈出；标题「鹞岭天文台」竖排在右，副题与日期沿发丝界栏一路向下，左下一枚朱印「预约」。",
+  "sequence": [
+    {
+      "custom": { "file": "fragments/xingtu-tiqian.html" },
+      "serves": "整张配图：星图图版是主角，竖排题签和朱印交代是什么、何时、怎么预约"
+    }
+  ]
+}

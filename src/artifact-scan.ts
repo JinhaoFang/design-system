@@ -2,7 +2,7 @@
  * Artifact scan: finds the built artifacts (directories that hold an index.html) under a root directory, for the system page's links and the preview navigation.
  * scanArtifacts(root) -> entries sorted by relative path ("" is the root itself when it holds an index.html); a directory that holds an index.html is not searched further,
  * hidden directories, node_modules, fonts, images and exemplars are skipped, depth is limited to 6. Each entry carries what its report.json says (system, carrier, canvas, concept, error and warning counts)
- * when the report exists and is readable; an artifact without a report is still listed.
+ * when the report exists and is readable, and the PNG file names beside its index.html (screenshots, for thumbnails); an artifact without a report is still listed.
  */
 import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -16,6 +16,7 @@ export interface ArtifactEntry {
   concept?: string;
   errors?: number;
   warnings?: number;
+  images: string[];
 }
 
 const SKIPPED = new Set(['node_modules', 'fonts', 'images', 'exemplars']);
@@ -46,7 +47,8 @@ async function visit(root: string, rel: string, depth: number, found: ArtifactEn
     return;
   }
   if (names.some((entry) => entry.name === 'index.html' && !entry.directory)) {
-    found.push({ rel, dir, ...(await readReport(dir)) });
+    const images = names.filter((entry) => !entry.directory && entry.name.endsWith('.png')).map((entry) => entry.name).sort();
+    found.push({ rel, dir, images, ...(await readReport(dir)) });
     return;
   }
   if (depth >= MAX_DEPTH) return;

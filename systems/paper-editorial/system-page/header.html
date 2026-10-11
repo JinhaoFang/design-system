@@ -1,0 +1,118 @@
+{% comment %}
+  纸本编辑的体系总览页页头：一页扉页的题签。
+  文武边栏（外粗内细的双线）框住全幅；体系名竖排，宋体 200 放在右边；材质锚点一句横排在左下，「朱笔批校」下面一道朱笔下划线，
+  页面加载时在标题洇出之后划过（lift 1200ms + brush 缓动，只动 transform）；一枚朱印（纸本）落在句子右边。
+  减少动态效果、静态渲染时下划线直接显示画好的状态。变量：system.name / category / id / materialAnchor。
+{% endcomment %}
+<style>
+:scope { display: block; }
+.tq {
+  position: relative;
+  border: 3px solid var(--ds-color-ink);
+  padding: var(--ds-space-6);
+  background: var(--ds-color-paper);
+}
+.tq::before {
+  content: "";
+  position: absolute;
+  inset: var(--ds-space-2);
+  border: 1px solid var(--ds-color-rule);
+  pointer-events: none;
+}
+.tq-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--ds-space-6);
+  align-items: stretch;
+}
+.tq-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--ds-space-6);
+  min-width: 0;
+}
+.tq-kicker {
+  font-size: var(--ds-type-note);
+  letter-spacing: 0.16em;
+  color: var(--ds-color-ink-2);
+}
+.tq-base {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--ds-space-5);
+}
+.tq-anchor {
+  font-size: var(--ds-type-sub);
+  line-height: 1.5;
+  max-width: 20em;
+}
+.tq-hl {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+}
+.tq-stroke {
+  position: absolute;
+  left: 0;
+  bottom: -0.08em;
+  width: 100%;
+  height: 0.55em;
+  overflow: visible;
+  transform-origin: left center;
+  animation: tq-brush var(--ds-duration-lift) var(--ds-easing-brush) var(--ds-duration-glide) backwards;
+}
+@keyframes tq-brush {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tq-stroke { animation: none; }
+}
+:is(html[data-render="static"]) :scope .tq-stroke {
+  animation: none;
+}
+.tq-seal {
+  display: grid;
+  padding: var(--ds-space-2);
+  background: var(--ds-color-zhu);
+  color: var(--ds-color-paper);
+  font-family: var(--ds-font-kai);
+  font-size: var(--ds-type-sub);
+  line-height: 1.1;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+  filter: url(#tq-rough);
+  transform: rotate(-2deg);
+}
+.tq-name {
+  font-family: var(--ds-font-cjk-display);
+  font-weight: 200;
+  font-size: var(--ds-type-title);
+  line-height: 1.15;
+  letter-spacing: 0.2em;
+  writing-mode: vertical-rl;
+  white-space: nowrap;
+}
+</style>
+<div class="tq">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <filter id="tq-rough" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n" />
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" />
+    </filter>
+  </svg>
+  <div class="tq-grid">
+    <div class="tq-left">
+      <div class="tq-kicker" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink">{{ system.category }} · {{ system.id }}</div>
+      {%- assign before = system.materialAnchor | split: '朱笔批校' | first %}
+      <div class="tq-base">
+        <p class="tq-anchor" data-ds-enter="rise" data-ds-order="1" data-ds-step="glide" data-ds-ease="paper">{{ before }}<span class="tq-hl">朱笔批校<svg class="tq-stroke" viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M1 7.5 C28 3.5 66 9 104 5.5 S176 3.5 199 5 C178 8 140 10.5 100 9.5 S28 11.5 1 7.5 Z" fill="var(--ds-color-zhu)" /></svg></span></p>
+        <div class="tq-seal" data-ds-enter="fade" data-ds-order="2" data-ds-step="turn" data-ds-ease="press" aria-hidden="true">纸本</div>
+      </div>
+    </div>
+    <h1 class="tq-name" data-ds-enter="fade" data-ds-order="0" data-ds-step="ink" data-ds-ease="ink">{{ system.name }}</h1>
+  </div>
+</div>

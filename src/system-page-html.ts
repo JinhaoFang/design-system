@@ -1,12 +1,17 @@
 /*
  * System page markup (体系总览页): turns a PageModel (the system's SYSTEM.md prose, token file, resolved tokens, font list entries, layouts and links) into { title, style, body, script }.
  * Everything is typeset with the system's own values: colors, fonts, type/space/radius steps, shadows and grain come from the resolved CSS custom properties of the system's web carrier (picked by position in
- * the ladders, never by name, so any system works); the background, text, accent and hairline colors are picked by role name (paper/ink/accent/mute and common synonyms) and fall back to lightness extremes.
+ * the ladders, never by name, so any system works); the background, text, secondary text and hairline colors are picked by role name (paper/ink/ink-2/rule and common synonyms), the accent by name or else the most chromatic color
+ * (the accent only marks hover, replay demos and the system's own header), everything falls back to lightness extremes.
  * A system may bring its own header fragment (customHeader, <system>/system-page/header.html, rendered with system.* variables by system-page.ts); without one a default header is drawn.
- * Sections: 意图与调性, 材质锚点, 色彩, 字体, 间距圆角与构图比率, 质感, 识别符号, 动效, 排法, 链接. The motion section is live: every entrance type (data-ds-replay="enter"), duration step ("duration"), easing ("easing") and
- * stagger step ("stagger") has a replay button whose target carries data-ds-slot="<kind>-<name>"; a switch (data-ds-reduce-toggle) flips the page into "reduced motion" (initially the OS setting), where replays
- * drop displacement and stagger and only fade for the shortest duration step, like the choreography runtime. Replays use element.animate with durations and easings straight from the system's ladders.
- * Constraints kept so the page passes the checker: no default margins (all spacing from the space ladder), every text element has a type-ladder size, only system colors, no monospace/system fonts, buttons and links restyled.
+ * Sections (a one-line head each, number + title, full-width content): 意图 (prose, tone meter, key rules as rule | 理由 | 适用边界 columns), 样张 (thumbnails of the standard samples, approved exemplars), 排法 (a thumbnail card per layout with
+ * its Chinese name and description, linked to its overview build), 材质锚点 (statement and table), 色彩 (colors grouped by the name before the first "-" as contiguous bands; the SYSTEM.md table is the legend), 字体 (one block per family: specimen,
+ * the loaded weights and styles side by side, license in one line, roles), 字阶间距 (type ladder one row per step with the sample clipped to one line, space and radius steps), 版面, 质感与符号, 动效.
+ * The motion section is live: every entrance type (data-ds-replay="enter"), duration step ("duration"), easing ("easing") and stagger step ("stagger") has a replay button whose target carries data-ds-slot="<kind>-<name>";
+ * a switch (data-ds-reduce-toggle) flips the page into "reduced motion" (initially the OS setting), where replays drop displacement and stagger and only fade for the shortest duration step, like the choreography runtime.
+ * Replays use element.animate with durations and easings straight from the system's ladders; the duration and easing cells carry the 用在 note of the SYSTEM.md tables.
+ * Constraints kept so the page passes the checker: no default margins (all spacing from the space ladder), every text element has a type-ladder size, only system colors, no monospace/system fonts, buttons and links restyled,
+ * code in tables does not wrap (a wrapped curve would start a line with a forbidden character), italic specimens are set in italic; *emphasis* is real italic when the system loads an italic face, otherwise upright with an underline.
  */
 import { TONE_PAIRS } from './system.ts';
 import type { SystemMeta, ToneKey } from './system.ts';
@@ -15,6 +20,7 @@ import { CARRIERS } from './carriers.ts';
 import type { CarrierId } from './carriers.ts';
 import { escapeHtml } from './layout.ts';
 import { spaceCjkLatin } from './cjk-spacing.ts';
+import { fontStyleOf } from './fonts.ts';
 import type { FontEntry } from './fonts.ts';
 import type { ParsedTokens, ResolvedEntry, ResolvedTokens } from './tokens.ts';
 
@@ -28,11 +34,9 @@ export interface LinkView {
   href: string;
   label: string;
   note?: string;
-}
-
-export interface LinkGroup {
-  title: string;
-  links: LinkView[];
+  detail?: string;
+  image?: string;
+  cropped?: boolean;
 }
 
 export interface ExemplarView {
@@ -45,9 +49,19 @@ export interface ExemplarView {
   media?: { href: string; kind: 'screenshot' | 'recording' };
 }
 
+export interface LayoutItem {
+  id: string;
+  name?: string;
+  description?: string;
+  href?: string;
+  image?: string;
+  note?: string;
+}
+
 export interface LayoutView {
   carrier: CarrierId;
-  units: { id: string; label: string; layouts: string[] }[];
+  overall?: LinkView;
+  units: { id: string; label: string; layouts: LayoutItem[] }[];
 }
 
 export interface PageModel {
@@ -66,7 +80,11 @@ export interface PageModel {
   motionHtml: string;
   layouts: LayoutView[];
   customHeader?: string;
-  overview: LinkGroup[];
+  overviewGenerated: boolean;
+  colorLegend: boolean;
+  compositionTable: boolean;
+  durationNotes: Record<string, string>;
+  easingNotes: Record<string, string>;
   works: LinkView[];
   exemplars: ExemplarView[];
 }
@@ -88,17 +106,15 @@ export const ENTER_EFFECTS = [
 
 const BACKGROUND_NAMES = ['paper', 'background', 'bg', 'canvas', 'base'];
 const INK_NAMES = ['ink', 'text', 'foreground', 'fg'];
+const SOFT_NAMES = ['ink-2', 'text-2', 'secondary'];
 const ACCENT_NAMES = ['accent', 'primary', 'brand'];
 const LINE_NAMES = ['line', 'rule', 'border', 'hairline', 'mute', 'muted'];
 const DISPLAY_ROLES = ['display', 'heading', 'title'];
+const CHROMATIC = 0.06;
 
 const toOklch = converter('oklch');
-const oklchLightness = (css: string): number => {
-  const parsed = parse(css);
-  return parsed ? (toOklch(parsed).l ?? 0) : 0;
-};
 
-const esc = (text: string): string => escapeHtml(spaceCjkLatin(text));
+const esc = (text: string): string => escapeHtml(spaceCjkLatin(text).replace(/ · /g, '\u00a0· '));
 const px = (value: number): string => `${Math.round(value * 1000) / 1000}px`;
 const ms = (value: number): string => `${Math.round(value * 1000) / 1000}ms`;
 
@@ -127,6 +143,7 @@ interface ColorView {
   css: string;
   hex?: string;
   lightness: number;
+  chroma: number;
 }
 
 function colorViews(model: PageModel): ColorView[] {
@@ -137,7 +154,9 @@ function colorViews(model: PageModel): ColorView[] {
       const cssVar = `--ds-${token.path.join('-')}`;
       const css = byVar.get(cssVar) ?? '';
       const hex = typeof token.value?.hex === 'string' ? token.value.hex : undefined;
-      return { name: token.path.slice(1).join('.'), cssVar, css, ...(hex !== undefined && { hex }), lightness: oklchLightness(css) };
+      const parsed = parse(css);
+      const oklch = parsed ? toOklch(parsed) : undefined;
+      return { name: token.path.slice(1).join('.'), cssVar, css, ...(hex !== undefined && { hex }), lightness: oklch?.l ?? 0, chroma: oklch?.c ?? 0 };
     });
 }
 
@@ -152,6 +171,7 @@ function pickColor(colors: ColorView[], names: string[]): ColorView | undefined 
 interface Palette {
   bg: string;
   ink: string;
+  soft: string;
   accent: string;
   line: string;
 }
@@ -160,10 +180,12 @@ function palette(colors: ColorView[]): Palette {
   const byLightness = [...colors].sort((a, b) => a.lightness - b.lightness);
   const bg = pickColor(colors, BACKGROUND_NAMES) ?? byLightness[byLightness.length - 1]!;
   const ink = pickColor(colors, INK_NAMES) ?? byLightness[0]!;
-  const accent = pickColor(colors, ACCENT_NAMES) ?? ink;
+  const vivid = [...colors].sort((a, b) => b.chroma - a.chroma)[0];
+  const accent = pickColor(colors, ACCENT_NAMES) ?? (vivid && vivid.chroma > CHROMATIC ? vivid : ink);
+  const soft = pickColor(colors, SOFT_NAMES) ?? ink;
   const line = pickColor(colors, LINE_NAMES) ?? ink;
   const ref = (color: ColorView) => `var(${color.cssVar})`;
-  return { bg: ref(bg), ink: ref(ink), accent: ref(accent), line: ref(line) };
+  return { bg: ref(bg), ink: ref(ink), soft: ref(soft), accent: ref(accent), line: ref(line) };
 }
 
 function fontStack(model: PageModel, role: string): string {
@@ -179,95 +201,153 @@ function styleSheet(model: PageModel): string {
   const spaces = steps(tokens, '--ds-space-');
   const radii = steps(tokens, '--ds-radius-').filter((step) => step.value > 0);
   const colors = colorViews(model);
-  const { bg, ink, accent, line } = palette(colors);
+  const { bg, ink, soft, accent, line } = palette(colors);
   const T = (fraction: number) => at(types, fraction);
   const S = (fraction: number) => at(spaces, fraction);
   const R = radii.length ? `var(${radii[0]!.cssVar})` : '0';
-  const displayRole = model.fonts.find((font) => DISPLAY_ROLES.includes(font.role))?.role ?? 'body';
+  const displayFont = model.fonts.find((font) => DISPLAY_ROLES.some((name) => font.role === name || font.role.endsWith(`-${name}`)));
   const body = fontStack(model, 'body') || fontStack(model, 'cjk');
-  const display = fontStack(model, displayRole) || body;
+  const display = body;
+  const nameWeight = displayFont ? displayFont.entry.weight : 400;
+  const hasItalic = model.fonts.some((font) => fontStyleOf(font.entry) === 'italic');
   const hasGrain = tokens.entries.some((entry) => entry.cssVar === '--ds-grain-max');
   const grainSvg = encodeURIComponent(
     "<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(#n)'/></svg>",
   );
+  const small = T(0.125);
+  const text = T(0.25);
 
   return `*{margin:0;padding:0;box-sizing:border-box}
-html{background:${bg};color:${ink};font-family:${body};font-size:${T(0)};line-height:1.7;line-break:strict;overflow-wrap:anywhere}
+html{background:${bg};color:${ink};font-family:${body};font-size:${text};line-height:1.7;line-break:strict;overflow-wrap:anywhere}
 body{background:${bg};color:${ink}}
 h1,h2,h3,h4,button,input{font:inherit;color:inherit}
 ul,ol{list-style:none}
-a{color:${ink};text-decoration:underline;text-underline-offset:0.2em}
-code,pre{font-family:inherit;font-size:inherit;white-space:pre-wrap}
-em{font-style:italic}
-button{background:${bg};color:${ink};border:1px solid ${ink};border-radius:${R};padding:${S(0.05)} ${S(0.25)};cursor:pointer}
+a{color:${ink};text-decoration:underline;text-underline-offset:0.2em;text-decoration-color:${line}}
+a:hover{text-decoration-color:${accent}}
+code{font-family:inherit;font-size:inherit;white-space:nowrap}
+pre{font-family:inherit;font-size:inherit;white-space:pre-wrap}
+img{display:block;max-width:100%}
+button{background:${bg};color:${ink};border:1px solid ${ink};border-radius:${R};padding:${S(0.02)} ${S(0.15)};cursor:pointer;font-size:${small}}
 button:hover{background:${ink};color:${bg}}
 button[aria-pressed="true"]{background:${ink};color:${bg}}
-.sp{max-width:84rem;margin-inline:auto;padding-inline:${S(0.35)}}
-.sp-header{display:grid;gap:${S(0.35)};padding-block:${S(0.9)} ${S(0.6)}}
-.sp-kicker{font-size:${T(0)};letter-spacing:0.12em;text-transform:uppercase}
-.sp-name{font-family:${display};font-size:${T(1)};line-height:1.1;letter-spacing:-0.01em}
+.sp{max-width:84rem;margin-inline:auto;padding-inline:${S(0.3)}}
+.sp-header{display:grid;gap:${S(0.3)};padding-block:${S(0.7)} ${S(0.5)}}
+.sp-header[data-ds-custom-header]{display:block;padding-block:${S(0.3)} 0}
+.sp-kicker{font-size:${small};letter-spacing:0.12em;text-transform:uppercase;color:${soft}}
+.sp-name{font-family:${display};font-weight:${nameWeight};font-size:${T(0.875)};line-height:1.1;letter-spacing:-0.01em}
 .sp-lead{font-family:${display};font-size:${T(0.5)};line-height:1.45;max-width:36em}
-.sp-nav{display:flex;flex-wrap:wrap;gap:${S(0.1)} ${S(0.35)};padding-block:${S(0.25)};border-top:1px solid ${ink};border-bottom:1px solid ${line}}
-.sp-section{display:grid;grid-template-columns:minmax(0,1fr);gap:${S(0.4)};padding-block:${S(0.8)};border-top:1px solid ${line}}
-.sp-head{display:grid;gap:${S(0.1)};align-content:start}
-.sp-no{font-family:${display};font-size:${T(1)};line-height:1;color:${accent}}
-.sp-title{font-family:${display};font-size:${T(0.55)};line-height:1.25}
-.sp-main{display:grid;gap:${S(0.4)};min-width:0}
-.sp-sub{font-size:${T(0)};letter-spacing:0.12em;text-transform:uppercase;padding-bottom:${S(0.1)};border-bottom:1px solid ${ink}}
-.sp-prose{display:grid;gap:${S(0.25)};max-width:44em}
+.sp-nav{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:${S(0.02)} ${S(0.3)};padding-block:${S(0.1)};background:${bg};border-top:1px solid ${ink};border-bottom:1px solid ${line};font-size:${small}}
+.sp-section{display:grid;grid-template-columns:minmax(0,1fr);gap:${S(0.3)};padding-block:${S(0.5)} ${S(0.2)}}
+.sp-head{display:flex;align-items:baseline;gap:${S(0.3)};padding-bottom:${S(0.05)};border-bottom:1px solid ${ink}}
+.sp-no{font-family:${display};font-size:${T(0.625)};line-height:1.25;color:${soft}}
+.sp-title{font-family:${display};font-size:${T(0.625)};line-height:1.25}
+.sp-main{display:grid;grid-template-columns:minmax(0,1fr);gap:${S(0.2)};min-width:0}
+.sp-sub{font-size:${small};letter-spacing:0.12em;text-transform:uppercase;color:${soft};padding-top:${S(0.1)}}
+.sp-two{display:grid;grid-template-columns:minmax(0,1fr);gap:${S(0.4)};align-items:start}
+.sp-prose{display:grid;gap:${S(0.2)};max-width:46em;min-width:0}
+.sp-prose-wide{max-width:none}
 .sp-prose ul,.sp-prose ol{display:grid;gap:${S(0.1)}}
-.sp-prose h4{font-size:${T(0)};letter-spacing:0.12em}
-.sp-prose li{padding-left:${S(0.25)};border-left:1px solid ${accent}}
-.sp-statement{font-family:${display};font-size:${T(0.7)};line-height:1.3;max-width:24em}
-.sp-rows{display:grid}
-.sp-row{display:grid;grid-template-columns:minmax(0,1fr);gap:${S(0.1)};padding-block:${S(0.25)};border-bottom:1px solid ${line};align-items:center}
-.sp-k{font-size:${T(0)};letter-spacing:0.04em}
-.sp-v{font-size:${T(0)};word-break:break-all}
-.sp-viz{min-width:0}
-.sp-chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(11rem,1fr));gap:${S(0.4)} ${S(0.3)}}
-.sp-swatch{display:grid;gap:${S(0.05)};align-content:start}
-.sp-swatch-chip{height:${S(0.75)};border:1px solid ${line}}
-.sp-font{display:grid;gap:${S(0.25)};padding-block:${S(0.25)};border-bottom:1px solid ${line}}
-.sp-specimen{font-size:${T(1)};line-height:1.2}
-.sp-facts{display:grid;gap:${S(0.05)};grid-template-columns:minmax(0,1fr)}
-.sp-fact{display:grid;grid-template-columns:minmax(0,7rem) minmax(0,1fr);gap:${S(0.2)}}
-.sp-bar{height:${S(0.1)};background:${accent};min-width:1px}
-.sp-box{width:5rem;height:5rem;background:${bg};border:1px solid ${ink}}
-.sp-boxes{display:flex;flex-wrap:wrap;gap:${S(0.35)}}
-.sp-shadow{width:7rem;height:5rem;background:${bg};border:1px solid ${line}}
-.sp-grain{position:relative;height:${S(0.8)};background:${line};overflow:hidden}
-.sp-grain i{position:absolute;inset:0;background-image:url("data:image/svg+xml,${grainSvg}");${hasGrain ? 'opacity:var(--ds-grain-max)' : 'opacity:0'}}
-.sp-tone{display:grid;grid-template-columns:minmax(0,5rem) 1fr;gap:${S(0.2)};align-items:center}
-.sp-ticks{display:flex;gap:${S(0.1)}}
-.sp-tick{display:block;width:2.5rem;height:0.5rem;border:1px solid ${ink}}
+.sp-prose h4{font-size:${small};letter-spacing:0.12em;color:${soft}}
+.sp-prose li{padding-left:${S(0.2)};border-left:1px solid ${line}}
+.sp-prose li:has(> ul){display:grid;grid-template-columns:minmax(0,1fr);gap:${S(0.1)} ${S(0.4)};padding:${S(0.15)} 0 ${S(0.15)};border-left:0;border-top:1px solid ${line}}
+.sp-prose li:has(> ul) > ul{display:contents}
+.sp-prose li:has(> ul) > ul > li{padding-left:0;border-left:0;font-size:${small};color:${soft}}
+em{font-style:${hasItalic ? 'italic' : 'normal'}}${hasItalic ? '' : `em{text-decoration:underline;text-decoration-color:${line};text-underline-offset:0.25em}`}
+.sp-label{display:block;color:${ink};letter-spacing:0.12em}
+.sp-prose table{border-collapse:collapse;width:100%;font-size:${small}}
+.sp-prose th{text-align:left;font-weight:inherit;letter-spacing:0.08em;color:${soft};padding:${S(0.05)} ${S(0.2)} ${S(0.05)} 0;border-bottom:1px solid ${ink}}
+.sp-prose td{vertical-align:top;padding:${S(0.05)} ${S(0.2)} ${S(0.05)} 0;border-bottom:1px solid ${line}}
+.sp-prose td code{white-space:nowrap}
+.sp-tablewrap{overflow-x:auto}
+.sp-statement{font-family:${display};font-size:${T(0.625)};line-height:1.3;max-width:24em}
+.sp-tones{display:grid;gap:${S(0.05)}}
+.sp-tone{display:grid;grid-template-columns:minmax(0,5rem) 1fr;gap:${S(0.2)};align-items:center;font-size:${small}}
+.sp-ticks{display:flex;gap:${S(0.05)}}
+.sp-tick{display:block;width:2rem;height:0.5rem;border:1px solid ${ink}}
 .sp-tick[data-on]{background:${ink}}
-.sp-marks{display:grid;gap:${S(0.3)};counter-reset:mark}
-.sp-marks li{counter-increment:mark;font-family:${display};font-size:${T(0.55)};line-height:1.3;padding-top:${S(0.15)};border-top:1px solid ${ink}}
-.sp-marks li::before{content:counter(mark,decimal-leading-zero);display:block;font-size:${T(0)};letter-spacing:0.12em;font-family:${body}}
-.sp-controls{display:flex;flex-wrap:wrap;gap:${S(0.2)};align-items:center;padding-block:${S(0.2)};border-top:1px solid ${ink};border-bottom:1px solid ${ink}}
-.sp-live{font-size:${T(0)}}
-.sp-stage{display:flex;align-items:center;min-height:${S(0.6)}}
-.sp-chip{display:block;width:5rem;height:${S(0.4)};background:${accent}}
-.sp-track{position:relative;height:${S(0.4)};border-bottom:1px solid ${ink}}
-.sp-fill{display:block;height:${S(0.2)};width:100%;background:${accent};transform-origin:left center}
-.sp-dot{display:block;width:${S(0.25)};height:${S(0.25)};background:${accent}}
-.sp-marker{position:absolute;left:0;bottom:0;width:${S(0.3)};height:${S(0.3)};background:${accent}}
-.sp-dots{display:flex;gap:${S(0.15)}}
-.sp-enter{display:grid;grid-template-columns:repeat(auto-fill,minmax(11rem,1fr));gap:${S(0.3)}}
-.sp-enter-item{display:grid;gap:${S(0.15)};padding:${S(0.2)};border:1px solid ${line}}
-.sp-units{display:grid;gap:${S(0.1)}}
-.sp-unit{display:grid;grid-template-columns:minmax(0,1fr);gap:${S(0.05)};padding-block:${S(0.15)};border-bottom:1px solid ${line}}
-.sp-layouts{display:flex;flex-wrap:wrap;gap:${S(0.05)} ${S(0.25)}}
-.sp-links{display:grid;gap:${S(0.1)}}
-.sp-link{display:grid;gap:${S(0.02)};padding-block:${S(0.12)};border-bottom:1px solid ${line}}
-.sp-ex{display:grid;gap:${S(0.15)};align-content:start}
-.sp-ex img{display:block;width:100%;height:auto;border:1px solid ${line}}
-.sp-missing{font-size:${T(0)}}
+.sp-scenarios{display:grid;gap:${S(0.05)};font-size:${small};color:${soft}}
+.sp-bands{display:flex;flex-wrap:wrap;gap:${S(0.3)}}
+.sp-band{display:grid;gap:${S(0.05)};align-content:start;min-width:0}
+.sp-band-chips{display:flex;border:1px solid ${line}}
+.sp-chipcol{flex:1 1 0;min-width:0;display:grid;align-content:start}
+.sp-swatch{height:${S(0.7)};border-bottom:1px solid ${line}}
+.sp-chipcol-label{padding:${S(0.05)};font-size:${small};line-height:1.35;color:${soft};word-break:normal}
+.sp-chipcol-label b{display:block;font-weight:inherit;color:${ink}}
+.sp-family{display:grid;grid-template-columns:minmax(0,1fr);gap:${S(0.1)} ${S(0.5)};padding-block:${S(0.15)};border-bottom:1px solid ${line}}
+.sp-family-side{display:grid;gap:${S(0.05)};align-content:start}
+.sp-family-main{display:grid;gap:${S(0.1)};min-width:0}
+.sp-family-name{font-size:${small};letter-spacing:0.12em;text-transform:uppercase}
+.sp-meta{font-size:${small};color:${soft}}
+.sp-specimen{font-size:${T(0.625)};line-height:1.3;overflow:hidden;white-space:nowrap}
+.sp-weights{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(11rem,100%),1fr));gap:${S(0.1)} ${S(0.3)}}
+.sp-weight{display:grid;gap:0;min-width:0;border-top:1px solid ${line};padding-top:${S(0.05)}}
+.sp-weight-phrase{font-size:${T(0.375)};line-height:1.4;overflow:hidden;white-space:nowrap}
+.sp-ladder{display:grid}
+.sp-step{display:grid;grid-template-columns:minmax(0,8rem) minmax(0,1fr);gap:${S(0.2)};align-items:baseline;padding-block:${S(0.02)};border-bottom:1px solid ${line}}
+.sp-step-k{font-size:${small};color:${soft};line-height:1.3}
+.sp-step-sample{line-height:1.2;overflow:hidden;white-space:nowrap}
+.sp-scales{display:grid;gap:${S(0.1)};align-content:start}
+.sp-space{display:grid;grid-template-columns:minmax(0,3.5rem) minmax(0,3.5rem) minmax(0,1fr);gap:${S(0.1)};align-items:center;font-size:${small};padding-block:0}
+.sp-bar{height:${S(0.1)};background:${ink};min-width:1px;max-width:100%}
+.sp-radii{display:flex;flex-wrap:wrap;gap:${S(0.3)}}
+.sp-box{width:4rem;height:4rem;background:${bg};border:1px solid ${ink}}
+.sp-box-k{font-size:${small};color:${soft}}
+.sp-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(10rem,100%),1fr));gap:${S(0.3)}}
+.sp-fact{display:grid;gap:0;border-top:1px solid ${ink};padding-top:${S(0.05)}}
+.sp-fact-k{font-size:${small};color:${soft}}
+.sp-fact-v{font-family:${display};font-size:${T(0.5)};line-height:1.2}
+.sp-shadow{width:7rem;height:4rem;background:${bg};border:1px solid ${line}}
+.sp-grain{position:relative;height:${S(0.6)};background:${line};overflow:hidden}
+.sp-grain i{position:absolute;inset:0;background-image:url("data:image/svg+xml,${grainSvg}");${hasGrain ? 'opacity:var(--ds-grain-max)' : 'opacity:0'}}
+.sp-textures{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(14rem,100%),1fr));gap:${S(0.3)};align-items:start}
+.sp-marks{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(14rem,100%),1fr));gap:${S(0.3)};counter-reset:mark}
+.sp-marks li{counter-increment:mark;font-family:${display};font-size:${T(0.375)};line-height:1.4;padding-top:${S(0.1)};border-top:1px solid ${ink}}
+.sp-marks li::before{content:counter(mark,decimal-leading-zero);display:block;font-size:${small};letter-spacing:0.12em;font-family:${body};color:${soft}}
+.sp-controls{display:flex;flex-wrap:wrap;gap:${S(0.2)};align-items:center;padding-block:${S(0.1)};border-top:1px solid ${ink};border-bottom:1px solid ${ink}}
+.sp-live{font-size:${small}}
+.sp-cells{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(13rem,100%),1fr));gap:${S(0.3)} ${S(0.3)}}
+.sp-cell{display:grid;gap:${S(0.02)};align-content:start;border-top:1px solid ${line};padding-top:${S(0.1)}}
+.sp-cell-top{display:flex;align-items:baseline;justify-content:space-between;gap:${S(0.1)}}
+.sp-cell-k{font-size:${text}}
+.sp-cell-v{font-size:${small};color:${soft}}
+.sp-cell-use{font-size:${small};color:${soft}}
+.sp-stage{display:flex;align-items:center;min-height:${S(0.4)}}
+.sp-chip{display:block;width:4rem;height:${S(0.3)};background:${ink}}
+.sp-track{position:relative;width:100%;height:${S(0.3)};border-bottom:1px solid ${ink}}
+.sp-fill{display:block;height:${S(0.1)};width:100%;background:${ink};transform-origin:left center}
+.sp-dot{display:block;width:${S(0.2)};height:${S(0.2)};background:${ink}}
+.sp-marker{position:absolute;left:0;bottom:0;width:${S(0.2)};height:${S(0.2)};background:${ink}}
+.sp-dots{display:flex;gap:${S(0.1)}}
+.sp-units{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(16rem,100%),1fr));gap:${S(0.4)} ${S(0.4)};align-items:start}
+.sp-unit{display:grid;gap:${S(0.1)};align-content:start;min-width:0}
+.sp-unit-k{font-size:${small};letter-spacing:0.12em;color:${soft};padding-bottom:${S(0.05)};border-bottom:1px solid ${ink}}
+.sp-layouts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:${S(0.2)}}
+.sp-layout{display:grid;gap:${S(0.05)};align-content:start;min-width:0}
+.sp-layout img{width:100%;height:auto;border:1px solid ${line}}
+.sp-layout-name{font-size:${text};line-height:1.35}
+.sp-layout-id{font-size:${small};color:${soft}}
+.sp-layout-note{font-size:${small};color:${soft};line-height:1.5}
+.sp-overall{display:grid;gap:${S(0.05)};max-width:16rem}
+.sp-overall img{width:100%;height:12rem;object-fit:cover;object-position:top;border:1px solid ${line}}
+.sp-works{display:flex;flex-wrap:wrap;gap:${S(0.4)} ${S(0.5)};align-items:flex-end}
+.sp-work{display:grid;gap:${S(0.05)};align-content:start;max-width:100%}
+.sp-work > :not(a){width:0;min-width:100%}
+.sp-work img{height:16rem;width:auto;max-width:100%;border:1px solid ${line}}
+.sp-work img[data-cropped]{width:20rem;object-fit:cover;object-position:top}
+.sp-work-k{font-size:${text}}
+.sp-work-v{font-size:${small};color:${soft}}
+.sp-exemplars{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(14rem,100%),1fr));gap:${S(0.3)}}
+.sp-ex{display:grid;gap:${S(0.1)};align-content:start}
+.sp-ex img{width:100%;height:auto;border:1px solid ${line}}
+.sp-missing{font-size:${small};color:${soft}}
 @media(min-width:900px){
-.sp-section{grid-template-columns:minmax(0,1fr) minmax(0,3.2fr);column-gap:${S(0.6)}}
-.sp-row{grid-template-columns:minmax(0,9rem) minmax(0,15rem) minmax(0,1fr);column-gap:${S(0.4)}}
-.sp-facts{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:${S(0.4)}}
-.sp-tone{grid-template-columns:minmax(0,7rem) 1fr}
+.sp{padding-inline:${S(0.5)}}
+.sp-two{grid-template-columns:minmax(0,3fr) minmax(0,2fr);column-gap:${S(0.6)}}
+.sp-two-scale{grid-template-columns:minmax(0,5fr) minmax(0,3fr)}
+.sp-prose-cols{display:block;column-count:2;column-gap:${S(0.6)}}
+.sp-prose-cols > *{break-inside:avoid;margin-bottom:${S(0.2)}}
+.sp-family{grid-template-columns:minmax(0,2fr) minmax(0,5fr)}
+.sp-prose li:has(> ul){grid-template-columns:minmax(0,5fr) minmax(0,4fr) minmax(0,4fr)}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}`;
 }
@@ -285,8 +365,12 @@ function sub(title: string): string {
   return `<h3 class="sp-sub">${esc(title)}</h3>`;
 }
 
-function row(key: string, value: string, viz = ''): string {
-  return `<div class="sp-row"><div class="sp-k">${esc(key)}</div><div class="sp-v">${esc(value)}</div><div class="sp-viz">${viz}</div></div>`;
+function prose(html: string, extra = ''): string {
+  const labelled = html
+    .replace(/<li>(理由|适用边界)[：:]\s*/g, '<li><span class="sp-label">$1</span>')
+    .replace(/<table>/g, '<div class="sp-tablewrap"><table>')
+    .replace(/<\/table>/g, '</table></div>');
+  return `<div class="sp-prose${extra}">${labelled}</div>`;
 }
 
 function toneMeter(meta: SystemMeta): string {
@@ -294,7 +378,7 @@ function toneMeter(meta: SystemMeta): string {
     .map((key) => {
       const value = meta.tone[key];
       const ticks = [1, 2, 3, 4, 5].map((n) => `<i class="sp-tick"${n === value ? ' data-on' : ''}></i>`).join('');
-      return `<div class="sp-tone"><div class="sp-k">${esc(TONE_PAIRS[key])}</div><div class="sp-ticks" role="img" aria-label="${esc(`${TONE_PAIRS[key]}：${value} / 5`)}">${ticks}</div></div>`;
+      return `<div class="sp-tone"><div>${esc(TONE_PAIRS[key])}</div><div class="sp-ticks" role="img" aria-label="${esc(`${TONE_PAIRS[key]}：${value} / 5`)}">${ticks}</div></div>`;
     })
     .join('');
 }
@@ -307,141 +391,173 @@ function defaultHeader(model: PageModel): string {
 <p class="sp-lead" data-ds-enter="rise" data-ds-order="1">${esc(meta.materialAnchor)}</p>`;
 }
 
-function navigation(): string {
-  const items = [
-    ['intent', '意图与调性'],
-    ['anchor', '材质锚点'],
-    ['color', '色彩'],
-    ['type', '字体'],
-    ['scale', '间距与构图'],
-    ['texture', '质感'],
-    ['marks', '识别符号'],
-    ['motion', '动效'],
-    ['layouts', '排法'],
-    ['links', '链接'],
-  ];
-  return `<nav class="sp-nav">${items.map(([id, label]) => `<a href="#${id}">${esc(label!)}</a>`).join('')}</nav>`;
+function navigation(items: [string, string][]): string {
+  return `<nav class="sp-nav">${items.map(([id, label]) => `<a href="#${id}">${esc(label)}</a>`).join('')}</nav>`;
 }
 
-function intentSection(model: PageModel): string {
+function intentSection(model: PageModel, no: string): string {
   const { meta } = model;
   const scenarios = meta.scenarios.map((scenario) => `<li>${esc(scenario)}</li>`).join('');
+  const parts = model.intentHtml.split(/(?=<p><strong>关键规则)/);
+  const lead = parts[0]!;
+  const rules = parts.slice(1).join('');
   return sectionBlock(
     'intent',
-    '01',
+    no,
     '意图与调性',
-    `<div class="sp-prose">${model.intentHtml}</div>
-${sub('适用场景')}
-<ul class="sp-prose">${scenarios}</ul>
-${sub('调性位置')}
-<div class="sp-rows">${toneMeter(meta)}</div>`,
+    `<div class="sp-two">${prose(lead)}<div class="sp-tones">${toneMeter(meta)}${sub('适用场景')}<ul class="sp-scenarios">${scenarios}</ul></div></div>
+${rules ? prose(rules, ' sp-prose-wide') : ''}`,
   );
 }
 
-function anchorSection(model: PageModel): string {
-  return sectionBlock(
-    'anchor',
-    '02',
-    '材质锚点',
-    `<p class="sp-statement">${esc(model.meta.materialAnchor)}</p>
-<div class="sp-prose">${model.anchorHtml}</div>`,
-  );
+function anchorSection(model: PageModel, no: string): string {
+  return sectionBlock('anchor', no, '材质锚点', `<p class="sp-statement">${esc(model.meta.materialAnchor)}</p>${prose(model.anchorHtml, ' sp-prose-wide')}`);
 }
 
-function colorSection(model: PageModel): string {
-  const swatches = colorViews(model)
-    .map(
-      (color) => `<div class="sp-swatch"><div class="sp-swatch-chip" style="background:var(${color.cssVar})"></div><div class="sp-k">${esc(color.name)}</div><div class="sp-v">${esc(color.css)}</div>${
-        color.hex ? `<div class="sp-v">${esc(color.hex)}</div>` : ''
-      }</div>`,
-    )
+function colorGroups(colors: ColorView[]): ColorView[][] {
+  const groups = new Map<string, ColorView[]>();
+  for (const color of colors) {
+    const key = color.name.split(/[-.]/)[0]!;
+    groups.set(key, [...(groups.get(key) ?? []), color]);
+  }
+  return [...groups.values()];
+}
+
+function colorSection(model: PageModel, no: string): string {
+  const bands = colorGroups(colorViews(model))
+    .map((group) => {
+      const chips = group
+        .map(
+          (color) =>
+            `<div class="sp-chipcol"><div class="sp-swatch" style="background:var(${color.cssVar})"></div><div class="sp-chipcol-label"><b>${esc(color.name)}</b>${esc(color.css)}${
+              !model.colorLegend && color.hex ? `<br>${esc(color.hex)}` : ''
+            }</div></div>`,
+        )
+        .join('');
+      return `<div class="sp-band" style="flex:${group.length} 1 ${group.length * 7}rem"><div class="sp-band-chips">${chips}</div></div>`;
+    })
     .join('');
-  return sectionBlock('color', '03', '色彩', `<div class="sp-prose">${model.colorHtml}</div><div class="sp-chips">${swatches}</div>`);
+  return sectionBlock('color', no, '色彩', `<div class="sp-bands">${bands}</div>${prose(model.colorHtml, ' sp-prose-wide')}`);
 }
 
 function yesNo(value: boolean): string {
-  return value ? '允许' : '不允许';
+  return value ? '可' : '否';
 }
 
-function fontCard(font: FontView, cjkCapable: boolean): string {
-  const { entry } = font;
-  const sample = cjkCapable ? '纸上的光，慢慢停住 Aa 0123' : 'The quick brown fox Aa 0123';
-  const facts: [string, string][] = [
-    ['角色', font.role],
-    ['家族', entry.family],
-    ['字重', String(entry.weight)],
-    ['覆盖', entry.scripts.join(' / ')],
-    ['授权', entry.license.name],
-    ['商用', yesNo(entry.permissions.commercial)],
-    ['网页嵌入', yesNo(entry.permissions.webEmbed)],
-    ['文件嵌入', yesNo(entry.permissions.fileEmbed)],
-    ['可用载体', entry.carriers.join(' / ')],
-    ['PPT 安全字体', entry.pptSafe ? '是' : '否'],
-  ];
-  const rows = facts
-    .map(([key, value]) => `<div class="sp-fact"><div class="sp-k">${esc(key)}</div><div class="sp-v">${esc(value)}</div></div>`)
+interface Family {
+  name: string;
+  entries: FontEntry[];
+  roles: FontView[];
+}
+
+function families(model: PageModel): Family[] {
+  const byName = new Map<string, Family>();
+  const seen = new Set<string>();
+  for (const font of model.fonts) {
+    const family = byName.get(font.entry.family) ?? { name: font.entry.family, entries: [], roles: [] };
+    if (!seen.has(font.entry.id)) {
+      seen.add(font.entry.id);
+      family.entries.push(font.entry);
+    }
+    family.roles.push(font);
+    byName.set(font.entry.family, family);
+  }
+  return [...byName.values()];
+}
+
+function latinName(model: PageModel): string {
+  return model.meta.id
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+function familyBlock(model: PageModel, family: Family): string {
+  const cjk = family.entries.some((entry) => entry.scripts.includes('cjk'));
+  const anchor = model.meta.materialAnchor;
+  const full = cjk ? anchor : `${latinName(model)} 0123456789`;
+  const phrase = cjk ? (anchor.split(/[，,；;。]/)[0] ?? anchor) : `${latinName(model)} 2024`;
+  const ordered = [...family.entries].sort((a, b) => Number(fontStyleOf(a) === 'italic') - Number(fontStyleOf(b) === 'italic') || a.weight - b.weight);
+  const regular = ordered.find((entry) => fontStyleOf(entry) === 'normal' && entry.weight === 400) ?? ordered.find((entry) => fontStyleOf(entry) === 'normal') ?? ordered[0]!;
+  const face = (entry: FontEntry) => `font-family:&quot;${escapeHtml(entry.family)}&quot;;font-weight:${entry.weight};font-style:${fontStyleOf(entry)}`;
+  const weights = ordered
+    .map(
+      (entry) =>
+        `<div class="sp-weight"><div class="sp-meta">${esc(`${fontStyleOf(entry) === 'italic' ? '斜体 ' : ''}${entry.weight}`)}</div><div class="sp-weight-phrase" style="${face(entry)}">${esc(phrase)}</div></div>`,
+    )
     .join('');
-  return `<div class="sp-font">
-<div class="sp-specimen" style="font-family:var(${font.cssVar}), var(--ds-font-cjk)">${esc(sample)}</div>
-<div class="sp-facts">${rows}<div class="sp-fact"><div class="sp-k">${esc('授权链接')}</div><div class="sp-v"><a href="${escapeHtml(entry.license.url)}" target="_blank" rel="noopener">${escapeHtml(entry.license.url)}</a></div></div></div>
+  const first = family.entries[0]!;
+  const licenses = [...new Set(family.entries.map((entry) => entry.license.name))].join(' / ');
+  const carriers = [...new Set(family.entries.flatMap((entry) => entry.carriers))].map((carrier) => CARRIERS[carrier as CarrierId]?.label ?? carrier).join('、');
+  const all = (pick: (entry: FontEntry) => boolean) => yesNo(family.entries.every(pick));
+  const licenseLine = `${licenses} · 商用 ${all((entry) => entry.permissions.commercial)} · 网页嵌入 ${all((entry) => entry.permissions.webEmbed)} · 文件嵌入 ${all((entry) => entry.permissions.fileEmbed)} · 载体 ${carriers} · PPT 安全 ${all((entry) => entry.pptSafe)}`;
+  const roles = family.roles.map((font) => `${font.role} ${font.entry.weight}${fontStyleOf(font.entry) === 'italic' ? ' 斜体' : ''}`).join(' · ');
+  const scripts = first.scripts.map((script) => (script === 'cjk' ? '中文' : '西文')).join(' + ');
+  return `<div class="sp-family">
+<div class="sp-family-side"><h3 class="sp-family-name">${escapeHtml(family.name)} · ${esc(scripts)}</h3><div class="sp-meta">${esc(licenseLine)} · <a href="${escapeHtml(first.license.url)}" target="_blank" rel="noopener">${esc('授权全文')}</a></div><div class="sp-meta">${esc(`角色：${roles}`)}</div></div>
+<div class="sp-family-main"><div class="sp-specimen" style="${face(regular)}">${esc(full)}</div><div class="sp-weights">${weights}</div></div>
 </div>`;
 }
 
-function typeSection(model: PageModel): string {
-  const types = steps(model.tokens, '--ds-type-');
+function sampleFor(model: PageModel, size: number, width: number): string {
+  const characters = [...model.meta.materialAnchor];
+  const count = Math.max(2, Math.min(characters.length, Math.floor(width / size)));
+  return characters.slice(0, count).join('');
+}
+
+function scaleSection(model: PageModel, no: string): string {
+  const { tokens } = model;
+  const types = steps(tokens, '--ds-type-');
   const ratios = new Map(model.parsed.tokens.filter((t) => t.path[0] === 'ratio' && t.path[1] === 'type').map((t) => [t.path[2]!, t.number!]));
   const ladder = types
     .map((step) => {
       const ratio = ratios.get(step.name);
-      return `<div class="sp-row"><div class="sp-k">${esc(`字阶 ${step.name}`)}</div><div class="sp-v">${esc(`${px(step.value)}${ratio !== undefined ? ` · ×${ratio}` : ''}`)}</div><div class="sp-viz" style="font-size:var(${step.cssVar});line-height:1.25">${esc('纸上的光 Aa 0123')}</div></div>`;
+      return `<div class="sp-step"><div class="sp-step-k">${esc(`${step.name} · ${px(step.value)}${ratio !== undefined ? ` · ×${ratio}` : ''}`)}</div><div class="sp-step-sample" style="font-size:var(${step.cssVar})">${esc(sampleFor(model, step.value, 640))}</div></div>`;
     })
     .join('');
-  const cards = model.fonts.map((font) => fontCard(font, font.entry.scripts.includes('cjk'))).join('');
-  return sectionBlock(
-    'type',
-    '04',
-    '字体',
-    `${sub('字体搭配与授权')}${cards}
-<div class="sp-prose">${model.fontsHtml}</div>
-${sub('字阶')}<div class="sp-rows">${ladder}</div>`,
-  );
-}
-
-function scaleSection(model: PageModel): string {
-  const { tokens } = model;
   const spaces = steps(tokens, '--ds-space-');
   const radii = steps(tokens, '--ds-radius-');
-  const spaceRows = spaces.map((step) => row(`间距 ${step.name}`, px(step.value), `<div class="sp-bar" style="width:${px(step.value)}"></div>`)).join('');
-  const radiusBoxes = radii
-    .map((step) => `<div class="sp-boxes"><div><div class="sp-box" style="border-radius:var(${step.cssVar})"></div><div class="sp-k">${esc(`圆角 ${step.name}`)}</div><div class="sp-v">${esc(px(step.value))}</div></div></div>`)
+  const spaceRows = spaces
+    .map((step) => `<div class="sp-space"><div>${esc(step.name)}</div><div>${esc(px(step.value))}</div><div class="sp-bar" style="width:${px(step.value)}"></div></div>`)
     .join('');
-  const composition = model.parsed.constraints?.composition ?? {};
-  const percent = (range: [number, number]) => `${Math.round(range[0] * 100)}–${Math.round(range[1] * 100)}%`;
-  const compositionRows = (Object.keys(composition) as CarrierId[])
-    .map((carrier) => {
-      const ranges = composition[carrier]!;
-      return row(
-        CARRIERS[carrier].label,
-        `${carrier} · 跳跃率 ${ranges.jumpRate[0]}–${ranges.jumpRate[1]} · 版面率 ${percent(ranges.layoutRate)} · 图版率 ${percent(ranges.imageRate)}`,
-      );
-    })
+  const radiusBoxes = radii
+    .map((step) => `<div><div class="sp-box" style="border-radius:var(${step.cssVar})"></div><div class="sp-box-k">${esc(`${step.name} · ${px(step.value)}`)}</div></div>`)
     .join('');
   return sectionBlock(
     'scale',
-    '05',
-    '间距、圆角与构图比率',
-    `<div class="sp-prose">${model.layoutHtml}${model.shapeHtml}</div>
-${sub('间距阶梯')}<div class="sp-rows">${spaceRows}</div>
-${sub('圆角阶梯')}<div class="sp-boxes">${radiusBoxes}</div>
-${sub('构图比率')}<div class="sp-rows">${compositionRows || row('构图比率', '体系没有声明')}</div>`,
+    no,
+    '字阶、间距与圆角',
+    `<div class="sp-two sp-two-scale"><div class="sp-ladder">${ladder}</div><div class="sp-scales">${sub('间距')}<div>${spaceRows}</div>${sub('圆角')}<div class="sp-radii">${radiusBoxes}</div></div></div>`,
   );
 }
 
-function textureSection(model: PageModel): string {
+function typeSection(model: PageModel, no: string): string {
+  const blocks = families(model).map((family) => familyBlock(model, family)).join('');
+  return sectionBlock('type', no, '字体', `${blocks}${prose(model.fontsHtml, ' sp-prose-wide')}`);
+}
+
+function layoutSection(model: PageModel, no: string): string {
+  const composition = model.parsed.constraints?.composition ?? {};
+  const percent = (range: [number, number]) => `${Math.round(range[0] * 100)}–${Math.round(range[1] * 100)}%`;
+  const rows = (Object.keys(composition) as CarrierId[])
+    .map((carrier) => {
+      const ranges = composition[carrier]!;
+      return `<tr><td>${esc(CARRIERS[carrier].label)}</td><td>${esc(carrier)}</td><td>${esc(`${ranges.jumpRate[0]}–${ranges.jumpRate[1]}`)}</td><td>${esc(percent(ranges.layoutRate))}</td><td>${esc(percent(ranges.imageRate))}</td></tr>`;
+    })
+    .join('');
+  const fallback =
+    !model.compositionTable && rows
+      ? `<div class="sp-prose sp-prose-wide"><div class="sp-tablewrap"><table><thead><tr><th>${esc('载体')}</th><th>id</th><th>${esc('跳跃率')}</th><th>${esc('版面率')}</th><th>${esc('图版率')}</th></tr></thead><tbody>${rows}</tbody></table></div></div>`
+      : '';
+  const shape = model.shapeHtml ? `<div class="sp-main">${sub('形态')}${prose(model.shapeHtml, ' sp-prose-wide')}</div>` : '';
+  return sectionBlock('layout', no, '版面与形态', `<div class="sp-two"><div class="sp-main">${prose(model.layoutHtml, ' sp-prose-wide')}${fallback}</div>${shape}</div>`);
+}
+
+function textureSection(model: PageModel, no: string): string {
   const { tokens, parsed } = model;
   const shadows = tokens.entries.filter((entry) => entry.cssVar.startsWith('--ds-shadow-'));
   const shadowItems = shadows
-    .map((entry) => `<div class="sp-row"><div class="sp-k">${esc(`阴影 ${entry.cssVar.slice('--ds-shadow-'.length)}`)}</div><div class="sp-v">${esc(entry.css)}</div><div class="sp-viz"><div class="sp-shadow" style="box-shadow:var(${entry.cssVar})"></div></div></div>`)
+    .map((entry) => `<div class="sp-fact"><div class="sp-fact-k">${esc(`阴影 ${entry.cssVar.slice('--ds-shadow-'.length)}`)}</div><div class="sp-shadow" style="box-shadow:var(${entry.cssVar})"></div><div class="sp-fact-k">${esc(entry.css)}</div></div>`)
     .join('');
   const grain = tokens.entries.find((entry) => entry.cssVar === '--ds-grain-max');
   const springs = new Map<string, string[]>();
@@ -450,105 +566,108 @@ function textureSection(model: PageModel): string {
     if (match) springs.set(match[1]!, [...(springs.get(match[1]!) ?? []), `${match[2]} ${entry.css}`]);
   }
   const constraints = parsed.constraints;
+  const fact = (key: string, value: string) => `<div class="sp-fact"><div class="sp-fact-k">${esc(key)}</div><div class="sp-fact-v">${esc(value)}</div></div>`;
   const facts = [
-    constraints ? row('光源方向', `${constraints.lightAngleDeg}°`) : '',
-    constraints ? row('强调色预算', `${Math.round(constraints.accentBudget * 100)}%`) : '',
-    constraints ? row('颗粒上限', String(constraints.grainMax)) : '',
-    grain ? row('颗粒强度', grain.css, '<div class="sp-grain"><i></i></div>') : '',
-    ...[...springs].map(([name, values]) => row(`弹簧 ${name}`, values.join(' · '))),
+    constraints ? fact('光源方向', `${constraints.lightAngleDeg}°`) : '',
+    constraints ? fact('强调色预算', `${Math.round(constraints.accentBudget * 100)}%`) : '',
+    constraints ? fact('颗粒上限', String(constraints.grainMax)) : '',
+    ...[...springs].map(([name, values]) => fact(`弹簧 ${name}`, values.join(' · '))),
   ].join('');
-  return sectionBlock('texture', '06', '质感', `<div class="sp-prose">${model.imageryHtml}</div>${sub('阴影')}<div class="sp-rows">${shadowItems || row('阴影', '体系没有声明')}</div>${sub('光源、颗粒与弹簧')}<div class="sp-rows">${facts}</div>`);
-}
-
-function marksSection(model: PageModel): string {
-  const list = model.marksHtml.replace(/^<ul>/, '<ul class="sp-marks">');
-  return sectionBlock('marks', '07', '识别符号', list);
+  const surface = `<div class="sp-textures">${shadowItems}${grain ? `<div class="sp-fact"><div class="sp-fact-k">${esc(`颗粒强度 ${grain.css}`)}</div><div class="sp-grain"><i></i></div></div>` : ''}</div>`;
+  const marks = model.marksHtml.replace(/^<ul>/, '<ul class="sp-marks">');
+  return sectionBlock('texture', no, '质感与符号', `<div class="sp-facts">${facts}</div>${surface}${prose(model.imageryHtml, ' sp-prose-wide sp-prose-cols')}${sub('识别符号')}${marks}`);
 }
 
 function replayButton(kind: string, key: string): string {
   return `<button type="button" data-ds-replay="${kind}" data-key="${escapeHtml(key)}">${esc('重放')}</button>`;
 }
 
-function motionSection(model: PageModel): string {
+function motionSection(model: PageModel, no: string): string {
   const { tokens } = model;
   const durations = steps(tokens, '--ds-duration-');
   const staggers = steps(tokens, '--ds-stagger-');
   const easings = tokens.entries.filter((entry) => entry.cssVar.startsWith('--ds-easing-'));
-  const enters = ENTER_EFFECTS.map(
-    (effect) => `<div class="sp-enter-item"><div class="sp-k">${esc(effect.name)}</div><div class="sp-v">${esc(effect.label)}</div><div class="sp-stage"><span class="sp-chip" data-ds-slot="enter-${effect.name}"></span></div>${replayButton('enter', effect.name)}</div>`,
-  ).join('');
-  const durationRows = durations
-    .map((step) => `<div class="sp-row"><div class="sp-k">${esc(step.name)}</div><div class="sp-v">${esc(ms(step.value))}</div><div class="sp-viz"><div class="sp-stage"><span class="sp-fill" data-ds-slot="duration-${escapeHtml(step.name)}"></span></div>${replayButton('duration', step.name)}</div></div>`)
+  const cell = (key: string, value: string, use: string | undefined, stage: string, kind: string, name: string) =>
+    `<div class="sp-cell"><div class="sp-cell-top"><div class="sp-cell-k">${esc(key)}</div>${replayButton(kind, name)}</div><div class="sp-cell-v">${esc(value)}</div>${use ? `<div class="sp-cell-use">${esc(use)}</div>` : ''}<div class="sp-stage">${stage}</div></div>`;
+  const enters = ENTER_EFFECTS.map((effect) => cell(effect.name, effect.label, undefined, `<span class="sp-chip" data-ds-slot="enter-${effect.name}"></span>`, 'enter', effect.name)).join('');
+  const durationCells = durations
+    .map((step) => cell(step.name, ms(step.value), model.durationNotes[step.name], `<span class="sp-fill" data-ds-slot="duration-${escapeHtml(step.name)}"></span>`, 'duration', step.name))
     .join('');
-  const easingRows = easings
+  const easingCells = easings
     .map((entry) => {
       const name = entry.cssVar.slice('--ds-easing-'.length);
-      return `<div class="sp-row"><div class="sp-k">${esc(name)}</div><div class="sp-v">${esc(entry.css)}</div><div class="sp-viz"><div class="sp-track"><span class="sp-marker" data-ds-slot="easing-${escapeHtml(name)}"></span></div>${replayButton('easing', name)}</div></div>`;
+      return cell(name, entry.css, model.easingNotes[name], `<div class="sp-track"><span class="sp-marker" data-ds-slot="easing-${escapeHtml(name)}"></span></div>`, 'easing', name);
     })
     .join('');
-  const staggerRows = staggers
+  const staggerCells = staggers
     .map((step) => {
       const dots = [0, 1, 2, 3, 4].map(() => `<span class="sp-dot" data-ds-slot="stagger-${escapeHtml(step.name)}"></span>`).join('');
-      return `<div class="sp-row"><div class="sp-k">${esc(step.name)}</div><div class="sp-v">${esc(ms(step.value))}</div><div class="sp-viz"><div class="sp-dots">${dots}</div>${replayButton('stagger', step.name)}</div></div>`;
+      return cell(step.name, ms(step.value), undefined, `<div class="sp-dots">${dots}</div>`, 'stagger', step.name);
     })
     .join('');
   const controls = `<div class="sp-controls"><button type="button" data-ds-reduce-toggle aria-pressed="false">${esc('减少动态效果')}</button><span class="sp-live" data-ds-reduce-state aria-live="polite"></span></div>`;
   return sectionBlock(
     'motion',
-    '08',
+    no,
     '动效',
-    `<div class="sp-prose">${model.motionHtml}</div>
+    `${prose(model.motionHtml, ' sp-prose-wide sp-prose-cols')}
 ${controls}
-${sub('入场方式')}<div class="sp-enter">${enters}</div>
-${sub('时长阶梯')}<div class="sp-rows">${durationRows}</div>
-${sub('缓动')}<div class="sp-rows">${easingRows}</div>
-${staggers.length ? `${sub('错峰')}<div class="sp-rows">${staggerRows}</div>` : ''}`,
+${sub(staggers.length ? '入场方式与错峰' : '入场方式')}<div class="sp-cells">${enters}${staggerCells}</div>
+${sub('时长阶梯')}<div class="sp-cells">${durationCells}</div>
+${sub('缓动')}<div class="sp-cells">${easingCells}</div>`,
   );
 }
 
-function layoutsSection(model: PageModel): string {
-  const groups = model.layouts
-    .map((group) => {
-      const units = group.units
-        .map(
-          (unit) =>
-            `<div class="sp-unit"><div class="sp-k">${esc(unit.label)}</div><div class="sp-v">${esc(unit.id)}</div><ul class="sp-layouts">${unit.layouts.map((layout) => `<li>${esc(layout)}</li>`).join('')}</ul></div>`,
-        )
-        .join('');
-      return `${sub(`${CARRIERS[group.carrier].label} · ${group.carrier}`)}<div class="sp-units">${units || `<p class="sp-missing">${esc('这个载体还没有排法。')}</p>`}</div>`;
-    })
-    .join('');
-  return sectionBlock('layouts', '09', '排法', groups);
+function layoutCard(layout: LayoutItem): string {
+  const image = layout.image ? `<img src="${escapeHtml(layout.image)}" alt="${esc(layout.name ?? layout.id)}" loading="lazy">` : '';
+  const picture = layout.href ? `<a href="${escapeHtml(layout.href)}">${image || esc(layout.name ?? layout.id)}</a>` : image;
+  return `<div class="sp-layout">${picture}<div class="sp-layout-name">${esc(layout.name ?? layout.id)}</div><div class="sp-layout-id">${escapeHtml(layout.id)}</div>${layout.description ? `<div class="sp-layout-note">${esc(layout.description)}</div>` : ''}</div>`;
 }
 
-function linkList(links: LinkView[]): string {
-  return `<ul class="sp-links">${links
-    .map((link) => `<li class="sp-link"><a href="${escapeHtml(link.href)}">${esc(link.label)}</a>${link.note ? `<div class="sp-v">${esc(link.note)}</div>` : ''}</li>`)
-    .join('')}</ul>`;
+function layoutsSection(model: PageModel, no: string): string {
+  const filled = model.layouts.filter((group) => group.units.length);
+  const empty = model.layouts.filter((group) => !group.units.length).map((group) => CARRIERS[group.carrier].label);
+  const groups = filled
+    .map((group) => {
+      const units = group.units
+        .map((unit) => `<div class="sp-unit"><div class="sp-unit-k">${esc(unit.label)}</div><div class="sp-layouts">${unit.layouts.map(layoutCard).join('')}</div></div>`)
+        .join('');
+      const overall = group.overall
+        ? `<div class="sp-overall"><a href="${escapeHtml(group.overall.href)}">${group.overall.image ? `<img src="${escapeHtml(group.overall.image)}" alt="${esc(group.overall.label)}" loading="lazy">` : esc(group.overall.label)}</a><div class="sp-layout-note">${esc('整体排法总览：全部排法依次排成一页')}</div></div>`
+        : '';
+      const wholeOnly = group.units.every((unit) => unit.layouts.every((layout) => !layout.image));
+      return `${sub(`${CARRIERS[group.carrier].label} · ${group.carrier}`)}<div class="sp-units">${units}</div>${wholeOnly ? overall : ''}`;
+    })
+    .join('');
+  const note = !model.overviewGenerated ? `<p class="sp-missing">${esc('这套体系的排法总览还没有生成。')}</p>` : '';
+  const none = empty.length ? `<p class="sp-missing">${esc(`${empty.join('、')}：还没有排法。`)}</p>` : '';
+  return sectionBlock('layouts', no, '排法', `${note}${groups}${none}`);
+}
+
+function workCard(work: LinkView): string {
+  const image = work.image ? `<img src="${escapeHtml(work.image)}" alt="${esc(work.label)}" loading="lazy"${work.cropped ? ' data-cropped' : ''}>` : '';
+  return `<div class="sp-work"><a href="${escapeHtml(work.href)}">${image || esc(work.label)}</a><div class="sp-work-k">${esc(work.label)}</div>${work.detail ? `<div class="sp-work-v">${esc(work.detail)}</div>` : ''}${work.note ? `<div class="sp-work-v">${esc(work.note)}</div>` : ''}</div>`;
 }
 
 function exemplarCard(exemplar: ExemplarView): string {
   const source = exemplar.sourceUrl
-    ? `<div class="sp-v">${esc('来源：')}<a href="${escapeHtml(exemplar.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(exemplar.sourceUrl)}</a></div>`
+    ? `<div class="sp-work-v">${esc('来源：')}<a href="${escapeHtml(exemplar.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(exemplar.sourceUrl)}</a></div>`
     : '';
   const media =
     exemplar.media?.kind === 'screenshot'
       ? `<img src="${escapeHtml(exemplar.media.href)}" alt="${escapeHtml(exemplar.title)}" loading="lazy">`
       : exemplar.media
-        ? `<div class="sp-v"><a href="${escapeHtml(exemplar.media.href)}">${esc('查看录屏')}</a></div>`
+        ? `<div class="sp-work-v"><a href="${escapeHtml(exemplar.media.href)}">${esc('查看录屏')}</a></div>`
         : '';
-  return `<div class="sp-ex">${media}<div class="sp-k">${esc(exemplar.title)}</div><div class="sp-v">${esc(`${exemplar.carrier} · ${exemplar.sourceType} · ${exemplar.copyright}`)}</div>${source}</div>`;
+  return `<div class="sp-ex">${media}<div class="sp-work-k">${esc(exemplar.title)}</div><div class="sp-work-v">${esc(`${exemplar.carrier} · ${exemplar.sourceType} · ${exemplar.copyright}`)}</div>${source}</div>`;
 }
 
-function linksSection(model: PageModel): string {
-  const overview = model.overview.length
-    ? model.overview.map((group) => `${sub(group.title)}${linkList(group.links)}`).join('')
-    : `<p class="sp-missing">${esc('这套体系的排法总览还没有生成。')}</p>`;
-  const works = model.works.length ? linkList(model.works) : `<p class="sp-missing">${esc('这套体系的标准样张还没有生成。')}</p>`;
+function worksSection(model: PageModel, no: string): string {
+  const works = model.works.length ? `<div class="sp-works">${model.works.map(workCard).join('')}</div>` : `<p class="sp-missing">${esc('这套体系的标准样张还没有生成。')}</p>`;
   const exemplars = model.exemplars.length
-    ? `<div class="sp-chips">${model.exemplars.map(exemplarCard).join('')}</div>`
+    ? `<div class="sp-exemplars">${model.exemplars.map(exemplarCard).join('')}</div>`
     : `<p class="sp-missing">${esc('这套体系还没有已批准的范例。')}</p>`;
-  return sectionBlock('links', '10', '链接', `${sub('排法总览')}${overview}${sub('标准样张')}${works}${sub('已批准的范例')}${exemplars}`);
+  return sectionBlock('works', no, '标准样张与范例', `${works}${sub('已批准的范例')}${exemplars}`);
 }
 
 export function replayScript(tokens: ResolvedTokens): string {
@@ -652,21 +771,26 @@ function replay(config: {
 export function renderSystemPage(model: PageModel): RenderedPage {
   const header = model.customHeader ?? defaultHeader(model);
   const headerTag = model.customHeader !== undefined ? 'data-ds-custom-header' : 'data-ds-default-header';
+  const sections: [string, string, (model: PageModel, no: string) => string][] = [
+    ['intent', '意图', intentSection],
+    ['works', '样张', worksSection],
+    ['layouts', '排法', layoutsSection],
+    ['anchor', '材质', anchorSection],
+    ['color', '色彩', colorSection],
+    ['type', '字体', typeSection],
+    ['scale', '字阶间距', scaleSection],
+    ['layout', '版面', layoutSection],
+    ['texture', '质感', textureSection],
+    ['motion', '动效', motionSection],
+  ];
+  const nav = navigation(sections.map(([id, label]) => [id, label]));
+  const blocks = sections.map(([, , render], index) => render(model, String(index + 1).padStart(2, '0'))).join('\n');
   const body = `<div class="sp">
 <header class="sp-header" data-ds-unit="header" ${headerTag}>
 ${header}
 </header>
-${navigation()}
-${intentSection(model)}
-${anchorSection(model)}
-${colorSection(model)}
-${typeSection(model)}
-${scaleSection(model)}
-${textureSection(model)}
-${marksSection(model)}
-${motionSection(model)}
-${layoutsSection(model)}
-${linksSection(model)}
+${nav}
+${blocks}
 </div>`;
   return { title: `${model.meta.name} · 体系总览页`, style: styleSheet(model), body, script: replayScript(model.tokens) };
 }
