@@ -68,7 +68,7 @@ describe('web work', () => {
       '.headline{color:#000;animation:settle-in 3s linear both} @keyframes settle-in{from{color:#000}to{color:var(--ds-color-ink)}}',
     );
     const result = await run(await heroWork('flash'), { systemDir: await heroSystem('flash', flash) });
-    expect(result.report.findings).toEqual([]);
+    expect(result.report.findings.filter((finding) => finding.category !== 'motion')).toEqual([]);
   });
 
   test('every unit is revealed by the static render switch, so reveal-on-scroll units are not hidden below the fold', async () => {

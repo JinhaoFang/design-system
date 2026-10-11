@@ -4,10 +4,12 @@
  * Text blocks (non-inline elements owning text) also get textChunks (their text nodes in order, each with its slot) and lines (the rendered visual lines,
  * found by measuring every character with Range.getClientRects; a character whose left edge falls behind the previous one starts a new line).
  * collectSnapshot(page, scope) limits the pass to the elements inside the first node matching the CSS selector scope (used per slide).
+ * PageSnapshot.motion (animation records from the motion audit passes, motion-audit.ts) is attached by the carrier renderer, not by collectSnapshot.
  * Text blocks also get fonts: the platform fonts Chromium used to draw their glyphs (font-usage.ts, through the DevTools protocol).
  * To give a new rule more input, add properties here (and fields to ElementSnapshot) instead of querying the browser from the rule.
  */
 import type { Page } from 'playwright';
+import type { MotionSnapshot } from './motion-audit.ts';
 import { PROBE_ATTRIBUTE, collectFontUsage } from './font-usage.ts';
 import type { PlatformFont } from './font-usage.ts';
 
@@ -56,6 +58,7 @@ export interface ElementSnapshot {
 
 export interface PageSnapshot {
   elements: ElementSnapshot[];
+  motion?: MotionSnapshot;
 }
 
 export async function collectSnapshot(page: Page, scope?: string): Promise<PageSnapshot> {

@@ -4,12 +4,14 @@
  * Output files in outDir: index.html, fonts/, report.json, report.md, plus per carrier: social-<canvas>.png (social); web-desktop.png, web-mobile.png (full page) and web-scroll.webm (web, built by web.ts; canvas reported as "1440+390");
  * slide-<nn>.png, slides.pdf, slides.webm (slides, built by slides.ts; the stage canvas is reported as "stage"). Returns the Report, artifact paths and the exit status (0 = no errors, 1 = errors found).
  * validateSystem is the first stage on its own (the validate-system subcommand): SYSTEM.md, token file, font references and system units; it throws one BuildError listing every problem.
+ * Entrance choreography attributes (data-ds-enter and friends, choreography.ts) in the rendered units are validated against the system's tokens before rendering.
  * Image assets referenced by the work (paths relative to <library>/content) are copied into outDir at the same relative path (assets.ts).
  * Validation problems (bad system, work, fonts or image files) throw BuildError before or during rendering and produce no report. Carriers without a renderer yet (see RENDERABLE_CARRIERS) fail after validation.
  */
 import { copyFile, mkdir, writeFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import { copyWorkImages } from './assets.ts';
+import { assertChoreography, buildChoreographyScript } from './choreography.ts';
 import { ALL_RULES } from './checker/rules/index.ts';
 import { loadFontCheckData } from './checker/font-data.ts';
 import type { FontCheckData } from './checker/font-data.ts';
@@ -160,6 +162,7 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
     );
   }
 
+  assertChoreography(unitsHtml, tokens);
   await copyFonts(fontCacheDir, usedFonts, outDir);
   await copyWorkImages(work, libraryDir, outDir);
   const fontCheck = await loadFontCheckData(system.manifest.fonts, usedFonts, fontCacheDir);
@@ -171,7 +174,7 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
   let findings: Finding[];
   let canvas: string;
   if (work.carrier === 'web') {
-    const web = await renderWeb({ outDir, title: work.concept, cssVars: tokens.cssVars, fonts: usedFonts, unitsHtml });
+    const web = await renderWeb({ outDir, title: work.concept, cssVars: tokens.cssVars, fonts: usedFonts, unitsHtml, choreography: buildChoreographyScript(tokens) });
     ({ index, images, video } = web);
     findings = checkWeb(web.snapshots, { work, tokens, fonts: fontCheck });
     canvas = `${WEB_VIEWPORTS.desktop.width}+${WEB_VIEWPORTS.mobile.width}`;
