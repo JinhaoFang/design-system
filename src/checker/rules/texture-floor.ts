@@ -7,7 +7,7 @@ import { parse, rgb } from 'culori';
 import type { Hit, Rule } from '../registry.ts';
 import { colorSources, locationOf } from './color-sources.ts';
 
-function pureKind(css: string): 'black' | 'white' | undefined {
+export function pureKind(css: string): 'black' | 'white' | undefined {
   const color = parse(css);
   if (!color || (color.alpha ?? 1) < 1) return undefined;
   const { r, g, b } = rgb(color);

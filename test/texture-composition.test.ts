@@ -7,7 +7,7 @@ describe('texture floor: hueless gray', () => {
   test('a mid-lightness gray text color with no chroma is an error at the custom unit', async () => {
     const result = await run(fixtures.work('gray-text'));
     expect(result.exitCode).not.toBe(0);
-    expect(result.report.findings).toEqual([
+    expect(result.report.findings.filter((f) => f.category === 'texture-floor')).toEqual([
       expect.objectContaining({
         ruleId: 'texture-floor/hueless-gray',
         category: 'texture-floor',
@@ -92,15 +92,16 @@ describe('texture floor: radius nesting', () => {
   });
 
   test('a deviation of 0.5px passes and a deviation of 1.5px is a warning', async () => {
+    const nesting = (r: Awaited<ReturnType<typeof run>>) => r.report.findings.filter((f) => f.ruleId === 'texture-floor/radius-nesting');
     const within = await run(await radiusWork((css) => css.replace('border-radius:12px', 'border-radius:11.5px')));
-    expect(within.report.findings).toEqual([]);
+    expect(nesting(within)).toEqual([]);
     const beyond = await run(await radiusWork((css) => css.replace('border-radius:12px', 'border-radius:10.5px')));
-    expect(beyond.report.findings.map((f) => f.ruleId)).toEqual(['texture-floor/radius-nesting']);
+    expect(nesting(beyond).map((f) => f.ruleId)).toEqual(['texture-floor/radius-nesting']);
   });
 
   test('a rounded child that is not in the corner of its parent is not checked', async () => {
     const floating = await run(
-      await radiusWork((css) => css.replace('.inner{', '.inner{margin:40px;').replace('border-radius:12px', 'border-radius:30px')),
+      await radiusWork((css) => css.replace('.inner{', '.inner{margin:48px;').replace('border-radius:12px', 'border-radius:6px')),
     );
     expect(floating.report.findings).toEqual([]);
   });

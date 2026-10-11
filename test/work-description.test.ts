@@ -36,7 +36,7 @@ const listSystem = (itemStyle = 'color:var(--ds-color-ink)'): Promise<string> =>
   patchedSystem((dir) =>
     writeFileDeep(
       join(dir, 'layouts', 'social', 'list', 'rows.liquid'),
-      `<style>:scope{padding:24px;background:var(--ds-color-paper);font-family:var(--ds-font-body);color:var(--ds-color-ink)} .row{${itemStyle};font-size:var(--ds-type-1)}</style><h1>{{ slots.heading }}</h1>{% for item in slots.items %}<p class="row">{{ item }}</p>{% endfor %}`,
+      `<style>:scope{padding:24px;background:var(--ds-color-paper);font-family:var(--ds-font-body);color:var(--ds-color-ink)} h1{margin:0;font-size:var(--ds-type-2)} .row{${itemStyle};font-size:var(--ds-type-1);margin:0}</style><h1>{{ slots.heading }}</h1>{% for item in slots.items %}<p class="row">{{ item }}</p>{% endfor %}`,
     ),
   );
 
@@ -120,7 +120,7 @@ describe('custom fragments', () => {
       w.sequence = [item];
     });
   const fragment = (color: string) =>
-    `<style>:scope{box-sizing:border-box;width:100%;height:100%;padding:48px;background:var(--ds-color-paper);color:${color};font-family:var(--ds-font-body)}</style><p>像一本手册的扉页</p>`;
+    `<style>:scope{box-sizing:border-box;width:100%;height:100%;padding:48px;background:var(--ds-color-paper);color:${color};font-family:var(--ds-font-body);font-size:var(--ds-type-1)}p{margin:0}</style><p>像一本手册的扉页</p>`;
 
   test('a custom fragment with its explanation builds and is checked like any other unit', async () => {
     const clean = await run(await customWork({ custom: fragment('var(--ds-color-ink)'), serves: '开场的扉页' }));

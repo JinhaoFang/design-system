@@ -3,6 +3,8 @@
     "$type": "color",
     "paper": { "$value": { "colorSpace": "oklch", "components": [0.97, 0.012, 85], "hex": "#f7f3ea" } },
     "ink": { "$value": { "colorSpace": "oklch", "components": [0.27, 0.02, 60], "hex": "#3a3128" } },
+    "surface": { "$value": { "colorSpace": "oklch", "components": [0.9, 0.02, 85], "hex": "#e6e0d1" } },
+    "mute": { "$value": { "colorSpace": "oklch", "components": [0.6, 0.03, 60], "hex": "#948471" } },
     "accent": { "$value": { "colorSpace": "oklch", "components": [0.52, 0.14, 35], "hex": "#a4552f" } }
   },
   "font": {
@@ -26,11 +28,14 @@
     "space": {
       "1": { "$value": 0.5 },
       "2": { "$value": 1 },
-      "3": { "$value": 2 }
+      "3": { "$value": 2 },
+      "4": { "$value": 4 },
+      "6": { "$value": 6 }
     },
     "radius": {
       "1": { "$value": 0.25 },
-      "2": { "$value": 0.5 }
+      "2": { "$value": 0.5 },
+      "3": { "$value": 1 }
     },
     "duration": {
       "quick": { "$value": 0.5 },

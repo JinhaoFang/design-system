@@ -47,7 +47,7 @@ describe('web work', () => {
         systemDir: await patchedSystem((dir) =>
           writeFileDeep(
             join(dir, 'layouts', 'web', 'features', 'columns.liquid'),
-            '<style>:scope{padding:24px;background:var(--ds-color-paper);color:var(--ds-color-ink);font-family:var(--ds-font-body)} .t{color:#000;font-size:var(--ds-type-1)}</style>{% for title in slots.itemTitles %}<h3 class="t">{{ title }}</h3>{% endfor %}<h2>{{ slots.heading }}</h2>',
+            '<style>:scope{padding:var(--ds-space-2);background:var(--ds-color-paper);color:var(--ds-color-ink);font-family:var(--ds-font-body)} .t{color:#000;font-size:var(--ds-type-1);margin:0} h2{margin:0;font-size:var(--ds-type-2)}</style>{% for title in slots.itemTitles %}<h3 class="t">{{ title }}</h3>{% endfor %}<h2>{{ slots.heading }}</h2>',
           ),
         ),
       },
