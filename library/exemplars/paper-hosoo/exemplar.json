@@ -1,0 +1,34 @@
+{
+  "id": "paper-hosoo",
+  "title": "HOSOO 细尾 官网",
+  "sourceType": "external",
+  "sourceUrl": "https://www.hosoo.co.jp",
+  "copyright": "株式会社細尾（HOSOO Co.,Ltd.）",
+  "carrier": "web",
+  "systems": [
+    "paper-editorial"
+  ],
+  "capturedOn": "2026-10-11",
+  "media": {
+    "kind": "screenshot",
+    "status": "present",
+    "file": "screenshot.webp"
+  },
+  "annotation": {
+    "highlights": "京都西阵织老铺的官网：偏暖的纸白底，左侧一列小号全大写衬线导航，中间只放一幅织物作品（首屏是一幅以织锦呈现的黑白半色调肖像加红色拳头图案），其余全是空白。图像本身就带织物经纬的颗粒，和页面里的半色调形成呼应。",
+    "reasons": "整页只有一件作品和一列文字，一屏一个主角；衬线字体、字距和页脚小字都很讲究，没有任何按钮或色块。留白的比例决定了「慢」的节奏，织物纹理把材质感从图片延续到版面。",
+    "scenes": "工艺品牌、美术馆、出版社这类一次只展示一件作品的页面；需要把传统工艺转成当代界面的品牌官网。",
+    "materialAnchor": "织锦与和纸：暖白底、哑光纤维、半色调图像，衬线小字像印在书页上。",
+    "tonality": {
+      "静动": 1,
+      "疏密": 1,
+      "冷暖": 4,
+      "轻重": 2,
+      "庄谐": 1
+    }
+  },
+  "approval": {
+    "status": "candidate"
+  },
+  "notes": "作品轮播的切换动效未录屏核对（首屏下方有六点分页），需裁判打开链接确认；首屏图像为织物作品照片，版权归细尾及相关艺术家。"
+}

@@ -1,0 +1,34 @@
+{
+  "id": "paper-takeo",
+  "title": "竹尾 TAKEO 官网",
+  "sourceType": "external",
+  "sourceUrl": "https://www.takeo.co.jp",
+  "copyright": "株式会社竹尾（TAKEO Co., Ltd.）",
+  "carrier": "web",
+  "systems": [
+    "paper-editorial"
+  ],
+  "capturedOn": "2026-10-11",
+  "media": {
+    "kind": "screenshot",
+    "status": "present",
+    "file": "screenshot.webp"
+  },
+  "annotation": {
+    "highlights": "整屏就是一本色纸见本的切口：几十种特种纸的边缘排成渐变色谱，纸的厚度、纤维和色彩本身成为主视觉；白色细字标志与竖排滚动提示压在上面，几乎没有多余元素。",
+    "reasons": "用真实材料摄影替代插图，近距离微距暴露纸边的纤维，这是「忠于材质」最直接的做法；日文标题和导航用同一款无衬线、字距统一，层级只靠大小与留白。造纸公司本身的专业性在页面里被转成了触感。",
+    "scenes": "纸张、印刷、出版、文具类品牌；需要用材料特写撑起首屏、文字退到次要位置的页面；日文/中文混排的企业官网参考。",
+    "materialAnchor": "特种纸见本：不同克重和肌理的哑光纸边、油墨在纸上的呈色。",
+    "tonality": {
+      "静动": 3,
+      "疏密": 4,
+      "冷暖": 4,
+      "轻重": 3,
+      "庄谐": 2
+    }
+  },
+  "approval": {
+    "status": "candidate"
+  },
+  "notes": "首屏摄影是否带缓慢动效或轮播未录屏核对；页面底部的新闻条在首屏占位较多，实际使用时可去掉。"
+}

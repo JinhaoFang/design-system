@@ -1,0 +1,34 @@
+{
+  "id": "riso-oatly",
+  "title": "Oatly 官网",
+  "sourceType": "external",
+  "sourceUrl": "https://www.oatly.com",
+  "copyright": "Oatly Group AB",
+  "carrier": "web",
+  "systems": [
+    "riso-print"
+  ],
+  "capturedOn": "2026-10-11",
+  "media": {
+    "kind": "screenshot",
+    "status": "present",
+    "file": "screenshot.webp"
+  },
+  "annotation": {
+    "highlights": "整站被一层斜纹/网点图案覆盖，页面像报纸或丝网印刷物：粗黑边框把导航分成格子，标题是手写感的粗体大写，新闻卡片里的黑体花字（如 BOOK VOL.3）和照片都被做成单色网点处理。品牌的幽默和粗粝直接写在版面上。",
+    "reasons": "网点与边框是一套完整的印刷语言，在所有卡片和按钮上都重复使用；字体选得有个性但字号层级清楚；文案口吻（例如 cookie 提示的「我们知道你不是为了 cookie 来的」）和视觉一致，没有任何一处是通用模板。",
+    "scenes": "消费品牌的活动页、社交配图、带有幽默感的品牌官网；需要把「粗粝但有章法」做出来的时候。",
+    "materialAnchor": "报纸/丝网式的单色网点与粗黑线框；与孔版的距离在于缺少套色与错版，用于孔版印刷体系时只借网点和边框的纪律。",
+    "tonality": {
+      "静动": 5,
+      "疏密": 5,
+      "冷暖": 3,
+      "轻重": 4,
+      "庄谐": 5
+    }
+  },
+  "approval": {
+    "status": "candidate"
+  },
+  "notes": "本条截图是处理 cookie 弹窗后重拍的，未逐项核对；页面各卡片的悬停与进场动效未录屏，需裁判打开链接确认。"
+}

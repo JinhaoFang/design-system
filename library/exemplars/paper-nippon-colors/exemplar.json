@@ -1,0 +1,34 @@
+{
+  "id": "paper-nippon-colors",
+  "title": "NIPPON COLORS 日本传统色",
+  "sourceType": "external",
+  "sourceUrl": "https://nipponcolors.com",
+  "copyright": "ONO TAKEHIKO（个人作品，页脚署 2010）",
+  "carrier": "web",
+  "systems": [
+    "paper-editorial"
+  ],
+  "capturedOn": "2026-10-11",
+  "media": {
+    "kind": "screenshot",
+    "status": "present",
+    "file": "screenshot.webp"
+  },
+  "annotation": {
+    "highlights": "把 465 种日本传统色做成竖排的色谱长卷：汉字色名竖排、罗马字色名旋转、色值与 CMYK/RGB 环形读数并置，选中一色整页换成该色的背景。信息很密，但靠统一的竖线、间距和字号层级读起来很安静。",
+    "reasons": "所有信息都服从同一套竖排网格，色块、汉字、读数各占固定位置，没有装饰性元素；背景色本身就是内容，因此「材质」来自颜料与染料而不是特效。竖排日文宋体的字重与细线读数形成明确的主次。",
+    "scenes": "需要把大量命名条目（色名、节气、器物、字体）排成可浏览目录的页面；中日文竖排的版式参考；以内容本身的颜色驱动整页色调的专题页。",
+    "materialAnchor": "染料与颜料色卡：哑光、暖调的纸本色谱，竖排印刷体与细墨线。偏重的深色底是该页的取舍，用于纸本编辑时应改成浅底，保留竖排网格和读数层级。",
+    "tonality": {
+      "静动": 2,
+      "疏密": 3,
+      "冷暖": 5,
+      "轻重": 4,
+      "庄谐": 2
+    }
+  },
+  "approval": {
+    "status": "candidate"
+  },
+  "notes": "动效（切换颜色时背景的过渡）未录屏核对，需裁判打开链接确认。"
+}

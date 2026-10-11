@@ -1,0 +1,34 @@
+{
+  "id": "riso-colossal-riso-club",
+  "title": "Colossal 报道：RISOTTO 的 400 张孔版明信片",
+  "sourceType": "external",
+  "sourceUrl": "https://www.thisiscolossal.com/2026/04/gabriella-marcella-risotto/",
+  "copyright": "Colossal（报道页）；作品版权归 RISOTTO Studio 及各参与艺术家",
+  "carrier": "web",
+  "systems": [
+    "riso-print"
+  ],
+  "capturedOn": "2026-10-11",
+  "media": {
+    "kind": "screenshot",
+    "status": "present",
+    "file": "screenshot.webp"
+  },
+  "annotation": {
+    "highlights": "首图把 RISOTTO 俱乐部寄出的上百张孔版明信片斜铺成一整面墙：荧光粉、黄、群青与绿色叠成不同的混色，人物、动物、物件各自带着不同艺术家的手感，纸面纤维和墨粒清晰可见。页面本身是暖白底配一个很重的黑色圆体 Logo，把作品放在最大的位置。",
+    "reasons": "这组作品把「错版、粗颗粒、荧光色」当成优点而不是缺陷，同一套四色墨在不同艺术家手里产生完全不同的画面，说明体系是一种约束而不是模板。页面的编排让作品占满宽度，文字退到下面。",
+    "scenes": "为孔版体系提供「多样但统一」的样图：活动推广、社交配图的合集、拼贴类封面。可用作裁判判断「热闹但有质感」的对照。",
+    "materialAnchor": "Riso 孔版印刷：荧光墨、套色混色、纸面纤维与墨粒，多张作品之间的套版差异。",
+    "tonality": {
+      "静动": 4,
+      "疏密": 5,
+      "冷暖": 4,
+      "轻重": 2,
+      "庄谐": 4
+    }
+  },
+  "approval": {
+    "status": "candidate"
+  },
+  "notes": "这是一页报道，不是作品官网，仅取其首图和排版；原作的高清图需到 RISOTTO 官网或 Riso Club 页面核对，动效不适用。"
+}
