@@ -1,3 +1,765 @@
 {
-  "fonts": []
+  "fonts": [
+    {
+      "id": "noto-serif-sc-400",
+      "family": "Noto Serif SC",
+      "postScriptName": "NotoSerifSC-Regular",
+      "weight": 400,
+      "scripts": [
+        "cjk",
+        "latin"
+      ],
+      "file": "NotoSerifSC-Regular.otf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Serif/LICENSE"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Serif/SubsetOTF/SC/NotoSerifSC-Regular.otf",
+        "sha256": "e8f396decc1f0963a016a989c3d8852e863d1350996f573860a80767c83a1cd3"
+      }
+    },
+    {
+      "id": "noto-serif-sc-700",
+      "family": "Noto Serif SC",
+      "postScriptName": "NotoSerifSC-Bold",
+      "weight": 700,
+      "scripts": [
+        "cjk",
+        "latin"
+      ],
+      "file": "NotoSerifSC-Bold.otf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Serif/LICENSE"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Serif/SubsetOTF/SC/NotoSerifSC-Bold.otf",
+        "sha256": "24693d48bdb9152f0a06b02af625638a1097abd6de4010ebba027f6e82710527"
+      }
+    },
+    {
+      "id": "noto-sans-sc-400",
+      "family": "Noto Sans SC",
+      "postScriptName": "NotoSansSC-Regular",
+      "weight": 400,
+      "scripts": [
+        "cjk",
+        "latin"
+      ],
+      "file": "NotoSansSC-Regular.otf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/LICENSE"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/SubsetOTF/SC/NotoSansSC-Regular.otf",
+        "sha256": "faa6c9df652116dde789d351359f3d7e5d2285a2b2a1f04a2d7244df706d5ea9"
+      }
+    },
+    {
+      "id": "noto-sans-sc-700",
+      "family": "Noto Sans SC",
+      "postScriptName": "NotoSansSC-Bold",
+      "weight": 700,
+      "scripts": [
+        "cjk",
+        "latin"
+      ],
+      "file": "NotoSansSC-Bold.otf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/LICENSE"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/SubsetOTF/SC/NotoSansSC-Bold.otf",
+        "sha256": "c6cb5a93abaa9edc8ee7463b7ebb7f42d618d40e6ed2f7a5371c97b0b64767c0"
+      }
+    },
+    {
+      "id": "lxgw-wenkai-400",
+      "family": "LXGW WenKai",
+      "postScriptName": "LXGWWenKai-Regular",
+      "weight": 400,
+      "scripts": [
+        "cjk",
+        "latin"
+      ],
+      "file": "LXGWWenKai-Regular.ttf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/lxgw/LxgwWenKai/b79944853c0725d9f9c8996f07f2476cff1e9463/OFL.txt"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://github.com/lxgw/LxgwWenKai/releases/download/v1.520/LXGWWenKai-Regular.ttf",
+        "sha256": "8d6ba638ac9553413354cfaab97637c1cd778444e259441ea1e5f8fb2c697fba"
+      }
+    },
+    {
+      "id": "zcool-qingke-huangyou-400",
+      "family": "ZCOOL QingKe HuangYou",
+      "postScriptName": "ZCOOLQingKeHuangYou-Regular",
+      "weight": 400,
+      "scripts": [
+        "cjk",
+        "latin"
+      ],
+      "file": "ZCOOLQingKeHuangYou-Regular.ttf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/google/fonts/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/zcoolqingkehuangyou/OFL.txt"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/google/fonts/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/zcoolqingkehuangyou/ZCOOLQingKeHuangYou-Regular.ttf",
+        "sha256": "54f0c0df4308cd74cd0f2fd3494ae054dbc4a1fd6fa7d71f4807eb4cdd8b4136"
+      }
+    },
+    {
+      "id": "zcool-kuaile-400",
+      "family": "ZCOOL KuaiLe",
+      "postScriptName": "ZCOOLKuaiLe-Regular",
+      "weight": 400,
+      "scripts": [
+        "cjk",
+        "latin"
+      ],
+      "file": "ZCOOLKuaiLe-Regular.ttf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/google/fonts/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/zcoolkuaile/OFL.txt"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/google/fonts/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/zcoolkuaile/ZCOOLKuaiLe-Regular.ttf",
+        "sha256": "812a6fc1fe54b6d73a419245c32dfeba8aa33104d5be90d1cf6af082007cb71d"
+      }
+    },
+    {
+      "id": "source-serif-4-400",
+      "family": "Source Serif 4",
+      "postScriptName": "SourceSerif4-Regular",
+      "weight": 400,
+      "scripts": [
+        "latin"
+      ],
+      "file": "SourceSerif4-Regular.otf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/adobe-fonts/source-serif/2823e993c53fca27c5c8749f529b56a5a7c77b6b/LICENSE.md"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/adobe-fonts/source-serif/2823e993c53fca27c5c8749f529b56a5a7c77b6b/OTF/SourceSerif4-Regular.otf",
+        "sha256": "edf160d0d584deee8a3bb2c3371b2a7624ca63580fbe02c57c1f4c91e84d8787"
+      }
+    },
+    {
+      "id": "source-serif-4-600",
+      "family": "Source Serif 4",
+      "postScriptName": "SourceSerif4-Semibold",
+      "weight": 600,
+      "scripts": [
+        "latin"
+      ],
+      "file": "SourceSerif4-Semibold.otf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/adobe-fonts/source-serif/2823e993c53fca27c5c8749f529b56a5a7c77b6b/LICENSE.md"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/adobe-fonts/source-serif/2823e993c53fca27c5c8749f529b56a5a7c77b6b/OTF/SourceSerif4-Semibold.otf",
+        "sha256": "25e034392847d9965c92f98971b3646436b7ab919ece9118b0c0e5ec94c02efc"
+      }
+    },
+    {
+      "id": "source-serif-4-700",
+      "family": "Source Serif 4",
+      "postScriptName": "SourceSerif4-Bold",
+      "weight": 700,
+      "scripts": [
+        "latin"
+      ],
+      "file": "SourceSerif4-Bold.otf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/adobe-fonts/source-serif/2823e993c53fca27c5c8749f529b56a5a7c77b6b/LICENSE.md"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/adobe-fonts/source-serif/2823e993c53fca27c5c8749f529b56a5a7c77b6b/OTF/SourceSerif4-Bold.otf",
+        "sha256": "f5fb9a7b1611353fdfebcf8b1e46c7d9108470f25999b841816d8b643b1856ff"
+      }
+    },
+    {
+      "id": "eb-garamond-400",
+      "family": "EB Garamond",
+      "postScriptName": "EBGaramond-Regular",
+      "weight": 400,
+      "scripts": [
+        "latin"
+      ],
+      "file": "EBGaramond-Regular.ttf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/octaviopardo/EBGaramond12/106a4a6d377987459ae5e68673a4570f13b957fb/OFL.txt"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/octaviopardo/EBGaramond12/106a4a6d377987459ae5e68673a4570f13b957fb/fonts/ttf/EBGaramond-Regular.ttf",
+        "sha256": "2028dc06d3c130b4761693481436a32a8e35ed500bf58c25c53de004106125b8"
+      }
+    },
+    {
+      "id": "eb-garamond-500",
+      "family": "EB Garamond",
+      "postScriptName": "EBGaramond-Medium",
+      "weight": 500,
+      "scripts": [
+        "latin"
+      ],
+      "file": "EBGaramond-Medium.ttf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/octaviopardo/EBGaramond12/106a4a6d377987459ae5e68673a4570f13b957fb/OFL.txt"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/octaviopardo/EBGaramond12/106a4a6d377987459ae5e68673a4570f13b957fb/fonts/ttf/EBGaramond-Medium.ttf",
+        "sha256": "57f9e2a5881ac1a3a7bf02935ceb604ba0ca21961fb161d7a535bae4f74a52b1"
+      }
+    },
+    {
+      "id": "eb-garamond-700",
+      "family": "EB Garamond",
+      "postScriptName": "EBGaramond-Bold",
+      "weight": 700,
+      "scripts": [
+        "latin"
+      ],
+      "file": "EBGaramond-Bold.ttf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/octaviopardo/EBGaramond12/106a4a6d377987459ae5e68673a4570f13b957fb/OFL.txt"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/octaviopardo/EBGaramond12/106a4a6d377987459ae5e68673a4570f13b957fb/fonts/ttf/EBGaramond-Bold.ttf",
+        "sha256": "0cfed122e51e3fd44ccedaef7637efed6d5bdc4ad89a6117d70241510309a186"
+      }
+    },
+    {
+      "id": "inter-400",
+      "family": "Inter",
+      "postScriptName": "Inter-Regular",
+      "weight": 400,
+      "scripts": [
+        "latin"
+      ],
+      "file": "Inter-Regular.woff2",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/rsms/inter/e3a3d4c57d5ecc01453a575621882a384c1995a3/LICENSE.txt"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/rsms/inter/e3a3d4c57d5ecc01453a575621882a384c1995a3/docs/font-files/Inter-Regular.woff2",
+        "sha256": "e06f6b1bc553aaea4e4668023ed0ab0a147129c3107f511bc7d03d361b0ae085"
+      }
+    },
+    {
+      "id": "inter-500",
+      "family": "Inter",
+      "postScriptName": "Inter-Medium",
+      "weight": 500,
+      "scripts": [
+        "latin"
+      ],
+      "file": "Inter-Medium.woff2",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/rsms/inter/e3a3d4c57d5ecc01453a575621882a384c1995a3/LICENSE.txt"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/rsms/inter/e3a3d4c57d5ecc01453a575621882a384c1995a3/docs/font-files/Inter-Medium.woff2",
+        "sha256": "0ff3e94614e1493eb556314fd247ae6c4a85a7783b4cc86be539940cf83f2a48"
+      }
+    },
+    {
+      "id": "inter-700",
+      "family": "Inter",
+      "postScriptName": "Inter-Bold",
+      "weight": 700,
+      "scripts": [
+        "latin"
+      ],
+      "file": "Inter-Bold.woff2",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/rsms/inter/e3a3d4c57d5ecc01453a575621882a384c1995a3/LICENSE.txt"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/rsms/inter/e3a3d4c57d5ecc01453a575621882a384c1995a3/docs/font-files/Inter-Bold.woff2",
+        "sha256": "fa888127b6da015b65569f0351f3b5c391ad928904951f1c20e9f8462a8d95ea"
+      }
+    },
+    {
+      "id": "ibm-plex-sans-400",
+      "family": "IBM Plex Sans",
+      "postScriptName": "IBMPlexSans",
+      "weight": 400,
+      "scripts": [
+        "latin"
+      ],
+      "file": "IBMPlexSans-Regular.ttf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/IBM/plex/763c36ef9117782905ae010056dfbe8fd2653a25/LICENSE.txt"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/IBM/plex/763c36ef9117782905ae010056dfbe8fd2653a25/packages/plex-sans/fonts/complete/ttf/IBMPlexSans-Regular.ttf",
+        "sha256": "975dcda37d80f038dcd143c22e33ca2d97a0cc5a929aace1c749153b0fe1afa5"
+      }
+    },
+    {
+      "id": "ibm-plex-sans-500",
+      "family": "IBM Plex Sans",
+      "postScriptName": "IBMPlexSans-Medm",
+      "weight": 500,
+      "scripts": [
+        "latin"
+      ],
+      "file": "IBMPlexSans-Medium.ttf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/IBM/plex/763c36ef9117782905ae010056dfbe8fd2653a25/LICENSE.txt"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/IBM/plex/763c36ef9117782905ae010056dfbe8fd2653a25/packages/plex-sans/fonts/complete/ttf/IBMPlexSans-Medium.ttf",
+        "sha256": "331c8639d7598b2cde62a911a71db195e30cb655cd6bdf2e324a7e984955f907"
+      }
+    },
+    {
+      "id": "ibm-plex-sans-700",
+      "family": "IBM Plex Sans",
+      "postScriptName": "IBMPlexSans-Bold",
+      "weight": 700,
+      "scripts": [
+        "latin"
+      ],
+      "file": "IBMPlexSans-Bold.ttf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/IBM/plex/763c36ef9117782905ae010056dfbe8fd2653a25/LICENSE.txt"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/IBM/plex/763c36ef9117782905ae010056dfbe8fd2653a25/packages/plex-sans/fonts/complete/ttf/IBMPlexSans-Bold.ttf",
+        "sha256": "9e6c74a889a700d707613d24548fe4ffa6bc59559a0689d2cf9e133bdcdafb2f"
+      }
+    },
+    {
+      "id": "ibm-plex-mono-400",
+      "family": "IBM Plex Mono",
+      "postScriptName": "IBMPlexMono",
+      "weight": 400,
+      "scripts": [
+        "latin"
+      ],
+      "file": "IBMPlexMono-Regular.ttf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/IBM/plex/763c36ef9117782905ae010056dfbe8fd2653a25/LICENSE.txt"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/IBM/plex/763c36ef9117782905ae010056dfbe8fd2653a25/packages/plex-mono/fonts/complete/ttf/IBMPlexMono-Regular.ttf",
+        "sha256": "7c6fbddca4b700be918f5f6183d9bd4464fa427fe435f0b480d77fe2bb8c5a43"
+      }
+    },
+    {
+      "id": "ibm-plex-mono-700",
+      "family": "IBM Plex Mono",
+      "postScriptName": "IBMPlexMono-Bold",
+      "weight": 700,
+      "scripts": [
+        "latin"
+      ],
+      "file": "IBMPlexMono-Bold.ttf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/IBM/plex/763c36ef9117782905ae010056dfbe8fd2653a25/LICENSE.txt"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/IBM/plex/763c36ef9117782905ae010056dfbe8fd2653a25/packages/plex-mono/fonts/complete/ttf/IBMPlexMono-Bold.ttf",
+        "sha256": "74e5eedcfa4596497d34e19023cabdabd3a8c852b903007a5654a59591a72ffb"
+      }
+    },
+    {
+      "id": "jetbrains-mono-400",
+      "family": "JetBrains Mono",
+      "postScriptName": "JetBrainsMono-Regular",
+      "weight": 400,
+      "scripts": [
+        "latin"
+      ],
+      "file": "JetBrainsMono-Regular.ttf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/JetBrains/JetBrainsMono/cd5227bd1f61dff3bbd6c814ceaf7ffd95e947d9/OFL.txt"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/JetBrains/JetBrainsMono/cd5227bd1f61dff3bbd6c814ceaf7ffd95e947d9/fonts/ttf/JetBrainsMono-Regular.ttf",
+        "sha256": "a0bf60ef0f83c5ed4d7a75d45838548b1f6873372dfac88f71804491898d138f"
+      }
+    },
+    {
+      "id": "jetbrains-mono-700",
+      "family": "JetBrains Mono",
+      "postScriptName": "JetBrainsMono-Bold",
+      "weight": 700,
+      "scripts": [
+        "latin"
+      ],
+      "file": "JetBrainsMono-Bold.ttf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/JetBrains/JetBrainsMono/cd5227bd1f61dff3bbd6c814ceaf7ffd95e947d9/OFL.txt"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/JetBrains/JetBrainsMono/cd5227bd1f61dff3bbd6c814ceaf7ffd95e947d9/fonts/ttf/JetBrainsMono-Bold.ttf",
+        "sha256": "5590990c82e097397517f275f430af4546e1c45cff408bde4255dad142479dcb"
+      }
+    },
+    {
+      "id": "space-grotesk-400",
+      "family": "Space Grotesk",
+      "postScriptName": "SpaceGrotesk-Regular",
+      "weight": 400,
+      "scripts": [
+        "latin"
+      ],
+      "file": "SpaceGrotesk-Regular.ttf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/floriankarsten/space-grotesk/7220f5d04813fe83babe76d4fd23e02275021280/OFL.txt"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/floriankarsten/space-grotesk/7220f5d04813fe83babe76d4fd23e02275021280/fonts/ttf/static/SpaceGrotesk-Regular.ttf",
+        "sha256": "5ede28c4425f3fe4830c8f4754b39e9a87a93d0c3baa5e0a9924532aaa8a98bd"
+      }
+    },
+    {
+      "id": "space-grotesk-500",
+      "family": "Space Grotesk",
+      "postScriptName": "SpaceGrotesk-Medium",
+      "weight": 500,
+      "scripts": [
+        "latin"
+      ],
+      "file": "SpaceGrotesk-Medium.ttf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/floriankarsten/space-grotesk/7220f5d04813fe83babe76d4fd23e02275021280/OFL.txt"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/floriankarsten/space-grotesk/7220f5d04813fe83babe76d4fd23e02275021280/fonts/ttf/static/SpaceGrotesk-Medium.ttf",
+        "sha256": "3183b7eb0b4241476360e2cd8e527868616cc16d3ce332c4376505989b772b44"
+      }
+    },
+    {
+      "id": "space-grotesk-700",
+      "family": "Space Grotesk",
+      "postScriptName": "SpaceGrotesk-Bold",
+      "weight": 700,
+      "scripts": [
+        "latin"
+      ],
+      "file": "SpaceGrotesk-Bold.ttf",
+      "license": {
+        "name": "OFL-1.1",
+        "url": "https://raw.githubusercontent.com/floriankarsten/space-grotesk/7220f5d04813fe83babe76d4fd23e02275021280/OFL.txt"
+      },
+      "permissions": {
+        "commercial": true,
+        "webEmbed": true,
+        "fileEmbed": true
+      },
+      "carriers": [
+        "web",
+        "slides",
+        "social"
+      ],
+      "pptSafe": false,
+      "source": {
+        "url": "https://raw.githubusercontent.com/floriankarsten/space-grotesk/7220f5d04813fe83babe76d4fd23e02275021280/fonts/ttf/static/SpaceGrotesk-Bold.ttf",
+        "sha256": "7209bbb75fc0f5c546a5f5773b0db74ffc6abf04c2148c1105cace5765a96bdb"
+      }
+    }
+  ]
 }

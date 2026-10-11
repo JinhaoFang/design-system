@@ -11,6 +11,7 @@ import { promisify } from 'node:util';
 import { describe, expect, test } from 'vitest';
 import { validateSystem } from '../src/build-and-check.ts';
 import { fetchFonts } from '../src/fetch-fonts.ts';
+import { loadFontManifest } from '../src/fonts.ts';
 import type { BuildResult } from '../src/build-and-check.ts';
 import { fixtures, repoRoot, run, tempDir } from './helpers.ts';
 import { editJson, patchedLibrary } from './system-helpers.ts';
@@ -198,9 +199,17 @@ describe('fetch-fonts', () => {
     }
   });
 
-  test('the real library font list exists and fetching it needs no network', async () => {
-    const result = await fetchFonts({ libraryDir: join(repoRoot, 'library'), fontCacheDir: await tempDir('ds-cache-') });
-    expect(result.fetched).toEqual([]);
+  test('the real library font list validates and covers CJK serif, CJK sans and a Latin pairing, none of them PPT-safe', async () => {
+    const manifest = await loadFontManifest(join(repoRoot, 'library'));
+    const families = new Set(manifest.fonts.map((font) => font.family));
+    expect(families).toContain('Noto Serif SC');
+    expect(families).toContain('Noto Sans SC');
+    expect(manifest.fonts.some((font) => font.scripts.includes('latin') && !font.scripts.includes('cjk'))).toBe(true);
+    for (const font of manifest.fonts) {
+      expect(font.pptSafe).toBe(false);
+      expect(font.license.url).toMatch(/^https:/);
+      expect(font.source.url).not.toMatch(/latest|\/(main|master)\//);
+    }
   });
 
   test('the fetch-fonts command fills the cache, and exits 2 with the reason on a checksum mismatch', async () => {
