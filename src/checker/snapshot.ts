@@ -2,7 +2,8 @@
  * Page snapshot: one in-page pass that records, for every element in <body>, its location (unit/layout/slot from the data-ds-* marks, plus a selector),
  * whether it directly holds text, and the computed values of SNAPSHOT_STYLE_PROPERTIES. Rules read this plain data in Node; they never touch the page.
  * Text blocks (non-inline elements owning text) also get textChunks (their text nodes in order, each with its slot) and lines (the rendered visual lines,
- * found by measuring every character with Range.getClientRects; a character whose left edge falls behind the previous one starts a new line).
+ * found by measuring every character with Range.getClientRects; a character that falls behind the previous one along the block's inline axis starts a new line.
+ * The inline axis follows the block's writing-mode and direction: left to right in horizontal text, top to bottom in vertical-rl / vertical-lr, reversed for rtl and sideways-lr, so in vertical text every column is one line and its first/last characters are the top/bottom ones).
  * Every element also has rect (viewport coordinates), parent (index of its parent element in elements, when that parent is in the snapshot) and isImage (img/svg/video/canvas/picture or a url() background);
  * text blocks also get textBox (tight bounds of their rendered characters) and textSizes ([font-size px, non-space character count] pairs). PageSnapshot.viewport is the page's inner size,
  * which is the canvas for social and slides and the first viewport for web (snapshots are taken at scroll 0).
@@ -165,9 +166,12 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
         const slot = slotOf(node);
         return slot === undefined ? { text: node.data } : { text: node.data, slot };
       });
-    const collectLines = (nodes: Text[]): LineSnapshot[] => {
-      const chars: { ch: string; node: Text; left: number; width: number }[][] = [];
-      let previous: { left: number; width: number } | undefined;
+    const collectLines = (nodes: Text[], block: Element): LineSnapshot[] => {
+      const style = getComputedStyle(block);
+      const vertical = style.writingMode.startsWith('vertical') || style.writingMode.startsWith('sideways');
+      const reversed = (style.direction === 'rtl') !== (style.writingMode === 'sideways-lr');
+      const chars: { ch: string; node: Text }[][] = [];
+      let previous: { start: number; size: number } | undefined;
       for (const node of nodes) {
         let offset = 0;
         for (const ch of node.data) {
@@ -177,9 +181,12 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
           offset += ch.length;
           const rect = [...range.getClientRects()].find((candidate) => candidate.width > 0);
           if (!rect || ch.trim() === '') continue;
-          if (!previous || rect.left < previous.left + previous.width - 1) chars.push([]);
-          chars[chars.length - 1]!.push({ ch, node, left: rect.left, width: rect.width });
-          previous = rect;
+          const current = vertical ? { start: rect.top, size: rect.height } : { start: rect.left, size: rect.width };
+          const wrapped =
+            !previous || (reversed ? current.start + current.size > previous.start + 1 : current.start < previous.start + previous.size - 1);
+          if (wrapped) chars.push([]);
+          chars[chars.length - 1]!.push({ ch, node });
+          previous = current;
         }
       }
       return chars.map((line) => {
@@ -257,7 +264,7 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
         const nodes = ownedTextNodes(el);
         if (nodes.length) {
           entry.textChunks = collectChunks(nodes);
-          entry.lines = collectLines(nodes);
+          entry.lines = collectLines(nodes, el);
           el.setAttribute(probe, String(result.length));
         }
       }
