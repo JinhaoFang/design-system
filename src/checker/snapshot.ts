@@ -9,6 +9,7 @@
  * Elements owning text also get backdrop: the background-color/has-background-image of the element and all its ancestors (nearest first, up to <html>, even beyond the scope), and mediaOverlap (the text line boxes intersect an img/video/canvas/background-image element that is not an ancestor).
  * Margins that compute to auto are recorded as the string "auto" (getComputedStyle would give the used px instead).
  * collectSnapshot(page, scope) limits the pass to the elements inside the first node matching the CSS selector scope (used per slide).
+ * Every element also gets box (page-coordinate rectangle, px, scroll included) so rules can reason about siblings and geometry.
  * Text blocks also get fonts: the platform fonts Chromium used to draw their glyphs (font-usage.ts, through the DevTools protocol).
  * To give a new rule more input, add properties here (and fields to ElementSnapshot) instead of querying the browser from the rule.
  */
@@ -82,8 +83,16 @@ export interface LineSnapshot {
   endSlot?: string;
 }
 
+export interface BoxSnapshot {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface ElementSnapshot {
   selector: string;
+  box: BoxSnapshot;
   tag: string;
   unit?: string;
   layout?: string;
@@ -226,8 +235,10 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
       }
       const unit = el.closest('[data-ds-unit]');
       const slot = el.closest('[data-ds-slot]');
+      const rect = el.getBoundingClientRect();
       const entry: ElementSnapshot = {
         selector: describe(el),
+        box: { x: rect.left + window.scrollX, y: rect.top + window.scrollY, width: rect.width, height: rect.height },
         tag: el.tagName.toLowerCase(),
         hasOwnText: [...el.childNodes].some((child) => child.nodeType === 3 && (child.textContent ?? '').trim() !== ''),
         styles,
