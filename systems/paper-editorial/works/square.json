@@ -1,0 +1,12 @@
+{
+  "system": "paper-editorial",
+  "carrier": "social",
+  "canvas": "square",
+  "concept": "光走了二百五十万年：观测日志的一页。页眉是一道墨线上的日志抬头，台长的一句话横排成三行细字，「250 万年」下一道朱笔；右下一块仙女星系的点描图版，左下楷书落款。",
+  "sequence": [
+    {
+      "custom": { "file": "fragments/guang-zou-le.html" },
+      "serves": "整张配图：金句是主角，朱笔划在最要紧的半句下，点描图版作为这句话的证据"
+    }
+  ]
+}
