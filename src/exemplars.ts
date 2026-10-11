@@ -18,7 +18,7 @@ export interface ExemplarIssues {
   issues: string[];
 }
 
-async function isFile(path: string): Promise<boolean> {
+export async function isFile(path: string): Promise<boolean> {
   try {
     return (await stat(path)).isFile();
   } catch {
@@ -26,12 +26,12 @@ async function isFile(path: string): Promise<boolean> {
   }
 }
 
-function isIsoDate(value: unknown): boolean {
+export function isIsoDate(value: unknown): boolean {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   return new Date(`${value}T00:00:00Z`).toISOString().startsWith(value);
 }
 
-function isBlank(value: unknown): boolean {
+export function isBlank(value: unknown): boolean {
   return typeof value !== 'string' || value.trim() === '';
 }
 
