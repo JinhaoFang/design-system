@@ -5,6 +5,8 @@
  * (layouts reveal-on-scroll content under that switch), fonts loaded, every animation finished, then a full-page PNG whose width equals the viewport width: web-desktop.png, web-mobile.png.
  * Recording pass: a separate 1440x900 context with recordVideo; fonts load but animations are NOT finished, so entry motion plays in real time; the page scrolls to the bottom at a steady speed
  * (SCROLL_SPEED px/s) after a short lead-in, holds briefly, and the file is saved as web-scroll.webm (VP8 25 fps).
+ * Motion audit (motion-audit.ts): two extra passes at 1440, one with normal motion and one with reduced motion emulated, each scrolling down in steps so scroll-triggered entrances start; their animation records
+ * are attached to the desktop snapshot only (snapshot.motion), so motion findings are reported once. buildWebPage embeds the entrance choreography script (choreography.ts) when given one.
  * checkWeb runs the rule set on both snapshots; findings that appear only at 390 get a "（手机宽度 390）" suffix, and a finding already reported at 1440 is not repeated.
  */
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
@@ -21,6 +23,7 @@ import type { CheckContext } from './checker/registry.ts';
 import { CARRIERS } from './carriers.ts';
 import type { FontEntry } from './library.ts';
 import { fontFaceCss, rootVarsCss } from './page.ts';
+import { auditMotion } from './checker/motion-audit.ts';
 import { settle } from './render.ts';
 import type { Finding } from './types.ts';
 
@@ -40,6 +43,7 @@ export interface WebPageInput {
   cssVars: Record<string, string>;
   fonts: FontEntry[];
   unitsHtml: string[];
+  choreography?: string;
 }
 
 export function buildWebPage(input: WebPageInput): string {
@@ -59,7 +63,7 @@ html,body{margin:0;padding:0}
 <main class="ds-flow">
 ${input.unitsHtml.join('\n')}
 </main>
-</body>
+${input.choreography ? `<script>${input.choreography}</script>\n` : ''}</body>
 </html>
 `;
 }
@@ -89,6 +93,14 @@ async function waitForFonts(page: Page): Promise<void> {
     await Promise.allSettled([...document.fonts].map((face) => face.load()));
     await document.fonts.ready;
   });
+}
+
+async function scrollThrough(page: Page): Promise<void> {
+  const stops = await page.evaluate(() => Math.ceil((document.documentElement.scrollHeight - window.innerHeight) / (window.innerHeight * 0.6)));
+  for (let step = 1; step <= stops; step += 1) {
+    await page.evaluate((fraction) => window.scrollTo(0, window.innerHeight * 0.6 * fraction), step);
+    await page.waitForTimeout(120);
+  }
 }
 
 async function scrollToBottom(page: Page): Promise<void> {
@@ -129,6 +141,11 @@ export async function renderWeb(input: WebPageInput & { outDir: string }): Promi
       images.push(png);
       await context.close();
     }
+
+    snapshots.desktop.motion = {
+      animations: await auditMotion(browser, url, { viewport: WEB_VIEWPORTS.desktop, reducedMotion: 'no-preference', step: scrollThrough }),
+      reduced: await auditMotion(browser, url, { viewport: WEB_VIEWPORTS.desktop, reducedMotion: 'reduce', step: scrollThrough }),
+    };
 
     const recordings = await mkdtemp(join(tmpdir(), 'ds-web-video-'));
     try {

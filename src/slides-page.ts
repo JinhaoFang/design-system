@@ -1,6 +1,6 @@
 /*
  * HTML page assembly for slides: the same :root custom properties and @font-face as the other carriers (page.ts), then a fixed 1920x1080 .ds-stage holding one .ds-slide per narrative unit
- * (data-ds-slide="<1-based number>", wrapping the unit's <section data-ds-unit>), and the inline runtime (slides-runtime.ts) as a classic script so the file works when opened from disk.
+ * (data-ds-slide="<1-based number>", wrapping the unit's <section data-ds-unit>), and the inline runtime (slides-runtime.ts) as a classic script so the file works when opened from disk, followed by the entrance choreography script (choreography.ts) when given one.
  * Screen: only the active slide is displayed; the runtime scales the stage. Print (PDF): @page is 1920x1080 with no margin, the stage scale is dropped and every slide is shown stacked, one per page.
  */
 import { fontFaceCss, rootVarsCss } from './page.ts';
@@ -10,7 +10,7 @@ import { SLIDES_RUNTIME } from './slides-runtime.ts';
 export const SLIDE_WIDTH = 1920;
 export const SLIDE_HEIGHT = 1080;
 
-export type SlidesPageInput = Pick<PageInput, 'title' | 'cssVars' | 'fonts' | 'unitsHtml'>;
+export type SlidesPageInput = Pick<PageInput, 'title' | 'cssVars' | 'fonts' | 'unitsHtml'> & { choreography?: string };
 
 export function buildSlidesPage(input: SlidesPageInput): string {
   const slides = input.unitsHtml
@@ -44,7 +44,7 @@ html,body{height:auto;overflow:visible;background:none!important}
 ${slides}
 </main>
 <script>${SLIDES_RUNTIME}</script>
-</body>
+${input.choreography ? `<script>${input.choreography}</script>\n` : ''}</body>
 </html>
 `;
 }

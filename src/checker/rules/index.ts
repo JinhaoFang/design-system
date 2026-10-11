@@ -7,6 +7,7 @@ import { lineEndForbidden, lineStartForbidden, missingSpacing, orphanLine } from
 import { imageRate, jumpRate, layoutRate } from './composition.ts';
 import { insufficientContrast, textOverImage } from './contrast.ts';
 import { equalCardGrid } from './equal-card-grid.ts';
+import { MOTION_RULES } from './motion.ts';
 import { licenseCarrier, missingGlyph, notInManifest } from './fonts.ts';
 import { huelessGray } from './hueless-gray.ts';
 import { radiusNesting } from './radius-nesting.ts';
@@ -37,4 +38,5 @@ export const ALL_RULES: Rule[] = [
   imageRate,
   adjacentSameLayout,
   equalCardGrid,
+  ...MOTION_RULES,
 ];

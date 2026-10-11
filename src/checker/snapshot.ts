@@ -10,10 +10,12 @@
  * Margins that compute to auto are recorded as the string "auto" (getComputedStyle would give the used px instead).
  * collectSnapshot(page, scope) limits the pass to the elements inside the first node matching the CSS selector scope (used per slide).
  * Every element also gets box (page-coordinate rectangle, px, scroll included) so rules can reason about siblings and geometry.
+ * PageSnapshot.motion (animation records from the motion audit passes, motion-audit.ts) is attached by the carrier renderer, not by collectSnapshot.
  * Text blocks also get fonts: the platform fonts Chromium used to draw their glyphs (font-usage.ts, through the DevTools protocol).
  * To give a new rule more input, add properties here (and fields to ElementSnapshot) instead of querying the browser from the rule.
  */
 import type { Page } from 'playwright';
+import type { MotionSnapshot } from './motion-audit.ts';
 import { PROBE_ATTRIBUTE, collectFontUsage } from './font-usage.ts';
 import type { PlatformFont } from './font-usage.ts';
 
@@ -113,6 +115,7 @@ export interface ElementSnapshot {
 export interface PageSnapshot {
   elements: ElementSnapshot[];
   viewport: { width: number; height: number };
+  motion?: MotionSnapshot;
 }
 
 export async function collectSnapshot(page: Page, scope?: string): Promise<PageSnapshot> {
