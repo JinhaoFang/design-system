@@ -38,6 +38,10 @@
 - 新增检查规则：在 `src/checker/rules/` 新建文件，在 `rules/index.ts` 的 `ALL_RULES` 里加一行；规则只读 `snapshot` 里的数据，需要新的页面信息就扩展 `src/checker/snapshot.ts`。流程本身不用改。规则的阈值一律放在 `src/checker/rule-data.ts`（工艺规范引用同一份），不写进规则逻辑。
 - 依赖版本固定，`pnpm-workspace.yaml` 里 `minimumReleaseAge: 20160`（14 天内发布的新版本不安装）。
 
+## 评审
+
+- 交给裁判评审的网页、幻灯片和范例，要让裁判能亲自操作：给出可运行的预览（一条命令起服务）或可访问的链接，截图和录屏只作补充。插图、海报这类静态媒介可以直接看图。
+
 ## Agent skills
 
 ### Issue tracker
