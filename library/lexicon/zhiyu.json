@@ -81,7 +81,9 @@
         "图版率": "高"
       },
       "recommendation": {
-        "system": "paper-editorial"
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "褪色老照片与手写信纸的泛黄底，照片带白边和折痕，排法借纸本编辑的图文版式与留白。"
       },
       "samples": {
         "status": "pending"

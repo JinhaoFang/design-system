@@ -11,7 +11,7 @@
     {
       "name": "工艺细节",
       "description": "发丝细线、精确到像素的对齐、字距调到位、阴影淡到几乎看不见；精致来自没有一处随意。",
-      "materialAnchor": "精工钟表的表盘刻线",
+      "materialAnchor": "阳极氧化铝与冷色背光下的精工表盘刻线",
       "tonality": {
         "静动": 2,
         "疏密": 3,
@@ -51,7 +51,9 @@
         "图版率": "低"
       },
       "recommendation": {
-        "system": "paper-editorial"
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "宣纸色底配细线框与竖排小字，书卷式的留白，排法借纸本编辑的竖排与精排字。"
       },
       "samples": {
         "status": "pending"

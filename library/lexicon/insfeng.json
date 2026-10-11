@@ -53,7 +53,9 @@
         "图版率": "高"
       },
       "recommendation": {
-        "system": "riso-print"
+        "system": "临时方向",
+        "borrowLayoutsFrom": "riso-print",
+        "direction": "拍立得、胶带与撕边纸片拼贴，颜色鲜但不脏，排法借孔版印刷的错位叠放与多色。"
       },
       "samples": {
         "status": "pending"
