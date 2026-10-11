@@ -1,19 +1,19 @@
 {
-  "title.title": "苇简 2.0 发布",
-  "title.subtitle": "搜索快 15 倍，同步不再弹冲突框",
-  "title.kicker": "新版本",
-  "title.brand": "苇简Reedslip",
+  "title.title": "鹞岭天文台新镜落成",
+  "title.subtitle": "1.6 米望远镜，11 月起开放观测夜",
+  "title.kicker": "公众观测夜",
+  "title.brand": "鹞岭天文台",
 
-  "quote.quote": "Beta 里基本是敲完就出结果。",
-  "quote.by": "周以宁，独立研究员",
-  "quote.brand": "苇简Reedslip",
+  "quote.quote": "进入镜筒的光已经走了 250 万年，比人类的历史还长。",
+  "quote.by": "沈砚秋，台长",
+  "quote.brand": "鹞岭天文台",
 
-  "list.heading": "2.0 的六处改动",
-  "list.items": ["毫秒级全文搜索", "按段落合并的同步", "稳定的插件接口", "0.9 秒冷启动", "10 MB 长笔记不卡", "一键导入旧笔记"],
-  "list.footnote": "10月28日正式发布",
+  "list.heading": "观测夜怎么参加",
+  "list.items": ["10 月 20 日起官网预约", "每场 60 人，每人最多 4 席", "在鹿溪镇乘接驳车上山", "接驳车每人 40 元，其余免费", "夜间山顶约 0 度，请带外套", "先看银河，再轮流看目镜", "全程约 3 小时"],
+  "list.footnote": "11 月 21 日首场",
 
-  "data.value": "86ms",
-  "data.label": "3 万条笔记的搜索延迟",
-  "data.context": "1.x 为 1,290 毫秒，快了约 15 倍。",
-  "data.heading": "搜索速度"
+  "data.value": "1.6m",
+  "data.label": "新望远镜主镜口径",
+  "data.context": "集光面积约为旧镜的 7 倍，11 月落成。",
+  "data.heading": "新望远镜"
 }

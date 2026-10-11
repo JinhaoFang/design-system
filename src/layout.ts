@@ -33,7 +33,7 @@ const liquid = new Liquid({
 function slotNode(name: string, spec: SlotSpec, value: SlotItem, index?: number): Markup {
   const marks = `data-ds-slot="${name}"${index === undefined ? '' : ` data-ds-index="${index}"`}`;
   if (spec.type === 'image' && typeof value !== 'string') {
-    return new Markup(`<img ${marks} src="${escapeHtml(value.src)}" alt="${escapeHtml(value.alt)}">`);
+    return new Markup(`<img ${marks} src="${escapeHtml(value.src ?? value.image)}" alt="${escapeHtml(value.alt)}">`);
   }
   return new Markup(`<span ${marks}>${escapeHtml(spaceCjkLatin(String(value)))}</span>`);
 }

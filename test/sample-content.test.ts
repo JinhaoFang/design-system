@@ -1,10 +1,10 @@
 /*
- * Behavior tests for the shared sample content (library/content, the Reedslip 2.0 standard sample), driven through buildAndCheck with a fixture system.
+ * Behavior tests for the shared sample content (library/content, the Kestrel Ridge Observatory standard sample), driven through buildAndCheck with a fixture system.
  * Works reference the shared keys only ({"ref": key}); keys are "<unit>.<slot>" or "<unit>.<instance>.<slot>". All three carriers are built end to end: social per unit
  * (PNG at the exact canvas size, shared text on the page); web and slides as one work holding every unit instance, whose rendered page must show every image (none broken).
- * Image paths in the content are relative to library/content, must exist there, and the build copies them into the output directory.
+ * Image slots hold image ids from library/content/images.json; the build finds each id under <system>/images/ (the fixture system has a tiny SVG for every id), copies it to the output, and lists every missing id when a picture is absent.
  */
-import { access, cp, readFile, rm, writeFile } from 'node:fs/promises';
+import { cp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { describe, expect, test } from 'vitest';
@@ -17,7 +17,7 @@ import { allCarriersSystem, patchedLibrary, realSkeleton, writeFileDeep } from '
 const here = dirname(fileURLToPath(import.meta.url));
 const contentDir = join(here, '..', 'library', 'content');
 
-type Value = string | string[] | { src: string; alt: string } | { src: string; alt: string }[];
+type Value = string | string[] | { image: string } | { image: string }[];
 type Skeleton = { units: Record<string, { slots: Record<string, unknown> }> };
 
 const readJson = async <T>(path: string): Promise<T> => JSON.parse(await readFile(path, 'utf8')) as T;
@@ -80,7 +80,9 @@ const workFile = async (work: unknown): Promise<string> => {
 };
 
 const imagesIn = (content: Record<string, Value>): string[] =>
-  Object.values(content).flatMap((value) => (Array.isArray(value) ? value : [value]).flatMap((item) => (typeof item === 'object' ? [item.src] : [])));
+  Object.values(content).flatMap((value) => (Array.isArray(value) ? value : [value]).flatMap((item) => (typeof item === 'object' ? [item.image] : [])));
+
+const briefs = (): Promise<Record<string, { brief: string; alt: string }>> => readJson(join(contentDir, 'images.json'));
 
 describe.each(CARRIER_IDS)('sample content for %s', (carrier: CarrierId) => {
   test('covers every slot of every narrative unit in the skeleton', async () => {
@@ -96,10 +98,13 @@ describe.each(CARRIER_IDS)('sample content for %s', (carrier: CarrierId) => {
     expect(missing).toEqual([]);
   });
 
-  test('every image path exists as a PNG under library/content', async () => {
-    for (const src of imagesIn(await contentOf(carrier))) {
-      await access(join(contentDir, src));
-      expect((await pngSize(join(contentDir, src))).width).toBeGreaterThan(0);
+  test('every image id has a brief and alt text, and the fixture system has a picture for it', async () => {
+    const all = await briefs();
+    const pictures = await readdir(join(fixtures.system, 'images'));
+    for (const id of imagesIn(await contentOf(carrier))) {
+      expect(all[id]?.brief).toBeTruthy();
+      expect(all[id]?.alt).toBeTruthy();
+      expect(pictures.some((name) => name.startsWith(`${id}.`))).toBe(true);
     }
   });
 
@@ -150,7 +155,7 @@ describe.each(CARRIER_IDS)('sample content for %s', (carrier: CarrierId) => {
         const images = await page.evaluate(() =>
           [...document.images].map((img) => ({ src: img.getAttribute('src')!, loaded: img.complete && img.naturalWidth > 0 })),
         );
-        expect(images.map((img) => img.src).sort()).toEqual([...expectedImages].sort());
+        expect(images.map((img) => img.src).sort()).toEqual(expectedImages.map((id) => `images/${id}.svg`).sort());
         expect(images.filter((img) => !img.loaded)).toEqual([]);
       } finally {
         await browser.close();
@@ -159,16 +164,43 @@ describe.each(CARRIER_IDS)('sample content for %s', (carrier: CarrierId) => {
   }
 });
 
-describe('image assets in a work', () => {
-  const imageWork = (src: string) =>
+describe('image ids in a work', () => {
+  const imageWork = (...ids: string[]) =>
     workFile({
       system: 'mini',
-      carrier: 'slides',
-      concept: '图片路径测试',
-      sequence: [{ unit: 'image', layout: 'plain', content: { visual: { src, alt: '说明' }, heading: '标题', caption: '图注' } }],
+      carrier: 'web',
+      concept: '图像标识测试',
+      sequence: [{ unit: 'evidence', layout: 'plain', content: { heading: '标题', stats: ['1'], statLabels: ['说明'], quote: '引文', quoteBy: '某人', logos: ids.map((image) => ({ image })) } }],
     });
 
-  test.each([['assets/missing.png', /图片文件不存在/], ['../skeleton/slides.json', /超出了共享内容目录/]])('image path %s fails the build with a clear error', async (src, message) => {
-    await expect(run(await imageWork(src), { libraryDir: await sampleLibrary(), systemDir: await sampleSystem() })).rejects.toThrow(message);
+  const imageSystem = (patch: (dir: string) => Promise<void>) =>
+    allCarriersSystem(async (dir) => {
+      await writeFileDeep(join(dir, 'layouts', 'web', 'evidence', 'plain.liquid'), '{% for item in slots.logos %}<p>{{ item }}</p>{% endfor %}<p>{{ slots.heading }}</p>');
+      await patch(dir);
+    });
+
+  test('a build with several pictures missing fails and lists every missing id', async () => {
+    const system = await imageSystem(async (dir) => {
+      await rm(join(dir, 'images', 'mark-luxi-town.svg'));
+      await rm(join(dir, 'images', 'mark-jiahe-school.svg'));
+    });
+    const attempt = run(await imageWork('mark-beizhu-univ', 'mark-luxi-town', 'mark-jiahe-school'), { libraryDir: await sampleLibrary(), systemDir: system });
+    await expect(attempt).rejects.toThrow(/mark-luxi-town[\s\S]*mark-jiahe-school/);
+    await expect(attempt).rejects.not.toThrow(/mark-beizhu-univ/);
+  });
+
+  test('a picture in another format (png) is found and copied under its own name', async () => {
+    const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
+    const system = await imageSystem(async (dir) => {
+      await rm(join(dir, 'images', 'mark-luxi-town.svg'));
+      await writeFile(join(dir, 'images', 'mark-luxi-town.png'), png);
+    });
+    const result = await run(await imageWork('mark-luxi-town'), { libraryDir: await sampleLibrary(), systemDir: system });
+    expect(await readFile(join(result.artifacts.outDir, 'images', 'mark-luxi-town.png'))).toEqual(png);
+    expect(await readFile(result.artifacts.index, 'utf8')).toContain('images/mark-luxi-town.png');
+  });
+
+  test('an id that is not in the image briefs fails', async () => {
+    await expect(run(await imageWork('no-such-image'), { libraryDir: await sampleLibrary(), systemDir: await imageSystem(async () => {}) })).rejects.toThrow(/no-such-image[\s\S]*图像简报/);
   });
 });

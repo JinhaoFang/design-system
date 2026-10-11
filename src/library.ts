@@ -1,6 +1,8 @@
 /*
  * Library data shared by all systems, loaded from a library directory: skeleton/<carrier>.json (narrative units and slots), fonts/manifest.json (font list, format in fonts.ts)
- * and content/<carrier>.json (optional shared content, a flat map of key -> string | string[] | {src, alt}; works reference it as {"ref": "key"}).
+ * and content/<carrier>.json (optional shared content, a flat map of key -> string | string[] | {image: <id>} | {image: <id>}[]; works reference it as {"ref": "key"}).
+ * content/images.json is the library's list of image briefs: { "<image-id>": { brief, alt } } (brief: one sentence on what the picture shows; alt: the alt text, held to the image slot's maxChars).
+ * Image slots carry only an image id; each system supplies the picture under <system>/images/ (resolved at build time by assets.ts).
  * Skeleton file: { carrier, units: { <unit-id>: { label, slots: { <slotName>: { type: text|data|image|action, priority: primary|secondary|tertiary, maxChars, maxItems?, group? } } } } }.
  *   maxChars is in characters per item (for image slots: the alt text); maxItems makes a slot a list; list slots with the same group must get equal item counts in a work.
  * A system may add its own units in <system>/skeleton/<carrier>.json (same shape, no carrier needed); an id that already exists in the shared skeleton is an error.
@@ -10,6 +12,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { BuildError } from './types.ts';
 
+export const IMAGE_ID = /^[a-z][a-z0-9-]*$/;
 export const SLOT_TYPES = ['text', 'data', 'image', 'action'] as const;
 export const SLOT_PRIORITIES = ['primary', 'secondary', 'tertiary'] as const;
 
@@ -34,7 +37,16 @@ export interface Skeleton {
 export { loadFontManifest } from './fonts.ts';
 export type { FontEntry, FontManifest } from './fonts.ts';
 
-export type SharedValue = string | string[] | { src: string; alt: string };
+export interface ImageRef {
+  image: string;
+}
+
+export interface ImageBrief {
+  brief: string;
+  alt: string;
+}
+
+export type SharedValue = string | string[] | ImageRef | ImageRef[];
 
 async function readJson<T>(path: string, what: string): Promise<T> {
   try {
@@ -119,4 +131,19 @@ export function mergeUnits(shared: Skeleton, own: Record<string, UnitSpec>, carr
 export async function loadSharedContent(libraryDir: string, carrier: string): Promise<Record<string, SharedValue> | undefined> {
   const data = await readOptionalJson(join(libraryDir, 'content', `${carrier}.json`), `「${carrier}」共享内容`);
   return data as Record<string, SharedValue> | undefined;
+}
+
+export async function loadImageBriefs(libraryDir: string): Promise<Record<string, ImageBrief> | undefined> {
+  const path = join(libraryDir, 'content', 'images.json');
+  const data = await readOptionalJson(path, '图像简报清单');
+  if (data === undefined) return undefined;
+  const issues: string[] = [];
+  if (data === null || typeof data !== 'object' || Array.isArray(data)) throw new BuildError([`图像简报清单 ${path} 需要是以图像标识为键的对象`]);
+  for (const [id, entry] of Object.entries<any>(data)) {
+    if (!IMAGE_ID.test(id)) issues.push(`图像简报标识「${id}」只能用小写字母、数字和连字符，并以字母开头`);
+    if (typeof entry?.brief !== 'string' || entry.brief === '') issues.push(`图像简报「${id}」缺少 brief（这张图讲什么）`);
+    if (typeof entry?.alt !== 'string' || entry.alt === '') issues.push(`图像简报「${id}」缺少替代文字 alt`);
+  }
+  if (issues.length) throw new BuildError(issues);
+  return data as Record<string, ImageBrief>;
 }

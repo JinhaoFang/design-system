@@ -30,7 +30,10 @@ const LIST_UNIT = {
 };
 
 const withListUnit = (): Promise<string> =>
-  patchedLibrary((dir) => editJson(join(dir, 'skeleton', 'social.json'), (j) => (j.units.list = LIST_UNIT)));
+  patchedLibrary(async (dir) => {
+    await editJson(join(dir, 'skeleton', 'social.json'), (j) => (j.units.list = LIST_UNIT));
+    await writeFileDeep(join(dir, 'content', 'images.json'), JSON.stringify({ 'long-alt': { brief: '一张图', alt: '这段说明文字明显太长了' } }));
+  });
 
 const listSystem = (itemStyle = 'color:var(--ds-color-ink)'): Promise<string> =>
   patchedSystem((dir) =>
@@ -73,8 +76,8 @@ describe('list and image slots', () => {
     ['a plain string for a list slot', { heading: '标题', items: '不是数组' }, /items[\s\S]*列表槽位/],
     ['an array for a single slot', { heading: ['a', 'b'] }, /heading[\s\S]*不是列表槽位/],
     ['unequal lengths in one group', { heading: '标题', items: ['一', '二'], notes: ['注'] }, /rows[\s\S]*一致/],
-    ['an image without src and alt', { heading: '标题', photo: '图.png' }, /photo[\s\S]*src[\s\S]*alt/],
-    ['image alt over the limit', { heading: '标题', photo: { src: 'a.png', alt: '这段说明文字明显太长了' } }, /photo[\s\S]*字数上限/],
+    ['an image without an image id', { heading: '标题', photo: '图.png' }, /photo[\s\S]*image/],
+    ['image alt over the limit', { heading: '标题', photo: { image: 'long-alt' } }, /photo[\s\S]*字数上限/],
     ['a missing primary slot', { items: ['一'] }, /缺少主要槽位 "heading"/],
     ['an empty primary slot', { heading: '' }, /缺少主要槽位 "heading"/],
   ])('%s fails before rendering', async (_case, content, message) => {

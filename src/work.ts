@@ -1,18 +1,25 @@
 /*
  * Work description (作品描述): loading and validation against the carrier's skeleton, before any rendering.
  * Shape: { system, carrier, canvas? (required for social), concept, sequence: [ {unit, layout, content} | {custom, serves} ] }.
- *   content maps slot name -> string | {src, alt} (image slots) | list of those (slots with maxItems) | {"ref": "<key>"} pointing at the library's shared content (library/content/<carrier>.json).
+ *   content maps slot name -> string | {image: <id>} (image slots; the alt text comes from the library's image briefs, content/images.json) | list of those (slots with maxItems) | {"ref": "<key>"} pointing at the library's shared content (library/content/<carrier>.json).
  *   custom is an HTML fragment (may carry one <style>) for the work concept; serves says which part of the work concept it serves. "system" names the system the work was written for; building with another system (reskinning) is allowed.
  * validateWork returns the work with refs resolved and fails with BuildError listing every problem: unknown unit/slot, missing primary slot, over the character or item limit, wrong value shape, unequal list-group lengths, missing shared key, missing serves.
+ * Image ids are checked against the image briefs; assets.ts later resolves each id to a picture in the system directory and fills src.
  * Layout existence and layout-slot checks happen in layout.ts. Social works hold exactly one sequence item.
  */
 import { readFile } from 'node:fs/promises';
 import { CARRIERS, CARRIER_IDS, isCarrierId } from './carriers.ts';
 import type { CarrierId } from './carriers.ts';
-import type { SharedValue, Skeleton, SlotSpec } from './library.ts';
+import type { ImageBrief, SharedValue, Skeleton, SlotSpec } from './library.ts';
 import { BuildError } from './types.ts';
 
-export type SlotItem = string | { src: string; alt: string };
+export interface ImageItem {
+  image: string;
+  alt: string;
+  src?: string;
+}
+
+export type SlotItem = string | ImageItem;
 export type SlotValue = SlotItem | SlotItem[];
 
 export interface UnitWorkItem {
@@ -88,18 +95,23 @@ export async function loadWork(path: string): Promise<RawWork> {
 
 const length = (text: string) => [...text].length;
 
-function checkItem(value: unknown, spec: SlotSpec, where: string, issues: string[]): SlotItem | undefined {
+function checkItem(value: unknown, spec: SlotSpec, where: string, issues: string[], images?: Record<string, ImageBrief>): SlotItem | undefined {
   if (spec.type === 'image') {
-    const image = value as { src?: unknown; alt?: unknown } | null;
-    if (image === null || typeof image !== 'object' || typeof image.src !== 'string' || !image.src || typeof image.alt !== 'string') {
-      issues.push(`${where} 是图片槽位，内容需要是 { "src": 图片路径, "alt": 说明文字 }`);
+    const id = (value as { image?: unknown } | null)?.image;
+    if (value === null || typeof value !== 'object' || typeof id !== 'string' || !id) {
+      issues.push(`${where} 是图片槽位，内容需要是 { "image": 图像标识 }`);
       return undefined;
     }
-    if (length(image.alt) > spec.maxChars) {
-      issues.push(`${where} 的说明文字超出字数上限（${length(image.alt)} > ${spec.maxChars}）`);
+    const brief = images?.[id];
+    if (!brief) {
+      issues.push(`${where} 的图像标识 "${id}" 不在图像简报清单里${images ? '' : '（全库没有图像简报清单 content/images.json）'}`);
       return undefined;
     }
-    return { src: image.src, alt: image.alt };
+    if (length(brief.alt) > spec.maxChars) {
+      issues.push(`${where} 的说明文字超出字数上限（${length(brief.alt)} > ${spec.maxChars}，图像 ${id}）`);
+      return undefined;
+    }
+    return { image: id, alt: brief.alt };
   }
   if (typeof value !== 'string') {
     issues.push(`${where} 的内容需要是字符串`);
@@ -112,7 +124,7 @@ function checkItem(value: unknown, spec: SlotSpec, where: string, issues: string
   return value;
 }
 
-export function validateWork(raw: RawWork, skeleton: Skeleton, shared?: Record<string, SharedValue>): Work {
+export function validateWork(raw: RawWork, skeleton: Skeleton, shared?: Record<string, SharedValue>, images?: Record<string, ImageBrief>): Work {
   const issues: string[] = [];
   const sequence: WorkItem[] = [];
   raw.sequence.forEach((item: any, index: number) => {
@@ -158,7 +170,7 @@ export function validateWork(raw: RawWork, skeleton: Skeleton, shared?: Record<s
           issues.push(`${where} 的项数超出上限（${value.length} > ${spec.maxItems}）`);
           continue;
         }
-        const items = value.map((entry, i) => checkItem(entry, spec, `${where} 第 ${i + 1} 项`, issues));
+        const items = value.map((entry, i) => checkItem(entry, spec, `${where} 第 ${i + 1} 项`, issues, images));
         if (items.every((entry): entry is SlotItem => entry !== undefined)) {
           content[slot] = items;
           if (spec.group) (groups[spec.group] ??= {})[slot] = items.length;
@@ -168,7 +180,7 @@ export function validateWork(raw: RawWork, skeleton: Skeleton, shared?: Record<s
           issues.push(`${where} 不是列表槽位，内容不能是数组`);
           continue;
         }
-        const checked = checkItem(value, spec, where, issues);
+        const checked = checkItem(value, spec, where, issues, images);
         if (checked !== undefined) content[slot] = checked;
       }
     }
