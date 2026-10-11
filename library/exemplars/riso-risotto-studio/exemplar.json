@@ -1,0 +1,34 @@
+{
+  "id": "riso-risotto-studio",
+  "title": "RISOTTO Studio 官网（2027 PLAYTIME 日历）",
+  "sourceType": "external",
+  "sourceUrl": "https://risottostudio.com",
+  "copyright": "RISOTTO Studio（Gabriella Marcella，格拉斯哥）",
+  "carrier": "web",
+  "systems": [
+    "riso-print"
+  ],
+  "capturedOn": "2026-10-11",
+  "media": {
+    "kind": "screenshot",
+    "status": "present",
+    "file": "screenshot.webp"
+  },
+  "annotation": {
+    "highlights": "首屏把一幅 2027 年 PLAYTIME 日历直接做成挂在木框里的实物：荧光红到粉的渐变字压在蓝绿棋盘格上，橙色飘带和小花浮在上面，套印处出现新的混色，纸面还带细网格。整屏热闹，但每一块颜色都有明确的墨层关系。",
+    "reasons": "这是真正的孔版印刷：渐变来自网点叠加，混色来自套印，字形的错位和硬边都是版的物理结果，而不是后期加的滤镜。热闹的色彩被限制在 4 到 5 种墨里，导航保持白底细黑字，主角只有一个。",
+    "scenes": "活动推广、社交配图、周边与日历类商品页；验证「热闹的风格也能有质感」的最直接样本。",
+    "materialAnchor": "Riso 孔版印刷：荧光墨、套色混色、纸面纤维与网点颗粒；展示用木框与挂钩让印品保持实物感。",
+    "tonality": {
+      "静动": 5,
+      "疏密": 4,
+      "冷暖": 4,
+      "轻重": 2,
+      "庄谐": 5
+    }
+  },
+  "approval": {
+    "status": "candidate"
+  },
+  "notes": "首屏下方有 2027 日历月份的横向滚动与「Lunar Key」图例，动效未录屏核对；左下角的黄色气泡提示是站点浮层，参考时应忽略。"
+}
