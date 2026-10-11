@@ -1,9 +1,12 @@
 /*
- * System page (体系总览页): buildSystemPage generates, for any system directory, one interactive page that shows the system's intent, material anchor, colors, fonts (with licenses), type/space/radius steps,
- * composition constraints, textures, identity marks, motion (live replays) and layouts, and links to the layout overview, the standard samples and the approved exemplars. Markup lives in system-page-html.ts.
+ * System page (体系总览页): buildSystemPage generates, for any system directory, one interactive page that shows the system's intent, material anchor, colors, fonts (grouped by family, with licenses), type/space/radius steps,
+ * composition constraints, textures, identity marks, motion (live replays) and layouts, with thumbnails of the layout overview and the standard samples (linked to their builds) and the approved exemplars. Markup lives in system-page-html.ts.
  * Input: system directory, output directory, library directory (skeletons, font list, exemplars), font cache, optional overviewDir (output of the layout overview) and worksDir (a directory of built standard samples,
- * one build per sub-directory); the links are built from whatever artifacts (directories with an index.html) those directories contain, as relative paths from outDir.
+ * one build per sub-directory); the links and thumbnails are built from whatever artifacts (directories with an index.html and PNGs) those directories contain, as relative paths from outDir.
+ * A social layout's thumbnail is its overview build (social/<canvas>/<unit>-<layout>, canvas xiaohongshu when present, else the first); web and slides link their whole-page overview build.
  * Content: SYSTEM.md sections (header and prose), the token file resolved for the system's web carrier (or its first carrier), the font list entries the tokens use, the layouts directory.
+ * Tables of SYSTEM.md are rendered as tables, except three kinds that are taken out of the prose and used as data: the layout table (a header with 排法, rows "`id` 中文名" + 说明) gives each layout its name and description,
+ * a duration or easing table keyed by `name` gives the live motion cells their 用在 note, and (read, not removed) the color table is the legend of the color bands.
  * Optional custom fragment: <system>/system-page/header.html replaces the default header; it is a Liquid template with system.{id,name,category,materialAnchor,scenarios,carriers}, may carry one <style> (scoped to the header).
  * Output files in outDir: index.html, fonts/, web-desktop.png and web-mobile.png (full-page screenshots, widths 1440 and 390), exemplars/<id>/<media> (approved exemplars of this system), replays.json,
  * report.json and report.md. The page goes through the same web rendering and checking as a work (web.ts), with the composition and anti-homogeneity rules left out; every other rule applies.
@@ -26,13 +29,14 @@ import { CARRIERS } from './carriers.ts';
 import type { CarrierId } from './carriers.ts';
 import { DEFAULT_FONT_CACHE } from './fonts.ts';
 import { escapeHtml } from './layout.ts';
-import { inline, renderMarkdown } from './markdown-lite.ts';
+import { findTables, inline, renderMarkdown } from './markdown-lite.ts';
+import type { MdTable } from './markdown-lite.ts';
 import { layoutsOf } from './overview.ts';
 import { exitCodeFor, makeReport, reportToMarkdown } from './report.ts';
 import { parseSections, splitHeader } from './system.ts';
 import type { Section } from './system.ts';
 import { renderSystemPage } from './system-page-html.ts';
-import type { ExemplarView, FontView, LayoutView, LinkGroup, LinkView, PageModel } from './system-page-html.ts';
+import type { ExemplarView, FontView, LayoutItem, LayoutView, LinkView, PageModel } from './system-page-html.ts';
 import { resolveForCarrier } from './tokens.ts';
 import { BuildError } from './types.ts';
 import type { Report } from './types.ts';
@@ -68,10 +72,11 @@ function find(sections: Section[], level: number, title: string): Section | unde
   return flatten(sections).find((section) => section.level === level && section.title === title);
 }
 
-function proseOf(section: Section | undefined): string {
+function proseOf(section: Section | undefined, skipStatement = false): string {
   if (!section) return '';
   const children = section.children.map((child) => `<h4>${inline(child.title)}</h4>\n${proseOf(child)}`).join('\n');
-  return [renderMarkdown(section.own), children].filter(Boolean).join('\n');
+  const own = skipStatement ? section.own.filter((line, index, lines) => !(/^\*\*[^*]+\*\*$/.test(line.trim()) && lines.slice(0, index).every((before) => before.trim() === ''))) : section.own;
+  return [renderMarkdown(own), children].filter(Boolean).join('\n');
 }
 
 function posix(path: string): string {
@@ -93,26 +98,53 @@ function linkTo(outDir: string, entry: ArtifactEntry): string {
 
 function noteOf(entry: ArtifactEntry): string {
   const counts = entry.errors !== undefined ? `${entry.errors} 个错误，${entry.warnings ?? 0} 个警告` : '';
-  return [entry.concept, counts].filter(Boolean).join('  ');
+  return [entry.canvas, counts].filter(Boolean).join('  ');
 }
 
-async function overviewLinks(outDir: string, overviewDir: string | undefined): Promise<LinkGroup[]> {
-  if (!overviewDir) return [];
-  const groups = new Map<string, LinkView[]>();
-  for (const entry of await scanArtifacts(overviewDir)) {
-    const parts = entry.rel.split('/');
-    const carrier = parts[0] as CarrierId;
-    const label = carrier in CARRIERS ? CARRIERS[carrier].label : (parts[0] ?? '排法总览');
-    const title = parts[0] === 'social' && parts.length > 2 ? `${label} · ${parts[1]}` : label;
-    const link: LinkView = { href: linkTo(outDir, entry), label: parts[parts.length - 1] || '排法总览', note: noteOf(entry) };
-    groups.set(title, [...(groups.get(title) ?? []), link]);
-  }
-  return [...groups].map(([title, links]) => ({ title, links }));
+function thumbnailOf(outDir: string, entry: ArtifactEntry): string | undefined {
+  const image = entry.images[0];
+  return image === undefined ? undefined : posix(relative(outDir, join(entry.dir, image)));
 }
+
+function linkOf(outDir: string, entry: ArtifactEntry, label: string): LinkView {
+  const image = thumbnailOf(outDir, entry);
+  return { href: linkTo(outDir, entry), label, note: noteOf(entry), ...(image !== undefined && { image }), ...(entry.carrier === 'web' && { cropped: true }) };
+}
+
+const PREFERRED_CANVAS = 'xiaohongshu';
 
 async function workLinks(outDir: string, worksDir: string | undefined): Promise<LinkView[]> {
   if (!worksDir) return [];
-  return (await scanArtifacts(worksDir)).map((entry) => ({ href: linkTo(outDir, entry), label: entry.rel || basename(entry.dir), note: noteOf(entry) }));
+  return (await scanArtifacts(worksDir)).map((entry) => {
+    const concept = entry.concept || entry.rel || basename(entry.dir);
+    const [label, ...rest] = concept.split(/[：:]/);
+    const detail = rest.join('：');
+    return { ...linkOf(outDir, entry, label!), ...(detail !== '' && { detail }) };
+  });
+}
+
+interface OverviewIndex {
+  whole: Map<string, LinkView>;
+  social: Map<string, LinkView>;
+}
+
+async function indexOverview(outDir: string, overviewDir: string | undefined): Promise<OverviewIndex | undefined> {
+  if (!overviewDir) return undefined;
+  const index: OverviewIndex = { whole: new Map(), social: new Map() };
+  const canvasOf = new Map<string, string>();
+  for (const entry of await scanArtifacts(overviewDir)) {
+    const parts = entry.rel.split('/');
+    if (parts.length === 1) index.whole.set(parts[0]!, linkOf(outDir, entry, CARRIERS[parts[0] as CarrierId]?.label ?? parts[0]!));
+    if (parts[0] === 'social' && parts.length === 3) {
+      const key = parts[2]!;
+      const canvas = parts[1]!;
+      const known = canvasOf.get(key);
+      if (known === PREFERRED_CANVAS || (known !== undefined && canvas !== PREFERRED_CANVAS && known < canvas)) continue;
+      canvasOf.set(key, canvas);
+      index.social.set(key, linkOf(outDir, entry, key));
+    }
+  }
+  return index;
 }
 
 const SOURCE_LABEL: Record<string, string> = { external: '外部收集', copy: '临摹', original: '原创' };
@@ -174,15 +206,73 @@ async function customHeader(systemDir: string, meta: PageModel['meta']): Promise
   }
 }
 
-async function layoutViews(systemDir: string, system: Awaited<ReturnType<typeof validateSystem>>): Promise<LayoutView[]> {
+interface Notes {
+  layouts: Map<string, { name: string; description: string }>;
+  durations: Record<string, string>;
+  easings: Record<string, string>;
+  colorLegend: boolean;
+  compositionTable: boolean;
+}
+
+function takeNotes(sections: Section[], durationNames: Set<string>, easingNames: Set<string>): Notes {
+  const notes: Notes = { layouts: new Map(), durations: {}, easings: {}, colorLegend: false, compositionTable: false };
+  for (const section of flatten(sections)) {
+    const drop = new Set<number>();
+    const takeLines = (table: MdTable) => {
+      for (let index = table.start; index < table.end; index++) drop.add(index);
+      const label = section.own[table.start - 2];
+      if (table.start >= 2 && section.own[table.start - 1]!.trim() === '' && label !== undefined && /^\*\*[^*]+\*\*$/.test(label.trim())) {
+        drop.add(table.start - 2);
+        drop.add(table.start - 1);
+      }
+    };
+    for (const table of findTables(section.own)) {
+      if (section.title === '色彩') notes.colorLegend = true;
+      if (table.header.some((cell) => cell.includes('跳跃率'))) notes.compositionTable = true;
+      const layoutColumn = table.header.findIndex((cell) => cell.includes('排法'));
+      const describeColumn = table.header.findIndex((cell) => cell.includes('说明'));
+      if (layoutColumn >= 0 && describeColumn >= 0) {
+        for (const row of table.rows) {
+          const match = /^`([^`]+)`\s*(.*)$/.exec(row[layoutColumn] ?? '');
+          if (match) notes.layouts.set(match[1]!, { name: match[2]!, description: row[describeColumn] ?? '' });
+        }
+        takeLines(table);
+        continue;
+      }
+      const keys = table.rows.map((row) => /^`([^`]+)`$/.exec(row[0] ?? '')?.[1]);
+      if (!table.rows.length || !keys.every((key): key is string => key !== undefined)) continue;
+      const head = table.header[0] ?? '';
+      const kind = head.includes('时长') ? 'durations' : head.includes('缓动') ? 'easings' : keys.every((key) => durationNames.has(key)) ? 'durations' : keys.every((key) => easingNames.has(key)) ? 'easings' : undefined;
+      if (!kind) continue;
+      table.rows.forEach((row, index) => {
+        notes[kind][keys[index]!] = row.slice(2).filter(Boolean).join(' · ');
+      });
+      takeLines(table);
+    }
+    if (drop.size) section.own = section.own.filter((_line, index) => !drop.has(index));
+  }
+  return notes;
+}
+
+async function layoutViews(systemDir: string, system: Awaited<ReturnType<typeof validateSystem>>, notes: Notes, overview: OverviewIndex | undefined): Promise<LayoutView[]> {
   const views: LayoutView[] = [];
   for (const carrier of system.meta.carriers) {
     const units: LayoutView['units'] = [];
     for (const [id, spec] of Object.entries(system.skeletons[carrier]?.units ?? {})) {
-      const layouts = await layoutsOf(systemDir, carrier, id);
+      const names = await layoutsOf(systemDir, carrier, id);
+      const layouts: LayoutItem[] = names.map((name) => {
+        const build = carrier === 'social' ? overview?.social.get(`${id}-${name}`) : undefined;
+        const note = notes.layouts.get(name);
+        return {
+          id: name,
+          ...(note && { name: note.name, description: note.description }),
+          ...(build && { href: build.href, ...(build.image !== undefined && { image: build.image }), ...(build.note && { note: build.note }) }),
+        };
+      });
       if (layouts.length) units.push({ id, label: spec.label, layouts });
     }
-    views.push({ carrier, units });
+    const overall = overview?.whole.get(carrier);
+    views.push({ carrier, units, ...(overall && { overall }) });
   }
   return views;
 }
@@ -224,6 +314,10 @@ export async function buildSystemPage(options: SystemPageOptions): Promise<Syste
 
   const text = await readFile(join(systemDir, 'SYSTEM.md'), 'utf8');
   const sections = parseSections(splitHeader(text).body);
+  const durationNames = new Set(tokens.entries.filter((entry) => entry.cssVar.startsWith('--ds-duration-')).map((entry) => entry.cssVar.slice('--ds-duration-'.length)));
+  const easingNames = new Set(tokens.entries.filter((entry) => entry.cssVar.startsWith('--ds-easing-')).map((entry) => entry.cssVar.slice('--ds-easing-'.length)));
+  const notes = takeNotes(sections, durationNames, easingNames);
+  const overview = await indexOverview(outDir, options.overviewDir && (await pathExists(options.overviewDir)) ? options.overviewDir : undefined);
   const top = (title: string) => find(sections, 2, title);
   const visual = top('视觉语言')?.children ?? [];
   const mark = find(visual, 3, '识别符号');
@@ -236,7 +330,7 @@ export async function buildSystemPage(options: SystemPageOptions): Promise<Syste
     parsed: system.tokens,
     fonts,
     intentHtml: proseOf(top('意图')),
-    anchorHtml: proseOf(top('材质锚点')),
+    anchorHtml: proseOf(top('材质锚点'), true),
     colorHtml: proseOf(find(visual, 3, '色彩')),
     fontsHtml: proseOf(find(visual, 3, '字体')),
     layoutHtml: proseOf(find(visual, 3, '版面')),
@@ -244,9 +338,13 @@ export async function buildSystemPage(options: SystemPageOptions): Promise<Syste
     imageryHtml: proseOf(find(visual, 3, '图像与画风')),
     marksHtml: renderMarkdown(mark?.own ?? []),
     motionHtml: proseOf(top('动效语言')),
-    layouts: await layoutViews(systemDir, system),
+    layouts: await layoutViews(systemDir, system, notes, overview),
     ...(header !== undefined && { customHeader: header }),
-    overview: await overviewLinks(outDir, options.overviewDir && (await pathExists(options.overviewDir)) ? options.overviewDir : undefined),
+    overviewGenerated: overview !== undefined,
+    colorLegend: notes.colorLegend,
+    compositionTable: notes.compositionTable,
+    durationNotes: notes.durations,
+    easingNotes: notes.easings,
     works: await workLinks(outDir, options.worksDir && (await pathExists(options.worksDir)) ? options.worksDir : undefined),
     exemplars: await approvedExemplars(libraryDir, system.meta.id, outDir),
   };
