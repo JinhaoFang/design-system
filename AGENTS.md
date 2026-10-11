@@ -19,7 +19,8 @@
 - 标准样张内容：`library/content/`（设定见 `SETTING.md`，共享内容 `web.json`、`slides.json`、`social.json`，键名为 `<单元>.<槽位>` 或 `<单元>.<实例>.<槽位>`，图片在 `assets/`，图片源文件和渲染脚本 `node library/content/assets-src/render.ts` 在 `assets-src/`）。
 - 类型检查：`pnpm typecheck`。
 - 测试：`pnpm test`。测试只通过 `buildAndCheck()`（`src/build-and-check.ts`，命令行入口 `src/cli.ts` 是它的薄封装）驱动夹具体系和夹具作品，断言报告和产物规格，不测内部函数，不做像素比对。
-- 重新生成夹具字体：`pnpm fixture-font`。夹具文字里新增汉字后要重跑并提交结果。
+- 抓取字体：`pnpm ds fetch-fonts [--library <目录>] [--font-cache <目录>]`，按字体清单把字体下载到 git 忽略的 `.cache/fonts`并核对 sha256，走环境变量 HTTPS_PROXY；构建只读这个缓存。检查器用字体文件内部的 PostScript 名匹配清单，并用 cmap 检查缺字。
+- 重新生成夹具字体：`pnpm fixture-font`（输出到 `test/fixtures/font-cache/`；缺字夹具用的 `龘` 和 U+E000 被故意排除在子集之外）。夹具文字里新增汉字后要重跑并提交结果。
 
 ## 代码约定
 

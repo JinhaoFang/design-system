@@ -11,11 +11,14 @@ import { copyFile, mkdir, writeFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import { copyWorkImages } from './assets.ts';
 import { ALL_RULES } from './checker/rules/index.ts';
+import { loadFontCheckData } from './checker/font-data.ts';
+import type { FontCheckData } from './checker/font-data.ts';
 import { runRules } from './checker/registry.ts';
 import { RENDERABLE_CARRIERS, SOCIAL_CANVASES } from './carriers.ts';
 import type { CarrierId } from './carriers.ts';
 import { loadFontManifest, loadSharedContent, loadSkeleton, loadSystemUnits, mergeUnits } from './library.ts';
 import type { FontEntry, FontManifest, Skeleton } from './library.ts';
+import { DEFAULT_FONT_CACHE } from './fonts.ts';
 import { renderCustom, renderUnit } from './layout.ts';
 import { buildPage } from './page.ts';
 import { renderImage } from './render.ts';
@@ -36,6 +39,7 @@ export interface BuildOptions {
   workPath: string;
   outDir: string;
   libraryDir: string;
+  fontCacheDir?: string;
 }
 
 export interface ValidateOptions {
@@ -94,13 +98,13 @@ export async function validateSystem(options: ValidateOptions): Promise<Validate
   return { meta: doc.meta, tokens: tokenFile.parsed, manifest, skeletons };
 }
 
-async function copyFonts(manifestDir: string, fonts: FontEntry[], outDir: string): Promise<void> {
+async function copyFonts(fontCacheDir: string, fonts: FontEntry[], outDir: string): Promise<void> {
   await mkdir(join(outDir, 'fonts'), { recursive: true });
   for (const font of fonts) {
     try {
-      await copyFile(join(manifestDir, font.file), join(outDir, 'fonts', font.file));
+      await copyFile(join(fontCacheDir, font.file), join(outDir, 'fonts', font.file));
     } catch {
-      throw new BuildError([`字体文件不存在：${join(manifestDir, font.file)}`]);
+      throw new BuildError([`本地字体缓存里没有字体文件：${join(fontCacheDir, font.file)}（先运行「抓取字体」：pnpm ds fetch-fonts）`]);
     }
   }
 }
@@ -118,11 +122,12 @@ async function finishSlides(input: {
   work: Work;
   tokens: ResolvedTokens;
   usedFonts: FontEntry[];
+  fontCheck: FontCheckData;
   unitsHtml: string[];
   outDir: string;
 }): Promise<BuildResult> {
-  const { systemDir, work, tokens, usedFonts, unitsHtml, outDir } = input;
-  const slides = await buildSlides({ work, tokens, fonts: usedFonts, unitsHtml, outDir });
+  const { systemDir, work, tokens, usedFonts, fontCheck, unitsHtml, outDir } = input;
+  const slides = await buildSlides({ work, tokens, fonts: usedFonts, fontCheck, unitsHtml, outDir });
   const report = makeReport(
     { system: basename(systemDir), work: { concept: work.concept, carrier: work.carrier, canvas: work.canvas ?? 'stage' } },
     slides.findings,
@@ -133,6 +138,7 @@ async function finishSlides(input: {
 
 export async function buildAndCheck(options: BuildOptions): Promise<BuildResult> {
   const { systemDir, workPath, outDir, libraryDir } = options;
+  const fontCacheDir = options.fontCacheDir ?? DEFAULT_FONT_CACHE;
   const system = await validateSystem({ systemDir, libraryDir });
 
   const rawWork = await loadWork(workPath);
@@ -154,9 +160,10 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
     );
   }
 
-  await copyFonts(system.manifest.dir, usedFonts, outDir);
+  await copyFonts(fontCacheDir, usedFonts, outDir);
   await copyWorkImages(work, libraryDir, outDir);
-  if (work.carrier === 'slides') return finishSlides({ systemDir, work, tokens, usedFonts, unitsHtml, outDir });
+  const fontCheck = await loadFontCheckData(system.manifest.fonts, usedFonts, fontCacheDir);
+  if (work.carrier === 'slides') return finishSlides({ systemDir, work, tokens, usedFonts, fontCheck, unitsHtml, outDir });
 
   let index: string;
   let images: string[];
@@ -166,7 +173,7 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
   if (work.carrier === 'web') {
     const web = await renderWeb({ outDir, title: work.concept, cssVars: tokens.cssVars, fonts: usedFonts, unitsHtml });
     ({ index, images, video } = web);
-    findings = checkWeb(web.snapshots, { work, tokens });
+    findings = checkWeb(web.snapshots, { work, tokens, fonts: fontCheck });
     canvas = `${WEB_VIEWPORTS.desktop.width}+${WEB_VIEWPORTS.mobile.width}`;
   } else {
     canvas = work.canvas!;
@@ -179,7 +186,7 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
     const png = join(outDir, `social-${canvas}.png`);
     const snapshot = await renderImage(index, size, png);
     images = [png];
-    findings = runRules(ALL_RULES, { snapshot, work, tokens });
+    findings = runRules(ALL_RULES, { snapshot, work, tokens, fonts: fontCheck });
   }
 
   const report = makeReport(

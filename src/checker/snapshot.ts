@@ -6,9 +6,12 @@
  * Elements owning text also get backdrop: the background-color/has-background-image of the element and all its ancestors (nearest first, up to <html>, even beyond the scope), and mediaOverlap (the text line boxes intersect an img/video/canvas/background-image element that is not an ancestor).
  * Margins that compute to auto are recorded as the string "auto" (getComputedStyle would give the used px instead).
  * collectSnapshot(page, scope) limits the pass to the elements inside the first node matching the CSS selector scope (used per slide).
+ * Text blocks also get fonts: the platform fonts Chromium used to draw their glyphs (font-usage.ts, through the DevTools protocol).
  * To give a new rule more input, add properties here (and fields to ElementSnapshot) instead of querying the browser from the rule.
  */
 import type { Page } from 'playwright';
+import { PROBE_ATTRIBUTE, collectFontUsage } from './font-usage.ts';
+import type { PlatformFont } from './font-usage.ts';
 
 export const SNAPSHOT_STYLE_PROPERTIES = [
   'color',
@@ -76,6 +79,7 @@ export interface ElementSnapshot {
   hasOwnText: boolean;
   textChunks?: TextChunk[];
   lines?: LineSnapshot[];
+  fonts?: PlatformFont[];
   styles: Record<string, string>;
   backdrop?: Backdrop;
 }
@@ -85,7 +89,7 @@ export interface PageSnapshot {
 }
 
 export async function collectSnapshot(page: Page, scope?: string): Promise<PageSnapshot> {
-  const elements = await page.evaluate(({ properties, scope: scopeSelector }) => {
+  const elements = await page.evaluate(({ properties, scope: scopeSelector, probe }) => {
     const skipped = new Set(['STYLE', 'SCRIPT', 'LINK', 'META', 'TITLE']);
     const describe = (el: Element): string => {
       const parts: string[] = [];
@@ -213,6 +217,7 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
         if (nodes.length) {
           entry.textChunks = collectChunks(nodes);
           entry.lines = collectLines(nodes);
+          el.setAttribute(probe, String(result.length));
         }
       }
       if (unit) {
@@ -223,6 +228,8 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
       result.push(entry);
     }
     return result;
-  }, { properties: [...SNAPSHOT_STYLE_PROPERTIES], scope: scope ?? '' });
+  }, { properties: [...SNAPSHOT_STYLE_PROPERTIES], scope: scope ?? '', probe: PROBE_ATTRIBUTE });
+  const usage = await collectFontUsage(page);
+  for (const [index, fonts] of usage) elements[index]!.fonts = fonts;
   return { elements };
 }
