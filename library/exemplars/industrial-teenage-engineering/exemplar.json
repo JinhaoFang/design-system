@@ -1,0 +1,34 @@
+{
+  "id": "industrial-teenage-engineering",
+  "title": "teenage engineering 官网",
+  "sourceType": "external",
+  "sourceUrl": "https://teenage.engineering",
+  "copyright": "teenage engineering AB",
+  "carrier": "web",
+  "systems": [
+    "precision-industrial"
+  ],
+  "capturedOn": "2026-10-11",
+  "media": {
+    "kind": "screenshot",
+    "status": "present",
+    "file": "screenshot.webp"
+  },
+  "annotation": {
+    "highlights": "首屏是一张反相的纽约门店夜景黑白照，砖墙上的霓虹灯字像光学仪器的读数；顶部五个导航栏各配一枚线描图标和三行小字索引，右端是极小的日文说明。信息密度很高，但所有元素都落在同一套细线、同一款轻字重上。",
+    "reasons": "图标、字体和照片处理共享一套「说明书」语言：单线图标、轻字重无衬线、小号分行注释，仪器感来自一致的制图规则而不是金属贴图。黑白反相让照片也变成界面的一部分，不需要色彩来制造重点。",
+    "scenes": "硬件产品、音频与乐器厂商、工业设计工作室的官网；需要在首屏同时给出多条入口又不显得杂乱的页面。",
+    "materialAnchor": "阳极氧化黑铝与说明书印刷：冷灰黑底、细白线、霓虹式的冷白光。",
+    "tonality": {
+      "静动": 3,
+      "疏密": 4,
+      "冷暖": 1,
+      "轻重": 4,
+      "庄谐": 3
+    }
+  },
+  "approval": {
+    "status": "candidate"
+  },
+  "notes": "首屏照片是否循环淡入、导航悬停动效未录屏核对，需裁判打开链接确认；该站在中文/汉字排版上不能作参考。"
+}
