@@ -11,11 +11,11 @@
     {
       "name": "纯白留白",
       "description": "白底黑字，只有一个强调色，元素之间间距宽松；像一张刚铺好的白纸。",
-      "materialAnchor": "白色哑光纸",
+      "materialAnchor": "暖白哑光纸上的油墨印刷，大面积留白",
       "tonality": {
         "静动": 1,
         "疏密": 1,
-        "冷暖": 3,
+        "冷暖": 4,
         "轻重": 1,
         "庄谐": 2
       },
@@ -51,7 +51,9 @@
         "图版率": "低"
       },
       "recommendation": {
-        "system": "precision-industrial"
+        "system": "临时方向",
+        "borrowLayoutsFrom": "precision-industrial",
+        "direction": "浅色制图纸底配细方格与标注线，小号等宽标签，排法借精密工业的网格与标签体系。"
       },
       "samples": {
         "status": "pending"

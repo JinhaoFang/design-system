@@ -25,7 +25,9 @@
         "图版率": "低"
       },
       "recommendation": {
-        "system": "paper-editorial"
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "单色巨字占满画面，字比图大并留出极宽的边距，排法借纸本编辑的大字首屏与留白。"
       },
       "samples": {
         "status": "pending"
