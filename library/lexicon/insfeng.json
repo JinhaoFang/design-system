@@ -1,0 +1,94 @@
+{
+  "id": "insfeng",
+  "word": "ins 风",
+  "phrasings": [
+    "ins 风",
+    "要有 ins 感",
+    "像小红书那种",
+    "博主风"
+  ],
+  "interpretations": [
+    {
+      "name": "莫兰迪低饱和",
+      "description": "灰粉、灰绿、奶咖色，方形照片，大量留白，细无衬线字；整体柔和、安静、统一。",
+      "materialAnchor": "哑光陶瓷与亚麻",
+      "tonality": {
+        "静动": 1,
+        "疏密": 1,
+        "冷暖": 4,
+        "轻重": 1,
+        "庄谐": 3
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "低",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "灰粉灰绿奶咖的低饱和配色与方形照片，排法借纸本编辑的图文版式。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "拼贴杂志",
+      "description": "拍立得、胶带、手写字、不对称的拼贴；像一本被翻旧了的剪贴簿。",
+      "materialAnchor": "剪贴簿上的拍立得与胶带",
+      "tonality": {
+        "静动": 4,
+        "疏密": 3,
+        "冷暖": 4,
+        "轻重": 2,
+        "庄谐": 5
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "riso-print"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "黑白九宫格",
+      "description": "方格网格，黑白照片套统一的滤镜，小字说明；整齐，有点冷淡。",
+      "materialAnchor": "黑白相纸冲印",
+      "tonality": {
+        "静动": 2,
+        "疏密": 3,
+        "冷暖": 1,
+        "轻重": 2,
+        "庄谐": 2
+      },
+      "composition": {
+        "跳跃率": "低",
+        "版面率": "中",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "precision-industrial",
+        "direction": "黑白照片排成方格网，小字说明，排法借精密工业的网格体系。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    }
+  ]
+}

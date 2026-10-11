@@ -1,0 +1,92 @@
+{
+  "id": "zhuanye",
+  "word": "专业",
+  "phrasings": [
+    "要专业",
+    "显得专业可靠",
+    "像大公司",
+    "正式一点"
+  ],
+  "interpretations": [
+    {
+      "name": "咨询报告式",
+      "description": "白底，单一深蓝或墨绿强调色，层级清晰，图表和数据是主角；像一份装订好的行业报告。",
+      "materialAnchor": "咨询公司装订成册的报告",
+      "tonality": {
+        "静动": 1,
+        "疏密": 3,
+        "冷暖": 2,
+        "轻重": 3,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "低"
+      },
+      "recommendation": {
+        "system": "paper-editorial"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "工程手册式",
+      "description": "编号、规格表、线稿图、等宽标签；信息按手册的方式严格归类，强调准确而不是好看。",
+      "materialAnchor": "工程手册上的线稿与规格表",
+      "tonality": {
+        "静动": 1,
+        "疏密": 5,
+        "冷暖": 1,
+        "轻重": 3,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "低",
+        "版面率": "高",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "precision-industrial"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "洁净科研感",
+      "description": "大量的白，淡蓝绿点缀，圆润无衬线字，图标清楚；让人觉得安全、无菌、可信。",
+      "materialAnchor": "洁净实验室里的白色器械台",
+      "tonality": {
+        "静动": 1,
+        "疏密": 2,
+        "冷暖": 1,
+        "轻重": 1,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "低",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "precision-industrial",
+        "direction": "大量白底配淡蓝绿点缀与圆润无衬线字，排法借精密工业的网格与对齐。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "id": "keai",
+  "word": "可爱",
+  "phrasings": [
+    "要可爱",
+    "萌一点",
+    "软萌",
+    "有点呆萌"
+  ],
+  "interpretations": [
+    {
+      "name": "软萌圆润",
+      "description": "粉嫩的颜色，大圆角，圆滚滚的吉祥物，字体圆；每个角都是圆的。",
+      "materialAnchor": "毛绒玩具与棉花糖",
+      "tonality": {
+        "静动": 3,
+        "疏密": 2,
+        "冷暖": 5,
+        "轻重": 1,
+        "庄谐": 5
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "riso-print",
+        "direction": "粉嫩色块与圆滚滚的吉祥物，排法借孔版印刷的大色块，所有角都做圆。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "手绘涂鸦",
+      "description": "铅笔和蜡笔画的线条，不规整，字是手写的；像小朋友的画册。",
+      "materialAnchor": "素描本上的铅笔与蜡笔",
+      "tonality": {
+        "静动": 3,
+        "疏密": 3,
+        "冷暖": 4,
+        "轻重": 1,
+        "庄谐": 5
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "riso-print"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "像素小物",
+      "description": "像素点阵的图标与字，八位机的几种颜色；可爱里带点怀旧。",
+      "materialAnchor": "八位游戏机的像素屏幕",
+      "tonality": {
+        "静动": 4,
+        "疏密": 4,
+        "冷暖": 3,
+        "轻重": 2,
+        "庄谐": 4
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "高",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "precision-industrial",
+        "direction": "像素点阵的小图标与字，排法借精密工业的网格，颜色限制在八种以内。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    }
+  ]
+}

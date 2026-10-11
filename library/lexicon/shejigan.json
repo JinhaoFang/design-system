@@ -1,0 +1,90 @@
+{
+  "id": "shejigan",
+  "word": "有设计感",
+  "phrasings": [
+    "要有设计感",
+    "设计感强一点",
+    "别太普通",
+    "做得有想法"
+  ],
+  "interpretations": [
+    {
+      "name": "排版驱动",
+      "description": "大胆的字体与字号对比，不对称的构图，在网格里故意打破一处；设计感来自字。",
+      "materialAnchor": "专业设计刊物的排版",
+      "tonality": {
+        "静动": 3,
+        "疏密": 3,
+        "冷暖": 3,
+        "轻重": 3,
+        "庄谐": 3
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "中",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "paper-editorial"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "色块与形状",
+      "description": "大面积的几何色块，撞色，形状本身当图像；像一张构成主义的海报。",
+      "materialAnchor": "丝网印刷的几何色块",
+      "tonality": {
+        "静动": 4,
+        "疏密": 3,
+        "冷暖": 4,
+        "轻重": 3,
+        "庄谐": 4
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "中",
+        "图版率": "低"
+      },
+      "recommendation": {
+        "system": "riso-print"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "一个好点子",
+      "description": "一个贯穿全页的视觉比喻，例如整页像一封信、一本手册，其余地方克制；设计感来自想法。",
+      "materialAnchor": "以内容为题材的实物，如信封与邮戳",
+      "tonality": {
+        "静动": 2,
+        "疏密": 3,
+        "冷暖": 4,
+        "轻重": 2,
+        "庄谐": 3
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "中",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "paper-editorial"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    }
+  ]
+}

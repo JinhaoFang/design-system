@@ -1,0 +1,97 @@
+{
+  "id": "chongjili",
+  "word": "有冲击力",
+  "phrasings": [
+    "要有冲击力",
+    "一眼抓住人",
+    "视觉冲击",
+    "要炸一点"
+  ],
+  "interpretations": [
+    {
+      "name": "巨字红底",
+      "description": "整面纯色（红）加白色巨型字母，被横线切开错位叠放，只用两三种颜色；像一张铺满浏览器的海报。",
+      "materialAnchor": "专色单色的大幅海报：整面红底白字",
+      "tonality": {
+        "静动": 4,
+        "疏密": 3,
+        "冷暖": 5,
+        "轻重": 4,
+        "庄谐": 3
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "中",
+        "图版率": "低"
+      },
+      "recommendation": {
+        "system": "riso-print"
+      },
+      "samples": {
+        "status": "present",
+        "exemplars": [
+          "riso-tokyo-art-book-fair"
+        ]
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "黑白强对比",
+      "description": "纯黑纯白，粗线条，特写摄影，没有灰；强烈，像一记闷棍。",
+      "materialAnchor": "高反差的黑白复印",
+      "tonality": {
+        "静动": 3,
+        "疏密": 2,
+        "冷暖": 1,
+        "轻重": 5,
+        "庄谐": 2
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "中",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "riso-print",
+        "direction": "纯黑纯白的粗线条与高反差特写，排法借孔版印刷的大色块与错位叠放。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "一处爆发的动效",
+      "description": "大部分地方安静，只在一个时刻让画面快速放大、切屏；冲击力来自对比，而不是处处都猛。",
+      "materialAnchor": "电影预告片里的一帧快速推近",
+      "tonality": {
+        "静动": 3,
+        "疏密": 2,
+        "冷暖": 2,
+        "轻重": 3,
+        "庄谐": 3
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "低",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "整体安静克制，只在一个高光时刻做快速放大切屏，排法借纸本编辑的单栏版式。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    }
+  ]
+}

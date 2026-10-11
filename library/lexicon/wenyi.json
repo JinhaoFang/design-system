@@ -1,0 +1,92 @@
+{
+  "id": "wenyi",
+  "word": "文艺",
+  "phrasings": [
+    "文艺范",
+    "文艺一点",
+    "有书卷气",
+    "小众一点"
+  ],
+  "interpretations": [
+    {
+      "name": "独立杂志",
+      "description": "宋体或细衬线，暖纸，竖排的短诗，大量留白；像一本小众杂志。",
+      "materialAnchor": "独立杂志的哑光纸与活字印刷",
+      "tonality": {
+        "静动": 1,
+        "疏密": 2,
+        "冷暖": 4,
+        "轻重": 1,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "低",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "paper-editorial"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "咖啡馆黑板",
+      "description": "深绿黑板色，粉笔手写字，简笔画；像咖啡馆墙上的菜单。",
+      "materialAnchor": "咖啡馆的黑板与粉笔",
+      "tonality": {
+        "静动": 2,
+        "疏密": 3,
+        "冷暖": 4,
+        "轻重": 3,
+        "庄谐": 4
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "低"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "深绿黑板底配粉笔手写字与简笔画，排法借纸本编辑的单栏版式。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    },
+    {
+      "name": "胶片摄影集",
+      "description": "黑白大图，说明文字极小，翻页式的节奏；像一本摄影集。",
+      "materialAnchor": "黑白胶片的银盐相纸",
+      "tonality": {
+        "静动": 1,
+        "疏密": 1,
+        "冷暖": 1,
+        "轻重": 3,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "低",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "paper-editorial"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "candidate"
+      }
+    }
+  ]
+}
