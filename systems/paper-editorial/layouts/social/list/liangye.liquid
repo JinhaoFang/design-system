@@ -1,6 +1,6 @@
 {% comment %}
-两页 liangye：版心竖条（两条墨线夹一条，上下两个鱼尾，中间竖排 footnote 楷书朱色）把画面分成两页：右页竖排大标题（宋体 200 title 档），左页横排清单，编号用 01–07（Source Serif 300，lnum tnum），行间 rule-light 界栏。
-公众号封面：版心改为左侧竖条，标题横排在其右，清单两栏（caption 档）。朱色：仅 footnote。
+两页 liangye：版心竖条（两条墨线夹一条，上下两个鱼尾，中间竖排 footnote 楷书 ink-3，数字直立）把画面分成两页：右页竖排大标题（宋体 200 title 档），左页横排清单，编号用 01–07（Source Serif 300，lnum tnum），行间 rule-light 界栏。
+竖排文字一律 upright。公众号封面：版心改为左侧竖条，标题横排在其右，清单两栏（caption 档）。朱色：不用。
 {% endcomment %}
 <style>
   :scope {
@@ -48,11 +48,11 @@
     margin: 0;
     writing-mode: vertical-rl;
     text-orientation: upright;
-    word-spacing: -.6em;
     font-family: var(--ds-font-kai);
     font-size: var(--ds-type-note);
+    word-spacing: -.75em;
     letter-spacing: .4em;
-    color: var(--ds-color-zhu);
+    color: var(--ds-color-ink-3);
   }
   .foot:has(> :empty) { visibility: hidden; }
   .heading {
@@ -61,6 +61,7 @@
     right: 96px;
     margin: 0;
     writing-mode: vertical-rl;
+    text-orientation: upright;
     font-size: var(--ds-type-title);
     font-weight: 200;
     letter-spacing: .08em;
@@ -81,7 +82,7 @@
     display: grid;
     grid-template-columns: 84px 1fr;
     align-items: baseline;
-    padding: var(--ds-space-5) 0;
+    padding: var(--ds-space-6) 0;
     border-bottom: 1px solid var(--ds-color-rule-light);
     font-size: var(--ds-type-body);
     font-weight: 400;
@@ -99,11 +100,11 @@
   @media (min-aspect-ratio: 9/10) and (max-aspect-ratio: 11/10) {
     .heading { top: 84px; right: 90px; letter-spacing: .04em; line-height: 1.2; }
     .items { top: 108px; }
-    .items li { padding: var(--ds-space-3) 0; }
+    .items li { padding: var(--ds-space-4) 0; }
   }
   @media (min-aspect-ratio: 2/1) {
     .spine { top: 30px; bottom: 30px; left: 36px; }
-    .foot { text-orientation: mixed; font-size: var(--ds-type-caption); letter-spacing: .1em; }
+    .foot { font-size: var(--ds-type-caption); letter-spacing: 0; }
     .heading { top: 30px; left: 144px; right: auto; writing-mode: horizontal-tb; font-size: var(--ds-type-sub); letter-spacing: .08em; line-height: 1.3; }
     .items { top: 114px; left: 144px; width: 726px; display: grid; grid-template-columns: 1fr 1fr; grid-auto-flow: column; grid-template-rows: repeat(4, auto); column-gap: var(--ds-space-5); border-top: 0; }
     .items li { grid-template-columns: 40px 1fr; padding: var(--ds-space-2) 0 var(--ds-space-1); font-size: var(--ds-type-caption); }

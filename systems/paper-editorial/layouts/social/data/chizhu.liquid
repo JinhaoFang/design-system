@@ -1,6 +1,6 @@
 {% comment %}
-尺注 chizhu：一条横贯画面的尺寸标注线（两端短竖线加细箭头，墨 1px），数值（Source Serif 300 display 档，公众号封面 title 档）在中间断开处；标签与 context 放在右下角的标题栏里（细线框成的小表格，heading 在左格）。
-朱色：heading 前一枚圈点。数值是单个槽位，单位 m 不能单独斜体。
+尺注 chizhu：像一张图纸。外围一道细墨线图框（1px，离画布边 space-6，公众号封面 space-4 且不画图框），横贯画面的尺寸标注线（两端短竖线加细箭头，墨 1px）落在画面视觉中心附近，数值（Source Serif 300 display 档，公众号封面 title 档）在中间断开处；标签与 context 放在右下角的标题栏里（细线框成的小表格，heading 在左格），标题栏右缘与标注线右端对齐。
+朱色：不用。数值是单个槽位，单位 m 不能单独斜体。
 {% endcomment %}
 <style>
   :scope {
@@ -22,11 +22,16 @@
     opacity: .45;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   }
+  .sheet {
+    position: absolute;
+    inset: var(--ds-space-6);
+    border: 1px solid var(--ds-color-ink);
+  }
   .dim {
     position: absolute;
-    left: 72px;
-    right: 72px;
-    top: 440px;
+    left: 96px;
+    right: 96px;
+    top: 566px;
     display: flex;
     align-items: center;
   }
@@ -56,8 +61,8 @@
   }
   .plate {
     position: absolute;
-    right: 72px;
-    bottom: 72px;
+    right: 96px;
+    bottom: 96px;
     width: 780px;
     box-sizing: border-box;
     display: grid;
@@ -75,15 +80,6 @@
     letter-spacing: .16em;
     line-height: 1.5;
     color: var(--ds-color-ink-3);
-  }
-  .head::before {
-    content: "";
-    display: block;
-    width: 18px;
-    height: 18px;
-    margin-bottom: var(--ds-space-3);
-    border-radius: 50%;
-    background: var(--ds-color-zhu);
   }
   .label {
     margin: 0;
@@ -103,9 +99,10 @@
   }
   .head:has(> :empty), .context:has(> :empty) { visibility: hidden; }
   @media (min-aspect-ratio: 9/10) and (max-aspect-ratio: 11/10) {
-    .dim { top: 250px; }
+    .dim { top: 380px; }
   }
   @media (min-aspect-ratio: 2/1) {
+    .sheet { display: none; }
     .dim { left: 48px; right: 48px; top: 36px; }
     .value { font-size: var(--ds-type-title); }
     .arm { height: 56px; }
@@ -115,6 +112,7 @@
     .context { padding: var(--ds-space-2) var(--ds-space-3); }
   }
 </style>
+<div class="sheet"></div>
 <div class="dim">
   <svg class="arm" aria-hidden="true"><line x1="0.5" y1="0" x2="0.5" y2="100%"/><line x1="0" y1="50%" x2="100%" y2="50%"/><path class="tip" d="M1 36L23 30V42Z"/></svg>
   <p class="value">{{ slots.value }}</p>

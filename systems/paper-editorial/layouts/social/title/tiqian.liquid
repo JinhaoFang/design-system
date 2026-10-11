@@ -1,6 +1,6 @@
 {% comment %}
 题签 tiqian：文武边栏框全幅，标题竖排在右（宋体 200，两列），副题与眉题依次排在其左，品牌落在左下朱印。公众号封面改横排，边栏收窄。
-朱色：眉题、朱印。按 title 5+4 字设计，标题宽度按 5 字折两列。
+朱色：眉题、朱印。按 title 5+4 字设计，标题宽度按 5 字折两列。竖排块统一 text-orientation: upright，字体用宋体栈（西文数字取宋体字形，每个数字占一格直立排；Chromium 不支持 text-combine-upright: digits），word-spacing 收掉中西文之间的空格；方形画幅上移并收紧副题字距以免撞内框。
 {% endcomment %}
 <style>
   :scope {
@@ -41,6 +41,9 @@
     flex-direction: column;
     align-items: flex-start;
     writing-mode: vertical-rl;
+    text-orientation: upright;
+    word-spacing: -.75em;
+    font-family: var(--ds-font-cjk);
   }
   .title {
     margin: 0;
@@ -56,7 +59,7 @@
     border-left: 1px solid var(--ds-color-rule-light);
     font-size: var(--ds-type-lead);
     font-weight: 600;
-    letter-spacing: .24em;
+    letter-spacing: .16em;
     line-height: 1.7;
   }
   .kicker {
@@ -77,6 +80,7 @@
     height: 180px;
     padding: var(--ds-space-2);
     writing-mode: vertical-rl;
+    text-orientation: upright;
     background: var(--ds-color-zhu);
     color: var(--ds-color-paper);
     font-family: var(--ds-font-kai);
@@ -85,6 +89,10 @@
     filter: url(#pe-rough);
   }
   .subtitle:has(> :empty), .kicker:has(> :empty) { display: none; }
+  @media (min-aspect-ratio: 9/10) and (max-aspect-ratio: 11/10) {
+    .cols { top: 120px; }
+    .subtitle { letter-spacing: .1em; }
+  }
   @media (min-aspect-ratio: 2/1) {
     .frame { inset: var(--ds-space-4); }
     .cols {

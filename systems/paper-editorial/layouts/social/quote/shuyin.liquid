@@ -1,6 +1,6 @@
 {% comment %}
 竖引 shuyin：金句竖排（宋体 200 head 档，两列，靠右起排），落款楷书朱色竖排在其左下，品牌小字横排在底边，不加边栏。
-方形画幅字号降到 sub 以保持两列；公众号封面改横排。朱色：仅落款。
+方形画幅字号降到 sub 以保持两列；公众号封面改横排。朱色：仅落款。竖排数字直立（text-orientation: upright，宋体字形，每个数字一格），列高（小红书 1110、方形 760）定在「250」之后、「万」之前换列，数字不被拆开。
 {% endcomment %}
 <style>
   :scope {
@@ -32,12 +32,15 @@
     align-items: flex-end;
     gap: var(--ds-space-8);
     writing-mode: vertical-rl;
+    text-orientation: upright;
+    word-spacing: -.75em;
+    font-family: var(--ds-font-cjk);
   }
   .quote {
     flex: none;
     align-self: flex-start;
     margin: 0;
-    height: 1195px;
+    height: 1110px;
     font-size: var(--ds-type-head);
     font-weight: 200;
     letter-spacing: .02em;
@@ -67,7 +70,7 @@
   .by:has(> :empty), .foot:has(> :empty) { visibility: hidden; }
   @media (min-aspect-ratio: 9/10) and (max-aspect-ratio: 11/10) {
     .stage { top: 110px; right: 150px; height: 800px; }
-    .quote { height: 830px; font-size: var(--ds-type-sub); line-height: 2.3; letter-spacing: .02em; }
+    .quote { height: 760px; font-size: var(--ds-type-sub); line-height: 2.3; letter-spacing: .02em; }
   }
   @media (min-aspect-ratio: 2/1) {
     .stage { top: 50px; left: 48px; right: 48px; height: auto; flex-direction: column; align-items: flex-start; gap: var(--ds-space-4); writing-mode: horizontal-tb; }

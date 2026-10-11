@@ -1,6 +1,6 @@
 {% comment %}
-界栏 jielan：标题宋体 600 sub 档，旁一个鱼尾；清单逐行横排，每行下一条 rule-light 发丝线，行首壹贰叁楷书朱色（CSS 计数器 simp-chinese-formal 生成），正文宋体 400（小红书 lead 档，方形 body 档）；footnote 在底部 ink-3。
-朱色：行首编号。公众号封面放不下 7 行，改为标题行加两栏清单（字号降到 caption），footnote 移到标题行右端。
+界栏 jielan：标题宋体 600 sub 档，旁一个鱼尾；清单逐行横排，每行下一条 rule-light 发丝线，行首壹贰叁楷书 ink-2（CSS 计数器 simp-chinese-formal 生成），正文宋体 400（小红书 lead 档，方形 body 档）；footnote 在底部 ink-3。
+朱色：不用。公众号封面放不下 7 行，改为标题行加两栏清单（字号降到 caption），footnote 移到标题行右端。
 {% endcomment %}
 <style>
   :scope {
@@ -67,7 +67,7 @@
     content: counter(n, simp-chinese-formal);
     font-family: var(--ds-font-kai);
     font-size: var(--ds-type-sub);
-    color: var(--ds-color-zhu);
+    color: var(--ds-color-ink-2);
   }
   .items::before {
     content: "";
