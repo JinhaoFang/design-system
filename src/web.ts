@@ -7,7 +7,9 @@
  * (SCROLL_SPEED px/s) after a short lead-in, holds briefly, and the file is saved as web-scroll.webm (VP8 25 fps).
  * Motion audit (motion-audit.ts): two extra passes at 1440, one with normal motion and one with reduced motion emulated, each scrolling down in steps so scroll-triggered entrances start; their animation records
  * are attached to the desktop snapshot only (snapshot.motion), so motion findings are reported once. buildWebPage embeds the entrance choreography script (choreography.ts) when given one.
- * checkWeb runs the rule set on both snapshots; findings that appear only at 390 get a "（手机宽度 390）" suffix, and a finding already reported at 1440 is not repeated.
+ * checkWeb runs the rule set (ALL_RULES, or the list passed in) on both snapshots; findings that appear only at 390 get a "（手机宽度 390）" suffix, and a finding already reported at 1440 is not repeated.
+ * Extras for pages that are not works (the system page, system-page.ts): WebPageInput.style / script add one <style> to the head and one inline script after the choreography script;
+ * RenderWebOptions.audit replaces the scroll-through that drives the two motion audit passes (it may click replay controls), and recording: false skips the scroll recording (no video is returned).
  */
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -19,7 +21,7 @@ import { collectSnapshot } from './checker/snapshot.ts';
 import type { PageSnapshot } from './checker/snapshot.ts';
 import { ALL_RULES } from './checker/rules/index.ts';
 import { runRules, sortFindings } from './checker/registry.ts';
-import type { CheckContext } from './checker/registry.ts';
+import type { CheckContext, Rule } from './checker/registry.ts';
 import { CARRIERS } from './carriers.ts';
 import type { FontEntry } from './library.ts';
 import { fontFaceCss, rootVarsCss } from './page.ts';
@@ -44,6 +46,13 @@ export interface WebPageInput {
   fonts: FontEntry[];
   unitsHtml: string[];
   choreography?: string;
+  style?: string;
+  script?: string;
+}
+
+export interface RenderWebOptions {
+  audit?: (page: Page) => Promise<void>;
+  recording?: boolean;
 }
 
 export function buildWebPage(input: WebPageInput): string {
@@ -58,12 +67,13 @@ ${fontFaceCss(input.fonts)}
 :root{${rootVarsCss(input.cssVars)}}
 html,body{margin:0;padding:0}
 </style>
+${input.style ? `<style>\n${input.style}\n</style>\n` : ''}
 </head>
 <body data-carrier="web">
 <main class="ds-flow">
 ${input.unitsHtml.join('\n')}
 </main>
-${input.choreography ? `<script>${input.choreography}</script>\n` : ''}</body>
+${input.choreography ? `<script>${input.choreography}</script>\n` : ''}${input.script ? `<script>${input.script}</script>\n` : ''}</body>
 </html>
 `;
 }
@@ -71,7 +81,7 @@ ${input.choreography ? `<script>${input.choreography}</script>\n` : ''}</body>
 export interface WebRender {
   index: string;
   images: string[];
-  video: string;
+  video?: string;
   snapshots: Record<WebViewport, PageSnapshot>;
 }
 
@@ -121,7 +131,7 @@ async function scrollToBottom(page: Page): Promise<void> {
   );
 }
 
-export async function renderWeb(input: WebPageInput & { outDir: string }): Promise<WebRender> {
+export async function renderWeb(input: WebPageInput & { outDir: string }, options: RenderWebOptions = {}): Promise<WebRender> {
   const index = join(input.outDir, 'index.html');
   await writeFile(index, buildWebPage(input));
   const url = pathToFileURL(index).href;
@@ -142,10 +152,13 @@ export async function renderWeb(input: WebPageInput & { outDir: string }): Promi
       await context.close();
     }
 
+    const step = options.audit ?? scrollThrough;
     snapshots.desktop.motion = {
-      animations: await auditMotion(browser, url, { viewport: WEB_VIEWPORTS.desktop, reducedMotion: 'no-preference', step: scrollThrough }),
-      reduced: await auditMotion(browser, url, { viewport: WEB_VIEWPORTS.desktop, reducedMotion: 'reduce', step: scrollThrough }),
+      animations: await auditMotion(browser, url, { viewport: WEB_VIEWPORTS.desktop, reducedMotion: 'no-preference', step }),
+      reduced: await auditMotion(browser, url, { viewport: WEB_VIEWPORTS.desktop, reducedMotion: 'reduce', step }),
     };
+
+    if (options.recording === false) return { index, images, snapshots };
 
     const recordings = await mkdtemp(join(tmpdir(), 'ds-web-video-'));
     try {
@@ -175,11 +188,11 @@ export async function renderWeb(input: WebPageInput & { outDir: string }): Promi
   }
 }
 
-export function checkWeb(snapshots: Record<WebViewport, PageSnapshot>, context: Omit<CheckContext, 'snapshot'>): Finding[] {
+export function checkWeb(snapshots: Record<WebViewport, PageSnapshot>, context: Omit<CheckContext, 'snapshot'>, rules: Rule[] = ALL_RULES): Finding[] {
   const key = (finding: Finding) => `${finding.ruleId}|${finding.location.selector ?? ''}|${finding.message}`;
-  const desktop = runRules(ALL_RULES, { ...context, snapshot: snapshots.desktop });
+  const desktop = runRules(rules, { ...context, snapshot: snapshots.desktop });
   const seen = new Set(desktop.map(key));
-  const mobile = runRules(ALL_RULES, { ...context, snapshot: snapshots.mobile })
+  const mobile = runRules(rules, { ...context, snapshot: snapshots.mobile })
     .filter((finding) => !seen.has(key(finding)))
     .map((finding) => ({ ...finding, message: `${finding.message}（手机宽度 ${WEB_VIEWPORTS.mobile.width}）` }));
   return sortFindings([...desktop, ...mobile]);

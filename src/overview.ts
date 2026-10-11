@@ -81,7 +81,7 @@ export function firstInstanceRefs(unit: string, slots: string[], content: Record
   return refs;
 }
 
-async function layoutsOf(systemDir: string, carrier: string, unit: string): Promise<string[]> {
+export async function layoutsOf(systemDir: string, carrier: string, unit: string): Promise<string[]> {
   try {
     return (await readdir(join(systemDir, 'layouts', carrier, unit)))
       .filter((name) => name.endsWith('.liquid'))

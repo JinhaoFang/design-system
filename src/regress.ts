@@ -2,8 +2,8 @@
  * Regression (回归): builds and checks everything the seed systems must keep passing. Systems directory convention: <systemsDir>/<id>/ is a system directory (SYSTEM.md, system.tokens.json, layouts/, ...)
  * and <systemsDir>/<id>/works/*.json are its standard-sample work descriptions (one file per work; a social work names its canvas, so three canvases are three files).
  * For every system (sub-directories of systemsDir, hidden ones skipped, in name order) it runs buildAndCheck on each sample and buildOverview (overview.ts) on the system, with the shared library.
- * Output under outDir: <id>/works/<file-stem>/ (build output of each sample) and <id>/overview/ (see overview.ts).
- * A system has problems when a sample or overview build has errors, any build fails validation, SYSTEM.md is missing, or there are no samples. exitCode is 1 when any system has problems, else 0;
+ * Output under outDir: <id>/works/<file-stem>/ (build output of each sample), <id>/overview/ (see overview.ts) and <id>/system/ (the system page, system-page.ts, linked to the overview and the samples beside it).
+ * A system has problems when a sample, overview or system page build has errors, any build fails validation, SYSTEM.md is missing, or there are no samples. exitCode is 1 when any system has problems, else 0;
  * a missing systems directory throws BuildError (usage failure). Every system is processed even when an earlier one has problems.
  * formatRegression renders the result as the text the command prints.
  */
@@ -13,6 +13,7 @@ import { buildAndCheck } from './build-and-check.ts';
 import type { CarrierId } from './carriers.ts';
 import { buildOverview } from './overview.ts';
 import type { OverviewResult } from './overview.ts';
+import { buildSystemPage } from './system-page.ts';
 import { BuildError } from './types.ts';
 
 export interface RegressOptions {
@@ -37,6 +38,7 @@ export interface SystemOutcome {
   dir: string;
   samples: SampleOutcome[];
   overview?: OverviewResult;
+  systemPage?: { exitCode: 0 | 1; errors: number; warnings: number; outDir: string };
   problems: string[];
 }
 
@@ -121,6 +123,23 @@ async function regressSystem(options: RegressOptions, id: string): Promise<Syste
     if (!(error instanceof BuildError)) throw error;
     outcome.problems.push(`排法总览无法生成：${error.issues.join('；')}`);
   }
+  const pageOut = join(options.outDir, id, 'system');
+  try {
+    const page = await buildSystemPage({
+      systemDir: dir,
+      outDir: pageOut,
+      libraryDir: options.libraryDir,
+      ...(options.fontCacheDir !== undefined && { fontCacheDir: options.fontCacheDir }),
+      overviewDir: join(options.outDir, id, 'overview'),
+      worksDir: join(options.outDir, id, 'works'),
+    });
+    const { errors, warnings } = page.report.summary;
+    outcome.systemPage = { exitCode: page.exitCode, errors, warnings, outDir: pageOut };
+    if (errors > 0) outcome.problems.push(`体系总览页有 ${errors} 个错误（${page.artifacts.reportMarkdown}）`);
+  } catch (error) {
+    if (!(error instanceof BuildError)) throw error;
+    outcome.problems.push(`体系总览页无法生成：${error.issues.join('；')}`);
+  }
   return outcome;
 }
 
@@ -136,7 +155,7 @@ export function formatRegression(result: RegressResult): string {
   const lines: string[] = [];
   for (const system of result.systems) {
     const builds = system.overview?.builds.length ?? 0;
-    lines.push(`${system.problems.length ? '失败' : '通过'}  ${system.id}（${system.samples.length} 份标准样张，${builds} 个排法总览构建）`);
+    lines.push(`${system.problems.length ? '失败' : '通过'}  ${system.id}（${system.samples.length} 份标准样张，${builds} 个排法总览构建，${system.systemPage ? '含' : '无'}体系总览页）`);
     for (const problem of system.problems) lines.push(`  - ${problem}`);
   }
   const failed = result.systems.filter((system) => system.problems.length > 0).length;

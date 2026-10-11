@@ -6,6 +6,7 @@
  * validateSystem is the first stage on its own (the validate-system subcommand): SYSTEM.md, token file, font references and system units; it throws one BuildError listing every problem.
  * Image ids referenced by the work (briefs in <library>/content/images.json) are resolved to files in <system>/images/ and copied into outDir/images/ (assets.ts); a missing id fails the build before rendering.
  * Entrance choreography attributes (data-ds-enter and friends, choreography.ts) in the rendered units are validated against the system's tokens before rendering.
+ * copyFonts (copy the used font files from the cache into outDir/fonts) is exported for other page builders (system-page.ts).
  * Validation problems (bad system, work, fonts or image files) throw BuildError before or during rendering and produce no report. Carriers without a renderer yet (see RENDERABLE_CARRIERS) fail after validation.
  */
 import { copyFile, mkdir, writeFile } from 'node:fs/promises';
@@ -100,7 +101,7 @@ export async function validateSystem(options: ValidateOptions): Promise<Validate
   return { meta: doc.meta, tokens: tokenFile.parsed, manifest, skeletons };
 }
 
-async function copyFonts(fontCacheDir: string, fonts: FontEntry[], outDir: string): Promise<void> {
+export async function copyFonts(fontCacheDir: string, fonts: FontEntry[], outDir: string): Promise<void> {
   await mkdir(join(outDir, 'fonts'), { recursive: true });
   for (const font of fonts) {
     try {
