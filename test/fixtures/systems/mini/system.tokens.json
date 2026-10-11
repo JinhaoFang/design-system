@@ -65,8 +65,8 @@
       "$value": [
         {
           "color": { "colorSpace": "oklch", "components": [0.27, 0.02, 60], "alpha": 0.12 },
-          "offsetX": { "value": 2, "unit": "px" },
-          "offsetY": { "value": 4, "unit": "px" },
+          "offsetX": { "value": 4, "unit": "px" },
+          "offsetY": { "value": 6, "unit": "px" },
           "blur": { "value": 12, "unit": "px" },
           "spread": { "value": 0, "unit": "px" }
         }

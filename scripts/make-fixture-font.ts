@@ -2,7 +2,7 @@
  * Regenerates the fixture font: a woff2 subset of Noto Sans SC Regular (SIL OFL 1.1).
  * Run: pnpm fixture-font   (downloads the pinned source OTF into .cache/ on first use, checks its sha256)
  * Output: test/fixtures/font-cache/NotoSansSC-Regular.subset.woff2
- * Glyph set: printable ASCII + common Chinese punctuation + every character found in test/fixtures text files, in library/content (the shared standard-sample content tests build) and in test/*.ts (works built inside tests),
+ * Glyph set: printable ASCII + common Chinese punctuation + every character found in test/fixtures text files, in library/content (the shared standard-sample content tests build) and in test/*.ts (works built inside tests), and in the page text of the system page (src/system-page.ts, src/system-page-html.ts),
  * minus UNCOVERED, the characters the font checker fixtures rely on being absent (a CJK character the subset lacks, so a system font draws it; a private-use character no font has).
  * After adding fixture text with new characters, rerun this script and commit the result.
  * The OFL text sits in test/fixtures/library/fonts/OFL.txt; the subset keeps the original name table (copyright, license URL).
@@ -59,6 +59,9 @@ async function glyphText(): Promise<string> {
   }
   for (const file of await readdir(testDir)) {
     if (file.endsWith('.ts')) for (const ch of await readFile(join(testDir, file), 'utf8')) chars.add(ch);
+  }
+  for (const file of ['system-page.ts', 'system-page-html.ts']) {
+    for (const ch of await readFile(join(root, 'src', file), 'utf8')) chars.add(ch);
   }
   for (const ch of UNCOVERED) chars.delete(ch);
   chars.delete('\n');

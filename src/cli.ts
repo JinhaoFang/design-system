@@ -3,10 +3,13 @@
  *                     node src/cli.ts validate-system --system <dir> [--library <dir>]   (only the system validation stage; nothing is rendered)
  *                     node src/cli.ts fetch-fonts [--library <dir>] [--font-cache <dir>] [--font <id>...]   (download the font list into the local font cache, verify checksums)
  *                     node src/cli.ts overview --system <dir> --out <dir> [--library <dir>] [--font-cache <dir>] [--carrier <id>...] [--canvas <id>...]   (layout overview: every layout of every unit once, built and checked)
+ *                     node src/cli.ts system-page --system <dir> --out <dir> [--library <dir>] [--font-cache <dir>] [--overview-dir <dir>] [--works-dir <dir>]   (system page 体系总览页: one interactive page for the system; not the layout overview)
+ *                     node src/cli.ts preview --dir <dir> [--port <n>] [--host <addr>]   (local static server for any output directory, with a navigation index at /; runs until interrupted)
  *                     node src/cli.ts regress [--systems <dir>] [--out <dir>] [--library <dir>] [--font-cache <dir>]   (every system under <systems>/<id>/: its works/*.json and its layout overview; exit 1 on any error)
  *                     node src/cli.ts validate-exemplars [--library <dir>]   (exemplar library completeness; see exemplar-command.ts)
  *                     node src/cli.ts list-exemplars [--source external|copy|original] [--paths] [--library <dir>]
  * Exit status: 0 = built / valid / fetched, no errors in the report; 1 = the report has errors; 2 = usage problem or validation failure (reason on stderr, no report).
+ * system-page exits like build (0 = no errors on the page, 1 = errors, 2 = validation failure); preview prints the address and keeps running (2 = missing directory or port in use).
  * overview and regress exit like build: 0 = no errors, 1 = some build has errors, 2 = usage problem or a validation failure that stops the whole command.
  * --font-cache defaults to .cache/fonts (git-ignored); --systems defaults to systems, --out of regress to out/regress.
  */
@@ -18,7 +21,9 @@ import { CARRIERS, SOCIAL_CANVASES } from './carriers.ts';
 import type { CarrierId } from './carriers.ts';
 import { DEFAULT_FONT_CACHE } from './fonts.ts';
 import { buildOverview } from './overview.ts';
+import { startPreview } from './preview.ts';
 import { formatRegression, regress } from './regress.ts';
+import { buildSystemPage } from './system-page.ts';
 import { EXEMPLAR_COMMANDS, exemplarCommand } from './exemplar-command.ts';
 import { BuildError } from './types.ts';
 
@@ -27,6 +32,8 @@ const USAGE = [
   '       node src/cli.ts validate-system --system <dir> [--library <dir>]',
   '       node src/cli.ts fetch-fonts [--library <dir>] [--font-cache <dir>] [--font <id>...]',
   '       node src/cli.ts overview --system <dir> --out <dir> [--library <dir>] [--font-cache <dir>] [--carrier <id>...] [--canvas <id>...]',
+  '       node src/cli.ts system-page --system <dir> --out <dir> [--library <dir>] [--font-cache <dir>] [--overview-dir <dir>] [--works-dir <dir>]',
+  '       node src/cli.ts preview --dir <dir> [--port <n>] [--host <addr>]',
   '       node src/cli.ts regress [--systems <dir>] [--out <dir>] [--library <dir>] [--font-cache <dir>]',
   '       node src/cli.ts validate-exemplars [--library <dir>]',
   '       node src/cli.ts list-exemplars [--source external|copy|original] [--paths] [--library <dir>]',
@@ -34,7 +41,7 @@ const USAGE = [
 
 async function main(argv: string[]): Promise<number> {
   const [command, ...rest] = argv;
-  const commands = ['build', 'validate-system', 'fetch-fonts', 'overview', 'regress'];
+  const commands = ['build', 'validate-system', 'fetch-fonts', 'overview', 'regress', 'system-page', 'preview'];
   if (command !== undefined && EXEMPLAR_COMMANDS.includes(command)) {
     return exemplarCommand(command, rest);
   }
@@ -54,10 +61,24 @@ async function main(argv: string[]): Promise<number> {
       carrier: { type: 'string', multiple: true },
       canvas: { type: 'string', multiple: true },
       systems: { type: 'string', default: 'systems' },
+      'overview-dir': { type: 'string' },
+      'works-dir': { type: 'string' },
+      dir: { type: 'string' },
+      port: { type: 'string' },
+      host: { type: 'string' },
     },
   });
-  const needsSystem = command === 'build' || command === 'validate-system' || command === 'overview';
-  const needsOut = command === 'build' || command === 'overview';
+  const needsSystem = command === 'build' || command === 'validate-system' || command === 'overview' || command === 'system-page';
+  const needsOut = command === 'build' || command === 'overview' || command === 'system-page';
+  const port = values.port === undefined ? undefined : Number(values.port);
+  if (port !== undefined && !(Number.isInteger(port) && port >= 0 && port <= 65535)) {
+    console.error(`端口必须是 0-65535 的整数：${values.port}\n${USAGE}`);
+    return 2;
+  }
+  if (command === 'preview' && !values.dir) {
+    console.error(USAGE);
+    return 2;
+  }
   if ((needsSystem && !values.system) || (needsOut && !values.out) || (command === 'build' && !values.work)) {
     console.error(USAGE);
     return 2;
@@ -87,6 +108,28 @@ async function main(argv: string[]): Promise<number> {
       for (const failure of result.failures) console.error(`构建失败 ${failure.label}：${failure.issues.join('；')}`);
       console.log(`汇总：${result.summary}`);
       return result.exitCode;
+    }
+    if (command === 'system-page') {
+      const result = await buildSystemPage({
+        systemDir: resolve(values.system!),
+        outDir: resolve(values.out!),
+        libraryDir: resolve(values.library),
+        fontCacheDir: resolve(values['font-cache']),
+        ...(values['overview-dir'] && { overviewDir: resolve(values['overview-dir']) }),
+        ...(values['works-dir'] && { worksDir: resolve(values['works-dir']) }),
+      });
+      const { errors, warnings } = result.report.summary;
+      console.log(`${errors} 个错误，${warnings} 个警告。体系总览页：${result.artifacts.index}`);
+      console.log(`报告：${result.artifacts.reportMarkdown}`);
+      return result.exitCode;
+    }
+    if (command === 'preview') {
+      const server = await startPreview({ dir: resolve(values.dir!), ...(port !== undefined && { port }), ...(values.host && { host: values.host }) });
+      console.log(`预览服务已启动：${server.url}（导航入口在根路径，Ctrl+C 结束）\n目录：${server.dir}`);
+      await new Promise<void>((done) => {
+        for (const signal of ['SIGINT', 'SIGTERM'] as const) process.once(signal, () => void server.close().then(done));
+      });
+      return 0;
     }
     if (command === 'regress') {
       const result = await regress({

@@ -224,7 +224,7 @@ describe('CSS custom properties from the token file', () => {
     expect(html).toContain('--ds-font-cjk:"Noto Sans SC"');
     expect(html).toContain('--ds-easing-settle:cubic-bezier(0.2, 0.8, 0.2, 1)');
     expect(html).toContain('--ds-spring-soft-damping:24');
-    expect(html).toContain('--ds-shadow-raised:2px 4px 12px 0px oklch(0.27 0.02 60 / 0.12)');
+    expect(html).toContain('--ds-shadow-raised:4px 6px 12px 0px oklch(0.27 0.02 60 / 0.12)');
     expect(html).toContain('--ds-grain-max:0.04');
   });
 
