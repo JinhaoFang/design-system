@@ -10,7 +10,8 @@
     "ds": "node src/cli.ts",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
-    "fixture-font": "node scripts/make-fixture-font.ts"
+    "fixture-font": "node scripts/make-fixture-font.ts",
+    "proto:paper": "node prototypes/paper-editorial/serve.mjs"
   },
   "dependencies": {
     "culori": "4.0.2",
