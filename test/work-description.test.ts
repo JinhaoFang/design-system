@@ -1,6 +1,6 @@
 /* Behavior tests for the work description format (list and image slots, shared content refs, custom fragments, carrier checks), the generated CSS custom properties and the validate-system subcommand. */
 import { execFile } from 'node:child_process';
-import { readFile } from 'node:fs/promises';
+import { mkdir, readFile, symlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
 import { describe, expect, test } from 'vitest';
@@ -140,6 +140,70 @@ describe('custom fragments', () => {
 
   test('a custom fragment cannot also name a unit', async () => {
     await expect(run(await customWork({ custom: fragment('red'), serves: 'x', unit: 'title' }))).rejects.toThrow(/不能同时/);
+  });
+});
+
+describe('custom fragment files', () => {
+  const css = (color: string) =>
+    `<style>:scope{box-sizing:border-box;width:100%;height:100%;padding:48px;background:var(--ds-color-paper);color:${color};font-family:var(--ds-font-body);font-size:var(--ds-type-1)}p{margin:0}</style><p>像一本手册的扉页</p>`;
+  const withFragments = (files: Record<string, string>) =>
+    patchedSystem(async (dir) => {
+      for (const [name, content] of Object.entries(files)) await writeFileDeep(join(dir, 'works', name), content);
+    });
+  const fileWork = (custom: unknown, extra: Record<string, unknown> = {}) =>
+    patchedWork('clean', (w) => {
+      w.sequence = [{ custom, serves: '开场的扉页', ...extra }];
+    });
+
+  test('a fragment file in the system works/fragments folder builds and is checked like an inline fragment', async () => {
+    const systemDir = await withFragments({ 'fragments/clean.html': css('var(--ds-color-ink)'), 'fragments/dirty.html': css('#000') });
+    const clean = await run(await fileWork({ file: 'fragments/clean.html' }), { systemDir });
+    expect(clean.report.findings).toEqual([]);
+    expect(await readFile(clean.artifacts.index, 'utf8')).toContain('像一本手册的扉页');
+    const dirty = await run(await fileWork({ file: 'fragments/dirty.html' }), { systemDir });
+    expect(dirty.report.findings).toEqual([
+      expect.objectContaining({ ruleId: 'texture-floor/pure-black-white', location: expect.objectContaining({ unit: 'custom' }) }),
+    ]);
+  });
+
+  test('a missing fragment file is a validation failure naming the file', async () => {
+    const systemDir = await withFragments({});
+    await expect(run(await fileWork({ file: 'fragments/nope.html' }), { systemDir })).rejects.toThrow(/fragments\/nope\.html[\s\S]*不存在/);
+  });
+
+  test.each([
+    ['a parent directory escape', '../SYSTEM.md'],
+    ['an escape hidden behind fragments/', 'fragments/../../SYSTEM.md'],
+    ['an absolute path', '/etc/hostname'],
+    ['a file outside fragments/', 'other/box.html'],
+    ['a file that is not .html', 'fragments/box.txt'],
+  ])('%s is rejected', async (_name, file) => {
+    const systemDir = await withFragments({ 'fragments/box.txt': 'x', 'other/box.html': 'x' });
+    await expect(run(await fileWork({ file }), { systemDir })).rejects.toThrow(/fragments/);
+  });
+
+  test('a symlink inside fragments/ that points outside the system is rejected', async () => {
+    const systemDir = await withFragments({});
+    await mkdir(join(systemDir, 'works', 'fragments'), { recursive: true });
+    await symlink(join(systemDir, 'SYSTEM.md'), join(systemDir, 'works', 'fragments', 'link.html'));
+    await expect(run(await fileWork({ file: 'fragments/link.html' }), { systemDir })).rejects.toThrow(/fragments/);
+  });
+
+  test('an empty fragment file fails', async () => {
+    const systemDir = await withFragments({ 'fragments/empty.html': '  \n' });
+    await expect(run(await fileWork({ file: 'fragments/empty.html' }), { systemDir })).rejects.toThrow(/empty\.html[\s\S]*空/);
+  });
+
+  test('a fragment file still needs serves', async () => {
+    const systemDir = await withFragments({ 'fragments/clean.html': css('var(--ds-color-ink)') });
+    const path = await patchedWork('clean', (w) => {
+      w.sequence = [{ custom: { file: 'fragments/clean.html' } }];
+    });
+    await expect(run(path, { systemDir })).rejects.toThrow(/serves/);
+  });
+
+  test('custom must be a string or an object with a file name', async () => {
+    await expect(run(await fileWork({ path: 'fragments/a.html' }))).rejects.toThrow(/custom[\s\S]*file/);
   });
 });
 
