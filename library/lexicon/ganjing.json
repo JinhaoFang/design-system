@@ -10,7 +10,7 @@
   "interpretations": [
     {
       "name": "纯白留白",
-      "description": "白底黑字，只有一个强调色，元素之间间距宽松；像一张刚铺好的白纸。",
+      "description": "暖白底墨色字，只有一个强调色，元素之间间距宽松；像一张刚铺好的白纸。",
       "materialAnchor": "暖白哑光纸上的油墨印刷，大面积留白",
       "tonality": {
         "静动": 1,
@@ -31,7 +31,8 @@
         "status": "pending"
       },
       "approval": {
-        "status": "candidate"
+        "status": "approved",
+        "date": "2026-10-11"
       }
     },
     {
@@ -59,7 +60,8 @@
         "status": "pending"
       },
       "approval": {
-        "status": "candidate"
+        "status": "approved",
+        "date": "2026-10-11"
       }
     },
     {
@@ -87,7 +89,8 @@
         "status": "pending"
       },
       "approval": {
-        "status": "candidate"
+        "status": "rejected",
+        "date": "2026-10-11"
       }
     }
   ]

@@ -36,12 +36,13 @@
         ]
       },
       "approval": {
-        "status": "candidate"
+        "status": "approved",
+        "date": "2026-10-11"
       }
     },
     {
       "name": "黑白强对比",
-      "description": "纯黑纯白，粗线条，特写摄影，没有灰；强烈，像一记闷棍。",
+      "description": "近黑与纸白两色，粗线条，特写摄影，几乎没有中间灰；强烈，像一记闷棍。",
       "materialAnchor": "高反差的黑白复印",
       "tonality": {
         "静动": 3,
@@ -58,13 +59,14 @@
       "recommendation": {
         "system": "临时方向",
         "borrowLayoutsFrom": "riso-print",
-        "direction": "纯黑纯白的粗线条与高反差特写，排法借孔版印刷的大色块与错位叠放。"
+        "direction": "近黑与纸白的粗线条与高反差特写，不用纯黑纯白，排法借孔版印刷的大色块与错位叠放。"
       },
       "samples": {
         "status": "pending"
       },
       "approval": {
-        "status": "candidate"
+        "status": "approved",
+        "date": "2026-10-11"
       }
     },
     {
@@ -92,7 +94,8 @@
         "status": "pending"
       },
       "approval": {
-        "status": "candidate"
+        "status": "approved",
+        "date": "2026-10-11"
       }
     }
   ]

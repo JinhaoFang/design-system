@@ -33,12 +33,13 @@
         "status": "pending"
       },
       "approval": {
-        "status": "candidate"
+        "status": "approved",
+        "date": "2026-10-11"
       }
     },
     {
       "name": "大理石黄铜",
-      "description": "白大理石纹作底，拉丝黄铜的线条与角标；像高档公寓的大堂。",
+      "description": "冷白石色的底，黄铜色的细线与角标，字距宽、对称；像高档公寓的大堂。石材只取颜色和冷静的分量，不贴大理石纹。",
       "materialAnchor": "白大理石与拉丝黄铜",
       "tonality": {
         "静动": 1,
@@ -55,13 +56,14 @@
       "recommendation": {
         "system": "临时方向",
         "borrowLayoutsFrom": "paper-editorial",
-        "direction": "白大理石纹作底配黄铜线条，排法借纸本编辑的居中版式。"
+        "direction": "冷白石色底配黄铜色细线与角标，不贴石纹贴图，排法借纸本编辑的居中版式。"
       },
       "samples": {
         "status": "pending"
       },
       "approval": {
-        "status": "candidate"
+        "status": "approved",
+        "date": "2026-10-11"
       }
     },
     {
@@ -89,7 +91,8 @@
         "status": "pending"
       },
       "approval": {
-        "status": "candidate"
+        "status": "approved",
+        "date": "2026-10-11"
       }
     }
   ]

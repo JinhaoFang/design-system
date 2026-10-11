@@ -36,7 +36,8 @@
         ]
       },
       "approval": {
-        "status": "candidate"
+        "status": "approved",
+        "date": "2026-10-11"
       }
     },
     {
@@ -64,12 +65,13 @@
         "status": "pending"
       },
       "approval": {
-        "status": "candidate"
+        "status": "approved",
+        "date": "2026-10-11"
       }
     },
     {
       "name": "产品发布会",
-      "description": "纯黑或纯白底，一个超大的产品图，字极少；随滚动一步步展开细节，像新品发布会。",
+      "description": "近黑或纸白的底色，一个超大的产品图，字极少；随滚动一步步展开细节，像新品发布会。",
       "materialAnchor": "展台上被聚光灯打亮的金属产品",
       "tonality": {
         "静动": 3,
@@ -86,13 +88,14 @@
       "recommendation": {
         "system": "临时方向",
         "borrowLayoutsFrom": "precision-industrial",
-        "direction": "纯底色配超大产品图与极少文字，排法借精密工业的居中版式，滚动驱动细节展开。"
+        "direction": "近黑或纸白的底色配超大产品图与极少文字，排法借精密工业的居中版式，滚动驱动细节展开。"
       },
       "samples": {
         "status": "pending"
       },
       "approval": {
-        "status": "candidate"
+        "status": "approved",
+        "date": "2026-10-11"
       }
     }
   ]

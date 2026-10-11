@@ -33,7 +33,8 @@
         "status": "pending"
       },
       "approval": {
-        "status": "candidate"
+        "status": "approved",
+        "date": "2026-10-11"
       }
     },
     {
@@ -61,13 +62,14 @@
         "status": "pending"
       },
       "approval": {
-        "status": "candidate"
+        "status": "approved",
+        "date": "2026-10-11"
       }
     },
     {
       "name": "冷峻极简",
-      "description": "黑白灰，大量留白，字细而冷，不主动讨好；酷在不说话。",
-      "materialAnchor": "黑白灰的哑光纸",
+      "description": "近黑、纸白和冷灰，大量留白，字细而冷，不主动讨好；酷在不说话。",
+      "materialAnchor": "冷灰哑光纸上的黑墨印刷",
       "tonality": {
         "静动": 1,
         "疏密": 1,
@@ -83,13 +85,14 @@
       "recommendation": {
         "system": "临时方向",
         "borrowLayoutsFrom": "paper-editorial",
-        "direction": "黑白灰的冷色调配细无衬线字，大面积留白、没有装饰，排法借纸本编辑的单栏留白版式，中性色偏冷。"
+        "direction": "冷灰哑光纸色配近黑细字，大面积留白、没有装饰，排法借纸本编辑的单栏留白版式，中性色偏冷。"
       },
       "samples": {
         "status": "pending"
       },
       "approval": {
-        "status": "candidate"
+        "status": "approved",
+        "date": "2026-10-11"
       }
     }
   ]

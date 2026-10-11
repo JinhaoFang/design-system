@@ -31,7 +31,7 @@
   - 每种解读：`name`、`description`（大白话，要落到色彩、字体、版面、动效等具体决定上）、`materialAnchor`、`tonality`（五个键同范例，值 1–5）、`composition`（构图比率倾向，`跳跃率`、`版面率`、`图版率` 三个键，值 `低` / `中` / `高`）、`recommendation`、`samples`、`approval`。
   - `recommendation`：`{"system": "paper-editorial" | "precision-industrial" | "riso-print"}`，或临时方向 `{"system": "临时方向", "borrowLayoutsFrom": <种子体系>, "direction": <一句话方向>}`。
   - `samples`：`{"status": "pending"}`（待补）或 `{"status": "present", "exemplars": [范例标识...]}`，标识必须在 `library/exemplars/` 中存在。样图可以在任何确认状态下待补。
-  - `approval`：按解读逐条确认，规则同范例（候选不带 `date`，已批准和已拒绝必须带 `YYYY-MM-DD`）。agent 只提交候选。
+  - `approval`：按解读逐条确认，格式同范例（候选不带 `date`，已批准和已拒绝必须带 `YYYY-MM-DD`）。词典由 agent 负责确认（需求方 2026-10-11 授权，他不是设计领域的）：新解读先以候选提交，agent 按美学立场和工艺规范审过后改为批准或拒绝；与工艺规范冲突的（纯黑纯白、写实贴图、等大卡片、应用界面）改写或拒绝。
   - 校验：`pnpm ds validate-lexicon [--library <目录>]`，退出状态 0 表示全部完整，1 表示有问题（逐条打印在 stderr，写明词条标识和字段）。
   - 列出：`pnpm ds list-lexicon [--status candidate|approved|rejected] [--system <种子体系>|临时方向] [--library <目录>]`，每种解读一行（词条标识、词、解读名、推荐体系、确认状态、样图标识或「待补」，制表符分隔）；状态或体系写错时退出状态 2。
 - 测试：`pnpm test`。测试只通过 `buildAndCheck()`（`src/build-and-check.ts`，命令行入口 `src/cli.ts` 是它的薄封装）以及它之上的 `buildOverview()`（`src/overview.ts`）、`regress()`（`src/regress.ts`）驱动夹具体系和夹具作品，断言报告和产物规格，不测内部函数，不做像素比对。范例库的测试在 `test/exemplars.test.ts`，通过 `validateExemplars()` 和 `listExemplars()` 两个入口及 CLI 命令驱动临时目录里的范例。

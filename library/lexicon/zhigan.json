@@ -10,7 +10,7 @@
   "interpretations": [
     {
       "name": "真实材料",
-      "description": "实拍的纸纹、布纹、木纹和金属，光影真实，近看能摸出来；质感来自材料的真实感。",
+      "description": "纸、布、木、金属的实拍特写当图像主角，光影真实，近看能摸出来；照片是画面里的图，不当背景贴图铺满。",
       "materialAnchor": "实拍的纸、布、木与金属材料特写",
       "tonality": {
         "静动": 2,
@@ -27,13 +27,14 @@
       "recommendation": {
         "system": "临时方向",
         "borrowLayoutsFrom": "paper-editorial",
-        "direction": "实拍材料特写作为底，排法借纸本编辑的图文版式，光影保持真实。"
+        "direction": "材料实拍特写作为图版，四周留底色，排法借纸本编辑的图文版式，光影保持真实。"
       },
       "samples": {
         "status": "pending"
       },
       "approval": {
-        "status": "candidate"
+        "status": "approved",
+        "date": "2026-10-11"
       }
     },
     {
@@ -61,7 +62,8 @@
         "status": "pending"
       },
       "approval": {
-        "status": "candidate"
+        "status": "approved",
+        "date": "2026-10-11"
       }
     },
     {
@@ -87,7 +89,8 @@
         "status": "pending"
       },
       "approval": {
-        "status": "candidate"
+        "status": "approved",
+        "date": "2026-10-11"
       }
     }
   ]
