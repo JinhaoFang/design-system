@@ -4,7 +4,7 @@
  * Every finding gets location.slide = n. Rules run once per slide with CheckContext.slide set; the work description is passed whole.
  * After the last slide the same page is printed to slides.pdf (print media stacks every slide, entered ones already in their final state): one 1920x1080px page per slide.
  * Motion audit (motion-audit.ts): before the still pass, two audit passes (normal motion, reduced motion emulated) flip through every slide and record the animations each slide starts; each slide's records become its snapshot.motion.
- * The built page embeds the entrance choreography script (choreography.ts). The two motion record lists are returned for the build report.
+ * The built page embeds the entrance choreography script (choreography.ts). The two motion record lists are saved only in motion.json; its path is returned to the build pipeline.
  * Recording: a second context with recordVideo (real time, 1920x1080) opens the page, waits for fonts only, then presses ArrowRight through the deck, waiting for dsSlides.entered() and holding HOLD_MS on each slide.
  * Stills use data-render="static" to bypass page turns and declarative entrances; print also strips wrapper transforms, shade and projection. motion.json preserves both audit passes.
  * Outputs in outDir: index.html, slide-<nn>.png (exact 1920x1080), slides.pdf, slides.webm, motion.json.
@@ -46,7 +46,7 @@ export interface SlidesOutput {
   pdf: string;
   video: string;
   findings: Finding[];
-  motion: MotionSnapshot;
+  motionJson: string;
 }
 
 function slideFileName(number: number, count: number): string {
@@ -100,6 +100,7 @@ export async function buildSlides(input: SlidesInput): Promise<SlidesOutput> {
 
   const pdf = join(outDir, 'slides.pdf');
   const video = join(outDir, 'slides.webm');
+  const motionJson = join(outDir, 'motion.json');
   const images: string[] = [];
   const findings: Finding[] = [];
   let motion: MotionSnapshot;
@@ -111,7 +112,7 @@ export async function buildSlides(input: SlidesInput): Promise<SlidesOutput> {
       animations: await auditMotion(browser, pathToFileURL(index).href, { ...audit, reducedMotion: 'no-preference' }),
       reduced: await auditMotion(browser, pathToFileURL(index).href, { ...audit, reducedMotion: 'reduce' }),
     };
-    await writeFile(join(outDir, 'motion.json'), `${JSON.stringify(motion, null, 2)}\n`);
+    await writeFile(motionJson, `${JSON.stringify(motion, null, 2)}\n`);
     const context = await browser.newContext({
       viewport: { width: SLIDE_WIDTH, height: SLIDE_HEIGHT },
       deviceScaleFactor: 1,
@@ -147,5 +148,5 @@ export async function buildSlides(input: SlidesInput): Promise<SlidesOutput> {
   } finally {
     await browser.close();
   }
-  return { index, images, pdf, video, findings: sortFindings(findings), motion };
+  return { index, images, pdf, video, findings: sortFindings(findings), motionJson };
 }

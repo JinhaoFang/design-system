@@ -9,14 +9,17 @@ import { chromium } from 'playwright';
 import type { Browser, Page } from 'playwright';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import type { BuildResult } from '../src/build-and-check.ts';
+import type { MotionSnapshot } from '../src/checker/motion-audit.ts';
 import { fixtures, patchedWork, pngSize, repoRoot, run } from './helpers.ts';
-import { editJson, patchedSystem, tokensFile } from './system-helpers.ts';
+import { editJson, editText, patchedSystem, tokensFile } from './system-helpers.ts';
+import { transitionSystem } from './slides-transition-fixture.ts';
 
 const EFFECTS = ['draw-x', 'draw-y', 'stamp', 'peel-left', 'peel-right', 'peel-up', 'peel-down'];
 const SIZES = { web: { width: 1440, height: 900 }, slides: { width: 1920, height: 1080 } };
 const results = {} as Record<'web' | 'slides', BuildResult>;
 let browser: Browser;
 let systemDir: string;
+let transitioned: BuildResult;
 
 beforeAll(async () => {
   systemDir = await patchedSystem(async (dir) => {
@@ -25,6 +28,11 @@ beforeAll(async () => {
   });
   results.web = await run(fixtures.work('web-entrance-actions'), { systemDir });
   results.slides = await run(fixtures.work('slides-entrance-actions'), { systemDir });
+  const turnSystem = await transitionSystem();
+  await cp(join(repoRoot, 'test/fixtures/entrance'), turnSystem, { recursive: true });
+  await editJson(tokensFile(turnSystem), (json) => { json.motion = { stampScale: { $type: 'number', $value: 1.5 } }; });
+  await editText(join(turnSystem, 'works/fragments/entrance-actions.html'), (html) => html.replaceAll('<p>发布二点零</p>', '<p data-ds-enter="fade">发布二点零</p>'));
+  transitioned = await run(fixtures.work('slides-entrance-actions'), { systemDir: turnSystem });
   browser = await chromium.launch();
 });
 
@@ -47,14 +55,16 @@ async function coverStates(page: Page) {
 }
 
 describe.each(['web', 'slides'] as const)('%s entrance actions', (carrier) => {
-  test('layouts and custom fragments are clean, with correct motion records in the report', async () => {
+  test('layouts and custom fragments are clean, with motion records stored only in motion.json', async () => {
     const result = results[carrier];
     expect(result.exitCode).toBe(0);
     expect(result.report.findings).toEqual([]);
     const written = JSON.parse(await readFile(result.artifacts.reportJson, 'utf8'));
-    expect(written.motion).toEqual(result.report.motion);
-    const normal = result.report.motion!.animations.filter((record) => EFFECTS.includes(record.entrance ?? ''));
-    const reduced = result.report.motion!.reduced.filter((record) => EFFECTS.includes(record.entrance ?? ''));
+    expect(written).not.toHaveProperty('motion');
+    expect(result.report).not.toHaveProperty('motion');
+    const motion: MotionSnapshot = JSON.parse(await readFile(result.artifacts.motionJson!, 'utf8'));
+    const normal = motion.animations.filter((record) => EFFECTS.includes(record.entrance ?? ''));
+    const reduced = motion.reduced.filter((record) => EFFECTS.includes(record.entrance ?? ''));
     expect(normal).toHaveLength(14);
     expect(reduced).toHaveLength(10);
     for (const effect of EFFECTS) {
@@ -158,17 +168,38 @@ describe.each(['web', 'slides'] as const)('%s entrance actions', (carrier) => {
   });
 });
 
-test('printing finalizes all covers before any action slide was visited', async () => {
+test.each(['instant', 'transition'] as const)('printing finalizes all covers before any action slide was visited (%s)', async (mode) => {
   const context = await browser.newContext({ viewport: SIZES.slides });
   try {
     const page = await context.newPage();
-    await page.goto(pathToFileURL(results.slides.artifacts.index).href);
+    const result = mode === 'instant' ? results.slides : transitioned;
+    expect(result.exitCode).toBe(0);
+    expect(result.report.findings).toEqual([]);
+    await page.goto(pathToFileURL(result.artifacts.index).href);
     await page.emulateMedia({ media: 'print' });
     for (const state of await coverStates(page)) {
       expect(state.opacity).toBe('0');
       expect(state.visibility).toBe('hidden');
       expect(state.transform).not.toBe('none');
     }
+    expect(await page.locator('[data-ds-enter^="peel-"] *').evaluateAll((els) => els.every((el) => getComputedStyle(el).visibility === 'hidden'))).toBe(true);
+  } finally {
+    await context.close();
+  }
+});
+
+test.each(['no-preference', 'reduce'] as const)('printing during navigation reveals content and hides cover subtrees (%s)', async (reducedMotion) => {
+  const context = await browser.newContext({ viewport: SIZES.slides, reducedMotion });
+  try {
+    const page = await context.newPage();
+    await page.goto(pathToFileURL(transitioned.artifacts.index).href);
+    await page.evaluate(() => (window as any).dsSlides.go(2));
+    expect(await page.locator('[data-turning]').count()).toBe(reducedMotion === 'reduce' ? 0 : 1);
+    await page.emulateMedia({ media: 'print' });
+    expect(await page.locator('[data-ds-enter^="peel-"],[data-ds-enter^="peel-"] *').evaluateAll((els) => els.every((el) => getComputedStyle(el).visibility === 'hidden'))).toBe(true);
+    expect(await page.locator('[data-ds-enter]:not([data-ds-enter^="peel-"],[data-ds-enter^="peel-"] *)').evaluateAll((els) => els.every((el) => getComputedStyle(el).visibility === 'visible'))).toBe(true);
+    expect(await page.locator('.ds-slide').evaluateAll((els) => els.map((el) => [getComputedStyle(el).transform, getComputedStyle(el).opacity]))).toEqual(Array(4).fill(['none', '1']));
+    expect(await page.locator('.ds-slide-shade').evaluateAll((els) => els.every((el) => getComputedStyle(el).display === 'none'))).toBe(true);
   } finally {
     await context.close();
   }
@@ -177,8 +208,9 @@ test('printing finalizes all covers before any action slide was visited', async 
 test('all new entrance variants are subject to all four motion rules', async () => {
   const result = await run(fixtures.work('web-entrance-actions-invalid'), { systemDir });
   expect(result.exitCode).toBe(1);
+  const motion: MotionSnapshot = JSON.parse(await readFile(result.artifacts.motionJson!, 'utf8'));
   for (const effect of EFFECTS) {
-    const record = result.report.motion!.animations.find((item) => item.entrance === effect && item.source === 'css-animation')!;
+    const record = motion.animations.find((item) => item.entrance === effect && item.source === 'css-animation')!;
     expect(record).toBeDefined();
     const rules = result.report.findings.filter((item) => item.location.selector === record.selector && item.category === 'motion').map((item) => item.ruleId);
     expect(new Set(rules)).toEqual(new Set(['motion/duration-off-ladder', 'motion/easing-off-set', 'motion/non-compositor-property', 'motion/transform-under-reduced-motion']));

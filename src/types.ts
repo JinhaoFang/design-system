@@ -1,10 +1,8 @@
 /*
  * Shared types and constants: finding/report shapes, the eight checker categories, and BuildError (validation failures that stop a build before rendering).
- * Report format version 1: { version, system, work, summary, findings[], motion? }; web/slides motion includes the normal and reduced animation records. Every finding carries ruleId, category, severity, location, message.
+ * Report format version 1: { version, system, work, summary, findings[] }; web/slides animation records are stored separately in motion.json. Every finding carries ruleId, category, severity, location, message.
  * Location is { slide?, unit?, layout?, slot?, selector? }; slide is the 1-based slide number and is set for slides only.
  */
-import type { MotionSnapshot } from './checker/motion-audit.ts';
-
 export type Severity = 'error' | 'warning';
 
 export const CATEGORIES = {
@@ -42,7 +40,6 @@ export interface Report {
   work: { concept: string; carrier: string; canvas: string };
   summary: { errors: number; warnings: number };
   findings: Finding[];
-  motion?: MotionSnapshot;
 }
 
 export class BuildError extends Error {
