@@ -2,7 +2,7 @@
 票券 piaoquan：方向稿 B 的横排预约票券。一张 paper-light 的票被「抬」起来，带体系投影（光从左上来），2px 发丝圆角，左缘一排半圆齿孔；票面横排：标题（宋体 400，head 档）、
 导语（日期、场次、名额，等高等宽数字）、一道发丝线下的附注（ink-2）；右侧票根用虚线隔开，正中一方竖长的朱印，印文就是行动（楷书阳文，边缘略毛），点它即预约。
 需要核对的信息一律横排，竖排只给印文。这一段不加卷次。
-入场：票券从下方轻推入（rise，glide + paper，位移 space-3），票面文字逐行洇出，朱印最后出现。悬停朱印时它按下去一点（dot）。
+入场：票券从下方轻推入（rise，glide + paper，位移 space-3），票面文字逐行洇出，朱印最后按下落定（stamp，turn + press）。悬停朱印时它按下去一点（dot）。
 手机：票根移到票面下方，虚线改为横线，朱印横放。
 {% endcomment %}
 <style>
@@ -91,6 +91,6 @@
     <p class="note" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink">{{ slots.note }}</p>
   </div>
   <div class="stub">
-    <a class="seal" href="#" data-ds-enter="fade" data-ds-step="turn" data-ds-ease="press" data-ds-order="1">{{ slots.action }}</a>
+    <a class="seal" href="#" data-ds-enter="stamp" data-ds-step="turn" data-ds-ease="press" data-ds-order="1">{{ slots.action }}</a>
   </div>
 </div>

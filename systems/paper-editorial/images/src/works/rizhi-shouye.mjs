@@ -5,8 +5,8 @@
  * after the comma, with the vermilion brush underline (art/ornaments.mjs, fluid width) under exactly 开放观测夜, the half that matters. Under it the lead, the action link (ink rule, a thin
  * vermilion line slides in on hover) and the booking date in ink-3. On the right, bottom-aligned with the text block and about as tall, a supporting plate: the stipple of the Andromeda galaxy
  * (art/andromeda.mjs, the same plate as the square social sheet), so the northern star chart is kept for the full plate further down; its caption 图〇　仙女星系　首光所见 in ink-2. Zhu: only the stroke.
- * Entrance (choreography attributes): the log header fades in, the headline rises (glide + paper, space-3), the lead and the action fade in a line apart, the plate last; the stroke is the
- * element that will get the "draw" entrance once the choreography supports it. Under 860px: one column, headline at head size, plate after the text.
+ * Entrance (choreography attributes): the log header fades in, the headline rises (glide + paper, space-3), then the brush stroke is drawn left to right (draw-x, lift + brush),
+ * then the lead and the action fade in a line apart, the plate last. Under 860px: one column, headline at head size, plate after the text.
  * Sizes, gaps and colours are tokens. rizhiShouye() -> { name, text }.
  */
 import { andromedaPlate } from '../art/andromeda.mjs';
@@ -16,7 +16,7 @@ import { fragment, paperBase } from './common.mjs';
 
 export function rizhiShouye() {
   const plate = andromedaPlate({ w: 400, h: 340, P: VAR, seed: 17 });
-  const stroke = brushStroke({ w: 400, h: 24, T: 8, seed: 9, fill: VAR.zhu, fluid: true });
+  const stroke = brushStroke({ w: 400, h: 24, T: 8, seed: 9, fill: VAR.zhu, fluid: true }).replace('<svg ', '<svg data-ds-enter="draw-x" data-ds-step="lift" data-ds-ease="brush" data-ds-order="2" ');
   const css = `${paperBase()}
 :scope{display:flex;flex-direction:column;height:auto;min-height:100vh;overflow:visible;padding:0 var(--ds-space-8) var(--ds-space-8);font-family:var(--ds-font-body);font-size:var(--ds-type-body);line-height:1.85}
 :scope *{box-sizing:border-box}
@@ -49,10 +49,10 @@ p,h1,a{margin:0}
 <div class="main">
 <div class="text">
 <h1 class="title" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="1"><span>新望远镜落成，</span><span>山顶<span class="hl">开放观测夜${stroke}</span></span></h1>
-<p class="lead" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="2">鹞岭天文台建在海拔 2,860 米的山顶。口径 1.6 米的新望远镜落成后，每月两个周六的晚上向公众开放，每场 60 人。</p>
-<p class="go" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="3"><a class="act" href="#">预约观测夜</a><span class="when">10 月 20 日开放预约</span></p>
+<p class="lead" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="3">鹞岭天文台建在海拔 2,860 米的山顶。口径 1.6 米的新望远镜落成后，每月两个周六的晚上向公众开放，每场 60 人。</p>
+<p class="go" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="4"><a class="act" href="#">预约观测夜</a><span class="when">10 月 20 日开放预约</span></p>
 </div>
-<figure class="plate" data-ds-enter="fade" data-ds-step="glide" data-ds-ease="ink" data-ds-order="4">${plate}<figcaption class="fig">图〇　仙女星系　首光所见</figcaption></figure>
+<figure class="plate" data-ds-enter="fade" data-ds-step="glide" data-ds-ease="ink" data-ds-order="5">${plate}<figcaption class="fig">图〇　仙女星系　首光所见</figcaption></figure>
 </div>`;
   return { name: 'rizhi-shouye.html', text: fragment({ css, html }) };
 }

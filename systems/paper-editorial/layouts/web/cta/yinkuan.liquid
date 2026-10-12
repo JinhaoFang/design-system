@@ -1,7 +1,7 @@
 {% comment %}
 印款 yinkuan：卷尾的落款。一道文武线（墨 3px + 发丝线）开头；左边是大标题（宋体 200，title 档），下面横排导语（等高等宽数字）和附注（ink-2，发丝线隔开）；
 右边一方大朱印，印文就是行动，竖排成两列（楷书阳文，边缘略毛），像在卷尾钤了一方印，点它即预约。这一段不加卷次，没有朱笔。
-入场：标题上浮，导语、附注洇出（line 错峰），朱印最后（turn + press）。悬停朱印时它按下去一点（dot）。
+入场：标题上浮，导语、附注洇出（line 错峰），朱印最后按下落定（stamp，turn + press）。悬停朱印时它按下去一点（dot）。
 手机：朱印移到文字下方，靠左。
 {% endcomment %}
 <style>
@@ -80,5 +80,5 @@
     <p class="lead" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink">{{ slots.lead }}</p>
     <p class="note" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink">{{ slots.note }}</p>
   </div>
-  <a class="seal" href="#" data-ds-enter="fade" data-ds-step="turn" data-ds-ease="press" data-ds-order="1">{{ slots.action }}</a>
+  <a class="seal" href="#" data-ds-enter="stamp" data-ds-step="turn" data-ds-ease="press" data-ds-order="1">{{ slots.action }}</a>
 </div>

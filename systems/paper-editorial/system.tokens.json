@@ -488,5 +488,11 @@
         }
       }
     }
+  },
+  "motion": {
+    "stampScale": {
+      "$type": "number",
+      "$value": 1.12
+    }
   }
 }
