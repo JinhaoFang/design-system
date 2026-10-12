@@ -1,4 +1,4 @@
-# 不进 git：参考项目、依赖、构建与验收产物、字体缓存、派发记录、第三方技能。
+# 不进 git：参考项目、依赖、构建与验收产物、字体缓存、派发记录、第三方技能（包括从 video-studio 安装的 run-spec、setup-run-spec 和 DispatchDock 的技能）。
 # references、.cache、.agents 不带斜杠：run-spec 把它们软链接进 worktree，带斜杠的规则匹配不到软链接。
 references
 .cache
@@ -10,5 +10,4 @@ out/
 Thumbs.db
 .claude/settings.local.json
 .claude/worktrees/
-.claude/skills/*
-!.claude/skills/run-spec/
+.claude/skills/
