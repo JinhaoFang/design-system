@@ -7,6 +7,7 @@
  * Image ids referenced by the work (briefs in <library>/content/images.json) are resolved to files in <system>/images/ and copied into outDir/images/ (assets.ts); a missing id fails the build before rendering.
  * Entrance choreography attributes (data-ds-enter and friends, choreography.ts) in the rendered units are validated against the system's tokens before rendering.
  * Slides optionally load <system>/slides.transition.json (token references, slides-transition.ts) before assembling their page; motion.json stores both animation audit passes.
+ * Web/slides report.json includes motion = { animations, reduced }, the same animation records used by the checker (duration, easing, properties, entrance, delay and keyframes).
  * copyFonts (copy the used font files from the cache into outDir/fonts) is exported for other page builders (system-page.ts).
  * Validation problems (bad system, work, fonts or image files) throw BuildError before or during rendering and produce no report. Carriers without a renderer yet (see RENDERABLE_CARRIERS) fail after validation.
  */
@@ -16,6 +17,7 @@ import { resolveWorkImages } from './assets.ts';
 import { assertChoreography, buildChoreographyScript } from './choreography.ts';
 import { ALL_RULES } from './checker/rules/index.ts';
 import { loadFontCheckData } from './checker/font-data.ts';
+import type { MotionSnapshot } from './checker/motion-audit.ts';
 import type { FontCheckData } from './checker/font-data.ts';
 import { runRules } from './checker/registry.ts';
 import { RENDERABLE_CARRIERS, SOCIAL_CANVASES } from './carriers.ts';
@@ -135,7 +137,7 @@ async function finishSlides(input: {
   const transition = await loadSlidesTransition(systemDir, tokens);
   const slides = await buildSlides({ work, tokens, fonts: usedFonts, fontCheck, unitsHtml, outDir, transition });
   const report = makeReport(
-    { system: basename(systemDir), work: { concept: work.concept, carrier: work.carrier, canvas: work.canvas ?? 'stage' } },
+    { system: basename(systemDir), work: { concept: work.concept, carrier: work.carrier, canvas: work.canvas ?? 'stage' }, motion: slides.motion },
     slides.findings,
   );
   const files = await writeReport(outDir, report);
@@ -177,10 +179,12 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
   let video: string | undefined;
   let findings: Finding[];
   let canvas: string;
+  let motion: MotionSnapshot | undefined;
   if (work.carrier === 'web') {
     const web = await renderWeb({ outDir, title: work.concept, cssVars: tokens.cssVars, fonts: usedFonts, unitsHtml, choreography: buildChoreographyScript(tokens) });
     ({ index, images, video } = web);
     findings = checkWeb(web.snapshots, { work, tokens, fonts: fontCheck });
+    motion = web.snapshots.desktop.motion;
     canvas = `${WEB_VIEWPORTS.desktop.width}+${WEB_VIEWPORTS.mobile.width}`;
   } else {
     canvas = work.canvas!;
@@ -188,7 +192,7 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
     index = join(outDir, 'index.html');
     await writeFile(
       index,
-      buildPage({ title: work.concept, cssVars: tokens.cssVars, fonts: usedFonts, ...size, unitsHtml }),
+      buildPage({ title: work.concept, cssVars: tokens.cssVars, fonts: usedFonts, ...size, unitsHtml, choreography: buildChoreographyScript(tokens) }),
     );
     const png = join(outDir, `social-${canvas}.png`);
     const snapshot = await renderImage(index, size, png);
@@ -197,7 +201,7 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
   }
 
   const report = makeReport(
-    { system: basename(systemDir), work: { concept: work.concept, carrier: work.carrier, canvas } },
+    { system: basename(systemDir), work: { concept: work.concept, carrier: work.carrier, canvas }, ...(motion && { motion }) },
     findings,
   );
   const files = await writeReport(outDir, report);

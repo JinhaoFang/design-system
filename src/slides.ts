@@ -4,7 +4,7 @@
  * Every finding gets location.slide = n. Rules run once per slide with CheckContext.slide set; the work description is passed whole.
  * After the last slide the same page is printed to slides.pdf (print media stacks every slide, entered ones already in their final state): one 1920x1080px page per slide.
  * Motion audit (motion-audit.ts): before the still pass, two audit passes (normal motion, reduced motion emulated) flip through every slide and record the animations each slide starts; each slide's records become its snapshot.motion.
- * The built page embeds the entrance choreography script (choreography.ts).
+ * The built page embeds the entrance choreography script (choreography.ts). The two motion record lists are returned for the build report.
  * Recording: a second context with recordVideo (real time, 1920x1080) opens the page, waits for fonts only, then presses ArrowRight through the deck, waiting for dsSlides.entered() and holding HOLD_MS on each slide.
  * Stills use data-render="static" to bypass page turns and declarative entrances; print also strips wrapper transforms, shade and projection. motion.json preserves both audit passes.
  * Outputs in outDir: index.html, slide-<nn>.png (exact 1920x1080), slides.pdf, slides.webm, motion.json.
@@ -21,6 +21,7 @@ import type { FontCheckData } from './checker/font-data.ts';
 import { collectSnapshot } from './checker/snapshot.ts';
 import type { FontEntry } from './library.ts';
 import { auditMotion } from './checker/motion-audit.ts';
+import type { MotionSnapshot } from './checker/motion-audit.ts';
 import { buildChoreographyScript } from './choreography.ts';
 import { settle } from './render.ts';
 import { SLIDE_HEIGHT, SLIDE_WIDTH, buildSlidesPage } from './slides-page.ts';
@@ -45,6 +46,7 @@ export interface SlidesOutput {
   pdf: string;
   video: string;
   findings: Finding[];
+  motion: MotionSnapshot;
 }
 
 function slideFileName(number: number, count: number): string {
@@ -100,11 +102,12 @@ export async function buildSlides(input: SlidesInput): Promise<SlidesOutput> {
   const video = join(outDir, 'slides.webm');
   const images: string[] = [];
   const findings: Finding[] = [];
+  let motion: MotionSnapshot;
   const browser = await chromium.launch();
   try {
     const stage = { width: SLIDE_WIDTH, height: SLIDE_HEIGHT };
     const audit = { viewport: stage, step: (page: Page) => flipThrough(page, count) };
-    const motion = {
+    motion = {
       animations: await auditMotion(browser, pathToFileURL(index).href, { ...audit, reducedMotion: 'no-preference' }),
       reduced: await auditMotion(browser, pathToFileURL(index).href, { ...audit, reducedMotion: 'reduce' }),
     };
@@ -144,5 +147,5 @@ export async function buildSlides(input: SlidesInput): Promise<SlidesOutput> {
   } finally {
     await browser.close();
   }
-  return { index, images, pdf, video, findings: sortFindings(findings) };
+  return { index, images, pdf, video, findings: sortFindings(findings), motion };
 }

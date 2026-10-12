@@ -2,7 +2,7 @@
  * Motion audit: records every animation a page starts so the motion rules can read plain data (getAnimations() forgets finished animations, so we write each one down when it begins).
  * installAnimationRecorder runs in the page before any script (Playwright addInitScript): it patches Element.prototype.animate, listens for animationstart/transitionrun and polls document.getAnimations()
  * every frame; each animation is serialized once into window.__dsAnimationLog as an AnimationRecord (location marks from data-ds-unit/layout/slot and data-ds-slide, selector, source, duration in ms,
- * the easings that actually shape the motion, the animated properties).
+ * the easings that actually shape the motion, the animated properties, delay, keyframes and optional declarative entrance name).
  * Easing facts: a CSS animation keeps its easing on the keyframes (timing easing is always "linear"), a script animation or a CSS transition on the timing; the last keyframe's easing is never used, so it is ignored.
  * auditMotion(browser, url, options) runs one audit pass: a fresh context (viewport, reducedMotion "no-preference" or "reduce"), recorder installed, page loaded and fonts ready, then options.step(page) drives the page
  * (scrolling, slide changes) and a short wait lets the last animations start; the records come back and the context closes.
@@ -21,6 +21,9 @@ export interface AnimationRecord {
   durationMs: number | null;
   easings: string[];
   properties: string[];
+  entrance?: string;
+  delayMs?: number;
+  keyframes?: Record<string, unknown>[];
 }
 
 export interface MotionSnapshot {
@@ -81,7 +84,10 @@ export function installAnimationRecorder(): void {
       durationMs: typeof timing.duration === 'number' ? timing.duration : null,
       easings: [...easings],
       properties: [...properties],
+      delayMs: timing.delay,
+      keyframes,
     };
+    if (target.hasAttribute('data-ds-enter')) record['entrance'] = target.getAttribute('data-ds-enter');
     if (isCssAnimation) record['name'] = (animation as CSSAnimation).animationName;
     if (isCssTransition) record['name'] = (animation as CSSTransition).transitionProperty;
     if (unit) {

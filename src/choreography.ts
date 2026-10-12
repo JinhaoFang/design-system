@@ -2,6 +2,9 @@
  * Entrance choreography helper (入场编排): a declarative way for layouts (.liquid) and custom fragments to stage entrances using only the system's motion values.
  * Authoring API (plain data attributes in the layout or fragment HTML):
  *   data-ds-enter="fade|rise|fall|left|right"   mark an element to enter; rise/fall/left/right add a short displacement on top of the fade (empty value = fade).
+ *   data-ds-enter="draw-x|draw-y"              draw from left to right (scaleX, left origin) or top to bottom (scaleY, top origin); reduced motion shows the finished drawing without animation.
+ *   data-ds-enter="stamp"                      fade in while scaling from motion.stampScale (DTCG number > 1, required only when stamp is used) to the natural CSS transform.
+ *   data-ds-enter="peel-left|peel-right|peel-up|peel-down"  move a cover by 100% of its own size; retain the terminal transform and opacity 0 with fill both. Reduced motion only fades out.
  *   data-ds-order="<n>"                         position in the sequence of its group (default: document order); equal numbers enter together.
  *   data-ds-stagger="<name>"                    on a group container: the --ds-stagger-<name> step between members (default: the smallest stagger step, 0 if the system has none).
  *   data-ds-step="<name>"                       duration step --ds-duration-<name> (default: base, else the middle step).
@@ -9,10 +12,11 @@
  *   data-ds-distance="<name>"                   displacement --ds-space-<name> (default: the middle space step).
  * A group is the nearest ancestor with data-ds-stagger, else the enclosing unit section. Durations, easings, stagger and distances all come from the resolved tokens, embedded into the script at build time;
  * unknown names are rejected by validateChoreography (a BuildError before rendering).
- * Runtime (buildChoreographyScript, a classic inline script placed after the page content): animates with element.animate from (opacity 0, offset) to the natural CSS state, fill "backwards" only, so the
- * element is in its normal state once the animation ends or is finished (stills). Web: elements in view on load enter together; the others enter in batches when scrolled into view (IntersectionObserver); elements scrolled past without being seen are left alone.
- * Under html[data-render="static"] it does nothing (content is shown immediately). Slides: registers window.dsSlides.onEnter and enters the marked elements of each slide when it is entered, returning
- * a promise for dsSlides.entered(). Under prefers-reduced-motion: reduce it drops the displacement and the stagger and keeps only a fade of the shortest duration step.
+ * Runtime (buildChoreographyScript, a classic inline script placed after the page content): non-cover entrances use fill backwards and return to natural CSS. Completed covers get data-ds-revealed,
+ * which hides the entire cover subtree and removes it from the checker snapshot; replay cancels the previous animation and removes this mark. Origins are set outside keyframes, so only transform/opacity animate.
+ * Web: elements in view on load enter together; others enter in batches when scrolled into view (IntersectionObserver); covers scrolled past without being seen are finalized.
+ * Under html[data-render="static"] covers are finalized synchronously, including off-screen covers; other content is shown immediately. Print CSS finalizes all covers, including unvisited slides.
+ * Slides: registers window.dsSlides.onEnter and returns a promise for dsSlides.entered(). Reduced motion drops displacement, scaling and stagger, and uses the shortest duration for stamp/fade/peel.
  */
 import type { ResolvedTokens } from './tokens.ts';
 import { BuildError } from './types.ts';
@@ -22,9 +26,10 @@ export interface ChoreographyConfig {
   staggers: Record<string, number>;
   easings: Record<string, string>;
   spaces: Record<string, number>;
+  stampScale: number | undefined;
 }
 
-const EFFECTS = ['fade', 'rise', 'fall', 'left', 'right'];
+const EFFECTS = ['fade', 'rise', 'fall', 'left', 'right', 'draw-x', 'draw-y', 'stamp', 'peel-left', 'peel-right', 'peel-up', 'peel-down'];
 
 function group(tokens: ResolvedTokens, prefix: string, pick: (entry: ResolvedTokens['entries'][number]) => number | string | undefined): Record<string, any> {
   const result: Record<string, any> = {};
@@ -42,6 +47,7 @@ export function choreographyConfig(tokens: ResolvedTokens): ChoreographyConfig {
     staggers: group(tokens, '--ds-stagger-', (entry) => entry.number),
     easings: group(tokens, '--ds-easing-', (entry) => entry.css),
     spaces: group(tokens, '--ds-space-', (entry) => entry.number),
+    stampScale: tokens.entries.find((entry) => entry.cssVar === '--ds-motion-stampScale')?.number,
   };
 }
 
@@ -57,8 +63,13 @@ export function validateChoreography(unitsHtml: string[], tokens: ResolvedTokens
   };
   const issues: string[] = [];
   for (const html of unitsHtml) {
-    for (const [, attribute, value] of html.matchAll(/\sdata-ds-(enter|step|ease|stagger|distance|order)="([^"]*)"/g)) {
+    for (const match of html.matchAll(/\sdata-ds-(enter|step|ease|stagger|distance|order)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi)) {
+      const attribute = match[1]!.toLowerCase();
+      const value = match[2] ?? match[3] ?? match[4]!;
       const names = allowed[attribute!]!;
+      if (attribute === 'enter' && value === 'stamp' && config.stampScale === undefined) {
+        issues.push('data-ds-enter="stamp" 缺少体系令牌 motion.stampScale（$type: number，$value: 大于 1 的起始放大倍数）');
+      }
       if (attribute === 'order') {
         if (!/^-?\d+$/.test(value!)) issues.push(`data-ds-order="${value}" 不是整数`);
       } else if (attribute === 'enter' && value === '') continue;
@@ -77,8 +88,30 @@ export function assertChoreography(unitsHtml: string[], tokens: ResolvedTokens):
 
 function choreograph(config: ChoreographyConfig): void {
   const root = document.documentElement;
-  if (root.getAttribute('data-render') === 'static') return;
-  if (typeof Element.prototype.animate !== 'function') return;
+  const marked = (scope: ParentNode): HTMLElement[] => [...scope.querySelectorAll<HTMLElement>('[data-ds-enter]')];
+  const peelMoves: Record<string, string> = {
+    'peel-left': 'translateX(-100%)',
+    'peel-right': 'translateX(100%)',
+    'peel-up': 'translateY(-100%)',
+    'peel-down': 'translateY(100%)',
+  };
+  const style = document.createElement('style');
+  style.textContent = '[data-ds-revealed]{opacity:0!important}[data-ds-revealed],[data-ds-revealed] *{visibility:hidden!important;pointer-events:none!important}' +
+    '@media print{' + Object.entries(peelMoves).map(([effect, move]) =>
+      `[data-ds-enter="${effect}"]{transform:${move}!important;opacity:0!important}[data-ds-enter="${effect}"],[data-ds-enter="${effect}"] *{visibility:hidden!important}`,
+    ).join('') + '}';
+  document.head.append(style);
+  const finalize = (el: HTMLElement): void => {
+    const move = peelMoves[el.getAttribute('data-ds-enter') ?? ''];
+    if (!move) return;
+    el.style.transform = move;
+    el.style.opacity = '0';
+    el.setAttribute('data-ds-revealed', '');
+  };
+  if (root.getAttribute('data-render') === 'static' || typeof Element.prototype.animate !== 'function') {
+    marked(document).forEach(finalize);
+    return;
+  }
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const middle = (names: string[], sortBy: (name: string) => number): string | undefined => names.slice().sort((a, b) => sortBy(a) - sortBy(b))[Math.floor((names.length - 1) / 2)];
   const durationNames = Object.keys(config.durations);
@@ -109,8 +142,14 @@ function choreograph(config: ChoreographyConfig): void {
     return moves[effect] ?? '';
   };
 
-  const enter = (el: Element, delay: number): Animation => {
+  const active = new WeakMap<Element, Animation>();
+  const enter = (el: HTMLElement, delay: number): Animation | undefined => {
+    active.get(el)?.cancel();
+    el.removeAttribute('data-ds-revealed');
     const effect = el.getAttribute('data-ds-enter') || 'fade';
+    const peel = peelMoves[effect];
+    const draw = effect === 'draw-x' || effect === 'draw-y';
+    if (draw && reduced) return undefined;
     const stepName = el.getAttribute('data-ds-step') ?? defaultStep!;
     const easeName = el.getAttribute('data-ds-ease') ?? defaultEase;
     const distanceName = el.getAttribute('data-ds-distance') ?? defaultDistance;
@@ -124,13 +163,37 @@ function choreograph(config: ChoreographyConfig): void {
       from['transform'] = move;
       to['transform'] = 'none';
     }
-    const animation = el.animate([from, to], { duration, delay: reduced ? 0 : delay, easing, fill: 'backwards' });
-    animation.finished.catch(() => undefined);
+    const natural = getComputedStyle(el).transform;
+    const transform = natural === 'none' ? '' : ` ${natural}`;
+    if (draw) {
+      el.style.transformOrigin = effect === 'draw-x' ? 'left center' : 'center top';
+      delete from.opacity;
+      delete to.opacity;
+      from.transform = `${effect === 'draw-x' ? 'scaleX(0)' : 'scaleY(0)'}${transform}`;
+      to.transform = natural;
+    } else if (effect === 'stamp' && !reduced) {
+      from.transform = `scale(${config.stampScale})${transform}`;
+      to.transform = natural;
+    } else if (peel) {
+      from.opacity = 1;
+      to.opacity = 0;
+      if (!reduced) {
+        delete from.opacity;
+        delete to.opacity;
+        from.transform = natural;
+        to.transform = `${peel}${transform}`;
+      }
+    }
+    const animation = el.animate([from, to], { duration, delay: reduced ? 0 : delay, easing, fill: peel ? 'both' : 'backwards' });
+    active.set(el, animation);
+    animation.finished.then(() => {
+      if (peel && active.get(el) === animation) el.setAttribute('data-ds-revealed', '');
+    }).catch(() => undefined);
     return animation;
   };
 
-  const play = (elements: Element[]): Animation[] => {
-    const groups = new Map<Element, Element[]>();
+  const play = (elements: HTMLElement[]): Animation[] => {
+    const groups = new Map<Element, HTMLElement[]>();
     for (const el of elements) {
       const container = groupOf(el);
       groups.set(container, [...(groups.get(container) ?? []), el]);
@@ -140,12 +203,13 @@ function choreograph(config: ChoreographyConfig): void {
       const keyed = members.map((el, position) => ({ el, order: orderOf(el, position) }));
       const ranks = [...new Set(keyed.map((item) => item.order))].sort((a, b) => a - b);
       const step = staggerOf(container);
-      for (const item of keyed) animations.push(enter(item.el, ranks.indexOf(item.order) * step));
+      for (const item of keyed) {
+        const animation = enter(item.el, ranks.indexOf(item.order) * step);
+        if (animation) animations.push(animation);
+      }
     }
     return animations;
   };
-
-  const marked = (scope: ParentNode): Element[] => [...scope.querySelectorAll('[data-ds-enter]')];
 
   if (document.body.getAttribute('data-carrier') === 'slides') {
     const dsSlides = (window as any).dsSlides;
@@ -166,7 +230,8 @@ function choreograph(config: ChoreographyConfig): void {
   if (!later.length || typeof IntersectionObserver !== 'function') return;
   const observer = new IntersectionObserver((entries) => {
     const passed = entries.filter((entry) => !entry.isIntersecting && entry.boundingClientRect.bottom <= 0);
-    const batch = entries.filter((entry) => entry.isIntersecting).map((entry) => entry.target);
+    const batch = entries.filter((entry) => entry.isIntersecting).map((entry) => entry.target as HTMLElement);
+    passed.forEach((entry) => finalize(entry.target as HTMLElement));
     [...passed.map((entry) => entry.target), ...batch].forEach((el) => observer.unobserve(el));
     if (batch.length) play(batch);
   });
