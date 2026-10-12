@@ -67,11 +67,23 @@
       "skillPath": "skills/engineering/retro/SKILL.md",
       "computedHash": "b8d55851a2909e26c2dbb2e8563719c87b3b700559f604e4df344f8c27e21047"
     },
+    "run-spec": {
+      "source": "JinhaoFang/video-studio",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/run-spec/SKILL.md",
+      "computedHash": "6003e4997f6e71846c6161bd20956da85728017f467f1a71f549ed1f599792ff"
+    },
     "setup-matt-pocock-skills": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/engineering/setup-matt-pocock-skills/SKILL.md",
       "computedHash": "1d35d0afa3ded88c9324d38db08b2cff91cd03e0e11d64786bee41385cd7b9fb"
+    },
+    "setup-run-spec": {
+      "source": "JinhaoFang/video-studio",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/setup-run-spec/SKILL.md",
+      "computedHash": "8f89713f114d1024b3b3f5eeaa408cc628c8207a4a47f68b79cac760afecb840"
     },
     "teach": {
       "source": "mattpocock/skills",

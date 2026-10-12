@@ -38,7 +38,7 @@ spec #S
 |---|---|---|---|
 | 第三方开发技能（Matt 的技能） | `.agents/skills/`，`.claude/skills/` 下放指向它的软链接 | 不进。`skills-lock.json` 记录装了哪些（和 video-studio 相同的 19 个），重装时只装其中列出的技能 | Claude Code 和 Codex |
 | DispatchDock 的 `codex-dispatch`、`dual-role-workflow` | 只在 `.claude/skills/` | 不进。用 `references/DispatchDock` 的安装器重装，命令见下 | 只有 Claude Code |
-| 执行技能 `run-spec` | 只在 `.claude/skills/` | 进 | 只有 Claude Code |
+| 执行技能 `run-spec` 和它的接入技能 `setup-run-spec` | 只在 `.claude/skills/` | 不进。从 `JinhaoFang/video-studio` 安装，命令和注意事项见 `docs/agents/run-spec.md` | 只有 Claude Code |
 | 本库的产品技能（方案 7.2 节，第 1 阶段开始写） | 方案定为 `.agents/skills/`，统一加前缀 | 进 | Claude Code 和 Codex |
 
 Codex 能看到 `.agents/skills/` 下的全部技能，所以设计负责人专用的技能只放 `.claude/skills/`。DispatchDock 的安装命令（固定 v0.1.3，先在 `references/DispatchDock` 里 `git checkout v0.1.3`）：
@@ -47,19 +47,19 @@ Codex 能看到 `.agents/skills/` 下的全部技能，所以设计负责人专�
 node references/DispatchDock/installer/install.mjs --host claude-code --claude-dir "$PWD/.claude/skills" --no-config --yes
 ```
 
-第三方技能在 #31 退出 git 跟踪。在主工作区切到还跟踪着它们的提交（`main` 上 #31 合并之前的提交，或者迁移前拉出的分支，例如 `prototype/paper-editorial-direction`），再切回来，本机的第三方技能和 `.claude/skills/` 下的软链接会全部消失：切过去时，git 用旧提交里的版本覆盖了这些被忽略的文件；切回来时，它们在新提交里不再跟踪，git 就把它们删了。DispatchDock 的技能和 `run-spec` 不受影响。查看迁移前的历史，用 `git show`，或者另开一个 worktree 切过去，不在主工作区切换。已经被删的，从刚才切过去的那个旧提交里恢复 `skills-lock.json` 列出的技能：
+第三方技能在 #31 退出 git 跟踪，`run-spec` 随后也退出了跟踪。在主工作区切到还跟踪着它们的提交（`main` 上 #31 合并之前的提交，或者迁移前拉出的分支，例如 `prototype/paper-editorial-direction`），再切回来，本机的第三方技能和 `.claude/skills/` 下的软链接会全部消失：切过去时，git 用旧提交里的版本覆盖了这些被忽略的文件；切回来时，它们在新提交里不再跟踪，git 就把它们删了。切到还跟踪着 `run-spec` 的提交再切回来，`run-spec` 也会这样消失，用安装命令重装。DispatchDock 的技能不受影响。查看迁移前的历史，用 `git show`，或者另开一个 worktree 切过去，不在主工作区切换。已经被删的，从刚才切过去的那个旧提交里恢复 `skills-lock.json` 列出的 Matt 的技能：
 
 ```bash
-git restore --source=<旧提交> --worktree -- $(node -e 'for (const s of Object.keys(require("./skills-lock.json").skills)) console.log(`.agents/skills/${s} .claude/skills/${s}`)')
+git restore --source=<旧提交> --worktree -- $(node -e 'for (const s of Object.entries(require("./skills-lock.json").skills).filter(([, v]) => v.source === "mattpocock/skills").map(([k]) => k)) console.log(`.agents/skills/${s} .claude/skills/${s}`)')
 ```
 
-不要直接恢复整个 `.agents/skills` 和 `.claude/skills`：旧提交里没有 `run-spec`，会把它从工作区删掉，还会带回已经移除的旧技能（如 `implement-spec`）。
+不要直接恢复整个 `.agents/skills` 和 `.claude/skills`：旧提交里的 `run-spec`、`setup-run-spec` 要么没有、要么是旧版，恢复会把它们删掉或换成旧版，还会带回已经移除的旧技能（如 `implement-spec`）。
 
 ## 护栏
 
-- `pnpm verify`：按步骤依次运行类型检查、注释位置检查、文档命令检查和全部测试，每步先打印标签，前一步失败就停止并保留退出码，完成标准以它通过为准。步骤表在 `scripts/verify.ts`；扩展方式见 `docs/cli.md`。测试会用无头浏览器真实渲染，全量约 2 分钟。
+- `pnpm verify`：按 `scripts/verify.ts` 的步骤表依次运行，每步先打印标签，前一步失败就停止并保留退出码，完成标准以它通过为准；扩展方式见 `docs/cli.md`。测试会用无头浏览器真实渲染，全量约 2 分钟。
 - 提交信息：装依赖时自动启用 commit-msg 钩子；合并进行中跳过。CI 独立检查 `origin/main..HEAD` 的非合并提交，本机复现命令和用法见 `docs/cli.md`。
-- CI：推送和开 PR 时先检查分支提交信息，再跑和 `pnpm verify` 相同的检查；回归（`regress` 工作流）手动触发。
+- CI：开 PR、推送 `main` 和 `ticket/**`、手动触发时运行，先检查分支提交信息，再跑和 `pnpm verify` 相同的检查。工单分支只有派发时加了 `--allow-push` 才会被推上去。集成分支 `spec/**` 推送时不跑：`land` 合并每张工单前已在本机跑过同样的验证。同一个 PR 的新运行会取消还没跑完的旧运行。回归（`regress` 工作流）手动触发。
 - CI 失败时：先下载工作流保存的 `test-reports` 产物（检查报告和动效记录），看是哪条规则报的错。CI 的机器是 2 核，测试并发数按实际核数取。可以手动触发 CI 复查，但不加自动重试。
 
 ## 图像与评审

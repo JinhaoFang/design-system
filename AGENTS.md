@@ -34,7 +34,7 @@
   - `pnpm install` 通过 `prepare` 自动启用 `.githooks/commit-msg`；本机一次列出全部中文违规，合并进行中跳过。CI 用 `pnpm check:commits origin/main <来源分支名>` 检查非合并提交，本机复现和退出状态见 `docs/cli.md`。
 - 只做工单范围内的事。新增依赖在汇报里写明理由；依赖版本固定，`pnpm-workspace.yaml` 的 `minimumReleaseAge` 不安装 14 天内发布的版本。
 - `references/` 是参考项目的本地克隆，只读，不进 git。
-- 验证命令：`pnpm verify`（类型检查、注释位置检查、文档命令检查和全部测试）。CI 在推送和开 PR 时先检查分支提交信息，再跑和 `pnpm verify` 相同的检查。
+- 验证命令：`pnpm verify`，步骤见 `scripts/verify.ts` 的 `STEPS`。CI 什么时候跑见 `docs/workflow/README.md`「护栏」。
 
 ## 目录与归属
 
@@ -46,7 +46,6 @@
 | `library/lexicon/` | 感觉词词典 | 设计负责人确认；其他人只提交候选 |
 | `library/exemplars/` | 范例库 | 只提交候选，批准和拒绝由裁判决定 |
 | `src/`、`test/`、`scripts/`、`package.json`、构建配置、`.github/` | 构建并检查流程、检查器、命令、测试、CI | 工程 |
-| `.claude/skills/run-spec/` | 执行技能 | 设计 |
 
 `pnpm ds` 各命令的用法、产物和格式约定见 `docs/cli.md`，运行或修改这些命令前先读它。技能放在哪里、哪些进 git，见 `docs/workflow/README.md`「技能放在哪里」。
 
