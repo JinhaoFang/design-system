@@ -3,6 +3,7 @@
  * (data-ds-slide="<1-based number>", wrapping the unit's <section data-ds-unit>), and the inline runtime (slides-runtime.ts) as a classic script so the file works when opened from disk, followed by the entrance choreography script (choreography.ts) when given one.
  * Optional transition config comes from slides.transition.json (slides-transition.ts). During turns two wrappers are displayed with a static token shadow and a token-colored shade; only transform/opacity animate.
  * Screen: only the active slide is displayed at rest; the runtime scales the stage. Print (PDF): @page is 1920x1080 with no margin, the stage scale is dropped and every slide is shown stacked, one per page.
+ * Print reveals ordinary entrance content even during a turn; peel covers and their descendants retain choreography.ts terminal hiding rules.
  */
 import { fontFaceCss, rootVarsCss } from './page.ts';
 import type { PageInput } from './page.ts';
@@ -49,7 +50,7 @@ html,body{height:auto;overflow:visible;background:none!important}
 .ds-slide:last-child{break-after:auto}
 .ds-slide{transform:none!important;opacity:1!important;z-index:auto!important}
 .ds-slide::after,.ds-slide-shade{display:none!important}
-.ds-slide [data-ds-enter]{visibility:visible!important}
+.ds-slide [data-ds-enter]:not([data-ds-enter^="peel-"],[data-ds-enter^="peel-"] *){visibility:visible!important}
 }
 </style>
 </head>

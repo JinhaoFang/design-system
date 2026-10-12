@@ -1,0 +1,21 @@
+<style>
+:scope{box-sizing:border-box;min-height:100vh;padding:var(--ds-space-3);background:var(--ds-color-paper);color:var(--ds-color-ink);font-family:var(--ds-font-body);overflow:hidden}
+h2,p{margin:0;font-size:var(--ds-type-0);font-weight:400;line-height:1.5}
+h2{font-size:var(--ds-type-1)}
+.ink-x{width:var(--ds-space-6);height:var(--ds-radius-1);background:var(--ds-color-accent)}
+.ink-y{width:var(--ds-radius-1);height:var(--ds-space-3);background:var(--ds-color-accent)}
+.reveal{position:relative;height:var(--ds-space-4);margin-top:var(--ds-space-2)}
+.cover{position:absolute;inset:0;background:var(--ds-color-surface);overflow:hidden}
+.cover p{position:relative;color:var(--ds-color-surface);font-size:var(--ds-type-2)}
+.cover img{position:absolute;inset:0;width:100%;height:100%}
+</style>
+<div data-ds-stagger="tight">
+<h2>{{ slots.claim }}</h2>
+<div class="ink-x" data-ds-enter="draw-x" data-ds-order="0" data-ds-step="slow" data-ds-ease="drag"></div>
+<div class="ink-y" data-ds-enter="draw-y" data-ds-order="1"></div>
+<p data-ds-enter="stamp" data-ds-order="2">发布二点零</p>
+<div class="reveal"><p>{{ slots.support }}</p><div class="cover" data-ds-enter="peel-left" data-ds-order="3" data-ds-step="slow"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3C/svg%3E"><p>发布二点零</p></div></div>
+<div class="reveal"><p>{{ slots.support }}</p><div class="cover" data-ds-enter="peel-right" data-ds-order="4" data-ds-step="slow"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3C/svg%3E"><p>发布二点零</p></div></div>
+<div class="reveal"><p>{{ slots.support }}</p><div class="cover" data-ds-enter="peel-up" data-ds-order="5" data-ds-step="slow"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3C/svg%3E"><p>发布二点零</p></div></div>
+<div class="reveal"><p>{{ slots.support }}</p><div class="cover" data-ds-enter="peel-down" data-ds-order="6" data-ds-step="slow"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3C/svg%3E"><p>发布二点零</p></div></div>
+</div>

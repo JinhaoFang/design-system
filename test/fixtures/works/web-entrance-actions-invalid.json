@@ -1,0 +1,13 @@
+{
+  "system": "mini",
+  "carrier": "web",
+  "concept": "三种动作的动效违规夹具",
+  "sequence": [
+    {
+      "custom": {
+        "file": "fragments/entrance-actions-invalid.html"
+      },
+      "serves": "验证所有动作的时长、缓动、属性和减少动态效果违规"
+    }
+  ]
+}

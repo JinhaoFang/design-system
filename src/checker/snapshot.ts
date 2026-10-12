@@ -12,6 +12,7 @@
  * collectSnapshot(page, scope) limits the pass to the elements inside the first node matching the CSS selector scope (used per slide).
  * Every element also gets box (page-coordinate rectangle, px, scroll included) so rules can reason about siblings and geometry.
  * PageSnapshot.motion (animation records from the motion audit passes, motion-audit.ts) is attached by the carrier renderer, not by collectSnapshot.
+ * Completed peel covers (data-ds-revealed, choreography.ts) and their descendants are excluded, including their text nodes and media, so removed covers cannot affect contrast or composition.
  * Text blocks also get fonts: the platform fonts Chromium used to draw their glyphs (font-usage.ts, through the DevTools protocol).
  * To give a new rule more input, add properties here (and fields to ElementSnapshot) instead of querying the browser from the rule.
  */
@@ -147,6 +148,7 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
       return parts.join(' > ');
     };
     const isInline = (el: Element): boolean => ['inline', 'contents'].includes(getComputedStyle(el).display);
+    const revealed = (el: Element): boolean => el.closest('[data-ds-revealed]') !== null;
     const blockOf = (node: Node): Element | null => {
       let el = node.parentElement;
       while (el && isInline(el)) el = el.parentElement;
@@ -158,7 +160,7 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
       const nodes: Text[] = [];
       const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
       for (let node = walker.nextNode() as Text | null; node; node = walker.nextNode() as Text | null) {
-        if (blockOf(node) === block) nodes.push(node);
+        if (node.parentElement && !revealed(node.parentElement) && blockOf(node) === block) nodes.push(node);
       }
       return nodes.some((node) => node.data.trim() !== '') ? nodes : [];
     };
@@ -207,7 +209,7 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
     const IMAGE_TAGS = new Set(['IMG', 'SVG', 'VIDEO', 'CANVAS', 'PICTURE']);
     const mediaElements = [...document.body.querySelectorAll('*')].filter(
       (node) =>
-        ['IMG', 'VIDEO', 'CANVAS', 'PICTURE'].includes(node.tagName) || getComputedStyle(node).backgroundImage !== 'none',
+        !revealed(node) && (['IMG', 'VIDEO', 'CANVAS', 'PICTURE'].includes(node.tagName) || getComputedStyle(node).backgroundImage !== 'none'),
     );
     const backdropOf = (el: Element): Backdrop => {
       const chain: BackdropLayer[] = [];
@@ -239,7 +241,7 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
     };
     const result: ElementSnapshot[] = [];
     for (const el of (scopeSelector ? document.querySelector(scopeSelector)! : document.body).querySelectorAll('*')) {
-      if (skipped.has(el.tagName)) continue;
+      if (skipped.has(el.tagName) || revealed(el)) continue;
       const computed = getComputedStyle(el);
       const styles: Record<string, string> = {};
       for (const property of properties) {

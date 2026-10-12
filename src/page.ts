@@ -1,6 +1,7 @@
 /*
  * HTML page assembly for a social image: :root custom properties from the system's tokens, @font-face (family, weight, style) for the manifest fonts the system uses
  * (relative fonts/<file> URLs, so the artifact also opens straight from disk), and one fixed-size canvas holding the rendered units.
+ * Optional choreography runs in static mode for social output, finalizing peel covers without starting animations.
  */
 import { fontStyleOf } from './fonts.ts';
 import type { FontEntry } from './library.ts';
@@ -12,6 +13,7 @@ export interface PageInput {
   width: number;
   height: number;
   unitsHtml: string[];
+  choreography?: string;
 }
 
 const FORMATS: Record<string, string> = { woff2: 'woff2', woff: 'woff', otf: 'opentype', ttf: 'truetype' };
@@ -35,7 +37,7 @@ export function buildPage(input: PageInput): string {
   const fontFaces = fontFaceCss(input.fonts);
   const vars = rootVarsCss(input.cssVars);
   return `<!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-render="static">
 <head>
 <meta charset="utf-8">
 <title>${input.title}</title>
@@ -50,7 +52,7 @@ html,body{margin:0;padding:0}
 <main class="ds-canvas">
 ${input.unitsHtml.join('\n')}
 </main>
-</body>
+${input.choreography ? `<script>${input.choreography}</script>` : ''}</body>
 </html>
 `;
 }

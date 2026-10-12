@@ -1,9 +1,8 @@
 /*
  * Shared types and constants: finding/report shapes, the eight checker categories, and BuildError (validation failures that stop a build before rendering).
- * Report format version 1: { version, system, work, summary, findings[] }; every finding carries ruleId, category, severity, location, message.
+ * Report format version 1: { version, system, work, summary, findings[] }; web/slides animation records are stored separately in motion.json. Every finding carries ruleId, category, severity, location, message.
  * Location is { slide?, unit?, layout?, slot?, selector? }; slide is the 1-based slide number and is set for slides only.
  */
-
 export type Severity = 'error' | 'warning';
 
 export const CATEGORIES = {
