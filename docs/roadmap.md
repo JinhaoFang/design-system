@@ -18,29 +18,25 @@
 | 技能 | Matt 的技能和 video-studio 保持一致（19 个），不进 git；DispatchDock 和 `run-spec` 只放 `.claude/skills/` | `docs/workflow/README.md`「技能放在哪里」 |
 | 命令手册 | 从 `AGENTS.md` 移到单独的文档，`AGENTS.md` 留指针（spec #1 用户故事 63 要求 agent 不必从代码推断用法，靠这个指针做到） | `docs/cli.md` |
 | 美学立场、幻灯片格式 | 品质门槛而非风格过滤；第一期交付 HTML 幻灯片 | `docs/adr/` |
+| 开发护栏 | `pnpm verify` 依次跑类型检查、注释位置检查、文档命令检查、测试；提交信息由 commit-msg 钩子和 CI 分支检查把关；CI 不加自动重试 | `docs/workflow/README.md`「护栏」、`docs/cli.md` |
 
 ## 进度
 
 - [x] 方案 v0.3、术语表、两份 ADR
 - [ ] 第 0 阶段（spec #1）：工具链和库数据已完成（#2～#16、#29）；纸本编辑①（#17）等裁判验收；#18～#28 未开始
 - [x] 迁移到双角色流程：检查点 PR #30 把 `integration/phase-0` 合回 `main`；迁移本身的 PR 见 `chore/dev-workflow` 分支
-- [ ] 彩排：在新会话里用第一个 spec 把 `run-spec` 完整走一遍
+- [x] 彩排（spec #32 开发护栏）：`run-spec` 完整走了一遍，汇报见 `docs/reports/spec-32-dev-guardrails.html`
 - [ ] 第 1～3 阶段
 
 ## 下一步
 
-1. **用户**：审核合并 PR #30，再审核合并迁移的 PR。
+1. **用户**：审核合并 spec #32 的 PR（`spec/32-dev-guardrails`）。合并后在主工作区运行一次 `pnpm install`，启用提交信息钩子。
 2. **用户（裁判）**：验收 #17，预览命令 `pnpm ds regress && pnpm ds preview --dir out/regress`。
-3. **彩排 spec**：在新会话里先说"你的角色是设计负责人。先读 docs/roadmap.md，我们要做彩排，先不要动手。"，再跑 `/grill-with-docs`，主题"开发护栏"。候选内容：
-   - CI 上的间歇性失败：回归测试偶发"体系总览页有 4 个错误"，字体测试失败过一次；本机连跑两遍都通过，只在 CI 上出现。合并前的验证会因此随机失败，要先修。
-   - 提交信息格式的检查：commit-msg 钩子，加上 CI 对分支上每个提交的检查。
-   - "注释只写在文件头"的检查：代码约定里有这条规则，还没有检查。
-   - 规则文档里写的命令必须存在的检查：video-studio 有现成的实现，但它内置的是 pnpm 10 的命令表，这里用 pnpm 12。
-
-   然后 `/to-spec`、`/to-tickets`，再开新会话说"执行 spec #<号>"。
-4. **继续第 0 阶段**：彩排合并后，新会话说"执行 spec #1"。`run-spec` 会从 `main` 新开 `spec/1-<短名>`，并按角色文档给 #18～#28 补上执行角色标签。
+3. **继续第 0 阶段**：新会话说"执行 spec #1"。`run-spec` 会从 `main` 新开 `spec/1-<短名>`，并按角色文档给 #18～#28 补上执行角色标签。
+4. **回报 video-studio**：spec #32 汇报的"回报 video-studio"和"流程发现"两节，用来改进 `run-spec`（允许推送工单分支、`land` 遇到 lockfile 变化时重装依赖、按批审查和收尾审查合并）。
 
 ## 待定
 
+- **CI 偶发失败的剩余原因**：截图报错和"体系总览页有 4 个错误"的根因没有锁定（spec #32 的 #33），再出现时用 CI 保存的报告查。
 - **产品技能与 worktree**：方案定的是产品技能放 `.agents/skills/` 并进 git；现在整个 `.agents` 不进 git，按目录软链接进 worktree。第 1 阶段开始写产品技能时，要改成第三方技能逐个软链接，或者第三方技能也进 git。
 - **`src/` 的组织**：34 个文件平铺，要不要分组由用户裁决。
