@@ -1,5 +1,5 @@
 name: ci
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 jobs:
   test:
     runs-on: ubuntu-24.04
@@ -22,5 +22,17 @@ jobs:
         run: pnpm exec playwright install --with-deps --only-shell chromium
       - if: steps.pw-cache.outputs.cache-hit == 'true'
         run: pnpm exec playwright install-deps chromium
+      - name: Runner resources
+        run: node -e 'const os = require("node:os"); console.log(JSON.stringify({ cpus: os.cpus().length, availableParallelism: os.availableParallelism(), memoryGiB: os.totalmem() / 1024 ** 3, node: process.version }, null, 2))'
       - run: pnpm typecheck
-      - run: pnpm test
+      - run: mkdir -p "${{ runner.temp }}/ds-tests"
+      - run: pnpm test --reporter=verbose
+        env:
+          TMPDIR: ${{ runner.temp }}/ds-tests
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports
+          path: |
+            ${{ runner.temp }}/ds-tests/**/report.json
+            ${{ runner.temp }}/ds-tests/**/replays.json
