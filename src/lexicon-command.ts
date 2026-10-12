@@ -9,7 +9,7 @@ import { APPROVAL_STATUSES } from './exemplars.ts';
 import { SEED_SYSTEMS, TEMPORARY_DIRECTION, listLexicon, validateLexicon } from './lexicon.ts';
 import type { LexiconApprovalStatus } from './lexicon.ts';
 
-export const LEXICON_COMMANDS = ['validate-lexicon', 'list-lexicon'];
+export { LEXICON_COMMANDS } from './cli-commands.ts';
 
 export async function lexiconCommand(command: string, args: string[]): Promise<number> {
   const { values } = parseArgs({

@@ -1,0 +1,5 @@
+{
+  "core": ["build", "validate-system", "fetch-fonts", "overview", "regress", "system-page", "preview"],
+  "exemplars": ["validate-exemplars", "list-exemplars"],
+  "lexicon": ["validate-lexicon", "list-lexicon"]
+}

@@ -13,6 +13,7 @@
     "check:comments": "node scripts/check-comments.ts",
     "check:commits": "node scripts/check-commit-range.ts",
     "prepare": "node scripts/install-hooks.ts",
+    "check:doc-commands": "node scripts/check-doc-commands.ts",
     "test": "vitest run",
     "fixture-font": "node scripts/make-fixture-font.ts"
   },

@@ -22,7 +22,7 @@
 
 - **按批审查**：审查不走 `dispatch`，用 `dispatchScript` 指向的派发脚本直接派发，`--sandbox` 填 `codexSandbox`。
 - **汇报目录**：`docs/reports/`，写法按 `run-spec` 的 `report.md`。这个仓库还没有汇报，第一份写好后它就是后面各期沿用的版式。
-- **验证用时**：`pnpm verify` 在本机约 2 分钟（类型检查加 395 个测试，测试会起无头浏览器）。派发的实测用时还没有数据，第一次派发后补在这里。
+- **验证用时**：`pnpm verify` 在本机约 2 分钟（类型检查、文档命令检查和全部测试，测试会起无头浏览器）。派发的实测用时还没有数据，第一次派发后补在这里。
 - **常见的共享登记处**：`src/checker/rules/index.ts` 的 `ALL_RULES`、`src/cli.ts` 的子命令、`docs/cli.md`。并行的工单都要往里加一项时，派发的补充说明写"只加自己那一项"。
 - **软链接的目录在 `.gitignore` 里不带斜杠**：worktree 里的 `references`、`.agents`、`.cache` 是软链接，写成 `references/` 这类带斜杠的规则匹配不到，worktree 会不干净，`land` 会拒绝合并。
 

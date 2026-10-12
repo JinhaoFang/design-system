@@ -29,6 +29,7 @@ import { buildSystemPage } from './system-page.ts';
 import { EXEMPLAR_COMMANDS, exemplarCommand } from './exemplar-command.ts';
 import { LEXICON_COMMANDS, lexiconCommand } from './lexicon-command.ts';
 import { BuildError } from './types.ts';
+import { CORE_COMMANDS } from './cli-commands.ts';
 
 const USAGE = [
   'usage: node src/cli.ts build --system <dir> --work <file> --out <dir> [--library <dir>] [--font-cache <dir>]',
@@ -46,14 +47,13 @@ const USAGE = [
 
 async function main(argv: string[]): Promise<number> {
   const [command, ...rest] = argv;
-  const commands = ['build', 'validate-system', 'fetch-fonts', 'overview', 'regress', 'system-page', 'preview'];
   if (command !== undefined && EXEMPLAR_COMMANDS.includes(command)) {
     return exemplarCommand(command, rest);
   }
   if (command !== undefined && LEXICON_COMMANDS.includes(command)) {
     return lexiconCommand(command, rest);
   }
-  if (!command || !commands.includes(command)) {
+  if (!command || !CORE_COMMANDS.includes(command)) {
     console.error(USAGE);
     return 2;
   }
