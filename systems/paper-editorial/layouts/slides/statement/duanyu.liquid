@@ -1,0 +1,83 @@
+{% comment %}
+断语 duanyu：一句判断占满上半页。页眉墨线；论断宋体 200、title 档，宽 12 字折行，从约 27% 高度起排（页眉下留一段纸，主体落在视觉中心附近）；右下三分之二一栏放支撑段落（lead ink-2，两端对齐），出处在段落下（caption ink-3，等宽数字）。
+朱色：无。入场：论断升起，支撑段落洇出，出处最后。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    padding: var(--ds-space-6) var(--ds-space-7);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+    text-spacing-trim: trim-both;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  p, h1, h2, ol, ul, li, figure, figcaption, blockquote { margin: 0; padding: 0; }
+  p, li, blockquote { text-wrap: pretty; }
+  h1, h2 { text-wrap: balance; }
+
+  .run { height: 0; }
+  .claim {
+    position: absolute;
+    left: var(--ds-space-7);
+    top: 27%;
+    max-width: 12.4em;
+    font-family: var(--ds-font-cjk);
+    font-size: var(--ds-type-title);
+    font-weight: 200;
+    letter-spacing: .02em;
+    line-height: 1.25;
+  }
+  .foot {
+    position: absolute;
+    left: 40%;
+    right: var(--ds-space-7);
+    bottom: var(--ds-space-7);
+  }
+  .support {
+    font-size: var(--ds-type-lead);
+    line-height: 1.7;
+    color: var(--ds-color-ink-2);
+    text-align: justify;
+  }
+  .source {
+    margin-top: var(--ds-space-4);
+    padding-top: var(--ds-space-2);
+    border-top: 1px solid var(--ds-color-rule-light);
+    font-size: var(--ds-type-caption);
+    letter-spacing: .12em;
+    color: var(--ds-color-ink-3);
+    font-feature-settings: "lnum" 1, "tnum" 1;
+  }
+  .support:has(> :empty), .source:has(> :empty) { display: none; }
+  .run {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--ds-space-5);
+    padding-bottom: var(--ds-space-2);
+    border-bottom: 2px solid var(--ds-color-ink);
+    font-size: var(--ds-type-caption);
+    letter-spacing: .16em;
+    line-height: 1.5;
+    color: var(--ds-color-ink-2);
+  }
+</style>
+<div class="run"></div>
+<h1 class="claim" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="1">{{ slots.claim }}</h1>
+<div class="foot">
+  <p class="support" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="2">{{ slots.support }}</p>
+  <p class="source" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="3">{{ slots.source }}</p>
+</div>

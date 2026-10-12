@@ -1,0 +1,73 @@
+{% comment %}
+半页 banye：图占右边大半页（四周仍留纸，1px rule 线框），左边一栏是图的标题（宋体 400、head 档）和说明（body ink-2，两端对齐），栏顶一条 2px 墨线、一个鱼尾，像刻本里图左的图说。
+朱色：无。入场：图版上的衬纸向右揭去（peel-right，lift + paper），左栏随后洇出。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    padding: var(--ds-space-7) var(--ds-space-7);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+    text-spacing-trim: trim-both;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  p, h1, h2, ol, ul, li, figure, figcaption, blockquote { margin: 0; padding: 0; }
+  p, li, blockquote { text-wrap: pretty; }
+  h1, h2 { text-wrap: balance; }
+
+  .page {
+    display: grid;
+    grid-template-columns: 1fr 1152px;
+    column-gap: var(--ds-space-7);
+    height: 100%;
+    align-items: center;
+  }
+  .text { padding-top: var(--ds-space-3); border-top: 2px solid var(--ds-color-ink); }
+  .yuwei { display: block; width: 28px; margin: var(--ds-space-3) 0 var(--ds-space-5); fill: var(--ds-color-ink); }
+  .heading {
+    font-family: var(--ds-font-cjk);
+    font-size: var(--ds-type-head);
+    font-weight: 400;
+    letter-spacing: .04em;
+    line-height: 1.3;
+  }
+  .caption {
+    margin-top: var(--ds-space-5);
+    font-size: var(--ds-type-body);
+    line-height: 1.8;
+    color: var(--ds-color-ink-2);
+    text-align: justify;
+  }
+  .plate {
+    position: relative;
+    height: 864px;
+    padding: var(--ds-space-2);
+    border: 1px solid var(--ds-color-rule);
+    overflow: hidden;
+  }
+  .tissue {
+    position: absolute;
+    inset: 0;
+    background: var(--ds-color-paper-deep);
+    border-bottom: 1px solid var(--ds-color-rule);
+  }
+  .plate img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .heading:has(> :empty), .caption:has(> :empty) { display: none; }
+</style>
+<div class="page">
+  <div class="text" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="2"><svg class="yuwei" viewBox="0 0 24 16" aria-hidden="true"><path d="M0 0H24V10L17 5.5L12 11.5L7 5.5L0 10Z"/></svg><h1 class="heading">{{ slots.heading }}</h1><p class="caption">{{ slots.caption }}</p></div>
+  <figure class="plate">{{ slots.visual }}<div class="tissue" data-ds-enter="peel-right" data-ds-step="lift" data-ds-ease="paper" data-ds-order="1" aria-hidden="true"></div></figure>
+</div>

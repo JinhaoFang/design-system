@@ -1,0 +1,100 @@
+{% comment %}
+大数 damu：观测日志里最响的一页。页眉墨线上左是标题（heading），右是出处；页面中部偏下，左边超大的细衬线数字（Source Serif 300 等高数字、colossal 档），右栏标签（宋体 600、sub 档）下一道朱笔，再下是说明（lead ink-2）。
+朱色：仅标签下的朱笔。入场：数字从左滑入，标签升起，说明洇出，页眉随后，朱笔最后从左到右划出（draw-x，lift + brush）。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    padding: var(--ds-space-6) var(--ds-space-7);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+    text-spacing-trim: trim-both;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  p, h1, h2, ol, ul, li, figure, figcaption, blockquote { margin: 0; padding: 0; }
+  p, li, blockquote { text-wrap: pretty; }
+  h1, h2 { text-wrap: balance; }
+  .run {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--ds-space-5);
+    padding-bottom: var(--ds-space-2);
+    border-bottom: 2px solid var(--ds-color-ink);
+    font-size: var(--ds-type-caption);
+    letter-spacing: .16em;
+    line-height: 1.5;
+    color: var(--ds-color-ink-2);
+  }
+  .run .heading { font-weight: 600; letter-spacing: .24em; color: var(--ds-color-ink); }
+  .body {
+    position: absolute;
+    left: var(--ds-space-7);
+    right: var(--ds-space-7);
+    top: 50%;
+    transform: translateY(-36%);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: var(--ds-space-8);
+    align-items: end;
+  }
+  .value {
+    font-family: var(--ds-font-latin);
+    font-size: var(--ds-type-colossal);
+    font-weight: 300;
+    font-feature-settings: "lnum" 1;
+    letter-spacing: -.03em;
+    line-height: .78;
+  }
+  .side { padding-bottom: var(--ds-space-2); }
+  .lab { position: relative; display: inline-block; padding-bottom: var(--ds-space-3); }
+  .label {
+    font-family: var(--ds-font-cjk);
+    font-size: var(--ds-type-sub);
+    font-weight: 600;
+    letter-spacing: .08em;
+    line-height: 1.35;
+  }
+  .stroke {
+    position: absolute;
+    left: -2%;
+    bottom: 0;
+    width: 104%;
+    height: 22px;
+    overflow: visible;
+    fill: var(--ds-color-zhu);
+  }
+  .context {
+    margin-top: var(--ds-space-5);
+    max-width: 18em;
+    font-size: var(--ds-type-lead);
+    line-height: 1.6;
+    color: var(--ds-color-ink-2);
+  }
+  .run .source { font-feature-settings: "lnum" 1, "tnum" 1; }
+  .context:has(> :empty) { display: none; }
+</style>
+<div class="run" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="4"><span class="heading">{{ slots.heading }}</span><span class="source">{{ slots.source }}</span></div>
+<div class="body">
+  <p class="value" data-ds-enter="left" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="1">{{ slots.value }}</p>
+  <div class="side">
+    <div class="lab" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="2">
+      <p class="label">{{ slots.label }}</p>
+      <svg class="stroke" data-ds-enter="draw-x" data-ds-step="lift" data-ds-ease="brush" data-ds-wait="glide" data-ds-order="5" viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true"><path d="M2 14C60 8 140 10 214 8S340 8 398 10C344 14 270 17 204 16S70 19 2 14Z"/></svg>
+    </div>
+    <p class="context" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="3">{{ slots.context }}</p>
+  </div>
+</div>
