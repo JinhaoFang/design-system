@@ -20,7 +20,8 @@ import { Liquid } from 'liquidjs';
 import type { Page } from 'playwright';
 import { scanArtifacts } from './artifact-scan.ts';
 import type { ArtifactEntry } from './artifact-scan.ts';
-import { copyFonts, validateSystem } from './build-and-check.ts';
+import { validateSystem } from './build-and-check.ts';
+import { copyFonts } from './font-subset.ts';
 import { assertChoreography, buildChoreographyScript } from './choreography.ts';
 import { loadFontCheckData } from './checker/font-data.ts';
 import type { AnimationRecord } from './checker/motion-audit.ts';
@@ -40,7 +41,7 @@ import type { ExemplarView, FontView, LayoutItem, LayoutView, LinkView, PageMode
 import { resolveForCarrier } from './tokens.ts';
 import { BuildError } from './types.ts';
 import type { Report } from './types.ts';
-import { WEB_VIEWPORTS, checkWeb, renderWeb } from './web.ts';
+import { WEB_VIEWPORTS, buildWebPage, checkWeb, renderWeb } from './web.ts';
 import type { Work } from './work.ts';
 
 export interface SystemPageOptions {
@@ -351,10 +352,11 @@ export async function buildSystemPage(options: SystemPageOptions): Promise<Syste
   const page = renderSystemPage(model);
   assertChoreography([page.body], tokens);
 
-  await copyFonts(fontCacheDir, usedFonts, outDir);
-  const fontCheck = await loadFontCheckData(system.manifest.fonts, usedFonts, fontCacheDir);
+  const pageInput = { outDir, title: page.title, cssVars: tokens.cssVars, fonts: usedFonts, unitsHtml: [page.body], choreography: buildChoreographyScript(tokens), style: page.style, script: page.script };
+  await copyFonts({ fontCacheDir, fonts: usedFonts, manifest: system.manifest, outDir, html: buildWebPage(pageInput), viewports: Object.values(WEB_VIEWPORTS) });
+  const fontCheck = await loadFontCheckData(system.manifest.fonts, usedFonts, join(outDir, 'fonts'));
   const render = await renderWeb(
-    { outDir, title: page.title, cssVars: tokens.cssVars, fonts: usedFonts, unitsHtml: [page.body], choreography: buildChoreographyScript(tokens), style: page.style, script: page.script },
+    pageInput,
     { audit: driveReplays, recording: false },
   );
   const work: Work = { system: system.meta.id, carrier: 'web', concept: page.title, sequence: [] };
