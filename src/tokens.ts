@@ -4,6 +4,7 @@
  *   color.<role...> color | font.<role> fontFamily (+ $extensions[NS].fontId, a font-list id; roles body and cjk are used) | easing.<name> cubicBezier
  *   ratio.type.<n> (x carrier body px) | ratio.space.<n> and ratio.radius.<n> (x spaceUnit px) | ratio.duration.<name> and ratio.stagger.<name> (x durationBase ms), all type number
  *   spring.<name>.{stiffness,damping,mass} number | shadow.<name> shadow (layers) | grain.max number 0-1
+ *   motion.stampScale number > 1 (optional): initial scale for the stamp entrance, resolved without a carrier multiplier as --ds-motion-stampScale.
  *   carrier.<web|slides|social>.{body,spaceUnit (dimension px), durationBase (duration)}: the per-carrier base values
  *   root $extensions[NS].constraints: { lightAngleDeg, grainMax, accentBudget, composition.<carrier>.{jumpRate,layoutRate,imageRate: [min,max]} } for the checker
  * CSS custom properties: --ds-color-*, --ds-font-*, --ds-type-N, --ds-space-N, --ds-radius-N, --ds-duration-*, --ds-stagger-*, --ds-easing-*, --ds-spring-<name>-<param>, --ds-shadow-*, --ds-grain-max.
@@ -309,6 +310,12 @@ export function parseTokens(raw: unknown): { parsed: ParsedTokens; issues: strin
       }
     } else if (head === 'spring') {
       ok = depth === 3 && SPRING_PARAMS.includes(third ?? '') && expectType(token, 'number', errors);
+    } else if (head === 'motion') {
+      ok = depth === 2 && second === 'stampScale' && expectType(token, 'number', errors);
+      if (ok && !(isNumber(token.value) && token.value > 1)) {
+        errors.push(`数值文件 ${where} 需要大于 1 的有限数字（按下落定的起始放大倍数）`);
+        ok = false;
+      }
     } else if (head === 'shadow') {
       ok = depth === 2 && expectType(token, 'shadow', errors);
     } else if (head === 'grain') {
@@ -324,7 +331,7 @@ export function parseTokens(raw: unknown): { parsed: ParsedTokens; issues: strin
       ok = false;
     }
     if (!ok && !errors.some((error) => error.startsWith(`数值文件 ${where} `))) {
-      errors.push(`数值文件 ${where} 不在约定的位置上（顶层分组：color、font、easing、ratio、spring、shadow、grain、carrier）`);
+      errors.push(`数值文件 ${where} 不在约定的位置上（顶层分组：color、font、easing、ratio、spring、motion、shadow、grain、carrier）`);
     }
     if (!ok) continue;
     normalize(token, errors);

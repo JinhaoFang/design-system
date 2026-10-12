@@ -6,6 +6,8 @@
  * validateSystem is the first stage on its own (the validate-system subcommand): SYSTEM.md, token file, font references and system units; it throws one BuildError listing every problem.
  * Image ids referenced by the work (briefs in <library>/content/images.json) are resolved to files in <system>/images/ and copied into outDir/images/ (assets.ts); a missing id fails the build before rendering.
  * Entrance choreography attributes (data-ds-enter and friends, choreography.ts) in the rendered units are validated against the system's tokens before rendering.
+ * Slides optionally load <system>/slides.transition.json (token references, slides-transition.ts) before assembling their page; motion.json stores both animation audit passes.
+ * Web/slides motion.json is the sole persisted copy of { animations, reduced }, the same animation records used by the checker (duration, easing, properties, entrance, delay and keyframes).
  * copyFonts (copy the used font files from the cache into outDir/fonts) is exported for other page builders (system-page.ts).
  * Validation problems (bad system, work, fonts or image files) throw BuildError before or during rendering and produce no report. Carriers without a renderer yet (see RENDERABLE_CARRIERS) fail after validation.
  */
@@ -15,6 +17,7 @@ import { resolveWorkImages } from './assets.ts';
 import { assertChoreography, buildChoreographyScript } from './choreography.ts';
 import { ALL_RULES } from './checker/rules/index.ts';
 import { loadFontCheckData } from './checker/font-data.ts';
+import type { MotionSnapshot } from './checker/motion-audit.ts';
 import type { FontCheckData } from './checker/font-data.ts';
 import { runRules } from './checker/registry.ts';
 import { RENDERABLE_CARRIERS, SOCIAL_CANVASES } from './carriers.ts';
@@ -26,6 +29,7 @@ import { renderCustom, renderUnit } from './layout.ts';
 import { buildPage } from './page.ts';
 import { renderImage } from './render.ts';
 import { buildSlides } from './slides.ts';
+import { loadSlidesTransition } from './slides-transition.ts';
 import { exitCodeFor, makeReport, reportToMarkdown } from './report.ts';
 import { validateSystemDoc } from './system.ts';
 import type { SystemMeta } from './system.ts';
@@ -60,7 +64,7 @@ export interface ValidatedSystem {
 export interface BuildResult {
   exitCode: 0 | 1;
   report: Report;
-  artifacts: { outDir: string; index: string; images: string[]; pdf?: string; video?: string; reportJson: string; reportMarkdown: string };
+  artifacts: { outDir: string; index: string; images: string[]; pdf?: string; video?: string; motionJson?: string; reportJson: string; reportMarkdown: string };
 }
 
 async function collect<T>(issues: string[], action: () => Promise<T>): Promise<T | undefined> {
@@ -130,13 +134,14 @@ async function finishSlides(input: {
   outDir: string;
 }): Promise<BuildResult> {
   const { systemDir, work, tokens, usedFonts, fontCheck, unitsHtml, outDir } = input;
-  const slides = await buildSlides({ work, tokens, fonts: usedFonts, fontCheck, unitsHtml, outDir });
+  const transition = await loadSlidesTransition(systemDir, tokens);
+  const slides = await buildSlides({ work, tokens, fonts: usedFonts, fontCheck, unitsHtml, outDir, transition });
   const report = makeReport(
     { system: basename(systemDir), work: { concept: work.concept, carrier: work.carrier, canvas: work.canvas ?? 'stage' } },
     slides.findings,
   );
   const files = await writeReport(outDir, report);
-  return { exitCode: exitCodeFor(report), report, artifacts: { outDir, index: slides.index, images: slides.images, pdf: slides.pdf, video: slides.video, ...files } };
+  return { exitCode: exitCodeFor(report), report, artifacts: { outDir, index: slides.index, images: slides.images, pdf: slides.pdf, video: slides.video, motionJson: slides.motionJson, ...files } };
 }
 
 export async function buildAndCheck(options: BuildOptions): Promise<BuildResult> {
@@ -174,10 +179,12 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
   let video: string | undefined;
   let findings: Finding[];
   let canvas: string;
+  let motion: MotionSnapshot | undefined;
   if (work.carrier === 'web') {
     const web = await renderWeb({ outDir, title: work.concept, cssVars: tokens.cssVars, fonts: usedFonts, unitsHtml, choreography: buildChoreographyScript(tokens) });
     ({ index, images, video } = web);
     findings = checkWeb(web.snapshots, { work, tokens, fonts: fontCheck });
+    motion = web.snapshots.desktop.motion;
     canvas = `${WEB_VIEWPORTS.desktop.width}+${WEB_VIEWPORTS.mobile.width}`;
   } else {
     canvas = work.canvas!;
@@ -185,7 +192,7 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
     index = join(outDir, 'index.html');
     await writeFile(
       index,
-      buildPage({ title: work.concept, cssVars: tokens.cssVars, fonts: usedFonts, ...size, unitsHtml }),
+      buildPage({ title: work.concept, cssVars: tokens.cssVars, fonts: usedFonts, ...size, unitsHtml, choreography: buildChoreographyScript(tokens) }),
     );
     const png = join(outDir, `social-${canvas}.png`);
     const snapshot = await renderImage(index, size, png);
@@ -198,6 +205,8 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
     findings,
   );
   const files = await writeReport(outDir, report);
+  const motionJson = motion ? join(outDir, 'motion.json') : undefined;
+  if (motionJson) await writeFile(motionJson, `${JSON.stringify(motion, null, 2)}\n`);
 
-  return { exitCode: exitCodeFor(report), report, artifacts: { outDir, index, images, ...(video !== undefined && { video }), ...files } };
+  return { exitCode: exitCodeFor(report), report, artifacts: { outDir, index, images, ...(video !== undefined && { video }), ...(motionJson && { motionJson }), ...files } };
 }
