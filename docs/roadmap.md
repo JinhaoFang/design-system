@@ -2,21 +2,21 @@
 
 ## 目标
 
-1. **建成设计体系库**：按方案第 8 节的四个阶段推进，0 打地基 → 1 用起来（盲选验收）→ 2 提取 → 3 扩充。阶段内容和验收标准见 `docs/plan.md` 第 8 节。
+1. **建成设计体系库**：按方案第 8 节的四个阶段推进，0 打地基 → 1 用起来（盲选验收）→ 2 提取 → 3 扩充。阶段内容和验收标准见 `docs/面向 AI Agent 的设计体系库_v0.3.md` 第 8 节。
 2. **用双角色流程开发**：Claude Code 当设计负责人，Codex 当工程负责人，用 `run-spec` 执行 spec。这是这套做法第一次迁移到别的仓库，迁移和使用中发现的问题回报给 `JinhaoFang/video-studio`，用来写那边路线图上的迁移初始化技能。
 
 ## 已定（2026-10-12）
 
 | 事项 | 决定 | 写在哪 |
 |---|---|---|
-| 分工 | Claude Code 当设计负责人，Codex 当工程负责人；方案里由 agent 负责的审美工作归设计负责人，用户是需求方和裁判 | `AGENTS.md`「角色」、`docs/roles/` |
+| 分工 | Claude Code 当设计负责人，Codex 当工程负责人；体系本身和词典的确认归设计负责人，工具归工程负责人；用户是需求方和裁判 | `AGENTS.md`「角色」、`docs/roles/` |
 | 工单 | 只在 GitHub Issues 存一份，按 issue 号派发；执行角色标签 `role:*` 和分诊标签并存 | `docs/agents/issue-tracker.md` |
 | 执行 | 用 `run-spec`；`implement-spec` 已移除 | `docs/workflow/README.md` |
 | 分支与合并 | 每个 spec 一个集成分支 `spec/<号>-<短名>`；PR 只能用 merge commit（GitHub 设置已锁定）；`integration/phase-0` 合回 `main` 后不再使用 | `docs/agents/issue-tracker.md` |
 | Codex 权限 | 完全权限 | `docs/agents/run-spec.md` |
 | 提交格式 | 类型、范围、中文摘要、正文，尾注 `Refs`、`Role` | `AGENTS.md` |
-| 技能 | 第三方技能不进 git；DispatchDock 和 `run-spec` 只放 `.claude/skills/` | `docs/workflow/README.md`「技能放在哪里」 |
-| 命令手册 | 从 `AGENTS.md` 移到单独的文档 | `docs/cli.md` |
+| 技能 | Matt 的技能和 video-studio 保持一致（19 个），不进 git；DispatchDock 和 `run-spec` 只放 `.claude/skills/` | `docs/workflow/README.md`「技能放在哪里」 |
+| 命令手册 | 从 `AGENTS.md` 移到单独的文档，`AGENTS.md` 留指针（spec #1 用户故事 63 要求 agent 不必从代码推断用法，靠这个指针做到） | `docs/cli.md` |
 | 美学立场、幻灯片格式 | 品质门槛而非风格过滤；第一期交付 HTML 幻灯片 | `docs/adr/` |
 
 ## 进度

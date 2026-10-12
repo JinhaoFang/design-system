@@ -6,7 +6,7 @@
 
 ## 文档
 
-- [方案 v0.3](docs/plan.md)
+- [方案 v0.3](docs/面向%20AI%20Agent%20的设计体系库_v0.3.md)
 - [文档地图](docs/README.md)、[路线图](docs/roadmap.md)
 - [术语表](GLOSSARY.md)、[架构决策记录](docs/adr/)
 - [命令手册](docs/cli.md)

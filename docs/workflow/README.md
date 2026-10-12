@@ -1,6 +1,6 @@
 # 开发工作流
 
-一项工作从想法到合并，谁在什么时候用什么。具体步骤写在各技能和角色文档里，这里是总图。产品本身的产出流程（需求翻译、一次产出、提取）见 `docs/plan.md` 第 4～6 节。
+一项工作从想法到合并，谁在什么时候用什么。具体步骤写在各技能和角色文档里，这里是总图。产品本身的产出流程（需求翻译、一次产出、提取）见 `docs/面向 AI Agent 的设计体系库_v0.3.md` 第 4～6 节。
 
 ## 一项工作的生命周期
 
@@ -36,7 +36,7 @@ spec #S
 
 | 技能 | 位置 | 进 git | 谁看得到 |
 |---|---|---|---|
-| 第三方开发技能（Matt 的技能） | `.agents/skills/`，`.claude/skills/` 下放指向它的软链接 | 不进。`skills-lock.json` 记录装了哪些，用 `npx skills@latest add mattpocock/skills` 重装 | Claude Code 和 Codex |
+| 第三方开发技能（Matt 的技能） | `.agents/skills/`，`.claude/skills/` 下放指向它的软链接 | 不进。`skills-lock.json` 记录装了哪些（和 video-studio 相同的 19 个），重装时只装其中列出的技能 | Claude Code 和 Codex |
 | DispatchDock 的 `codex-dispatch`、`dual-role-workflow` | 只在 `.claude/skills/` | 不进。用 `references/DispatchDock` 的安装器重装，命令见下 | 只有 Claude Code |
 | 执行技能 `run-spec` | 只在 `.claude/skills/` | 进 | 只有 Claude Code |
 | 本库的产品技能（方案 7.2 节，第 1 阶段开始写） | 方案定为 `.agents/skills/`，统一加前缀 | 进 | Claude Code 和 Codex |
