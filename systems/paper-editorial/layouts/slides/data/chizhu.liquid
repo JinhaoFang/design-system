@@ -1,0 +1,101 @@
+{% comment %}
+尺注 chizhu：像工程图上的一条尺寸标注。画面中部一条横贯的墨色细线，两端是短竖线与斜杠（建筑尺寸线的起止符），数字（Source Serif 300、colossal 档）坐在线中间的上方，标签（宋体 400、lead）在线下居中；标题（heading，600）在左上，说明与出处在下方左栏（lead ink-2 / caption ink-3）。
+朱色：无。入场：尺寸线洇出，数字升起，标签和说明随后。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    padding: var(--ds-space-7) var(--ds-space-8);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+    text-spacing-trim: trim-both;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  p, h1, h2, ol, ul, li, figure, figcaption, blockquote { margin: 0; padding: 0; }
+  p, li, blockquote { text-wrap: pretty; }
+  h1, h2 { text-wrap: balance; }
+
+  .heading {
+    font-family: var(--ds-font-cjk);
+    font-size: var(--ds-type-lead);
+    font-weight: 600;
+    letter-spacing: .3em;
+  }
+  .dim {
+    position: absolute;
+    left: var(--ds-space-8);
+    right: var(--ds-space-8);
+    top: 52%;
+    height: 0;
+    border-top: 1px solid var(--ds-color-ink);
+  }
+  .dim::before, .dim::after {
+    content: "";
+    position: absolute;
+    top: -24px;
+    width: 0;
+    height: 48px;
+    border-left: 1px solid var(--ds-color-ink);
+  }
+  .dim::before { left: 0; }
+  .dim::after { right: 0; }
+  .tick { position: absolute; top: -12px; width: 24px; height: 24px; overflow: visible; stroke: var(--ds-color-ink); stroke-width: 2; }
+  .tick.l { left: -12px; }
+  .tick.r { right: -12px; }
+  .value {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: var(--ds-space-3);
+    text-align: center;
+    font-family: var(--ds-font-latin);
+    font-size: var(--ds-type-colossal);
+    font-weight: 300;
+    font-feature-settings: "lnum" 1;
+    letter-spacing: -.02em;
+    line-height: 1;
+  }
+  .label {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--ds-space-4);
+    text-align: center;
+    font-size: var(--ds-type-lead);
+    letter-spacing: .12em;
+    line-height: 1.4;
+  }
+  .foot {
+    position: absolute;
+    left: var(--ds-space-8);
+    bottom: var(--ds-space-7);
+    width: 960px;
+  }
+  .context { font-size: var(--ds-type-lead); line-height: 1.6; color: var(--ds-color-ink-2); }
+  .source { margin-top: var(--ds-space-2); font-size: var(--ds-type-caption); letter-spacing: .12em; color: var(--ds-color-ink-3); }
+  .context:has(> :empty), .source:has(> :empty) { display: none; }
+</style>
+<p class="heading" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="4">{{ slots.heading }}</p>
+<div class="dim" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="1">
+  <svg class="tick l" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 22L22 2"/></svg>
+  <svg class="tick r" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 22L22 2"/></svg>
+  <p class="value" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="2">{{ slots.value }}</p>
+  <p class="label" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="3">{{ slots.label }}</p>
+</div>
+<div class="foot" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="4">
+  <p class="context">{{ slots.context }}</p>
+  <p class="source">{{ slots.source }}</p>
+</div>

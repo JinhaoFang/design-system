@@ -1,0 +1,95 @@
+{% comment %}
+落款 luokuan：书末的牌记。文武边栏框住全页；结束语居中（宋体 200、title 档），其下一条短墨线，再下是联系方式（Source Serif、lead）；行动号召做成一张抬起的票券（paper-light，sheet 投影，hair 圆角），券面横排行动号召（宋体 600、lead），右端一道虚线票根。
+朱色：票根上一个朱色实心圈点。入场：结束语洇出，联系方式随后，票券最后从下方滑入。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    padding: var(--ds-space-6) var(--ds-space-7);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+    text-spacing-trim: trim-both;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  p, h1, h2, ol, ul, li, figure, figcaption, blockquote { margin: 0; padding: 0; }
+  p, li, blockquote { text-wrap: pretty; }
+  h1, h2 { text-wrap: balance; }
+  .frame {
+    position: absolute;
+    inset: var(--ds-space-5);
+    border: 3px solid var(--ds-color-ink);
+    pointer-events: none;
+  }
+  .frame::before {
+    content: "";
+    position: absolute;
+    inset: var(--ds-space-1);
+    border: 1px solid var(--ds-color-rule);
+  }
+  .main {
+    position: absolute;
+    inset: var(--ds-space-8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .headline {
+    font-family: var(--ds-font-cjk);
+    font-size: var(--ds-type-title);
+    font-weight: 200;
+    letter-spacing: .06em;
+    line-height: 1.2;
+  }
+  .bar { width: var(--ds-space-8); margin: var(--ds-space-5) 0; border-top: 2px solid var(--ds-color-ink); }
+  .contact {
+    font-family: var(--ds-font-latin);
+    font-size: var(--ds-type-lead);
+    letter-spacing: .04em;
+    color: var(--ds-color-ink-2);
+  }
+  .ticket {
+    display: flex;
+    align-items: stretch;
+    margin-top: var(--ds-space-7);
+    background: var(--ds-color-paper-light);
+    border-radius: var(--ds-radius-hair);
+    box-shadow: var(--ds-shadow-sheet);
+  }
+  .action {
+    padding: var(--ds-space-4) var(--ds-space-6);
+    font-family: var(--ds-font-cjk);
+    font-size: var(--ds-type-lead);
+    font-weight: 600;
+    letter-spacing: .16em;
+  }
+  .stub {
+    display: grid;
+    place-items: center;
+    padding: 0 var(--ds-space-5);
+    border-left: 2px dashed var(--ds-color-rule);
+  }
+  .stub::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: var(--ds-color-zhu); }
+  .contact:has(> :empty) { display: none; }
+</style>
+<div class="frame"></div>
+<div class="main">
+  <h1 class="headline" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-step="glide" data-ds-order="1">{{ slots.headline }}</h1>
+  <div class="bar" aria-hidden="true"></div>
+  <p class="contact" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="2">{{ slots.contact }}</p>
+  <div class="ticket" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="3"><span class="action">{{ slots.action }}</span><span class="stub" aria-hidden="true"></span></div>
+</div>

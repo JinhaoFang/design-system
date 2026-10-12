@@ -1,0 +1,73 @@
+{% comment %}
+日志 rizhi：观测日志的扉页。页眉是 2px 墨线上的日志抬头，左落款（presenter，600）右日期（等宽数字）；主标题宋体 200、display 档，按 5 字一行折两行，压在画面下三分之二；副题 lead ink-2 在标题下。
+朱色：无。整页只有字和一条墨线，像日志本翻开的第一页。入场：标题先升起，副题洇出，页眉最后。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    padding: var(--ds-space-6) var(--ds-space-7);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+    text-spacing-trim: trim-both;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  p, h1, h2, ol, ul, li, figure, figcaption, blockquote { margin: 0; padding: 0; }
+  p, li, blockquote { text-wrap: pretty; }
+  h1, h2 { text-wrap: balance; }
+  .run {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--ds-space-5);
+    padding-bottom: var(--ds-space-2);
+    border-bottom: 2px solid var(--ds-color-ink);
+    font-size: var(--ds-type-caption);
+    letter-spacing: .16em;
+    line-height: 1.5;
+    color: var(--ds-color-ink-2);
+  }
+  .run b { font-weight: 600; color: var(--ds-color-ink); }
+  .run .date { font-feature-settings: "lnum" 1, "tnum" 1; letter-spacing: .08em; }
+  .main {
+    position: absolute;
+    left: var(--ds-space-7);
+    right: var(--ds-space-7);
+    bottom: var(--ds-space-8);
+  }
+  .title {
+    max-width: 7.6em;
+    text-wrap: balance;
+    font-family: var(--ds-font-cjk);
+    font-size: var(--ds-type-display);
+    font-weight: 200;
+    letter-spacing: .02em;
+    line-height: 1.14;
+  }
+  .subtitle {
+    margin-top: var(--ds-space-6);
+    max-width: 24em;
+    font-size: var(--ds-type-lead);
+    letter-spacing: .04em;
+    line-height: 1.6;
+    color: var(--ds-color-ink-2);
+  }
+  .subtitle:has(> :empty) { display: none; }
+</style>
+<div class="run" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="3"><b>{{ slots.presenter }}</b><span class="date">{{ slots.date }}</span></div>
+<div class="main">
+  <h1 class="title" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="1">{{ slots.title }}</h1>
+  <p class="subtitle" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="2">{{ slots.subtitle }}</p>
+</div>

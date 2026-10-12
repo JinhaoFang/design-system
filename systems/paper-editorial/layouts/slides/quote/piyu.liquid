@@ -1,0 +1,68 @@
+{% comment %}
+批语 piyu：一段话横排成大字（宋体 400、head 档，宽 17 字，两端对齐，开头的引号悬挂在版心外），落款在下方右侧：破折号后楷书人名（lead），身份小字（caption ink-3）。页眉墨线空着。
+朱色：无（引语页把朱笔留给作品里真正要紧的那一页）。楷书：落款一处。入场：引语洇出，落款随后。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    padding: var(--ds-space-6) var(--ds-space-7);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+    text-spacing-trim: trim-both;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  p, h1, h2, ol, ul, li, figure, figcaption, blockquote { margin: 0; padding: 0; }
+  p, li, blockquote { text-wrap: pretty; }
+  h1, h2 { text-wrap: balance; }
+
+  .run { height: 0; border-bottom: 2px solid var(--ds-color-ink); }
+  .body {
+    position: absolute;
+    left: var(--ds-space-8);
+    top: 50%;
+    width: fit-content;
+    transform: translateY(-50%);
+  }
+  .quote {
+    max-width: 17.2em;
+    font-family: var(--ds-font-cjk);
+    font-size: var(--ds-type-head);
+    font-weight: 400;
+    letter-spacing: .02em;
+    line-height: 1.6;
+    text-align: justify;
+    hanging-punctuation: first;
+  }
+  .quote::before { content: "「"; margin-left: -1em; }
+  .quote::after { content: "」"; }
+  .by {
+    display: flex;
+    justify-content: flex-end;
+    align-items: baseline;
+    gap: var(--ds-space-4);
+    margin-top: var(--ds-space-6);
+    font-size: var(--ds-type-lead);
+  }
+  .name { font-family: var(--ds-font-kai); letter-spacing: .12em; }
+  .name::before { content: "—— "; font-family: var(--ds-font-body); color: var(--ds-color-ink-3); }
+  .role { font-size: var(--ds-type-caption); letter-spacing: .12em; color: var(--ds-color-ink-3); }
+  .role:has(> :empty) { display: none; }
+</style>
+<div class="run"></div>
+<div class="body">
+  <blockquote class="quote" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-step="glide" data-ds-order="1">{{ slots.quote }}</blockquote>
+  <p class="by" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="2"><span class="name">{{ slots.by }}</span><span class="role">{{ slots.role }}</span></p>
+</div>
