@@ -26,6 +26,7 @@ jobs:
         run: |
           node -e 'const os = require("node:os"); console.log(JSON.stringify({ cpus: os.cpus().length, availableParallelism: os.availableParallelism(), memoryGiB: os.totalmem() / 1024 ** 3, node: process.version }, null, 2))'
       - run: pnpm typecheck
+      - run: pnpm check:comments
       - run: mkdir -p "${{ runner.temp }}/ds-tests"
       - run: pnpm test --reporter=verbose
         env:
