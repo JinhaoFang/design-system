@@ -498,6 +498,12 @@
             ]
           }
         }
+      },
+      "entrance": {
+        "opacity": {
+          "step": "ink",
+          "ease": "ink"
+        }
       }
     }
   },
