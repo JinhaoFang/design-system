@@ -2,7 +2,7 @@
 夹页 jiaye：版心把一屏分成两页。左页是文字：小标题（宋体 400，head 档）和两端对齐的正文；中间版心是两道墨线夹着上下两枚鱼尾，正中竖排卷次（楷书 ink-2）；右页是一块图版：
 paper-light 的夹页被「抬」起一点，带体系的投影（光从左上来，影子落在右下），图像四周留纸。像书里夹着的一张图。
 入场：左页文字上浮、洇出，图版从右侧轻推入（left 的反向用 right，glide + paper，位移 space-3）。
-手机：去掉版心，图版在文字之后。
+手机：去掉版心，鱼尾和卷次移到小标题上方（和其他段一致），图版在文字之后。
 {% endcomment %}
 <style>
   :scope {
@@ -38,6 +38,7 @@ paper-light 的夹页被「抬」起一点，带体系的投影（光从左上�
     margin: 0 auto;
   }
   .text { align-self: center; max-width: 24em; justify-self: end; }
+  .tag { display: none; align-items: center; gap: var(--ds-space-3); margin-bottom: var(--ds-space-5); font-size: var(--ds-type-note); font-weight: 600; letter-spacing: .3em; color: var(--ds-color-ink-3); }
   .heading { font-size: var(--ds-type-head); font-weight: 400; line-height: 1.35; letter-spacing: .04em; text-wrap: balance; }
   .body { margin-top: var(--ds-space-6); line-height: 2; text-align: justify; text-wrap: pretty; font-feature-settings: "onum" 1; }
   .banxin {
@@ -64,6 +65,7 @@ paper-light 的夹页被「抬」起一点，带体系的投影（光从左上�
     :scope { padding: var(--ds-space-9) var(--ds-space-5); }
     .spread { grid-template-columns: minmax(0, 1fr); gap: var(--ds-space-7); }
     .banxin { display: none; }
+    .tag { display: flex; }
     .text { justify-self: start; max-width: none; }
     .heading { font-size: var(--ds-type-sub); }
     .body { margin-top: var(--ds-space-5); }
@@ -72,6 +74,7 @@ paper-light 的夹页被「抬」起一点，带体系的投影（光从左上�
 </style>
 <div class="spread">
   <div class="text">
+    <p class="tag" aria-hidden="true"><svg class="yuwei" viewBox="0 0 24 16"><path d="M0 0H24V10L17 5.5L12 11.5L7 5.5L0 10Z"/></svg><span class="no"></span></p>
     <h2 class="heading" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="0">{{ slots.heading }}</h2>
     <p class="body" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="1">{{ slots.body }}</p>
   </div>
