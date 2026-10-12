@@ -3,16 +3,17 @@
  * They assert artifact specs only: the files that come out, the system's values appearing in the page text, the animation records the replays produce under normal and reduced motion,
  * the links and thumbnails of the layout overview, standard samples and approved exemplars, the tables of SYSTEM.md, the fonts grouped by family, and the checker report (zero errors, composition and anti-homogeneity skipped). No DOM structure, no pixels.
  * One page is built once for the whole file (a real Chromium run), with a layout overview, a standard sample and a few exemplars linked into it; the paper-editorial page is built once more when the font cache exists (italic specimens, tables, zero errors).
+ * A separate sample page uses small artifact stubs with PNGs at real carrier dimensions (including a 1440x12000 long screenshot) and long captions; its checker report covers both web widths.
  */
 import { existsSync } from 'node:fs';
-import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { access, copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { beforeAll, describe, expect, test } from 'vitest';
 import { buildAndCheck } from '../src/build-and-check.ts';
 import { buildOverview } from '../src/overview.ts';
 import { buildSystemPage } from '../src/system-page.ts';
 import type { SystemPageResult } from '../src/system-page.ts';
-import { fixtures, pngSize, tempDir } from './helpers.ts';
+import { fixtures, pngSize, repoRoot, tempDir } from './helpers.ts';
 import { overviewLibrary } from './overview-helpers.ts';
 import { editText, patchedSystem, systemMd, writeFileDeep } from './system-helpers.ts';
 
@@ -208,6 +209,29 @@ describe('checks on the page', () => {
 
   test('composition and anti-homogeneity rules are not run on the page', () => {
     for (const finding of page.report.findings) expect(['composition', 'anti-homogeneity']).not.toContain(finding.category);
+  });
+});
+
+describe('sample thumbnail proportions', () => {
+  test('long web screenshots and long descriptions alongside slides and every social canvas have no layout errors at either web width', async () => {
+    const source = join(repoRoot, 'test', 'fixtures', 'system-page-samples');
+    const samples: { id: string; carrier: string; canvas?: string; image: string; concept: string }[] = JSON.parse(await readFile(join(source, 'samples.json'), 'utf8'));
+    const base = await tempDir('ds-system-page-samples-');
+    const worksDir = join(base, 'works');
+    for (const sample of samples) {
+      const dir = join(worksDir, sample.id);
+      await mkdir(dir, { recursive: true });
+      await writeFile(join(dir, 'index.html'), '<!doctype html><title>Sample</title>');
+      await copyFile(join(source, sample.image), join(dir, sample.image));
+      await writeFile(join(dir, 'report.json'), JSON.stringify({ system: 'mini', work: sample, summary: { errors: 0, warnings: 0 } }));
+    }
+    const result = await buildSystemPage({ systemDir: fixtures.system, outDir: join(base, 'system'), libraryDir: fixtures.library, fontCacheDir: fixtures.fontCache, worksDir });
+    expect(result.report.summary.errors, JSON.stringify(result.report.findings, null, 1)).toBe(0);
+    expect(result.report.findings.filter((finding) => finding.category === 'cjk-typography' && finding.location.unit === 'works' && finding.severity === 'error')).toEqual([]);
+    expect(result.exitCode).toBe(0);
+    const [desktop, mobile] = result.artifacts.images;
+    expect((await pngSize(desktop!)).width).toBe(1440);
+    expect((await pngSize(mobile!)).width).toBe(390);
   });
 });
 

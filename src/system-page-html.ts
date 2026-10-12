@@ -12,6 +12,8 @@
  * Replays use element.animate with durations and easings straight from the system's ladders; the duration and easing cells carry the 用在 note of the SYSTEM.md tables.
  * Constraints kept so the page passes the checker: no default margins (all spacing from the space ladder), every text element has a type-ladder size, only system colors, no monospace/system fonts, buttons and links restyled,
  * code in tables does not wrap (a wrapped curve would start a line with a forbidden character), italic specimens are set in italic; *emphasis* is real italic when the system loads an italic face, otherwise upright with an underline.
+ * Sample captions have the existing 14rem card minimum (capped at the available width), independent of thumbnail proportions or lazy image loading.
+ * Web thumbnails keep the existing 20:16 crop as a responsive 5:4 box anchored at the top; other thumbnails retain their natural aspect ratio within the existing 16rem height limit.
  */
 import { TONE_PAIRS } from './system.ts';
 import type { SystemMeta, ToneKey } from './system.ts';
@@ -330,10 +332,10 @@ em{font-style:${hasItalic ? 'italic' : 'normal'}}${hasItalic ? '' : `em{text-dec
 .sp-overall{display:grid;gap:${S(0.05)};max-width:16rem}
 .sp-overall img{width:100%;height:12rem;object-fit:cover;object-position:top;border:1px solid ${line}}
 .sp-works{display:flex;flex-wrap:wrap;gap:${S(0.4)} ${S(0.5)};align-items:flex-end}
-.sp-work{display:grid;gap:${S(0.05)};align-content:start;max-width:100%}
+.sp-work{display:grid;gap:${S(0.05)};align-content:start;min-width:min(14rem,100%);max-width:100%}
 .sp-work > :not(a){width:0;min-width:100%}
-.sp-work img{height:16rem;width:auto;max-width:100%;border:1px solid ${line}}
-.sp-work img[data-cropped]{width:20rem;object-fit:cover;object-position:top}
+.sp-work img{height:auto;width:auto;max-height:16rem;max-width:100%;border:1px solid ${line}}
+.sp-work img[data-cropped]{width:20rem;aspect-ratio:5 / 4;max-height:none;object-fit:cover;object-position:top}
 .sp-work-k{font-size:${text}}
 .sp-work-v{font-size:${small};color:${soft}}
 .sp-exemplars{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(14rem,100%),1fr));gap:${S(0.3)}}
