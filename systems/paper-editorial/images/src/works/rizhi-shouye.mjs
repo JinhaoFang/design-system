@@ -5,7 +5,7 @@
  * after the comma, with the vermilion brush underline (art/ornaments.mjs, fluid width) under exactly 开放观测夜, the half that matters. Under it the lead, the action link (ink rule, a thin
  * vermilion line slides in on hover) and the booking date in ink-3. On the right, bottom-aligned with the text block and about as tall, a supporting plate: the stipple of the Andromeda galaxy
  * (art/andromeda.mjs, the same plate as the square social sheet), so the northern star chart is kept for the full plate further down; its caption 图〇　仙女星系　首光所见 in ink-2. Zhu: only the stroke.
- * Entrance (choreography attributes): the log header fades in, the headline rises (glide + paper, space-3), then, after a glide-step wait (data-ds-wait) so everything else has settled, the brush stroke is drawn left to right (draw-x, lift + brush),
+ * Entrance (choreography attributes): the log header fades in, the headline rises (glide + paper, space-3), then, after a lift-step wait (data-ds-wait) so everything else has settled, the brush stroke is drawn left to right (draw-x, lift + brush),
  * then the lead and the action fade in a line apart, the plate last. Under 860px: one column, headline at head size, plate after the text.
  * Sizes, gaps and colours are tokens. rizhiShouye() -> { name, text }.
  */
@@ -16,7 +16,7 @@ import { fragment, paperBase } from './common.mjs';
 
 export function rizhiShouye() {
   const plate = andromedaPlate({ w: 400, h: 340, P: VAR, seed: 17 });
-  const stroke = brushStroke({ w: 400, h: 24, T: 8, seed: 9, fill: VAR.zhu, fluid: true }).replace('<svg ', '<svg data-ds-enter="draw-x" data-ds-wait="glide" data-ds-step="lift" data-ds-ease="brush" data-ds-order="2" ');
+  const stroke = brushStroke({ w: 400, h: 24, T: 8, seed: 9, fill: VAR.zhu, fluid: true }).replace('<svg ', '<svg data-ds-enter="draw-x" data-ds-wait="lift" data-ds-step="lift" data-ds-ease="brush" data-ds-order="2" ');
   const css = `${paperBase()}
 :scope{display:flex;flex-direction:column;height:auto;min-height:100vh;overflow:visible;padding:0 var(--ds-space-8) var(--ds-space-8);font-family:var(--ds-font-body);font-size:var(--ds-type-body);line-height:1.85}
 :scope *{box-sizing:border-box}

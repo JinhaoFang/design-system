@@ -66,7 +66,7 @@
 <div class="page">
   <div class="head" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="1"><svg class="yuwei" viewBox="0 0 24 16" aria-hidden="true"><path d="M0 0H24V10L17 5.5L12 11.5L7 5.5L0 10Z"/></svg><h1 class="heading">{{ slots.heading }}</h1></div>
   <ol class="rows" data-ds-stagger="line">
-    {% for s in slots.steps %}<li data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="2"><span class="name">{{ s }}</span><span class="note">{{ slots.stepNotes[forloop.index0] }}</span></li>
+    {% for s in slots.steps %}<li data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="{{ forloop.index | plus: 1 }}"><span class="name">{{ s }}</span><span class="note">{{ slots.stepNotes[forloop.index0] }}</span></li>
     {% endfor %}
   </ol>
 </div>

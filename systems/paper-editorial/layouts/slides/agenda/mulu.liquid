@@ -67,7 +67,7 @@
 <div class="body">
   <h1 class="heading" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="1">{{ slots.heading }}</h1>
   <ol class="items" data-ds-stagger="line">
-    {% for item in slots.items %}<li data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="2">{{ item }}</li>
+    {% for item in slots.items %}<li data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="{{ forloop.index | plus: 1 }}">{{ item }}</li>
     {% endfor %}
   </ol>
 </div>

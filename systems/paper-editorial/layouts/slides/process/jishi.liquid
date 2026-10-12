@@ -90,6 +90,6 @@
 <h1 class="heading" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="1">{{ slots.heading }}</h1>
 <div class="line" aria-hidden="true"></div>
 <ol class="steps" data-ds-stagger="line">
-  {% for s in slots.steps %}<li class="step" data-ds-enter="left" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="2"><p class="name">{{ s }}</p><p class="note">{{ slots.stepNotes[forloop.index0] }}</p></li>
+  {% for s in slots.steps %}<li class="step" data-ds-enter="left" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="{{ forloop.index | plus: 1 }}"><p class="name">{{ s }}</p><p class="note">{{ slots.stepNotes[forloop.index0] }}</p></li>
   {% endfor %}
 </ol>
