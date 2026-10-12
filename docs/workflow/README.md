@@ -58,7 +58,8 @@ git restore --source=<旧提交> --worktree -- $(node -e 'for (const s of Object
 ## 护栏
 
 - `pnpm verify`：按步骤依次运行类型检查和全部测试，每步先打印标签，前一步失败就停止并保留退出码，完成标准以它通过为准。步骤表在 `scripts/verify.ts`；扩展方式见 `docs/cli.md`。测试会用无头浏览器真实渲染，全量约 2 分钟。
-- CI：推送和开 PR 时跑类型检查和测试；回归（`regress` 工作流）手动触发。
+- 提交信息：装依赖时自动启用 commit-msg 钩子；合并进行中跳过。CI 独立检查 `origin/main..HEAD` 的非合并提交，本机复现命令和用法见 `docs/cli.md`。
+- CI：推送和开 PR 时跑分支提交检查、类型检查和测试；回归（`regress` 工作流）手动触发。
 
 ## 图像与评审
 

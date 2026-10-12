@@ -11,6 +11,8 @@
     "verify": "node scripts/verify.ts",
     "typecheck": "tsc -p tsconfig.json",
     "check:comments": "node scripts/check-comments.ts",
+    "check:commits": "node scripts/check-commit-range.ts",
+    "prepare": "node scripts/install-hooks.ts",
     "test": "vitest run",
     "fixture-font": "node scripts/make-fixture-font.ts"
   },

@@ -31,9 +31,10 @@
   - 范围：改动所在的模块，用目录名，如 `checker`、`cli`、`library`、`docs`、`workflow`、`roles`、`skills`；体系的改动用体系标识，如 `paper-editorial`；跨多个模块的整仓改动用 `repo`。
   - 摘要用中文，一行说清结果。正文必写，改错字也写一句。
   - 尾注：最后一段只写 `Refs: #<工单号>`（可以多行；工单由验收关闭，不写 `Closes`）和 `Role`，两项在同一段。用 `-m` 时放进同一个 `-m`，中间是真正的换行，bash 里写 `-m $'Refs: #12\nRole: design'`。`spec/*` 和 `ticket/*` 分支上 `Refs` 必写。尾注只有这两项，不加任何署名尾注（包括 AI 署名和 Co-Authored-By）。
+  - `pnpm install` 通过 `prepare` 自动启用 `.githooks/commit-msg`；本机一次列出全部中文违规，合并进行中跳过。CI 用 `pnpm check:commits origin/main <来源分支名>` 检查非合并提交，本机复现和退出状态见 `docs/cli.md`。
 - 只做工单范围内的事。新增依赖在汇报里写明理由；依赖版本固定，`pnpm-workspace.yaml` 的 `minimumReleaseAge` 不安装 14 天内发布的版本。
 - `references/` 是参考项目的本地克隆，只读，不进 git。
-- 验证命令：`pnpm verify`（类型检查和全部测试）。CI 在推送和开 PR 时跑类型检查和测试。
+- 验证命令：`pnpm verify`（类型检查和全部测试）。CI 在推送和开 PR 时额外检查分支提交信息，再跑类型检查和测试。
 
 ## 目录与归属
 
