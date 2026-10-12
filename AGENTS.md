@@ -31,9 +31,10 @@
   - 范围：改动所在的模块，用目录名，如 `checker`、`cli`、`library`、`docs`、`workflow`、`roles`、`skills`；体系的改动用体系标识，如 `paper-editorial`；跨多个模块的整仓改动用 `repo`。
   - 摘要用中文，一行说清结果。正文必写，改错字也写一句。
   - 尾注：最后一段只写 `Refs: #<工单号>`（可以多行；工单由验收关闭，不写 `Closes`）和 `Role`，两项在同一段。用 `-m` 时放进同一个 `-m`，中间是真正的换行，bash 里写 `-m $'Refs: #12\nRole: design'`。`spec/*` 和 `ticket/*` 分支上 `Refs` 必写。尾注只有这两项，不加任何署名尾注（包括 AI 署名和 Co-Authored-By）。
+  - `pnpm install` 通过 `prepare` 自动启用 `.githooks/commit-msg`；本机一次列出全部中文违规，合并进行中跳过。CI 用 `pnpm check:commits origin/main <来源分支名>` 检查非合并提交，本机复现和退出状态见 `docs/cli.md`。
 - 只做工单范围内的事。新增依赖在汇报里写明理由；依赖版本固定，`pnpm-workspace.yaml` 的 `minimumReleaseAge` 不安装 14 天内发布的版本。
 - `references/` 是参考项目的本地克隆，只读，不进 git。
-- 验证命令：`pnpm verify`（类型检查和全部测试）。CI 在推送和开 PR 时跑类型检查和测试。
+- 验证命令：`pnpm verify`（类型检查、注释位置检查、文档命令检查和全部测试）。CI 在推送和开 PR 时先检查分支提交信息，再跑和 `pnpm verify` 相同的检查。
 
 ## 目录与归属
 
@@ -51,7 +52,7 @@
 
 ## 代码约定
 
-- 代码文件里不写行内注释，只在文件头部集中写说明（这个文件做什么、输入输出、关键约束），方便快速检索。
+- 代码文件里不写行内注释，只在文件头部集中写说明（这个文件做什么、输入输出、关键约束），方便快速检索。`pnpm check:comments` 在 `pnpm verify` 和 CI 中检查进 git 的 TS/JS 文件，注释段的判定和命令用法见 `docs/cli.md`。
 - TypeScript 严格模式，用 Node 原生类型剥离运行（不用 tsx）：相对导入写 `.ts` 扩展名，类型导入用 `import type`，不用 `enum`、命名空间和参数属性。
 - 新增检查规则：在 `src/checker/rules/` 新建文件，在 `rules/index.ts` 的 `ALL_RULES` 里加一行；规则只读 `snapshot` 里的数据，需要新的页面信息就扩展 `src/checker/snapshot.ts`。流程本身不用改。规则的阈值一律放在 `src/checker/rule-data.ts`（工艺规范引用同一份），不写进规则逻辑。
 

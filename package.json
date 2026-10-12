@@ -8,8 +8,12 @@
   },
   "scripts": {
     "ds": "node src/cli.ts",
-    "verify": "pnpm typecheck && pnpm test",
+    "verify": "node scripts/verify.ts",
     "typecheck": "tsc -p tsconfig.json",
+    "check:comments": "node scripts/check-comments.ts",
+    "check:commits": "node scripts/check-commit-range.ts",
+    "prepare": "node scripts/install-hooks.ts",
+    "check:doc-commands": "node scripts/check-doc-commands.ts",
     "test": "vitest run",
     "fixture-font": "node scripts/make-fixture-font.ts"
   },
@@ -28,6 +32,7 @@
     "@types/subset-font": "2.3.0",
     "subset-font": "2.9.0",
     "typescript": "7.0.2",
+    "typescript-parser": "npm:typescript@6.0.2",
     "vitest": "5.0.2"
   }
 }

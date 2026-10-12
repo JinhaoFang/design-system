@@ -1,16 +1,22 @@
 name: ci
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 jobs:
   test:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Check branch commits
+        run: pnpm check:commits origin/main "$SOURCE_BRANCH"
+        env:
+          SOURCE_BRANCH: ${{ github.head_ref || github.ref_name }}
       - id: pw
         run: echo "version=$(node -p "require('playwright/package.json').version")" >> "$GITHUB_OUTPUT"
       - uses: actions/cache@v6
@@ -22,5 +28,20 @@ jobs:
         run: pnpm exec playwright install --with-deps --only-shell chromium
       - if: steps.pw-cache.outputs.cache-hit == 'true'
         run: pnpm exec playwright install-deps chromium
+      - name: Runner resources
+        run: |
+          node -e 'const os = require("node:os"); console.log(JSON.stringify({ cpus: os.cpus().length, availableParallelism: os.availableParallelism(), memoryGiB: os.totalmem() / 1024 ** 3, node: process.version }, null, 2))'
       - run: pnpm typecheck
-      - run: pnpm test
+      - run: pnpm check:comments
+      - run: pnpm check:doc-commands
+      - run: mkdir -p "${{ runner.temp }}/ds-tests"
+      - run: pnpm test --reporter=verbose
+        env:
+          TMPDIR: ${{ runner.temp }}/ds-tests
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports
+          path: |
+            ${{ runner.temp }}/ds-tests/**/report.json
+            ${{ runner.temp }}/ds-tests/**/replays.json

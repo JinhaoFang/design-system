@@ -1,6 +1,6 @@
 /*
  * Rendering with Playwright Chromium: fixed viewport, deviceScaleFactor 1, no-preference motion. After navigation it waits for every declared font face to load
- * (a face that fails to load aborts the build), finishes animations, takes the checker snapshot, then screenshots the exact canvas as PNG.
+ * (a face that fails to load aborts the build), finishes animations, waits for two animation frames so those changes can be painted, takes the checker snapshot, then screenshots the exact canvas as PNG.
  * One browser is launched per call and always closed.
  */
 import { pathToFileURL } from 'node:url';
@@ -22,6 +22,7 @@ export async function settle(page: Page): Promise<void> {
         animation.cancel();
       }
     }
+    await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
     return faces.filter((_face, index) => results[index]!.status === 'rejected').map((face) => face.family);
   });
   if (failed.length) throw new BuildError([`字体加载失败：${failed.join('、')}`]);

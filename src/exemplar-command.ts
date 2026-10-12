@@ -8,7 +8,7 @@ import { parseArgs } from 'node:util';
 import { SOURCE_TYPES, listExemplars, validateExemplars } from './exemplars.ts';
 import type { SourceType } from './exemplars.ts';
 
-export const EXEMPLAR_COMMANDS = ['validate-exemplars', 'list-exemplars'];
+export { EXEMPLAR_COMMANDS } from './cli-commands.ts';
 
 export async function exemplarCommand(command: string, args: string[]): Promise<number> {
   const { values } = parseArgs({

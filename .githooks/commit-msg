@@ -1,0 +1,3 @@
+#!/bin/sh
+# Delegate Git's message file to the shared commit checker.
+exec node scripts/commit-msg.ts "$@"

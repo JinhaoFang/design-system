@@ -22,8 +22,10 @@
 
 - **按批审查**：审查不走 `dispatch`，用 `dispatchScript` 指向的派发脚本直接派发，`--sandbox` 填 `codexSandbox`。
 - **汇报目录**：`docs/reports/`，写法按 `run-spec` 的 `report.md`。这个仓库还没有汇报，第一份写好后它就是后面各期沿用的版式。
-- **验证用时**：`pnpm verify` 在本机约 2 分钟（类型检查加 395 个测试，测试会起无头浏览器）。派发的实测用时还没有数据，第一次派发后补在这里。
-- **常见的共享登记处**：`src/checker/rules/index.ts` 的 `ALL_RULES`、`src/cli.ts` 的子命令、`docs/cli.md`。并行的工单都要往里加一项时，派发的补充说明写"只加自己那一项"。
+- **验证用时**：`pnpm verify` 在本机约 2 分钟（类型检查、注释位置检查、文档命令检查和 484 个测试，测试会起无头浏览器）。并行验证：两套同时跑经过实测是安全的（spec #32 的 #33）；三张工单并行时各自的验证也都通过了，但没有专门压测三套同时跑。CI 的机器是 2 核，测试约 5 分钟。
+- **派发实测用时**（spec #32）：工具类工单 10～18 分钟，输入 100 万～270 万 tokens（九成以上命中缓存）；要在 CI 上反复运行找原因的排查工单约 40 分钟、870 万 tokens；按批审查约 5 分钟。`land` 的验证每次约 2 分钟。
+- **rebase 带进新依赖时先重装**：`land` 在 rebase 之后直接跑验证，不重新安装依赖。先合并的工单改了 `pnpm-lock.yaml` 时，后合并的工单 worktree 里缺新依赖，验证会失败；在 worktree 里运行 `pnpm install --frozen-lockfile` 后重跑 `land`。
+- **常见的共享登记处**：`src/checker/rules/index.ts` 的 `ALL_RULES`、`src/cli-commands.json` 的 `ds` 子命令表、`package.json` 的脚本、`scripts/verify.ts` 的 `STEPS`、CI 工作流、`docs/cli.md`。并行的工单都要往里加一项时，派发的补充说明写"只加自己那一项"。
 - **软链接的目录在 `.gitignore` 里不带斜杠**：worktree 里的 `references`、`.agents`、`.cache` 是软链接，写成 `references/` 这类带斜杠的规则匹配不到，worktree 会不干净，`land` 会拒绝合并。
 
 `run-spec` 来自 `JinhaoFang/video-studio`，迁移方法见那边的 `docs/agents/run-spec.md`。
