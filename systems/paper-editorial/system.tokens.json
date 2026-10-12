@@ -78,6 +78,18 @@
         "hex": "#6e6656"
       }
     },
+    "ink-shade": {
+      "$value": {
+        "colorSpace": "oklch",
+        "components": [
+          0.222,
+          0.014,
+          74
+        ],
+        "alpha": 0.12,
+        "hex": "#1f1a14"
+      }
+    },
     "rule": {
       "$value": {
         "colorSpace": "oklch",

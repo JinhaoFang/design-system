@@ -1,0 +1,7 @@
+{
+  "duration": "--ds-duration-glide",
+  "easing": "--ds-easing-paper",
+  "shadow": "--ds-shadow-sheet",
+  "shadeColor": "--ds-color-ink-shade",
+  "retreat": "--ds-space-8"
+}
