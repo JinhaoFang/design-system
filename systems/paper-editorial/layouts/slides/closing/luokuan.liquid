@@ -1,6 +1,6 @@
 {% comment %}
-落款 luokuan：书末的牌记。文武边栏框住全页；结束语居中（宋体 200、title 档），其下一条短墨线，再下是联系方式（Source Serif、lead）；行动号召做成一张抬起的票券（paper-light，sheet 投影，hair 圆角），券面横排行动号召（宋体 600、lead），右端一道虚线票根。
-朱色：票根上一个朱色实心圈点。入场：结束语洇出，联系方式随后，票券最后从下方滑入。
+落款 luokuan：书末的牌记。文武边栏框住全页；结束语居中（宋体 200、title 档），其下一条短墨线，再下是联系方式（Source Serif、lead）；行动号召收进牌记下方居中的一枚朱印（楷书竖排，每列至多三字），不做按钮。
+朱色：仅朱印。入场：结束语洇出，联系方式随后，朱印最后按下落定。
 {% endcomment %}
 <style>
   :scope {
@@ -62,34 +62,28 @@
     letter-spacing: .04em;
     color: var(--ds-color-ink-2);
   }
-  .ticket {
-    display: flex;
-    align-items: stretch;
+  .seal {
+    box-sizing: content-box;
+    max-height: 3em;
     margin-top: var(--ds-space-7);
-    background: var(--ds-color-paper-light);
-    border-radius: var(--ds-radius-hair);
-    box-shadow: var(--ds-shadow-sheet);
-  }
-  .action {
-    padding: var(--ds-space-4) var(--ds-space-6);
-    font-family: var(--ds-font-cjk);
+    padding: var(--ds-space-2);
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    background: var(--ds-color-zhu);
+    color: var(--ds-color-paper);
+    font-family: var(--ds-font-kai);
     font-size: var(--ds-type-lead);
-    font-weight: 600;
-    letter-spacing: .16em;
+    line-height: 1.15;
+    text-align: start;
+    filter: url(#pe-rough-s);
   }
-  .stub {
-    display: grid;
-    place-items: center;
-    padding: 0 var(--ds-space-5);
-    border-left: 2px dashed var(--ds-color-rule);
-  }
-  .stub::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: var(--ds-color-zhu); }
-  .contact:has(> :empty) { display: none; }
+  .contact:has(> :empty), .seal:has(> :empty) { display: none; }
 </style>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="pe-rough-s" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="2.4" result="d"/><feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="2" seed="9" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.1 1.92" result="holes"/><feComposite in="d" in2="holes" operator="in"/></filter></svg>
 <div class="frame"></div>
 <div class="main">
   <h1 class="headline" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-step="glide" data-ds-order="1">{{ slots.headline }}</h1>
   <div class="bar" aria-hidden="true"></div>
   <p class="contact" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="2">{{ slots.contact }}</p>
-  <div class="ticket" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="3"><span class="action">{{ slots.action }}</span><span class="stub" aria-hidden="true"></span></div>
+  <p class="seal" data-ds-enter="stamp" data-ds-step="turn" data-ds-ease="press" data-ds-order="3">{{ slots.action }}</p>
 </div>

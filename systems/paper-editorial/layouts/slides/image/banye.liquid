@@ -1,6 +1,6 @@
 {% comment %}
 半页 banye：图占右边大半页（四周仍留纸，1px rule 线框），左边一栏是图的标题（宋体 400、head 档）和说明（body ink-2，两端对齐），栏顶一条 2px 墨线、一个鱼尾，像刻本里图左的图说。
-朱色：无。入场：图版从右滑入，左栏随后洇出。
+朱色：无。入场：图版上的衬纸向右揭去（peel-right，lift + paper），左栏随后洇出。
 {% endcomment %}
 <style>
   :scope {
@@ -56,11 +56,18 @@
     height: 864px;
     padding: var(--ds-space-2);
     border: 1px solid var(--ds-color-rule);
+    overflow: hidden;
+  }
+  .tissue {
+    position: absolute;
+    inset: 0;
+    background: var(--ds-color-paper-deep);
+    border-bottom: 1px solid var(--ds-color-rule);
   }
   .plate img { display: block; width: 100%; height: 100%; object-fit: cover; }
   .heading:has(> :empty), .caption:has(> :empty) { display: none; }
 </style>
 <div class="page">
   <div class="text" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="2"><svg class="yuwei" viewBox="0 0 24 16" aria-hidden="true"><path d="M0 0H24V10L17 5.5L12 11.5L7 5.5L0 10Z"/></svg><h1 class="heading">{{ slots.heading }}</h1><p class="caption">{{ slots.caption }}</p></div>
-  <figure class="plate" data-ds-enter="right" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="1">{{ slots.visual }}</figure>
+  <figure class="plate">{{ slots.visual }}<div class="tissue" data-ds-enter="peel-right" data-ds-step="lift" data-ds-ease="paper" data-ds-order="1" aria-hidden="true"></div></figure>
 </div>

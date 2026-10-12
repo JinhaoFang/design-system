@@ -1,6 +1,6 @@
 {% comment %}
 大数 damu：观测日志里最响的一页。页眉墨线上左是标题（heading），右是出处；页面中部偏下，左边超大的细衬线数字（Source Serif 300 等高数字、colossal 档），右栏标签（宋体 600、sub 档）下一道朱笔，再下是说明（lead ink-2）。
-朱色：仅标签下的朱笔（静态笔画，翻页停稳后划出）。入场：数字从左滑入，标签升起，说明洇出，朱笔最后。
+朱色：仅标签下的朱笔。入场：数字从左滑入，标签升起，说明洇出，页眉随后，朱笔最后从左到右划出（draw-x，lift + brush）。
 {% endcomment %}
 <style>
   :scope {
@@ -93,7 +93,7 @@
   <div class="side">
     <div class="lab" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="2">
       <p class="label">{{ slots.label }}</p>
-      <svg class="stroke" viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true"><path d="M2 14C60 8 140 10 214 8S340 8 398 10C344 14 270 17 204 16S70 19 2 14Z"/></svg>
+      <svg class="stroke" data-ds-enter="draw-x" data-ds-step="lift" data-ds-ease="brush" data-ds-wait="glide" data-ds-order="5" viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true"><path d="M2 14C60 8 140 10 214 8S340 8 398 10C344 14 270 17 204 16S70 19 2 14Z"/></svg>
     </div>
     <p class="context" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="3">{{ slots.context }}</p>
   </div>

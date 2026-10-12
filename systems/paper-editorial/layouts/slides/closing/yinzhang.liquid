@@ -1,6 +1,6 @@
 {% comment %}
-印章 yinzhang：最后一页落一枚印。页眉墨线；结束语（宋体 200、title 档）横排在左中，朱笔划在句子后半（右侧约 45%，一般正是「在哪里见」的那半句）；联系方式（Source Serif、lead，ink-2）在下；右下一枚朱印，行动号召竖排在印里（楷书，纸色阳文，每列至多三字，五字折成三加二的两列，近似方印）。
-朱色：朱笔、朱印两处，合计远低于 6%。入场：结束语升起，联系方式洇出，朱笔，最后印章落定。
+印章 yinzhang：最后一页落一枚印。页眉墨线；结束语（宋体 200、title 档）横排在约 45% 高度，整句包成一块，朱笔的宽度就是这句话的实际宽度，换内容也落在句下；联系方式（Source Serif、lead，ink-2）在下；右下一枚朱印，行动号召竖排在印里（楷书，纸色阳文，每列至多三字）。
+朱色：朱笔、朱印两处，合计远低于 6%。入场：结束语升起，联系方式洇出，朱笔划出，最后印章按下落定。
 {% endcomment %}
 <style>
   :scope {
@@ -43,7 +43,8 @@
   .main {
     position: absolute;
     left: var(--ds-space-7);
-    top: 38%;
+    top: 45%;
+    transform: translateY(-50%);
   }
   .hl { position: relative; display: inline-block; padding-bottom: var(--ds-space-3); }
   .headline {
@@ -55,9 +56,9 @@
   }
   .stroke {
     position: absolute;
-    left: 56%;
+    left: -1%;
     bottom: -8px;
-    width: 45%;
+    width: 102%;
     height: 30px;
     overflow: visible;
     fill: var(--ds-color-zhu);
@@ -69,6 +70,7 @@
     letter-spacing: .04em;
     color: var(--ds-color-ink-2);
   }
+  .contact:has(> :empty) { display: none; }
   .seal {
     position: absolute;
     right: var(--ds-space-8);
@@ -87,16 +89,15 @@
     filter: url(#pe-rough-s);
     transform: rotate(-3deg);
   }
-  .contact:has(> :empty) { display: none; }
   .seal:has(> :empty) { display: none; }
 </style>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="pe-rough-s" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="2.4" result="d"/><feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="2" seed="9" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.1 1.92" result="holes"/><feComposite in="d" in2="holes" operator="in"/></filter></svg>
 <div class="run"></div>
 <div class="main">
-  <div class="hl" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="1">
-    <h1 class="headline">{{ slots.headline }}</h1>
-    <svg class="stroke" viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true"><path d="M2 14C60 8 140 10 214 8S340 8 398 10C344 14 270 17 204 16S70 19 2 14Z"/></svg>
+  <div class="hl">
+    <h1 class="headline" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="1">{{ slots.headline }}</h1>
+    <svg class="stroke" data-ds-enter="draw-x" data-ds-step="lift" data-ds-ease="brush" data-ds-wait="glide" data-ds-order="3" viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true"><path d="M2 14C60 8 140 10 214 8S340 8 398 10C344 14 270 17 204 16S70 19 2 14Z"/></svg>
   </div>
   <p class="contact" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="2">{{ slots.contact }}</p>
 </div>
-<p class="seal" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-step="turn" data-ds-ease="press" data-ds-order="3">{{ slots.action }}</p>
+<p class="seal" data-ds-enter="stamp" data-ds-step="turn" data-ds-ease="press" data-ds-order="4">{{ slots.action }}</p>

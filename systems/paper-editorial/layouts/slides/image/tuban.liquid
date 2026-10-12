@@ -1,6 +1,6 @@
 {% comment %}
 图版 tuban：一块四周留纸的图版。图居中偏上，外面一圈 1px rule 线框（像图版的压印边），不出血；图下一行图注：标题（宋体 600、lead）＋说明（body ink-2），中间一个全角空格，左对齐图框。
-朱色：无（图里自带的一两处朱色已经够了）。入场：图版从下方轻轻升起（衬纸揭去的动作上线后改为揭去），图注随后洇出。
+朱色：无（图里自带的一两处朱色已经够了）。入场：图版上盖着一张衬纸（paper-deep），进页后向上揭去（peel-up，lift + paper），图注随后洇出。
 {% endcomment %}
 <style>
   :scope {
@@ -36,6 +36,13 @@
     padding: var(--ds-space-2);
     border: 1px solid var(--ds-color-rule);
     box-sizing: content-box;
+    overflow: hidden;
+  }
+  .tissue {
+    position: absolute;
+    inset: 0;
+    background: var(--ds-color-paper-deep);
+    border-bottom: 1px solid var(--ds-color-rule);
   }
   .plate img { display: block; width: 100%; height: 100%; object-fit: cover; }
   .cap {
@@ -56,6 +63,6 @@
   .heading:has(> :empty), .caption:has(> :empty) { display: none; }
 </style>
 <figure>
-  <div class="plate" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="1">{{ slots.visual }}</div>
+  <div class="plate">{{ slots.visual }}<div class="tissue" data-ds-enter="peel-up" data-ds-step="lift" data-ds-ease="paper" data-ds-order="1" aria-hidden="true"></div></div>
   <figcaption class="cap" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="2"><span class="heading">{{ slots.heading }}</span><span class="caption">{{ slots.caption }}</span></figcaption>
 </figure>

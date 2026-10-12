@@ -1,5 +1,5 @@
 {% comment %}
-批语 piyu：一段话横排成大字（宋体 400、head 档，宽 17 字，两端对齐，开头的引号悬挂在版心外），落款在下方右侧：破折号后楷书人名（lead），身份小字（caption ink-3）。页眉墨线空着。
+批语 piyu：一段话横排成大字，整块压在页面下方（底边留 space-8），上面大片纸面像页眉下空出的天头（宋体 400、head 档，宽 17 字，两端对齐，开头的引号悬挂在版心外），落款在下方右侧：破折号后楷书人名（lead），身份（body ink-3）。页眉墨线空着。
 朱色：无（引语页把朱笔留给作品里真正要紧的那一页）。楷书：落款一处。入场：引语洇出，落款随后。
 {% endcomment %}
 <style>
@@ -32,9 +32,8 @@
   .body {
     position: absolute;
     left: var(--ds-space-8);
-    top: 50%;
+    bottom: var(--ds-space-8);
     width: fit-content;
-    transform: translateY(-50%);
   }
   .quote {
     max-width: 17.2em;
@@ -58,7 +57,7 @@
   }
   .name { font-family: var(--ds-font-kai); letter-spacing: .12em; }
   .name::before { content: "—— "; font-family: var(--ds-font-body); color: var(--ds-color-ink-3); }
-  .role { font-size: var(--ds-type-caption); letter-spacing: .12em; color: var(--ds-color-ink-3); }
+  .role { font-size: var(--ds-type-body); letter-spacing: .06em; color: var(--ds-color-ink-3); }
   .role:has(> :empty) { display: none; }
 </style>
 <div class="run"></div>

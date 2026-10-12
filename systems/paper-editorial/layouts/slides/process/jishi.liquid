@@ -1,5 +1,5 @@
 {% comment %}
-纪事 jishi：一条横贯的年表。页眉墨线上是标题（宋体 400、head 档）；画面中部偏下一条墨色细线，每一步一个刻度圆点，步骤名在线上（宋体 600、lead），注释在线下（note ink-2，日期用等宽数字）。各步的宽度随注释长短自然伸缩（时间本来就不等距），最后一步多分一半余量，圆点是朱色实心，表示「就在眼前」。
+纪事 jishi：一条横贯的年表。页眉墨线上是标题（宋体 400、head 档）；画面下半（约 58% 高度）一条墨色细线，有意压低，让年表成为下半页的主体，每一步一个刻度圆点，步骤名在线上（宋体 600、lead），注释在线下（body ink-2，日期用等宽数字）。各步的宽度随注释长短自然伸缩（时间本来就不等距），最后一步多分一半余量，圆点是朱色实心，表示「就在眼前」。
 朱色：最后一个圆点。入场：标题，然后各步自左向右错峰 line。
 {% endcomment %}
 <style>
@@ -41,14 +41,14 @@
     position: absolute;
     left: var(--ds-space-7);
     right: var(--ds-space-7);
-    top: 50%;
+    top: 58%;
     border-top: 1px solid var(--ds-color-ink);
   }
   .steps {
     position: absolute;
     left: var(--ds-space-7);
     right: var(--ds-space-7);
-    top: 50%;
+    top: 58%;
     display: flex;
     gap: var(--ds-space-5);
     list-style: none;
@@ -81,7 +81,7 @@
   }
   .note {
     padding-top: var(--ds-space-5);
-    font-size: var(--ds-type-note);
+    font-size: var(--ds-type-body);
     line-height: 1.6;
     color: var(--ds-color-ink-2);
     font-feature-settings: "lnum" 1, "tnum" 1;
