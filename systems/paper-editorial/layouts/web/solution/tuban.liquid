@@ -1,0 +1,83 @@
+{% comment %}
+图版 tuban：一块居中的图版，四角有裁切线（墨色发丝的直角），图像不出血、四周留纸；图下是一条图注栏：墨线之上，左为小标题（宋体 400，head 档），中为正文（两端对齐），右为段号（鱼尾 + 卷次）。
+像旧图集里的一页图版：先看图，再读图注。图像就是这一屏的主角，所以标题不再放大。
+入场：图版洇出（glide），图注栏随后上浮，段号最后。
+手机：图版占满栏宽，图注栏改为上下排列。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    padding: var(--ds-space-9) var(--ds-space-8);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+    font-size: var(--ds-type-body);
+    line-height: 1.85;
+    counter-increment: pe-juan;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  :scope * { box-sizing: border-box; }
+  h2, h3, p, ul, ol, li, figure, figcaption, dl, dt, dd, blockquote { margin: 0; padding: 0; }
+  ul, ol { list-style: none; }
+  .yuwei { display: block; flex: none; width: 24px; height: 16px; fill: var(--ds-color-ink); }
+  .no::before { content: counter(pe-juan, simp-chinese-formal); }
+  .stage {
+    position: relative;
+    width: min(100%, 640px);
+    margin: 0 auto;
+  }
+  .stage img { display: block; width: 100%; height: auto; }
+  .crop { position: absolute; width: 24px; height: 24px; border: 0 solid var(--ds-color-ink); pointer-events: none; }
+  .crop.tl { left: -16px; top: -16px; border-left-width: 1px; border-top-width: 1px; }
+  .crop.tr { right: -16px; top: -16px; border-right-width: 1px; border-top-width: 1px; }
+  .crop.bl { left: -16px; bottom: -16px; border-left-width: 1px; border-bottom-width: 1px; }
+  .crop.br { right: -16px; bottom: -16px; border-right-width: 1px; border-bottom-width: 1px; }
+  .cap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) 120px;
+    gap: var(--ds-space-8);
+    align-items: start;
+    max-width: 1240px;
+    margin: var(--ds-space-8) auto 0;
+    padding-top: var(--ds-space-5);
+    border-top: 1px solid var(--ds-color-ink);
+  }
+  .heading { font-size: var(--ds-type-head); font-weight: 400; line-height: 1.35; letter-spacing: .04em; text-wrap: balance; }
+  .body { padding-top: var(--ds-space-2); line-height: 1.95; color: var(--ds-color-ink-2); text-align: justify; text-wrap: pretty; font-feature-settings: "onum" 1; }
+  .tag {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--ds-space-3);
+    padding-top: var(--ds-space-3);
+    font-size: var(--ds-type-note);
+    font-weight: 600;
+    letter-spacing: .3em;
+    color: var(--ds-color-ink-3);
+  }
+  @media (max-width: 860px) {
+    :scope { padding: var(--ds-space-9) var(--ds-space-5); }
+    .stage { width: calc(100% - 32px); }
+    .cap { grid-template-columns: minmax(0, 1fr); gap: var(--ds-space-4); margin-top: var(--ds-space-7); }
+    .heading { font-size: var(--ds-type-sub); }
+    .tag { order: -1; justify-content: flex-start; padding-top: 0; }
+  }
+</style>
+<figure class="stage" data-ds-enter="fade" data-ds-step="glide" data-ds-ease="ink" data-ds-order="0">
+  {{ slots.visual }}
+  <i class="crop tl"></i><i class="crop tr"></i><i class="crop bl"></i><i class="crop br"></i>
+</figure>
+<div class="cap">
+  <h2 class="heading" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="1">{{ slots.heading }}</h2>
+  <p class="body" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="2">{{ slots.body }}</p>
+  <p class="tag" aria-hidden="true"><svg class="yuwei" viewBox="0 0 24 16" aria-hidden="true"><path d="M0 0H24V10L17 5.5L12 11.5L7 5.5L0 10Z"/></svg><span class="no"></span></p>
+</div>

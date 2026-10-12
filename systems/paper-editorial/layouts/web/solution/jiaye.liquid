@@ -1,0 +1,80 @@
+{% comment %}
+夹页 jiaye：版心把一屏分成两页。左页是文字：小标题（宋体 400，head 档）和两端对齐的正文；中间版心是两道墨线夹着上下两枚鱼尾，正中竖排卷次（楷书 ink-2）；右页是一块图版：
+paper-light 的夹页被「抬」起一点，带体系的投影（光从左上来，影子落在右下），图像四周留纸。像书里夹着的一张图。
+入场：左页文字上浮、洇出，图版从右侧轻推入（left 的反向用 right，glide + paper，位移 space-3）。
+手机：去掉版心，图版在文字之后。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    padding: var(--ds-space-9) var(--ds-space-8);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+    font-size: var(--ds-type-body);
+    line-height: 1.85;
+    counter-increment: pe-juan;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  :scope * { box-sizing: border-box; }
+  h2, h3, p, ul, ol, li, figure, figcaption, dl, dt, dd, blockquote { margin: 0; padding: 0; }
+  ul, ol { list-style: none; }
+  .yuwei { display: block; flex: none; width: 24px; height: 16px; fill: var(--ds-color-ink); }
+  .no::before { content: counter(pe-juan, simp-chinese-formal); }
+  .spread {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 72px minmax(0, 1fr);
+    gap: var(--ds-space-7);
+    max-width: 1240px;
+    margin: 0 auto;
+  }
+  .text { align-self: center; max-width: 24em; justify-self: end; }
+  .heading { font-size: var(--ds-type-head); font-weight: 400; line-height: 1.35; letter-spacing: .04em; text-wrap: balance; }
+  .body { margin-top: var(--ds-space-6); line-height: 2; text-align: justify; text-wrap: pretty; font-feature-settings: "onum" 1; }
+  .banxin {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--ds-space-3) 0;
+  }
+  .banxin::before, .banxin::after { content: ""; position: absolute; top: 0; bottom: 0; width: 1px; background: var(--ds-color-ink); }
+  .banxin::before { left: 14px; }
+  .banxin::after { right: 14px; }
+  .yuwei.up { transform: scaleY(-1); }
+  .banxin .no { writing-mode: vertical-rl; font-family: var(--ds-font-kai); font-size: var(--ds-type-lead); letter-spacing: .3em; color: var(--ds-color-ink-2); }
+  .sheet {
+    align-self: center;
+    padding: var(--ds-space-5);
+    background: var(--ds-color-paper-light);
+    box-shadow: var(--ds-shadow-sheet);
+  }
+  .sheet img { display: block; width: 100%; height: auto; }
+  @media (max-width: 860px) {
+    :scope { padding: var(--ds-space-9) var(--ds-space-5); }
+    .spread { grid-template-columns: minmax(0, 1fr); gap: var(--ds-space-7); }
+    .banxin { display: none; }
+    .text { justify-self: start; max-width: none; }
+    .heading { font-size: var(--ds-type-sub); }
+    .body { margin-top: var(--ds-space-5); }
+    .sheet { padding: var(--ds-space-3); }
+  }
+</style>
+<div class="spread">
+  <div class="text">
+    <h2 class="heading" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="0">{{ slots.heading }}</h2>
+    <p class="body" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="1">{{ slots.body }}</p>
+  </div>
+  <div class="banxin" aria-hidden="true"><svg class="yuwei" viewBox="0 0 24 16" aria-hidden="true"><path d="M0 0H24V10L17 5.5L12 11.5L7 5.5L0 10Z"/></svg><span class="no"></span><svg class="yuwei up" viewBox="0 0 24 16"><path d="M0 0H24V10L17 5.5L12 11.5L7 5.5L0 10Z"/></svg></div>
+  <figure class="sheet" data-ds-enter="right" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="2">{{ slots.visual }}</figure>
+</div>

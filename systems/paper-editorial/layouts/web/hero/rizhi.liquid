@@ -1,0 +1,135 @@
+{% comment %}
+日志 rizhi：方向稿 B「观测日志」的首屏，去掉左侧时间栏。顶部一条日志抬头（眉题 + 2px 墨线），下面左栏是唯一的主角：宋体 200 的 display 大标题，按标点断行、两行平衡，
+朱笔下划线压在末行的后半句下（零宽锚点跟在标题最后一个字后面，笔画向左伸 4.4em，所以无论断成几行都落在末行末尾）；导语 lead 字号 ink-2 两端对齐；行动是带墨线的文字链接，悬停时墨线下方划出一道细朱线（dot）。右栏是一块图版：发丝框里的图像，四周留纸。
+入场：抬头先洇出，标题上浮（glide + paper，位移 space-3），导语、行动依次洇出（line 错峰），图版最后。朱笔的「划出」待入场编排支持后补在 .stroke 上。
+手机：单栏，标题降到 head 档，图版移到行动下方。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 0 var(--ds-space-8) var(--ds-space-8);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+    font-size: var(--ds-type-body);
+    line-height: 1.85;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  :scope * { box-sizing: border-box; }
+  p, h1, figure { margin: 0; }
+  .head {
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: var(--ds-space-6) 0 var(--ds-space-3);
+    border-bottom: 2px solid var(--ds-color-ink);
+    font-size: var(--ds-type-note);
+    font-weight: 600;
+    letter-spacing: .24em;
+  }
+  .main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 400px;
+    align-items: end;
+    align-content: center;
+    gap: var(--ds-space-8);
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding-top: var(--ds-space-8);
+  }
+  .title {
+    font-family: var(--ds-font-body);
+    font-size: var(--ds-type-display);
+    font-weight: 200;
+    line-height: 1.16;
+    letter-spacing: .02em;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+  }
+  .tail {
+    position: relative;
+    display: inline-block;
+    width: 0;
+    height: 0;
+  }
+  .stroke {
+    position: absolute;
+    right: 0;
+    top: .02em;
+    width: 4.4em;
+    height: .3em;
+    overflow: visible;
+    fill: var(--ds-color-zhu);
+  }
+  .lead {
+    max-width: 26em;
+    margin-top: var(--ds-space-7);
+    font-size: var(--ds-type-lead);
+    line-height: 1.9;
+    color: var(--ds-color-ink-2);
+    text-align: justify;
+    text-wrap: pretty;
+    font-feature-settings: "onum" 1;
+  }
+  .act {
+    position: relative;
+    display: inline-block;
+    margin-top: var(--ds-space-6);
+    padding-bottom: var(--ds-space-1);
+    border-bottom: 1px solid var(--ds-color-ink);
+    color: var(--ds-color-ink);
+    font-size: var(--ds-type-body);
+    font-weight: 600;
+    letter-spacing: .2em;
+    text-decoration: none;
+  }
+  .act::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    height: 2px;
+    background: var(--ds-color-zhu);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--ds-duration-dot) var(--ds-easing-ink);
+  }
+  .act:hover::after, .act:focus-visible::after { transform: scaleX(1); }
+  .plate {
+    padding: var(--ds-space-2);
+    border: 1px solid var(--ds-color-rule);
+  }
+  .plate img { display: block; width: 100%; height: auto; }
+  @media (max-width: 860px) {
+    :scope { min-height: auto; padding: 0 var(--ds-space-5) var(--ds-space-8); }
+    .head { padding-top: var(--ds-space-5); font-size: var(--ds-type-caption); }
+    .main { grid-template-columns: 1fr; gap: var(--ds-space-7); padding-top: var(--ds-space-8); }
+    .title { font-size: var(--ds-type-head); }
+    .lead { margin-top: var(--ds-space-6); font-size: var(--ds-type-body); }
+  }
+</style>
+<p class="head" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="0">{{ slots.eyebrow }}</p>
+<div class="main">
+  <div class="text">
+    <h1 class="title" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="1">{{ slots.headline }}&#8288;<span class="tail"><svg class="stroke" viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true"><path d="M2 14C60 8 140 10 214 8S340 8 398 10C344 14 270 17 204 16S70 19 2 14Z"/></svg></span></h1>
+    <p class="lead" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="2">{{ slots.lead }}</p>
+    <a class="act" href="#" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="3">{{ slots.cta }}</a>
+  </div>
+  <figure class="plate" data-ds-enter="fade" data-ds-step="glide" data-ds-ease="ink" data-ds-order="4">{{ slots.visual }}</figure>
+</div>

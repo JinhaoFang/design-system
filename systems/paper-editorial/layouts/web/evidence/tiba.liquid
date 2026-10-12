@@ -1,0 +1,76 @@
+{% comment %}
+题跋 tiba：引语是这一屏的主角，像题在卷尾的一段跋。小标题小（宋体 600，sub 档，鱼尾 + 卷次在前），引语用宋体 200、head 档，悬挂起始引号，落款楷书 ink-2；
+右侧是一组读数，两两成行（Source Serif 300，title 档，等高数字），标签 note 字号 ink-2，读数之间发丝界栏；卷尾一道文武线（墨粗线 + 发丝线）上排合作方标识。
+入场：引语上浮（glide + paper），读数逐个洇出（line 错峰），标识最后。
+手机：单栏，引语降到 sub 档，读数仍两两成行。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    padding: var(--ds-space-9) var(--ds-space-8);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+    font-size: var(--ds-type-body);
+    line-height: 1.85;
+    counter-increment: pe-juan;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  :scope * { box-sizing: border-box; }
+  h2, h3, p, ul, ol, li, figure, figcaption, dl, dt, dd, blockquote { margin: 0; padding: 0; }
+  ul, ol { list-style: none; }
+  .yuwei { display: block; flex: none; width: 24px; height: 16px; fill: var(--ds-color-ink); }
+  .no::before { content: counter(pe-juan, simp-chinese-formal); }
+  .wrap { max-width: 1240px; margin: 0 auto; }
+  .top { display: flex; align-items: center; gap: var(--ds-space-3); }
+  .top .no { font-size: var(--ds-type-note); font-weight: 600; letter-spacing: .3em; color: var(--ds-color-ink-3); }
+  .heading { margin-left: var(--ds-space-3); font-size: var(--ds-type-sub); font-weight: 600; line-height: 1.4; letter-spacing: .06em; }
+  .main { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: var(--ds-space-9); align-items: end; margin-top: var(--ds-space-8); }
+  .quote blockquote { font-size: var(--ds-type-head); font-weight: 200; line-height: 1.6; letter-spacing: .02em; text-indent: -.5em; text-wrap: pretty; font-feature-settings: "lnum" 1; }
+  .quote blockquote::before { content: "「"; }
+  .quote blockquote::after { content: "」"; }
+  .quote p { margin-top: var(--ds-space-6); font-family: var(--ds-font-kai); font-size: var(--ds-type-lead); letter-spacing: .1em; color: var(--ds-color-ink-2); }
+  .quote p::before { content: "—— "; }
+  .stats { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--ds-space-6); }
+  .stats div { padding: var(--ds-space-4) 0; border-top: 1px solid var(--ds-color-rule-light); }
+  .stats dd { font-family: var(--ds-font-latin); font-size: var(--ds-type-head); font-weight: 300; line-height: 1.15; font-feature-settings: "lnum" 1; }
+  .stats dt { margin-top: var(--ds-space-2); font-size: var(--ds-type-note); line-height: 1.6; color: var(--ds-color-ink-2); }
+  .logos { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ds-space-5) var(--ds-space-7); margin-top: var(--ds-space-9); padding-top: var(--ds-space-5); border-top: 3px solid var(--ds-color-ink); }
+  .logos img { display: block; height: 52px; width: auto; }
+  @media (max-width: 860px) {
+    :scope { padding: var(--ds-space-9) var(--ds-space-5); }
+    .heading { font-size: var(--ds-type-lead); }
+    .main { grid-template-columns: minmax(0, 1fr); gap: var(--ds-space-7); margin-top: var(--ds-space-6); }
+    .quote blockquote { font-size: var(--ds-type-sub); }
+    .quote p { font-size: var(--ds-type-body); }
+    .stats dd { font-size: var(--ds-type-sub); }
+    .logos { margin-top: var(--ds-space-7); gap: var(--ds-space-4) var(--ds-space-5); }
+    .logos img { height: 40px; }
+  }
+</style>
+<div class="wrap">
+  <div class="top"><svg class="yuwei" viewBox="0 0 24 16" aria-hidden="true"><path d="M0 0H24V10L17 5.5L12 11.5L7 5.5L0 10Z"/></svg><span class="no" aria-hidden="true"></span><h2 class="heading">{{ slots.heading }}</h2></div>
+  <div class="main">
+    <div class="quote" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="0">
+      <blockquote>{{ slots.quote }}</blockquote>
+      <p>{{ slots.quoteBy }}</p>
+    </div>
+    <dl class="stats" data-ds-stagger="line">
+      {% for stat in slots.stats %}<div data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink"><dd>{{ stat }}</dd><dt>{{ slots.statLabels[forloop.index0] }}</dt></div>
+      {% endfor %}
+    </dl>
+  </div>
+  <div class="logos" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="1">
+    {% for logo in slots.logos %}{{ logo }}
+    {% endfor %}
+  </div>
+</div>
