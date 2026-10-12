@@ -2,7 +2,7 @@
  * Entrance action behavior through buildAndCheck fixtures: draw (both axes), stamp (required system number), peel (four directions), animation records and rule results.
  * Built artifacts are opened only to check visible terminal states, scroll/slide replay and print behavior. No internal function tests or pixel comparisons.
  */
-import { cp, readFile } from 'node:fs/promises';
+import { cp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
@@ -233,4 +233,73 @@ test.each([
 ])('invalid stampScale %j fails validation', async (token) => {
   const systemDir = await patchedSystem(async (dir) => editJson(tokensFile(dir), (json) => { json.motion = { stampScale: token }; }));
   await expect(run(fixtures.work('web-entrance-actions'), { systemDir })).rejects.toThrow(/motion\.stampScale/);
+});
+
+
+test('covers stay over content throughout first, revisited and superseded turns, then reveal after settling', async () => {
+  const context = await browser.newContext({ viewport: SIZES.slides });
+  try {
+    const page = await context.newPage();
+    await page.goto(pathToFileURL(transitioned.artifacts.index).href);
+    const records = await page.evaluate(async () => {
+      const api = (window as any).dsSlides;
+      await api.entered();
+      const records: unknown[] = [];
+      const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      const covers = () => [...document.querySelectorAll<HTMLElement>('[data-active] [data-ds-enter^="peel-"]')];
+      const capture = (phase: string) => ({ phase, turning: !!document.querySelector('[data-turning]'), covers: covers().map((el) => {
+        const style = getComputedStyle(el);
+        const rect = el.getBoundingClientRect();
+        const parent = el.parentElement!.getBoundingClientRect();
+        return { effect: el.getAttribute('data-ds-enter'), visibility: style.visibility, opacity: style.opacity, transform: style.transform,
+          coversContent: Math.abs(rect.x - parent.x) < 0.5 && Math.abs(rect.y - parent.y) < 0.5 && Math.abs(rect.width - parent.width) < 0.5 && Math.abs(rect.height - parent.height) < 0.5,
+          childrenVisible: [...el.querySelectorAll('*')].every((child) => getComputedStyle(child).visibility === 'visible'), animations: el.getAnimations().length };
+      }) });
+      for (const visit of ['first', 'revisit', 'superseded']) {
+        if (visit !== 'first') {
+          api.go(0);
+          document.getAnimations().forEach((animation) => animation.finish());
+          await api.entered();
+        }
+        if (visit === 'superseded') api.go(1);
+        api.go(2);
+        const turns = document.getAnimations();
+        turns.forEach((animation) => animation.pause());
+        for (const fraction of [0, 0.5, 0.99]) {
+          turns.forEach((animation) => { animation.currentTime = Number(animation.effect!.getTiming().duration) * fraction; });
+          await frame();
+          records.push(capture(`${visit}-turn-${fraction}`));
+        }
+        turns.forEach((animation) => animation.finish());
+        await frame();
+        covers().flatMap((el) => el.getAnimations()).forEach((animation) => { animation.pause(); animation.currentTime = 0; });
+        records.push(capture(`${visit}-settled-before-peel`));
+        document.getAnimations().forEach((animation) => animation.finish());
+        await api.entered();
+        records.push(capture(`${visit}-revealed`));
+      }
+      return records;
+    }) as { phase: string; turning: boolean; covers: { visibility: string; opacity: string; transform: string; coversContent: boolean; childrenVisible: boolean; animations: number }[] }[];
+    for (const record of records) {
+      expect(record.covers).toHaveLength(4);
+      for (const cover of record.covers) {
+        if (record.phase.endsWith('-revealed')) expect(cover.visibility).toBe('hidden');
+        else {
+          expect(cover.visibility).toBe('visible');
+          expect(cover.opacity).toBe('1');
+          if (record.turning) expect(cover.transform).toBe('none');
+          expect(cover.coversContent).toBe(true);
+          expect(cover.childrenVisible).toBe(true);
+          if (record.turning) expect(cover.animations).toBe(0);
+          else expect(cover.animations).toBe(1);
+        }
+      }
+    }
+    const qa = process.env.DS_47_QA_DIR;
+    if (qa) {
+      await mkdir(qa, { recursive: true });
+      await writeFile(join(qa, 'cover-visibility.json'), JSON.stringify(records, null, 2));
+      await cp(transitioned.artifacts.outDir, join(qa, 'cover-slides'), { recursive: true });
+    }
+  } finally { await context.close(); }
 });

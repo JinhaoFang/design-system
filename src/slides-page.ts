@@ -2,6 +2,7 @@
  * HTML page assembly for slides: the same :root custom properties and @font-face as the other carriers (page.ts), then a fixed 1920x1080 .ds-stage holding one .ds-slide per narrative unit
  * (data-ds-slide="<1-based number>", wrapping the unit's <section data-ds-unit>), and the inline runtime (slides-runtime.ts) as a classic script so the file works when opened from disk, followed by the entrance choreography script (choreography.ts) when given one.
  * Optional transition config comes from slides.transition.json (slides-transition.ts). During turns two wrappers are displayed with a static token shadow and a token-colored shade; only transform/opacity animate.
+ * Target entrance elements are hidden during turns except peel covers and their descendants, which keep covering content until the settled entry hook starts.
  * Screen: only the active slide is displayed at rest; the runtime scales the stage. Print (PDF): @page is 1920x1080 with no margin, the stage scale is dropped and every slide is shown stacked, one per page.
  * Print reveals ordinary entrance content even during a turn; peel covers and their descendants retain choreography.ts terminal hiding rules.
  */
@@ -37,7 +38,7 @@ ${input.transition ? `
 .ds-slide[data-turning],.ds-slide[data-leaving]{display:block;overflow:visible}
 .ds-slide[data-turning]{z-index:2}
 .ds-slide[data-leaving]{z-index:1;pointer-events:none}
-.ds-slide[data-turning] [data-ds-enter]{visibility:hidden}
+.ds-slide[data-turning] [data-ds-enter]:not([data-ds-enter^="peel-"],[data-ds-enter^="peel-"] *){visibility:hidden}
 .ds-slide[data-turning]::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:var(${input.transition.shadow})}
 .ds-slide[data-reverse]::after{transform:scaleX(-1)}
 .ds-slide-shade{position:absolute;inset:0;pointer-events:none;background:var(${input.transition.shadeColor});opacity:0;z-index:1}

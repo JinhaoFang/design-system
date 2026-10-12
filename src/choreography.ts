@@ -10,6 +10,10 @@
  *   data-ds-step="<name>"                       duration step --ds-duration-<name> (default: base, else the middle step).
  *   data-ds-wait="<name>"                       extra wait --ds-duration-<name> added to this element's rank * stagger delay (default: 0); does not delay other group members.
  *   data-ds-ease="<name>"                       easing --ds-easing-<name> (default: settle, else the first one).
+ *   data-ds-opacity-step="<name>" / data-ds-opacity-ease="<name>" override opacity timing for transform entrances (rise/fall/left/right, draw, stamp, peel).
+ *   System defaults: token root $extensions["io.github.jinhaofang.design-system"].entrance.opacity = { step: "<duration name>", ease: "<easing name>" }.
+ *   With a default or either override, transform and opacity use separate animations with the same delay; missing opacity fields fall back to the entrance's step/ease.
+ *   Draw also fades in and peel also fades out when separate timing is selected. Without any declaration their original transform-only behavior is retained; fade and reduced motion ignore opacity timing.
  *   data-ds-distance="<name>"                   displacement --ds-space-<name> (default: the middle space step).
  * A group is the nearest ancestor with data-ds-stagger, else the enclosing unit section. Durations, easings, stagger and distances all come from the resolved tokens, embedded into the script at build time;
  * unknown names are rejected by validateChoreography (a BuildError before rendering); an unknown wait names the sequence item and element's opening tag.
@@ -17,9 +21,10 @@
  * which hides the entire cover subtree and removes it from the checker snapshot; replay cancels the previous animation and removes this mark. Origins are set outside keyframes, so only transform/opacity animate.
  * Web: elements in view on load enter together; others enter in batches when scrolled into view (IntersectionObserver); covers scrolled past without being seen are finalized.
  * Under html[data-render="static"] covers are finalized synchronously, including off-screen covers; other content is shown immediately. Print CSS finalizes all covers, including unvisited slides.
- * Slides: registers window.dsSlides.onEnter (after the page turn settles) and returns a promise for dsSlides.entered(), including extra waits. Reduced motion drops displacement, scaling, stagger and extra waits, and uses the shortest duration for stamp/fade/peel.
+ * Slides: ds:slide-prepare resets covers before the target is shown, including revisits; window.dsSlides.onEnter plays after the page turn settles and returns all animations for dsSlides.entered(), including extra waits.
+ * Reduced motion drops displacement, scaling, stagger and extra waits, and uses the shortest duration for stamp/fade/peel.
  */
-import type { ResolvedTokens } from './tokens.ts';
+import type { EntranceOpacity, ResolvedTokens } from './tokens.ts';
 import { BuildError } from './types.ts';
 
 export interface ChoreographyConfig {
@@ -28,6 +33,7 @@ export interface ChoreographyConfig {
   easings: Record<string, string>;
   spaces: Record<string, number>;
   stampScale: number | undefined;
+  opacity: EntranceOpacity | undefined;
 }
 
 const EFFECTS = ['fade', 'rise', 'fall', 'left', 'right', 'draw-x', 'draw-y', 'stamp', 'peel-left', 'peel-right', 'peel-up', 'peel-down'];
@@ -49,6 +55,7 @@ export function choreographyConfig(tokens: ResolvedTokens): ChoreographyConfig {
     easings: group(tokens, '--ds-easing-', (entry) => entry.css),
     spaces: group(tokens, '--ds-space-', (entry) => entry.number),
     stampScale: tokens.entries.find((entry) => entry.cssVar === '--ds-motion-stampScale')?.number,
+    opacity: tokens.entranceOpacity,
   };
 }
 
@@ -59,13 +66,15 @@ export function validateChoreography(unitsHtml: string[], tokens: ResolvedTokens
     step: Object.keys(config.durations),
     wait: Object.keys(config.durations),
     ease: Object.keys(config.easings),
+    'opacity-step': Object.keys(config.durations),
+    'opacity-ease': Object.keys(config.easings),
     stagger: Object.keys(config.staggers),
     distance: Object.keys(config.spaces),
     order: [],
   };
   const issues: string[] = [];
   for (const [index, html] of unitsHtml.entries()) {
-    for (const match of html.matchAll(/\sdata-ds-(enter|step|wait|ease|stagger|distance|order)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi)) {
+    for (const match of html.matchAll(/\sdata-ds-(enter|step|wait|ease|opacity-step|opacity-ease|stagger|distance|order)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi)) {
       const attribute = match[1]!.toLowerCase();
       const value = match[2] ?? match[3] ?? match[4]!;
       const names = allowed[attribute!]!;
@@ -145,14 +154,18 @@ function choreograph(config: ChoreographyConfig): void {
     return moves[effect] ?? '';
   };
 
-  const active = new WeakMap<Element, Animation>();
-  const enter = (el: HTMLElement, delay: number): Animation | undefined => {
-    active.get(el)?.cancel();
+  const active = new WeakMap<Element, Animation[]>();
+  const reset = (el: HTMLElement): void => {
+    active.get(el)?.forEach((animation) => animation.cancel());
+    active.delete(el);
     el.removeAttribute('data-ds-revealed');
+  };
+  const enter = (el: HTMLElement, delay: number): Animation[] => {
+    reset(el);
     const effect = el.getAttribute('data-ds-enter') || 'fade';
     const peel = peelMoves[effect];
     const draw = effect === 'draw-x' || effect === 'draw-y';
-    if (draw && reduced) return undefined;
+    if (draw && reduced) return [];
     const stepName = el.getAttribute('data-ds-step') ?? defaultStep!;
     const easeName = el.getAttribute('data-ds-ease') ?? defaultEase;
     const distanceName = el.getAttribute('data-ds-distance') ?? defaultDistance;
@@ -189,12 +202,24 @@ function choreograph(config: ChoreographyConfig): void {
     }
     const waitName = el.getAttribute('data-ds-wait');
     const wait = waitName === null ? 0 : (config.durations[waitName] ?? 0);
-    const animation = el.animate([from, to], { duration, delay: reduced ? 0 : delay + wait, easing, fill: peel ? 'both' : 'backwards' });
-    active.set(el, animation);
-    animation.finished.then(() => {
-      if (peel && active.get(el) === animation) el.setAttribute('data-ds-revealed', '');
+    const options: KeyframeAnimationOptions = { duration, delay: reduced ? 0 : delay + wait, easing, fill: peel ? 'both' : 'backwards' };
+    const opacityStep = el.getAttribute('data-ds-opacity-step') ?? config.opacity?.step ?? stepName;
+    const opacityEase = el.getAttribute('data-ds-opacity-ease') ?? config.opacity?.ease ?? easeName;
+    const split = !reduced && from.transform !== undefined && (config.opacity !== undefined || el.hasAttribute('data-ds-opacity-step') || el.hasAttribute('data-ds-opacity-ease'));
+    const animations: Animation[] = [];
+    if (split) {
+      delete from.opacity;
+      delete to.opacity;
+      animations.push(el.animate([from, to], options));
+      animations.push(el.animate([{ opacity: peel ? 1 : 0 }, { opacity: peel ? 0 : 1 }], {
+        ...options, duration: config.durations[opacityStep]!, easing: config.easings[opacityEase]!,
+      }));
+    } else animations.push(el.animate([from, to], options));
+    active.set(el, animations);
+    Promise.all(animations.map((animation) => animation.finished)).then(() => {
+      if (peel && active.get(el) === animations) el.setAttribute('data-ds-revealed', '');
     }).catch(() => undefined);
-    return animation;
+    return animations;
   };
 
   const play = (elements: HTMLElement[]): Animation[] => {
@@ -209,14 +234,16 @@ function choreograph(config: ChoreographyConfig): void {
       const ranks = [...new Set(keyed.map((item) => item.order))].sort((a, b) => a - b);
       const step = staggerOf(container);
       for (const item of keyed) {
-        const animation = enter(item.el, ranks.indexOf(item.order) * step);
-        if (animation) animations.push(animation);
+        animations.push(...enter(item.el, ranks.indexOf(item.order) * step));
       }
     }
     return animations;
   };
 
   if (document.body.getAttribute('data-carrier') === 'slides') {
+    document.addEventListener('ds:slide-prepare', (event) => {
+      marked(event.target as Element).filter((el) => el.getAttribute('data-ds-enter')?.startsWith('peel-')).forEach(reset);
+    });
     const dsSlides = (window as any).dsSlides;
     if (dsSlides && typeof dsSlides.onEnter === 'function') {
       dsSlides.onEnter((slide: Element) => Promise.allSettled(play(marked(slide)).map((animation) => animation.finished)));

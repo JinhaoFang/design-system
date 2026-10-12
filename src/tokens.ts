@@ -7,6 +7,7 @@
  *   motion.stampScale number > 1 (optional): initial scale for the stamp entrance, resolved without a carrier multiplier as --ds-motion-stampScale.
  *   carrier.<web|slides|social>.{body,spaceUnit (dimension px), durationBase (duration)}: the per-carrier base values
  *   root $extensions[NS].constraints: { lightAngleDeg, grainMax, accentBudget, composition.<carrier>.{jumpRate,layoutRate,imageRate: [min,max]} } for the checker
+ *   root $extensions[NS].entrance.opacity: { step, ease } (optional), names from ratio.duration and easing; defaults for separately timed entrance opacity. Invalid names fail parsing.
  * CSS custom properties: --ds-color-*, --ds-font-*, --ds-type-N, --ds-space-N, --ds-radius-N, --ds-duration-*, --ds-stagger-*, --ds-easing-*, --ds-spring-<name>-<param>, --ds-shadow-*, --ds-grain-max.
  * Entry points: readTokenFile (parse + structure), checkTokenRequirements (required contents, carriers, font ids), resolveForCarrier (CSS for one carrier), loadTokens (read + resolve).
  */
@@ -62,6 +63,12 @@ export interface ParsedTokens {
   tokens: Token[];
   bases: Partial<Record<CarrierId, Partial<Record<CarrierBase, number>>>>;
   constraints?: Constraints;
+  entranceOpacity?: EntranceOpacity;
+}
+
+export interface EntranceOpacity {
+  step: string;
+  ease: string;
 }
 
 export interface ResolvedEntry {
@@ -77,6 +84,7 @@ export interface ResolvedTokens {
   fontIds: string[];
   entries: ResolvedEntry[];
   constraints?: Constraints;
+  entranceOpacity?: EntranceOpacity;
 }
 
 function num(value: number): string {
@@ -342,9 +350,26 @@ export function parseTokens(raw: unknown): { parsed: ParsedTokens; issues: strin
     valid.push(token);
   }
 
+  const opacity = (raw as any)?.$extensions?.[EXTENSION_KEY]?.entrance?.opacity;
+  let entranceOpacity: EntranceOpacity | undefined;
+  if (opacity !== undefined) {
+    const where = `$extensions["${EXTENSION_KEY}"].entrance.opacity`;
+    if (!opacity || typeof opacity !== 'object' || Array.isArray(opacity)) {
+      errors.push(`数值文件 ${where} 需要 { step, ease } 对象`);
+    } else {
+      for (const key of Object.keys(opacity)) if (!['step', 'ease'].includes(key)) errors.push(`数值文件 ${where} 不支持字段 ${key}`);
+      for (const [key, path] of [['step', ['ratio', 'duration']], ['ease', ['easing']]] as const) {
+        if (typeof opacity[key] !== 'string' || !valid.some((token) => token.path.join('.') === [...path, opacity[key]].join('.'))) {
+          errors.push(`数值文件 ${where}.${key}="${opacity[key]}" 必须引用 ${path.join('.')} 中的名字`);
+        }
+      }
+      entranceOpacity = { step: opacity.step, ease: opacity.ease };
+    }
+  }
   const constraints = parseConstraints(raw, errors);
   const parsed: ParsedTokens = { tokens: valid, bases };
   if (constraints) parsed.constraints = constraints;
+  if (entranceOpacity) parsed.entranceOpacity = entranceOpacity;
   return { parsed, issues: [...new Set(errors)] };
 }
 
@@ -433,6 +458,7 @@ export function resolveForCarrier(parsed: ParsedTokens, carrier: CarrierId): Res
   const cssVars = Object.fromEntries(entries.map((entry) => [entry.cssVar, entry.css]));
   const resolved: ResolvedTokens = { carrier, cssVars, fontIds, entries };
   if (parsed.constraints) resolved.constraints = parsed.constraints;
+  if (parsed.entranceOpacity) resolved.entranceOpacity = parsed.entranceOpacity;
   return resolved;
 }
 

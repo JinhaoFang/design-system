@@ -7,7 +7,8 @@
  * The same entry also dispatches the bubbling CustomEvent "ds:slide-enter" on the slide ({detail:{index}}), and "ds:slide-leave" on the slide being left.
  * Optional slides.transition.json references (slides-transition.ts) are substituted for __DS_SLIDES_TRANSITION__ by the page builder. Normal turns animate the incoming wrapper by a full width,
  * the outgoing wrapper by the token retreat, and its shade opacity; the shadow is static. Reduced motion and data-render="static" switch instantly. Initial/hash entry never turns.
- * Hooks and ds:slide-enter run only after the turn settles; marked entrance elements stay hidden until then. On rapid navigation the old turn and old-page entrances are canceled,
+ * The synchronous bubbling ds:slide-prepare event ({detail:{index}}) runs before displaying a target; choreography restores peel covers so they stay covering content throughout turns and revisits.
+ * Hooks and ds:slide-enter run only after the turn settles; ordinary marked entrance elements stay hidden until then. On rapid navigation the old turn and old-page entrances are canceled,
  * wrappers reset, and the latest requested page turns from the previous requested page. A revision guard prevents stale hooks/cleanup; only the final page starts its entrance.
  * Other API: dsSlides.count, dsSlides.index, dsSlides.go(i), next(), prev(). Print media (PDF) shows all slides stacked at full size; see slides-page.ts.
  */
@@ -102,6 +103,7 @@ export const SLIDES_RUNTIME = `(function () {
       previous.dispatchEvent(new CustomEvent('ds:slide-leave', { bubbles: true, detail: { index: current } }));
     }
     current = index;
+    slide.dispatchEvent(new CustomEvent('ds:slide-prepare', { bubbles: true, detail: { index: index } }));
     slide.setAttribute('data-active', '');
     slide.removeAttribute('aria-hidden');
     backdrop(slide);
