@@ -6,6 +6,7 @@
  * validateSystem is the first stage on its own (the validate-system subcommand): SYSTEM.md, token file, font references and system units; it throws one BuildError listing every problem.
  * Image ids referenced by the work (briefs in <library>/content/images.json) are resolved to files in <system>/images/ and copied into outDir/images/ (assets.ts); a missing id fails the build before rendering.
  * Entrance choreography attributes (data-ds-enter and friends, choreography.ts) in the rendered units are validated against the system's tokens before rendering.
+ * Slides optionally load <system>/slides.transition.json (token references, slides-transition.ts) before assembling their page; motion.json stores both animation audit passes.
  * copyFonts (copy the used font files from the cache into outDir/fonts) is exported for other page builders (system-page.ts).
  * Validation problems (bad system, work, fonts or image files) throw BuildError before or during rendering and produce no report. Carriers without a renderer yet (see RENDERABLE_CARRIERS) fail after validation.
  */
@@ -26,6 +27,7 @@ import { renderCustom, renderUnit } from './layout.ts';
 import { buildPage } from './page.ts';
 import { renderImage } from './render.ts';
 import { buildSlides } from './slides.ts';
+import { loadSlidesTransition } from './slides-transition.ts';
 import { exitCodeFor, makeReport, reportToMarkdown } from './report.ts';
 import { validateSystemDoc } from './system.ts';
 import type { SystemMeta } from './system.ts';
@@ -130,7 +132,8 @@ async function finishSlides(input: {
   outDir: string;
 }): Promise<BuildResult> {
   const { systemDir, work, tokens, usedFonts, fontCheck, unitsHtml, outDir } = input;
-  const slides = await buildSlides({ work, tokens, fonts: usedFonts, fontCheck, unitsHtml, outDir });
+  const transition = await loadSlidesTransition(systemDir, tokens);
+  const slides = await buildSlides({ work, tokens, fonts: usedFonts, fontCheck, unitsHtml, outDir, transition });
   const report = makeReport(
     { system: basename(systemDir), work: { concept: work.concept, carrier: work.carrier, canvas: work.canvas ?? 'stage' } },
     slides.findings,

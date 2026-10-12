@@ -6,7 +6,8 @@
  * Motion audit (motion-audit.ts): before the still pass, two audit passes (normal motion, reduced motion emulated) flip through every slide and record the animations each slide starts; each slide's records become its snapshot.motion.
  * The built page embeds the entrance choreography script (choreography.ts).
  * Recording: a second context with recordVideo (real time, 1920x1080) opens the page, waits for fonts only, then presses ArrowRight through the deck, waiting for dsSlides.entered() and holding HOLD_MS on each slide.
- * Outputs in outDir: index.html, slide-<nn>.png (exact 1920x1080), slides.pdf, slides.webm.
+ * Stills use data-render="static" to bypass page turns and declarative entrances; print also strips wrapper transforms, shade and projection. motion.json preserves both audit passes.
+ * Outputs in outDir: index.html, slide-<nn>.png (exact 1920x1080), slides.pdf, slides.webm, motion.json.
  */
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -26,6 +27,7 @@ import { SLIDE_HEIGHT, SLIDE_WIDTH, buildSlidesPage } from './slides-page.ts';
 import type { ResolvedTokens } from './tokens.ts';
 import type { Finding } from './types.ts';
 import type { Work } from './work.ts';
+import type { SlidesTransition } from './slides-transition.ts';
 
 export interface SlidesInput {
   work: Work;
@@ -34,6 +36,7 @@ export interface SlidesInput {
   fontCheck: FontCheckData;
   unitsHtml: string[];
   outDir: string;
+  transition?: SlidesTransition | undefined;
 }
 
 export interface SlidesOutput {
@@ -91,7 +94,7 @@ export async function buildSlides(input: SlidesInput): Promise<SlidesOutput> {
   const count = input.unitsHtml.length;
   await mkdir(outDir, { recursive: true });
   const index = join(outDir, 'index.html');
-  await writeFile(index, buildSlidesPage({ title: work.concept, cssVars: tokens.cssVars, fonts: input.fonts, unitsHtml: input.unitsHtml, choreography: buildChoreographyScript(tokens) }));
+  await writeFile(index, buildSlidesPage({ title: work.concept, cssVars: tokens.cssVars, fonts: input.fonts, unitsHtml: input.unitsHtml, choreography: buildChoreographyScript(tokens), transition: input.transition }));
 
   const pdf = join(outDir, 'slides.pdf');
   const video = join(outDir, 'slides.webm');
@@ -105,10 +108,18 @@ export async function buildSlides(input: SlidesInput): Promise<SlidesOutput> {
       animations: await auditMotion(browser, pathToFileURL(index).href, { ...audit, reducedMotion: 'no-preference' }),
       reduced: await auditMotion(browser, pathToFileURL(index).href, { ...audit, reducedMotion: 'reduce' }),
     };
+    await writeFile(join(outDir, 'motion.json'), `${JSON.stringify(motion, null, 2)}\n`);
     const context = await browser.newContext({
       viewport: { width: SLIDE_WIDTH, height: SLIDE_HEIGHT },
       deviceScaleFactor: 1,
       reducedMotion: 'no-preference',
+    });
+    await context.addInitScript(() => {
+      const mark = () => document.documentElement.setAttribute('data-render', 'static');
+      if (document.documentElement) mark();
+      else new MutationObserver((_records, observer) => {
+        if (document.documentElement) { mark(); observer.disconnect(); }
+      }).observe(document, { childList: true });
     });
     const page = await context.newPage();
     await page.goto(pathToFileURL(index).href);
