@@ -19,7 +19,10 @@
  * unknown names are rejected by validateChoreography (a BuildError before rendering); an unknown wait names the sequence item and element's opening tag.
  * Runtime (buildChoreographyScript, a classic inline script placed after the page content): non-cover entrances use fill backwards and return to natural CSS. Completed covers get data-ds-revealed,
  * which hides the entire cover subtree and removes it from the checker snapshot; replay cancels the previous animation and removes this mark. Origins are set outside keyframes, so only transform/opacity animate.
- * Web: elements in view on load enter together; others enter in batches when scrolled into view (IntersectionObserver); covers scrolled past without being seen are finalized.
+ * Initial web batch and initial slide entry wait for document.fonts.ready after forcing layout to discover used faces. The wait is capped at 3000 ms:
+ * this allows large Chinese faces to load within the browser's usual font-block window without leaving content hidden indefinitely on a stalled network.
+ * Waiting ordinary elements are hidden without changing layout; peel covers stay visible. Static rendering bypasses the wait; later scroll/slide entries do not wait.
+ * Web: elements in view on load enter together after that wait; others enter in batches when scrolled into view (IntersectionObserver); covers scrolled past without being seen are finalized.
  * Under html[data-render="static"] covers are finalized synchronously, including off-screen covers; other content is shown immediately. Print CSS finalizes all covers, including unvisited slides.
  * Slides: ds:slide-prepare resets covers before the target is shown, including revisits; window.dsSlides.onEnter plays after the page turn settles and returns all animations for dsSlides.entered(), including extra waits.
  * Reduced motion drops displacement, scaling, stagger and extra waits, and uses the shortest duration for stamp/fade/peel.
@@ -108,7 +111,7 @@ function choreograph(config: ChoreographyConfig): void {
     'peel-down': 'translateY(100%)',
   };
   const style = document.createElement('style');
-  style.textContent = '[data-ds-revealed]{opacity:0!important}[data-ds-revealed],[data-ds-revealed] *{visibility:hidden!important;pointer-events:none!important}' +
+  style.textContent = '[data-ds-font-wait]{visibility:hidden!important}[data-ds-revealed]{opacity:0!important}[data-ds-revealed],[data-ds-revealed] *{visibility:hidden!important;pointer-events:none!important}' +
     '@media print{' + Object.entries(peelMoves).map(([effect, move]) =>
       `[data-ds-enter="${effect}"]{transform:${move}!important;opacity:0!important}[data-ds-enter="${effect}"],[data-ds-enter="${effect}"] *{visibility:hidden!important}`,
     ).join('') + '}';
@@ -240,13 +243,46 @@ function choreograph(config: ChoreographyConfig): void {
     return animations;
   };
 
+  const hideWaiting = (elements: HTMLElement[]): void => {
+    elements.filter((el) => !el.closest('[data-ds-enter^="peel-"]')).forEach((el) => el.setAttribute('data-ds-font-wait', ''));
+  };
+  const showWaiting = (elements: HTMLElement[]): void => {
+    elements.forEach((el) => el.removeAttribute('data-ds-font-wait'));
+  };
+  const waitForFonts = (): Promise<void> => {
+    document.body.getBoundingClientRect();
+    return new Promise((resolve) => {
+      const timeout = window.setTimeout(resolve, 3000);
+      const ready = (): void => {
+        window.clearTimeout(timeout);
+        resolve();
+      };
+      document.fonts.ready.then(ready, ready);
+    });
+  };
+
   if (document.body.getAttribute('data-carrier') === 'slides') {
+    let initial = true;
+    let revision = 0;
     document.addEventListener('ds:slide-prepare', (event) => {
+      revision += 1;
+      showWaiting(marked(document));
       marked(event.target as Element).filter((el) => el.getAttribute('data-ds-enter')?.startsWith('peel-')).forEach(reset);
     });
     const dsSlides = (window as any).dsSlides;
     if (dsSlides && typeof dsSlides.onEnter === 'function') {
-      dsSlides.onEnter((slide: Element) => Promise.allSettled(play(marked(slide)).map((animation) => animation.finished)));
+      dsSlides.onEnter(async (slide: Element) => {
+        const ownRevision = ++revision;
+        const elements = marked(slide);
+        if (initial) {
+          initial = false;
+          hideWaiting(elements);
+          await waitForFonts();
+          if (ownRevision !== revision) return;
+          showWaiting(elements);
+        }
+        return Promise.allSettled(play(elements).map((animation) => animation.finished));
+      });
     }
     return;
   }
@@ -258,7 +294,11 @@ function choreograph(config: ChoreographyConfig): void {
   };
   const inView = pending.filter(visible);
   const later = pending.filter((el) => !inView.includes(el));
-  play(inView);
+  hideWaiting(inView);
+  void waitForFonts().then(() => {
+    showWaiting(inView);
+    play(inView);
+  });
   if (!later.length || typeof IntersectionObserver !== 'function') return;
   const observer = new IntersectionObserver((entries) => {
     const passed = entries.filter((entry) => !entry.isIntersecting && entry.boundingClientRect.bottom <= 0);
