@@ -111,6 +111,40 @@ test('node paths use tracked files, with quoted spaces and lexical normalization
   expect(result.stdout).toContain('3 个问题');
 });
 
+test('deleted tracked node scripts report their document position and exit 1', () => {
+  const { root } = fixture({
+    'scripts/deleted.ts': 'export {};',
+    'docs/cli.md': '# Commands\n`node scripts/deleted.ts --help`',
+  });
+  rmSync(join(root, 'scripts/deleted.ts'));
+  const result = run(root);
+  expect(result.status).toBe(1);
+  expect(result.stderr).toContain('docs/cli.md:2 node scripts/deleted.ts --help node 脚本文件不存在、不可读或不是文件：scripts/deleted.ts');
+  expect(result.stdout).toContain('1 个问题');
+});
+
+test.each([
+  ['missing.ts', 1],
+  ['target.ts', 0],
+  ['src', 1],
+] as const)('tracked node symlinks to %s exit %s', (target, status) => {
+  const { root, git, write } = fixture({
+    'docs/cli.md': '# Commands\n`node entry.ts --help`',
+  });
+  write('target.ts', 'throw new Error("symlink target was executed");');
+  symlinkSync(target, join(root, 'entry.ts'));
+  git('add', '--', 'entry.ts');
+  const result = run(root);
+  expect(result.status).toBe(status);
+  if (status === 1) {
+    expect(result.stderr).toContain('docs/cli.md:2 node entry.ts --help node 脚本文件不存在、不可读或不是文件：entry.ts');
+    expect(result.stdout).toContain('1 个问题');
+  } else {
+    expect(result.stderr).toBe('');
+    expect(result.stdout).toContain('0 个问题');
+  }
+});
+
 test('placeholders, dynamic and absolute paths, options and ignored paths skip', () => {
   const { root } = fixture({
     '.gitignore': 'references\n.agents\n.claude/skills/third-party/\n',

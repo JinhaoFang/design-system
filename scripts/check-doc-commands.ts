@@ -5,13 +5,14 @@
  * and the data-only src/cli-commands.json registry; never execute document text
  * or import CLI code. pnpm's static snapshot must match packageManager.
  * Check literal command names even when their arguments contain placeholders.
- * Node entry paths are repository-relative tracked files, normalized lexically;
+ * Node entry paths are repository-relative tracked files, normalized lexically,
+ * and must resolve to readable regular files in the working tree;
  * ignored untracked paths, options, placeholders, dynamic and absolute paths
  * are skipped. Deleted tracked documents are skipped. Print scan counts and
  * file:line command reason diagnostics via runCheckCommand (0/1/2 contract).
  */
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { accessSync, constants, existsSync, readFileSync, statSync } from 'node:fs';
 import { posix, resolve, win32 } from 'node:path';
 import { runCheckCommand, usageError } from './cli.ts';
 import { PNPM_BUILTINS, PNPM_BUILTINS_VERSION } from './pnpm-builtins.ts';
@@ -73,6 +74,16 @@ function ignoredNodePaths(root: string, files: string[]): Set<string> {
   return ignored;
 }
 
+function isReadableFile(path: string): boolean {
+  try {
+    if (!statSync(path).isFile()) return false;
+    accessSync(path, constants.R_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 process.exitCode = await runCheckCommand('node scripts/check-doc-commands.ts [仓库根目录]', (args) => {
   if (args.length > 1 || args[0]?.startsWith('-')) throw usageError('最多提供一个仓库根目录。');
   const root = resolve(args[0] ?? process.cwd());
@@ -117,6 +128,9 @@ process.exitCode = await runCheckCommand('node scripts/check-doc-commands.ts [�
           if (normalized === '..' || normalized.startsWith('../')) {
             issues.push(`${diagnostic} node 脚本文件未进 git 或不存在：${file}`);
           } else if (!tracked.has(normalized)) nodeCandidates.push({ file: normalized, diagnostic });
+          else if (!isReadableFile(resolve(root, normalized))) {
+            issues.push(`${diagnostic} node 脚本文件不存在、不可读或不是文件：${file}`);
+          }
           continue;
         }
         let name = commandName(tokens);
