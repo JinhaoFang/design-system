@@ -4,7 +4,9 @@
  * Static passes (screenshots and checker): viewports 1440x900 and 390x844, deviceScaleFactor 1, no-preference motion, <html data-render="static"> set before any page script runs
  * (layouts reveal-on-scroll content under that switch), fonts loaded, every animation finished, then a full-page PNG whose width equals the viewport width: web-desktop.png, web-mobile.png.
  * Recording pass: a separate 1440x900 context with recordVideo; fonts load but animations are NOT finished, so entry motion plays in real time; the page scrolls to the bottom at a steady speed
- * (SCROLL_SPEED px/s) after a short lead-in, holds briefly, and the file is saved as web-scroll.webm (VP8 25 fps).
+ * (SCROLL_SPEED px/s) after visible initial entrances finish and an 800 ms viewing hold, holds briefly at the bottom, and saves web-scroll.webm (VP8 25 fps).
+ * The entrance wait includes fonts and is capped at 10000 ms by waitForRecordingEntrance (render.ts): 3000 ms for the initial font gate plus 7000 ms for staggered motion,
+ * preventing stalled/paused/infinite entrances from blocking the recording. Timeout preserves real-time animations; screenshots and checker passes are unchanged.
  * Motion audit (motion-audit.ts): two extra passes at 1440, one with normal motion and one with reduced motion emulated, each scrolling down in steps so scroll-triggered entrances start; their animation records
  * are attached to the desktop snapshot only (snapshot.motion), so motion findings are reported once. buildWebPage embeds the entrance choreography script (choreography.ts) when given one.
  * checkWeb runs the rule set (ALL_RULES, or the list passed in) on both snapshots; findings that appear only at 390 get a "（手机宽度 390）" suffix, and a finding already reported at 1440 is not repeated.
@@ -26,7 +28,7 @@ import { CARRIERS } from './carriers.ts';
 import type { FontEntry } from './library.ts';
 import { fontFaceCss, rootVarsCss } from './page.ts';
 import { auditMotion } from './checker/motion-audit.ts';
-import { settle } from './render.ts';
+import { settle, waitForRecordingEntrance } from './render.ts';
 import type { Finding } from './types.ts';
 
 export const WEB_VIEWPORTS = {
@@ -98,13 +100,6 @@ const markStatic = (): void => {
   }
 };
 
-async function waitForFonts(page: Page): Promise<void> {
-  await page.evaluate(async () => {
-    await Promise.allSettled([...document.fonts].map((face) => face.load()));
-    await document.fonts.ready;
-  });
-}
-
 async function scrollThrough(page: Page): Promise<void> {
   const stops = await page.evaluate(() => Math.ceil((document.documentElement.scrollHeight - window.innerHeight) / (window.innerHeight * 0.6)));
   for (let step = 1; step <= stops; step += 1) {
@@ -171,7 +166,7 @@ export async function renderWeb(input: WebPageInput & { outDir: string }, option
       });
       const page = await context.newPage();
       await page.goto(url);
-      await waitForFonts(page);
+      await waitForRecordingEntrance(page);
       await page.waitForTimeout(LEAD_IN_MS);
       await scrollToBottom(page);
       await page.waitForTimeout(HOLD_MS);

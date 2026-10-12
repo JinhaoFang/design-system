@@ -5,7 +5,9 @@
  * After the last slide the same page is printed to slides.pdf (print media stacks every slide, entered ones already in their final state): one 1920x1080px page per slide.
  * Motion audit (motion-audit.ts): before the still pass, two audit passes (normal motion, reduced motion emulated) flip through every slide and record the animations each slide starts; each slide's records become its snapshot.motion.
  * The built page embeds the entrance choreography script (choreography.ts). The two motion record lists are saved only in motion.json; its path is returned to the build pipeline.
- * Recording: a second context with recordVideo (real time, 1920x1080) opens the page, waits for fonts only, then presses ArrowRight through the deck, waiting for dsSlides.entered() and holding HOLD_MS on each slide.
+ * Recording: a second context with recordVideo (real time, 1920x1080) opens the page, then presses ArrowRight through the deck; each page holds HOLD_MS (600 ms) after fonts,
+ * dsSlides.entered() and visible animations settle. waitForRecordingEntrance (render.ts) caps the whole wait at 10000 ms per page: the initial 3000 ms font gate plus 7000 ms
+ * for page turns and staggered motion, so stalled fonts or unresolved/paused/infinite entrances cannot block video forever. Timeout does not finish/cancel animations.
  * Stills use data-render="static" to bypass page turns and declarative entrances; print also strips wrapper transforms, shade and projection. motion.json preserves both audit passes.
  * Outputs in outDir: index.html, slide-<nn>.png (exact 1920x1080), slides.pdf, slides.webm, motion.json.
  */
@@ -23,7 +25,7 @@ import type { FontEntry } from './library.ts';
 import { auditMotion } from './checker/motion-audit.ts';
 import type { MotionSnapshot } from './checker/motion-audit.ts';
 import { buildChoreographyScript } from './choreography.ts';
-import { settle } from './render.ts';
+import { settle, waitForRecordingEntrance } from './render.ts';
 import { SLIDE_HEIGHT, SLIDE_WIDTH, buildSlidesPage } from './slides-page.ts';
 import type { ResolvedTokens } from './tokens.ts';
 import type { Finding } from './types.ts';
@@ -74,13 +76,9 @@ async function recordFlip(browser: Browser, index: string, count: number, target
     });
     const page = await context.newPage();
     await page.goto(pathToFileURL(index).href);
-    await page.evaluate(async () => {
-      await Promise.all([...document.fonts].map((face) => face.load()));
-      await document.fonts.ready;
-    });
     for (let number = 1; number <= count; number += 1) {
       if (number > 1) await page.keyboard.press('ArrowRight');
-      await page.evaluate(() => (window as any).dsSlides.entered());
+      await waitForRecordingEntrance(page);
       await page.waitForTimeout(HOLD_MS);
     }
     const video = page.video()!;
