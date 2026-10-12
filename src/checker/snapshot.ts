@@ -1,9 +1,12 @@
 /*
  * Page snapshot: one in-page pass that records, for every element in <body>, its location (unit/layout/slot from the data-ds-* marks, plus a selector),
  * whether it directly holds text, and the computed values of SNAPSHOT_STYLE_PROPERTIES. Rules read this plain data in Node; they never touch the page.
- * Text blocks (non-inline elements owning text) also get textChunks (their text nodes in order, each with its slot) and lines (the rendered visual lines,
+ * Text blocks (non-inline elements owning text) also get textChunks (their text nodes in order, each with its slot) and lines (the layout lines,
  * found by measuring every character with Range.getClientRects; a character that falls behind the previous one along the block's inline axis starts a new line.
  * The inline axis follows the block's writing-mode and direction: left to right in horizontal text, top to bottom in vertical-rl / vertical-lr, reversed for rtl and sideways-lr, so in vertical text every column is one line and its first/last characters are the top/bottom ones).
+ * Line measurement temporarily replaces transforms (including individual rotate/scale/translate) on text ancestors with identity values. Non-none identities preserve containing blocks;
+ * transitions are suppressed through measurement and restoration, and inline styles are restored in a finally block before any visual geometry or computed styles are recorded.
+ * Thus rotated text is judged by layout rather than screen-space bounding boxes without starting transitions or changing other rules' inputs.
  * Every element also has rect (viewport coordinates), parent (index of its parent element in elements, when that parent is in the snapshot) and isImage (img/svg/video/canvas/picture or a url() background);
  * text blocks also get textBox (tight bounds of their rendered characters), textSizes ([font-size px, non-space character count] pairs) and textStyles (the font styles, italic or normal, of their owned non-space text, inline children included). PageSnapshot.viewport is the page's inner size,
  * which is the canvas for social and slides and the first viewport for web (snapshots are taken at scroll 0).
@@ -20,6 +23,7 @@ import type { Page } from 'playwright';
 import type { MotionSnapshot } from './motion-audit.ts';
 import { PROBE_ATTRIBUTE, collectFontUsage } from './font-usage.ts';
 import type { PlatformFont } from './font-usage.ts';
+import { RULE_DATA } from './rule-data.ts';
 
 export const SNAPSHOT_STYLE_PROPERTIES = [
   'color',
@@ -123,7 +127,7 @@ export interface PageSnapshot {
 }
 
 export async function collectSnapshot(page: Page, scope?: string): Promise<PageSnapshot> {
-  const { elements, viewport } = await page.evaluate(({ properties, scope: scopeSelector, probe }) => {
+  const { elements, viewport } = await page.evaluate(({ properties, scope: scopeSelector, probe, lineOverlapTolerancePx }) => {
     const skipped = new Set(['STYLE', 'SCRIPT', 'LINK', 'META', 'TITLE']);
     const describe = (el: Element): string => {
       const parts: string[] = [];
@@ -186,7 +190,7 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
           if (!rect || ch.trim() === '') continue;
           const current = vertical ? { start: rect.top, size: rect.height } : { start: rect.left, size: rect.width };
           const wrapped =
-            !previous || (reversed ? current.start + current.size > previous.start + 1 : current.start < previous.start + previous.size - 1);
+            !previous || (reversed ? current.start + current.size > previous.start + lineOverlapTolerancePx : current.start < previous.start + previous.size - lineOverlapTolerancePx);
           if (wrapped) chars.push([]);
           chars[chars.length - 1]!.push({ ch, node });
           previous = current;
@@ -204,6 +208,50 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
         };
       });
     };
+    const scopedElements = [...(scopeSelector ? document.querySelector(scopeSelector)! : document.body).querySelectorAll('*')];
+    const textBlocks = new Map<Element, Text[]>();
+    const textAncestors = new Set<Element>();
+    for (const el of scopedElements) {
+      if (skipped.has(el.tagName) || revealed(el) || getComputedStyle(el).display === 'none' || isInline(el)) continue;
+      const nodes = ownedTextNodes(el);
+      if (!nodes.length) continue;
+      textBlocks.set(el, nodes);
+      for (const node of nodes) {
+        for (let ancestor = node.parentElement; ancestor; ancestor = ancestor.parentElement) {
+          if (textAncestors.has(ancestor)) break;
+          textAncestors.add(ancestor);
+        }
+      }
+    }
+    const identities = [
+      ['transform', 'matrix(1, 0, 0, 1, 0, 0)'],
+      ['rotate', '0deg'],
+      ['scale', '1'],
+      ['translate', '0px'],
+    ] as const;
+    const transformed = [...textAncestors].map((el) => {
+      const style = getComputedStyle(el);
+      return { el, original: el.getAttribute('style'), overrides: identities.filter(([property]) => style.getPropertyValue(property) !== 'none') };
+    }).filter(({ overrides }) => overrides.length > 0);
+    const layoutLines = new Map<Element, LineSnapshot[]>();
+    try {
+      for (const { el, overrides } of transformed) {
+        (el as HTMLElement | SVGElement).style.setProperty('transition', 'none', 'important');
+        for (const [property, value] of overrides) (el as HTMLElement | SVGElement).style.setProperty(property, value, 'important');
+      }
+      for (const [el, nodes] of textBlocks) layoutLines.set(el, collectLines(nodes, el));
+    } finally {
+      for (const { el, original } of transformed) {
+        if (original === null) el.removeAttribute('style');
+        else el.setAttribute('style', original);
+        (el as HTMLElement | SVGElement).style.setProperty('transition', 'none', 'important');
+      }
+      for (const { el } of transformed) el.getBoundingClientRect();
+      for (const { el, original } of transformed) {
+        if (original === null) el.removeAttribute('style');
+        else el.setAttribute('style', original);
+      }
+    }
     const toRect = (r: DOMRect) => ({ left: r.left, top: r.top, width: r.width, height: r.height });
     const indexOf = new Map<Element, number>();
     const IMAGE_TAGS = new Set(['IMG', 'SVG', 'VIDEO', 'CANVAS', 'PICTURE']);
@@ -240,7 +288,7 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
       return value instanceof CSSKeywordValue && value.value === 'auto';
     };
     const result: ElementSnapshot[] = [];
-    for (const el of (scopeSelector ? document.querySelector(scopeSelector)! : document.body).querySelectorAll('*')) {
+    for (const el of scopedElements) {
       if (skipped.has(el.tagName) || revealed(el)) continue;
       const computed = getComputedStyle(el);
       const styles: Record<string, string> = {};
@@ -267,7 +315,7 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
         const nodes = ownedTextNodes(el);
         if (nodes.length) {
           entry.textChunks = collectChunks(nodes);
-          entry.lines = collectLines(nodes, el);
+          entry.lines = layoutLines.get(el)!;
           el.setAttribute(probe, String(result.length));
         }
       }
@@ -304,7 +352,7 @@ export async function collectSnapshot(page: Page, scope?: string): Promise<PageS
       result.push(entry);
     }
     return { elements: result, viewport: { width: window.innerWidth, height: window.innerHeight } };
-  }, { properties: [...SNAPSHOT_STYLE_PROPERTIES], scope: scope ?? '', probe: PROBE_ATTRIBUTE });
+  }, { properties: [...SNAPSHOT_STYLE_PROPERTIES], scope: scope ?? '', probe: PROBE_ATTRIBUTE, lineOverlapTolerancePx: RULE_DATA['cjk-typography'].lineOverlapTolerancePx });
   const usage = await collectFontUsage(page);
   for (const [index, fonts] of usage) elements[index]!.fonts = fonts;
   return { elements, viewport };
