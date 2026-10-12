@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spec 32 开发护栏</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f4ef;
+  --surface: #ffffff;
+  --ink: #1d1c1a;
+  --muted: #66625a;
+  --line: #dcd7cc;
+  --accent: #2f5d8a;
+  --eng: #2f5d8a;
+  --design: #b5562a;
+  --review: #5c7a3a;
+  --ok: #2e7d4f;
+  --warn: #a8661b;
+  --tag-ink: #ffffff;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161614;
+    --surface: #201f1c;
+    --ink: #ece8df;
+    --muted: #a39e93;
+    --line: #3a3833;
+    --accent: #7fb0e0;
+    --eng: #6fa3d6;
+    --design: #e08a5c;
+    --review: #9cc06e;
+    --ok: #6cc28f;
+    --warn: #e0a85c;
+    --tag-ink: #12161a;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #161614;
+  --surface: #201f1c;
+  --ink: #ece8df;
+  --muted: #a39e93;
+  --line: #3a3833;
+  --accent: #7fb0e0;
+  --eng: #6fa3d6;
+  --design: #e08a5c;
+  --review: #9cc06e;
+  --ok: #6cc28f;
+  --warn: #e0a85c;
+  --tag-ink: #12161a;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.7 var(--sans);
+}
+main { max-width: 920px; margin: 0 auto; padding: 32px 16px 64px; }
+header { border-bottom: 2px solid var(--ink); padding-bottom: 16px; margin-bottom: 24px; }
+.eyebrow { font: 600 12px/1.4 var(--mono); letter-spacing: .08em; color: var(--muted); text-transform: uppercase; }
+h1 { font-size: 28px; line-height: 1.3; margin: 6px 0 8px; }
+h2 { font-size: 19px; margin: 40px 0 12px; padding-top: 8px; border-top: 1px solid var(--line); }
+h3 { font-size: 15px; margin: 20px 0 8px; }
+p { margin: 8px 0; }
+a { color: var(--accent); }
+code { font: 13px var(--mono); background: color-mix(in srgb, var(--line) 45%, transparent); padding: 1px 4px; border-radius: 3px; overflow-wrap: anywhere; }
+.lede { font-size: 16px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 20px 0; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
+.kpi b { display: block; font: 600 24px/1.2 var(--mono); }
+.kpi span { font-size: 12px; color: var(--muted); }
+.table-wrap { overflow-x: auto; margin: 8px 0; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; background: var(--surface); }
+th, td { text-align: left; vertical-align: top; padding: 7px 10px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; color: var(--muted); font-size: 12px; }
+td.num, th.num { text-align: right; font-family: var(--mono); white-space: nowrap; }
+.tag { display: inline-block; font: 600 11px/1.6 var(--mono); padding: 0 6px; border-radius: 3px; color: var(--tag-ink); white-space: nowrap; }
+.tag.eng { background: var(--eng); }
+.tag.design { background: var(--design); }
+.tag.review { background: var(--review); }
+.timeline { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
+.tl-row { display: grid; grid-template-columns: 110px 1fr; align-items: center; gap: 8px; margin: 6px 0; }
+.tl-label { font: 12px var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tl-track { position: relative; height: 22px; background: color-mix(in srgb, var(--line) 35%, transparent); border-radius: 3px; }
+.tl-bar { position: absolute; top: 0; bottom: 0; border-radius: 3px; font: 11px/22px var(--mono); color: var(--tag-ink); padding: 0 4px; white-space: nowrap; overflow: hidden; }
+.tl-bar.eng { background: var(--eng); }
+.tl-bar.design { background: var(--design); }
+.tl-bar.review { background: var(--review); }
+.tl-axis { display: grid; grid-template-columns: 110px 1fr; gap: 8px; }
+.tl-ticks { position: relative; height: 18px; font: 11px var(--mono); color: var(--muted); }
+.tl-ticks span { position: absolute; transform: translateX(-50%); }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--muted); margin-top: 8px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+.bars { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
+.bar-row { display: grid; grid-template-columns: 110px 1fr 120px; gap: 8px; align-items: center; margin: 6px 0; font-size: 13px; }
+.bar-track { height: 14px; background: color-mix(in srgb, var(--line) 35%, transparent); border-radius: 2px; position: relative; }
+.bar-fill { position: absolute; top: 0; bottom: 0; border-radius: 2px; background: var(--eng); }
+.bar-fill.cached { background: color-mix(in srgb, var(--eng) 50%, transparent); }
+.bar-val { font: 12px var(--mono); text-align: right; white-space: nowrap; }
+ul { padding-left: 20px; margin: 8px 0; }
+li { margin: 4px 0; }
+.status-ok { color: var(--ok); font-weight: 600; }
+.status-warn { color: var(--warn); font-weight: 600; }
+.callout { border-left: 3px solid var(--accent); background: var(--surface); padding: 10px 14px; margin: 12px 0; }
+footer { margin-top: 48px; font-size: 12px; color: var(--muted); }
+@media (max-width: 560px) {
+  h1 { font-size: 23px; }
+  .tl-row, .tl-axis { grid-template-columns: 74px 1fr; }
+  .bar-row { grid-template-columns: 74px 1fr 92px; }
+}
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <div class="eyebrow">design-system · spec 汇报 · 2026-10-12</div>
+  <h1>Spec #32 开发护栏，兼 run-spec 彩排</h1>
+  <p class="lede">给仓库加了四道护栏：CI 稳定、提交信息检查、注释位置检查、文档命令检查，并用这个 spec 把双角色流程完整走了一遍。7 张工单全部关闭：原有 6 张，加上收尾审查后开的 1 张返工单 #39。<span id="pr-status"><a href="https://github.com/JinhaoFang/design-system/pull/40">PR #40</a> 等你审核合并。</span></p>
+</header>
+
+<div class="kpis">
+  <div class="kpi"><b>7/7</b><span>工单关闭（6 工程 · 1 设计）</span></div>
+  <div class="kpi"><b>1</b><span>返工单（审查发现）</span></div>
+  <div class="kpi"><b>395→488</b><span>测试数</span></div>
+  <div class="kpi"><b>59→34 秒</b><span>回归用例在 CI 上的耗时</span></div>
+  <div class="kpi"><b>110 分钟</b><span>Codex 累计执行时间</span></div>
+  <div class="kpi"><b>1 小时 30 分</b><span>从开工到 PR 的总时长</span></div>
+</div>
+
+<h2>任务</h2>
+<ul>
+  <li><b>目标</b>：spec 拆出的四项护栏都由机器把关，并接进 <code>pnpm verify</code> 和 CI；同时第一次在本仓库完整跑一遍 <code>run-spec</code>，包括派发、合并、验收、按批审查和汇报。</li>
+  <li><b>范围</b>：#33 CI 稳定、#34 verify 分步运行和共享命令行辅助、#35 恢复本机技能的文档、#36 提交信息检查、#37 注释位置检查、#38 文档命令检查，以及收尾审查后返工的 #39（文档命令检查要判断脚本文件实际存在）。</li>
+  <li><b>结果</b>：全部完成，<a href="https://github.com/JinhaoFang/design-system/pull/40">PR #40</a> 已开。集成分支的 CI 在每次推送时都通过；开 PR 时最后几次运行还在排队，合并前请看一眼 PR 上的勾。</li>
+</ul>
+
+<h2>交付</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>交付</th><th>对你意味着什么</th></tr></thead>
+<tbody>
+<tr><td>CI 稳定（#33）</td><td>CI 的机器实际只有 2 核，测试却固定开 4 个进程。现在并发数按实际核数取。回归测试从 59.4 秒（离时限只差 0.6 秒）降到约 34 秒，时限放宽到 120 秒。CI 红灯以后更可信。</td></tr>
+<tr><td><code>pnpm verify</code> 分四步（#34、#37、#38）</td><td>依次跑类型检查 → 注释位置检查 → 文档命令检查 → 测试，每步打印标签，失败即停。快的检查先报错，不用等两分钟的测试。</td></tr>
+<tr><td>提交信息检查（#36）</td><td>装好依赖后，commit-msg 钩子自动生效；CI 再逐个检查分支上的非合并提交。格式不对、缺 <code>Refs</code>、带 AI 署名的提交都进不了历史。</td></tr>
+<tr><td>注释位置检查（#37）</td><td>代码约定"只在文件头写说明"由机器检查。现有 116 个代码文件全部合规。</td></tr>
+<tr><td>文档命令检查（#38）</td><td>规则文档里写的 <code>pnpm</code> 命令、<code>pnpm ds</code> 子命令、<code>node</code> 脚本必须真实存在，agent 照着文档执行不会扑空。现有 17 个文档、57 条命令全部有效。<code>node</code> 脚本必须进 git，并且实际存在（#39）。</td></tr>
+<tr><td>恢复本机技能的文档（#35）</td><td>在主工作区切到旧提交再切回来，第三方技能会被删掉。工作流文档写了原因和一条实测可用的恢复命令。</td></tr>
+</tbody>
+</table></div>
+
+<h2>时间线</h2>
+<div class="timeline" role="img" aria-label="派发时间线：16:44 至 18:14，各工单的执行区间">
+  <div class="tl-axis"><div></div><div class="tl-ticks" id="ticks"></div></div>
+  <div id="rows"></div>
+  <div class="legend"><span><i style="background:var(--eng)"></i>工程（Codex）</span><span><i style="background:var(--design)"></i>设计（设计负责人）</span><span><i style="background:var(--review)"></i>按批审查（Codex）</span></div>
+</div>
+<div class="table-wrap"><table>
+<thead><tr><th>时刻</th><th>节点</th></tr></thead>
+<tbody>
+<tr><td class="num">16:44</td><td>建集成分支，#33、#34 并行派发；#35 由设计负责人自己做</td></tr>
+<tr><td class="num">16:58</td><td>#35 关闭；#34 完成</td></tr>
+<tr><td class="num">17:03</td><td>#34 合并、关闭</td></tr>
+<tr><td class="num">17:29</td><td>#33 合并（和 #34 有一处冲突）、关闭；#36、#37、#38 解除阻塞</td></tr>
+<tr><td class="num">17:32</td><td>三张工单并行派发，第一批审查同时派出</td></tr>
+<tr><td class="num">17:44–17:55</td><td>#37、#36、#38 依次合并、关闭（后两张合并时都要手工解决冲突）</td></tr>
+<tr><td class="num">17:58</td><td>收尾审查（兼第二批审查），发现 1 项 P2</td></tr>
+<tr><td class="num">18:04–18:12</td><td>返工单 #39 派发、合并、关闭；命令手册同步</td></tr>
+<tr><td class="num">18:14</td><td>更新路线图，开 PR #40</td></tr>
+</tbody>
+</table></div>
+
+<h2>成本与效率</h2>
+<p>Codex 派发 8 次：6 张工程工单各一次（含返工单 #39），审查两次。没有退回重做的工单；唯一的返工是审查发现问题后新开的 #39。同时最多 4 个 Codex 在跑（三张工单加一次审查）。</p>
+<div class="table-wrap"><table>
+<thead><tr><th>派发</th><th>类型</th><th class="num">用时（分钟）</th><th class="num">输入</th><th class="num">其中缓存</th><th class="num">输出</th></tr></thead>
+<tbody id="cost-body"></tbody>
+</table></div>
+<h3>输入 token（浅色是缓存命中，深色是未命中）</h3>
+<div class="bars" id="token-bars" role="img" aria-label="各次派发的输入 token 对比，数据同上表"></div>
+<p>设计负责人主会话：109 次回复，输入约 1,533 万 tokens（其中缓存读取 1,513 万、缓存写入 20 万），输出约 6.9 万 tokens。没有用子代理。这是本仓库的第一份汇报，没有上一期可以对比。</p>
+
+<h2>质量</h2>
+<ul>
+  <li><b>测试</b>：395 个增加到 488 个。新增的都是对命令的外部行为测试：钩子入口和分支检查入口 49 项、注释检查 19 项、文档命令检查 16 项、共享辅助 9 项。</li>
+  <li><b>本机</b>：每次合并前 <code>land</code> 都在 rebase 后跑一遍 <code>pnpm verify</code>，6 次全部通过（#38 第一次因缺依赖没能开跑，见下文），没有出现偶发失败。#33 限制 4 核连续跑 5 轮，全部通过。</li>
+  <li><b>CI</b>：#33 修复后在工单分支上连续通过 3 次；#36 的分支检查步骤在 CI 上通过；集成分支在开 PR 前的每次推送都通过了。</li>
+  <li><b>审查</b>：两次，都由 Codex 用 code-review 做 Standards 和 Spec 两条线。</li>
+</ul>
+<div class="table-wrap"><table>
+<thead><tr><th>审查</th><th>范围</th><th class="num">Standards</th><th class="num">Spec</th><th>处理</th></tr></thead>
+<tbody>
+<tr><td>第一批</td><td>#33、#34、#35</td><td class="num">0</td><td class="num">0</td><td>无需处理</td></tr>
+<tr><td>收尾（兼第二批）</td><td>整个分支，重点 #36～#38 和合并冲突处</td><td class="num">0</td><td class="num">1（P2）</td><td>文档命令检查对 <code>node</code> 路径只看进没进 git，不看文件是否存在：开返工单 #39 修复</td></tr>
+</tbody>
+</table></div>
+
+<h2>决定</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>决定</th><th>谁</th><th>理由</th></tr></thead>
+<tbody>
+<tr><td>#35 的恢复命令改成只恢复 <code>skills-lock.json</code> 列出的技能，没有照抄工单原文</td><td>设计负责人</td><td>实测发现工单原文的整目录恢复会删掉 <code>run-spec</code>，还会带回 12 个已移除的旧技能</td></tr>
+<tr><td>CI 稳定不用自动重试，只做有依据的缓解</td><td>spec（用户确认过）</td><td>重试会掩盖真问题</td></tr>
+<tr><td>接受"限制并发数、放宽回归时限、截图前等两帧"三项缓解</td><td>设计负责人</td><td>前两项有实测依据（2 核、离时限差 0.6 秒）；第三项依据是 Playwright 截图前不等画面提交</td></tr>
+<tr><td>文档里的 <code>node &lt;路径&gt;</code> 按"是否进 git"判断，被忽略的路径跳过</td><td>设计负责人（派发 #38 时）</td><td>本机和 CI 的结果要一致；<code>references/</code> 这类目录在 CI 上本来就没有</td></tr>
+<tr><td>接受新增依赖 <code>typescript-parser</code>（TypeScript 6.0.2 的别名）</td><td>设计负责人</td><td>TypeScript 7 不再提供解析接口，spec 要求用语法树扫描</td></tr>
+<tr><td>允许 #33、#36 推送自己的工单分支</td><td>设计负责人</td><td>它们的验收标准要 CI 运行链接；标准派发指令写的是"不要推送"</td></tr>
+<tr><td>第二批审查并进收尾审查</td><td>设计负责人</td><td>第二批是最后一批，两次审查的范围几乎重合</td></tr>
+</tbody>
+</table></div>
+
+<h2>问题与处理</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>问题</th><th>处理</th></tr></thead>
+<tbody>
+<tr><td>spec 写的"CI 机器 4 核"不对，实际是 2 核。这是设计负责人写 spec 时没有核实的前提，#33 按 4 核在本机复现不出来。</td><td>#33 按工单允许的退路改在 CI 上诊断，才查清；本汇报更正。以后 spec 里写机器条件，先在 CI 上打印一次核实。</td></tr>
+<tr><td>截图报错和"体系总览页有 4 个错误"的根因没有锁定，诊断时也没再出现。</td><td>做了有依据的缓解；CI 失败时会自动保存检查报告，下次出现能看到是哪条规则。</td></tr>
+<tr><td>#35 工单里写的恢复命令有副作用（设计负责人写的工单）。</td><td>验收前实测发现，改写后再实测一遍；偏离写进了验收评论。</td></tr>
+<tr><td>三张并行工单都往同几处登记处各加一项，后合并的两张出现冲突（6 个文件）。</td><td>预料之中，是这次要演练的内容。按"类型检查 → 注释 → 文档命令 → 测试"的顺序合并，并统一改写了三份规则文档里的 verify 和 CI 描述。</td></tr>
+<tr><td>文档命令检查对 <code>node</code> 路径只看进没进 git，不看文件是否实际存在。起因是设计负责人派发 #38 时写了"按进 git 的文件判断，不按本机磁盘判断"，本意是让本机和 CI 的结果一致，却漏了"还要存在"这一半。</td><td>收尾审查发现后开返工单 #39，补上存在性判断，命令手册同步更新。</td></tr>
+<tr><td><code>land</code> 在 rebase 后不重新装依赖。#37 新增的依赖没有进 #38 的 worktree，验证一定会失败。</td><td>手动在 worktree 里重装后重跑 <code>land</code>；本仓库执行配置说明里加了这一条。</td></tr>
+</tbody>
+</table></div>
+
+<h2>流程发现</h2>
+<ul>
+  <li><b>标准派发指令和"要 CI 链接"的验收标准矛盾</b>：指令写"不要推送"，但 CI 只在推送时运行。这次靠补充说明放开。建议 <code>run-spec</code> 支持在工单里声明"允许推送工单分支"，<code>cleanup</code> 顺带删掉远端的工单分支。</li>
+  <li><b><code>land</code> 不重装依赖</b>：应该在 rebase 改动了 lockfile 时自动执行安装命令。</li>
+  <li><b>并行工单的共享登记处冲突</b>：三张都要加 verify 步骤的工单，每合并一张，后面的都要手工解决冲突。对策：拆单时把"往登记处加一项"留给最后合并的一张，或者把登记处改成每项一个文件。</li>
+  <li><b>按批审查和收尾审查重叠</b>：最后一批审完紧接着就是整分支审查，可以合成一次。</li>
+  <li><b>派发数据自动进验收评论</b>，写汇报时很好用；按批审查的数据不进任何评论，要去 <code>~/.codex/sessions/</code> 里翻，审查内部开的子代理还要自己加总。</li>
+</ul>
+
+<h2>回报 video-studio</h2>
+<p>迁移和移植中发现的问题，供 video-studio 写迁移初始化技能时参考。</p>
+<ul>
+  <li><b>pnpm 12 的自带命令表</b>：pnpm 12 改成原生发布包，没有 <code>pnpm.cjs</code>，<code>help --all</code> 不能用。整理方法：下载同版的包装包和平台包，核对 SHA-512，从 <code>--help</code> 收集命令和别名，再对照同版源码补隐藏命令和 <code>pm</code> 前缀。相对 10.34.6 新增 21 个名字（change、clean、dist-tags、lane、licences、owners、pack-app、peers、pipeline、pm、purge、rt、runtime、sbom、shim、ss、stage、stop、tasks、undeprecate、with），删掉 1 个（server）。另外 pnpm 12 不认 <code>pnpm -s</code>。</li>
+  <li><b>仓库特有的 <code>ds</code> 子命令</b>：子命令表抽成纯 JSON，命令行工具和检查器读同一份，检查时不导入、也不执行命令行工具。迁移初始化时要问清目标仓库有没有类似的"脚本下的子命令"。</li>
+  <li><b><code>node &lt;路径&gt;</code> 按 git 跟踪清单判断</b>：被忽略的路径要从祖先目录判断，否则 worktree 里的软链接会让 <code>git check-ignore</code> 报 path beyond symbolic link。</li>
+  <li><b>占位符</b>：不能因为参数里有占位符就跳过整条命令，否则 <code>pnpm ds missing --system &lt;dir&gt;</code> 这类错误会漏掉。</li>
+  <li><b>提交信息规则</b>：范围从"小写字母、数字、连字符"放宽为"非空、内容不限"；入口统一用共享命令行辅助；不移植纯函数的测试，只保留覆盖规则边界的入口测试。</li>
+  <li><b>注释检查</b>：本仓库收紧了 video-studio 的做法：只认第一段文件头，指令注释不设例外，只查进 git 的文件。TypeScript 7 没有解析接口，要另装 TypeScript 6 的别名。</li>
+  <li><b>CI 机器核数</b>：GitHub 的 <code>ubuntu-24.04</code> runner 实测 2 核（私有仓库）。测试并发数要按实际核数取，不能写死。</li>
+  <li><b><code>run-spec</code> 本身</b>：上面"流程发现"里的推送、重装依赖、审查重叠三条。</li>
+</ul>
+
+<h2>遗留与下一步</h2>
+<ul>
+  <li><b>用户</b>：审核合并 <a href="https://github.com/JinhaoFang/design-system/pull/40">PR #40</a>。合并后在主工作区运行一次 <code>pnpm install</code>，启用提交信息钩子。</li>
+  <li><b>用户（裁判）</b>：验收 #17（纸本编辑①），预览命令 <code>pnpm ds regress &amp;&amp; pnpm ds preview --dir out/regress</code>。</li>
+  <li><b>继续第 0 阶段</b>：新会话说"执行 spec #1"，做 #18～#28。</li>
+  <li><b>复盘</b>：上面的流程发现要不要改进 <code>run-spec</code>，在 video-studio 那边决定。</li>
+  <li>不在本次范围：把 CI 设为 <code>main</code> 的必过检查（分支保护）。截图报错再出现时，用 CI 保存的报告继续查。</li>
+</ul>
+
+<footer>数据来源：工单验收评论里的派发数据、<code>~/.codex/sessions/</code> 的会话记录、设计负责人会话记录、GitHub Actions。</footer>
+</main>
+<script>
+const START = 16 * 60 + 44;
+const END = 18 * 60 + 14;
+const runs = [
+  { label: '#35', kind: 'design', start: '16:45', end: '16:58' },
+  { label: '#33', kind: 'eng', start: '16:48', end: '17:28' },
+  { label: '#34', kind: 'eng', start: '16:48', end: '16:58' },
+  { label: '审查 1', kind: 'review', start: '17:32', end: '17:37' },
+  { label: '#36', kind: 'eng', start: '17:32', end: '17:49' },
+  { label: '#37', kind: 'eng', start: '17:33', end: '17:43' },
+  { label: '#38', kind: 'eng', start: '17:33', end: '17:51' },
+  { label: '收尾审查', kind: 'review', start: '17:58', end: '18:04' },
+  { label: '#39 返工', kind: 'eng', start: '18:04', end: '18:10' },
+];
+const cost = [
+  { name: 'gh-33', ticket: '#33 CI 稳定', min: 40.1, input: 8732038, cached: 8485120, output: 34345 },
+  { name: 'gh-34', ticket: '#34 verify 分步', min: 10.0, input: 1037464, cached: 962944, output: 12953 },
+  { name: 'gh-36', ticket: '#36 提交信息', min: 16.6, input: 2168136, cached: 2089088, output: 16729 },
+  { name: 'gh-37', ticket: '#37 注释位置', min: 10.2, input: 1651368, cached: 1569408, output: 12421 },
+  { name: 'gh-38', ticket: '#38 文档命令', min: 17.7, input: 2660340, cached: 2547072, output: 23259 },
+  { name: 'review-32-1', ticket: '第一批审查', min: 4.8, input: 1090981, cached: 936960, output: 7249 },
+  { name: 'review-32-final', ticket: '收尾审查', min: 5.6, input: 2432065, cached: 2203392, output: 9495 },
+  { name: 'gh-39', ticket: '#39 返工', min: 5.5, input: 963860, cached: 916992, output: 4947 },
+];
+const toMin = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+const pct = (m) => ((m - START) / (END - START)) * 100;
+const ticks = document.getElementById('ticks');
+const step = window.innerWidth < 560 ? 30 : 15;
+for (let m = Math.ceil(START / step) * step; m <= END; m += step) {
+  const s = document.createElement('span');
+  s.style.left = pct(m) + '%';
+  s.textContent = `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
+  ticks.appendChild(s);
+}
+const rows = document.getElementById('rows');
+for (const r of runs) {
+  const row = document.createElement('div');
+  row.className = 'tl-row';
+  const a = toMin(r.start), b = toMin(r.end);
+  row.innerHTML = `<div class="tl-label">${r.label}</div><div class="tl-track"><div class="tl-bar ${r.kind}" style="left:${pct(a)}%;width:${pct(b) - pct(a)}%" title="${r.label} ${r.start}–${r.end}">${(pct(b) - pct(a)) * (window.innerWidth < 560 ? 0.5 : 1) >= 12 ? `${r.start}–${r.end}` : ''}</div></div>`;
+  rows.appendChild(row);
+}
+const fmt = (n) => n.toLocaleString('en-US');
+const body = document.getElementById('cost-body');
+let tot = { min: 0, input: 0, cached: 0, output: 0 };
+for (const c of cost) {
+  for (const k of Object.keys(tot)) tot[k] += c[k];
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${c.ticket}<br><code>${c.name}</code></td><td>${c.name.startsWith('review') ? '<span class="tag review">审查</span>' : '<span class="tag eng">工程</span>'}</td><td class="num">${c.min.toFixed(1)}</td><td class="num">${fmt(c.input)}</td><td class="num">${fmt(c.cached)}</td><td class="num">${fmt(c.output)}</td>`;
+  body.appendChild(tr);
+}
+const totalRow = document.createElement('tr');
+totalRow.innerHTML = `<td><b>合计</b></td><td></td><td class="num"><b>${tot.min.toFixed(1)}</b></td><td class="num"><b>${fmt(tot.input)}</b></td><td class="num"><b>${fmt(tot.cached)}</b></td><td class="num"><b>${fmt(tot.output)}</b></td>`;
+body.appendChild(totalRow);
+const max = Math.max(...cost.map((c) => c.input));
+const bars = document.getElementById('token-bars');
+for (const c of cost) {
+  const row = document.createElement('div');
+  row.className = 'bar-row';
+  row.innerHTML = `<div class="tl-label">${c.name}</div><div class="bar-track"><div class="bar-fill cached" style="left:0;width:${c.cached / max * 100}%"></div><div class="bar-fill" style="left:${c.cached / max * 100}%;width:${(c.input - c.cached) / max * 100}%"></div></div><div class="bar-val">${(c.input / 1e6).toFixed(2)}M</div>`;
+  bars.appendChild(row);
+}
+</script>
+</body>
+</html>
