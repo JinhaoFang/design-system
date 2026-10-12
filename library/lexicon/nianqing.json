@@ -1,0 +1,100 @@
+{
+  "id": "nianqing",
+  "word": "年轻",
+  "phrasings": [
+    "年轻化",
+    "要有年轻人喜欢的感觉",
+    "潮一点",
+    "别太老气"
+  ],
+  "interpretations": [
+    {
+      "name": "荧光印刷的热闹",
+      "description": "荧光粉、黄、群青撞色，字很大并有错位，套色偏移像独立出版物；热闹，但每块颜色都有来历。",
+      "materialAnchor": "Riso 孔版印刷的荧光墨与套色混色",
+      "tonality": {
+        "静动": 5,
+        "疏密": 4,
+        "冷暖": 4,
+        "轻重": 2,
+        "庄谐": 5
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "中",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "riso-print"
+      },
+      "samples": {
+        "status": "present",
+        "exemplars": [
+          "riso-risotto-studio"
+        ]
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "运动品牌式",
+      "description": "白底配一个高饱和主色（电光蓝或橙），粗体斜切无衬线字，大头图；速度感强，干脆利落。",
+      "materialAnchor": "运动品牌海报的亮面喷涂",
+      "tonality": {
+        "静动": 5,
+        "疏密": 3,
+        "冷暖": 2,
+        "轻重": 2,
+        "庄谐": 4
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "中",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "riso-print",
+        "direction": "白底加单一高饱和主色与斜切粗体字，排法借孔版印刷的大色块版式。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "校园手账",
+      "description": "便利贴、贴纸、胶带、手写字随意拼在一起，彩笔颜色，有点乱但很真诚。",
+      "materialAnchor": "手账本上的贴纸与彩笔",
+      "tonality": {
+        "静动": 4,
+        "疏密": 4,
+        "冷暖": 4,
+        "轻重": 1,
+        "庄谐": 5
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "高",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "riso-print",
+        "direction": "拼贴式的贴纸、胶带与手写字，排法借孔版印刷的错位叠放与多色。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    }
+  ]
+}

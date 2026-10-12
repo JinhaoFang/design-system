@@ -1,0 +1,20 @@
+{
+  "carrier": "web",
+  "units": {
+    "hero": {
+      "label": "首屏",
+      "slots": {
+        "headline": { "type": "text", "priority": "primary", "maxChars": 24 },
+        "lead": { "type": "text", "priority": "secondary", "maxChars": 70 }
+      }
+    },
+    "features": {
+      "label": "特性",
+      "slots": {
+        "heading": { "type": "text", "priority": "primary", "maxChars": 24 },
+        "itemTitles": { "type": "text", "priority": "secondary", "maxChars": 14, "maxItems": 6, "group": "items" },
+        "itemBodies": { "type": "text", "priority": "tertiary", "maxChars": 50, "maxItems": 6, "group": "items" }
+      }
+    }
+  }
+}

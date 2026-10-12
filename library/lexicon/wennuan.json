@@ -1,0 +1,97 @@
+{
+  "id": "wennuan",
+  "word": "温暖",
+  "phrasings": [
+    "温暖一点",
+    "要有温度",
+    "亲切一些",
+    "暖暖的"
+  ],
+  "interpretations": [
+    {
+      "name": "暖纸手作",
+      "description": "米黄暖白的纸面，赭石与棕色墨，带手写感的字体，轻微纸纹；像一张手写的卡片。",
+      "materialAnchor": "暖白哑光纸上的赭石色油墨印刷",
+      "tonality": {
+        "静动": 1,
+        "疏密": 2,
+        "冷暖": 5,
+        "轻重": 2,
+        "庄谐": 3
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "低"
+      },
+      "recommendation": {
+        "system": "paper-editorial"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "阳光家居",
+      "description": "奶油黄与暖橘的大色块，大圆角，真人生活照，亲切的圆体字；像午后阳光照进客厅。",
+      "materialAnchor": "午后阳光下的奶油色家居织物",
+      "tonality": {
+        "静动": 2,
+        "疏密": 2,
+        "冷暖": 5,
+        "轻重": 2,
+        "庄谐": 4
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "奶油黄与暖橘的大圆角色块配真人生活照与圆体字，排法借纸本编辑的图文分栏。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "烛光暗调",
+      "description": "深棕或暗红底，暖色光晕，对比柔和，字偏大偏稀；适合餐厅、咖啡馆这类晚上的场景。",
+      "materialAnchor": "烛光下的木质吧台",
+      "tonality": {
+        "静动": 1,
+        "疏密": 3,
+        "冷暖": 5,
+        "轻重": 4,
+        "庄谐": 3
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "深棕底配暖色光晕与大字，排法借纸本编辑的单栏版式，对比保持柔和。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    }
+  ]
+}

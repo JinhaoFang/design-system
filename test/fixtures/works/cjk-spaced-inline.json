@@ -1,0 +1,13 @@
+{
+  "system": "mini",
+  "carrier": "social",
+  "canvas": "xiaohongshu",
+  "concept": "行内元素之间以空白相隔、不该误报的干净夹具",
+  "sequence": [
+    {
+      "unit": "title",
+      "layout": "spaced-inline",
+      "content": { "title": "发布二点零" }
+    }
+  ]
+}

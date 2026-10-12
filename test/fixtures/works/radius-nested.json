@@ -1,0 +1,12 @@
+{
+  "system": "mini",
+  "carrier": "social",
+  "canvas": "xiaohongshu",
+  "concept": "圆角嵌套正确的干净夹具：外圆角 24 等于内圆角 12 加内边距 12",
+  "sequence": [
+    {
+      "custom": "<style>:scope{box-sizing:border-box;width:100%;height:100%;padding:calc(var(--ds-space-3) * 2);background:var(--ds-color-paper);font-family:var(--ds-font-body);display:flex;flex-direction:column;justify-content:center;color:var(--ds-color-ink)} .card{padding:var(--ds-space-1);border-radius:24px;background:var(--ds-color-surface)} .inner{padding:var(--ds-space-2);border-radius:12px;background:var(--ds-color-paper)} p{margin:0;font-size:var(--ds-type-1);line-height:1.5}</style><div class=\"card\"><div class=\"inner\"><p>发布二点零</p></div></div>",
+      "serves": "验证圆角嵌套正确"
+    }
+  ]
+}

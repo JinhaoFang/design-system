@@ -1,0 +1,101 @@
+{
+  "id": "huopo",
+  "word": "活泼",
+  "phrasings": [
+    "活泼一点",
+    "要有活力",
+    "不要死气沉沉",
+    "好玩一点"
+  ],
+  "interpretations": [
+    {
+      "name": "糖果撞色",
+      "description": "荧光和糖果色撞在一起，字形错位，元素倾斜；像一场派对，热闹但有版的约束。",
+      "materialAnchor": "Riso 孔版印刷的荧光墨与套色",
+      "tonality": {
+        "静动": 5,
+        "疏密": 4,
+        "冷暖": 4,
+        "轻重": 2,
+        "庄谐": 5
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "中",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "riso-print"
+      },
+      "samples": {
+        "status": "present",
+        "exemplars": [
+          "riso-risotto-studio",
+          "riso-colossal-riso-club"
+        ]
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "圆润卡通",
+      "description": "大圆角，粗描边卡通插画，弹跳的动效；像塑料玩具。",
+      "materialAnchor": "塑料玩具与贴纸",
+      "tonality": {
+        "静动": 5,
+        "疏密": 3,
+        "冷暖": 5,
+        "轻重": 1,
+        "庄谐": 5
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "riso-print",
+        "direction": "粗描边卡通插画与大圆角色块，排法借孔版印刷的大字叠放，动效用弹跳。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "节奏明快",
+      "description": "白底只用一两个跳色，小动效灵动但不乱；活泼体现在节奏里而不是颜色里。",
+      "materialAnchor": "亮面铜版纸上的双色印刷",
+      "tonality": {
+        "静动": 3,
+        "疏密": 2,
+        "冷暖": 3,
+        "轻重": 1,
+        "庄谐": 3
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "白底加一两个跳色，排法借纸本编辑的网格，用节奏明快的小动效表达活泼。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    }
+  ]
+}

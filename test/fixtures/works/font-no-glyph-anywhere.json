@@ -1,0 +1,13 @@
+{
+  "system": "mini",
+  "carrier": "social",
+  "canvas": "xiaohongshu",
+  "concept": "标题里有一个任何字体都没有的字（私用区），只会显示成方框的违规夹具",
+  "sequence": [
+    {
+      "unit": "title",
+      "layout": "stack",
+      "content": { "title": "发布点零", "subtitle": "更快的搜索，更稳的同步" }
+    }
+  ]
+}

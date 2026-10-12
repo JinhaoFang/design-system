@@ -1,0 +1,13 @@
+{
+  "system": "mini",
+  "carrier": "social",
+  "canvas": "xiaohongshu",
+  "concept": "行内元素边界上中西文紧贴的违规夹具",
+  "sequence": [
+    {
+      "unit": "title",
+      "layout": "unspaced-inline",
+      "content": { "title": "发布二点零" }
+    }
+  ]
+}

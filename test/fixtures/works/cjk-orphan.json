@@ -1,0 +1,13 @@
+{
+  "system": "mini",
+  "carrier": "social",
+  "canvas": "xiaohongshu",
+  "concept": "最后一行只剩一个汉字的孤字夹具",
+  "sequence": [
+    {
+      "unit": "title",
+      "layout": "column",
+      "content": { "title": "发布二点零新版本" }
+    }
+  ]
+}

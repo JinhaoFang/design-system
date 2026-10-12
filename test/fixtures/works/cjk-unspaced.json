@@ -1,0 +1,13 @@
+{
+  "system": "mini",
+  "carrier": "social",
+  "canvas": "xiaohongshu",
+  "concept": "版式自带文字里中西文紧贴的违规夹具",
+  "sequence": [
+    {
+      "unit": "title",
+      "layout": "unspaced",
+      "content": { "title": "发布二点零" }
+    }
+  ]
+}

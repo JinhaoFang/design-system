@@ -1,0 +1,99 @@
+{
+  "id": "fugu",
+  "word": "复古",
+  "phrasings": [
+    "复古风",
+    "怀旧一点",
+    "有年代感",
+    "老派"
+  ],
+  "interpretations": [
+    {
+      "name": "老报纸",
+      "description": "泛黄纸色，粗衬线标题，栏线，黑白网点图；密密麻麻但有秩序。",
+      "materialAnchor": "泛黄的旧报纸与铅字",
+      "tonality": {
+        "静动": 2,
+        "疏密": 5,
+        "冷暖": 5,
+        "轻重": 3,
+        "庄谐": 2
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "高",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "泛黄纸色配铅字与栏线的密排，标题用粗衬线，排法借纸本编辑的分栏版式。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "港风霓虹",
+      "description": "霓虹色渐变，粗斜体字，胶片颗粒；像九十年代的录像带封面。",
+      "materialAnchor": "老录像带与霓虹招牌",
+      "tonality": {
+        "静动": 5,
+        "疏密": 4,
+        "冷暖": 4,
+        "轻重": 3,
+        "庄谐": 4
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "中",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "riso-print",
+        "direction": "深色底配红蓝霓虹字与录像带噪点，字形带拖影和错位，排法借孔版印刷的大字叠放与套色错位。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "七十年代海报",
+      "description": "三四色套印，轻微错版，老式插画，粗网点；像一张被晒旧的演出海报。",
+      "materialAnchor": "老式丝网印海报的套印与网点",
+      "tonality": {
+        "静动": 4,
+        "疏密": 3,
+        "冷暖": 5,
+        "轻重": 3,
+        "庄谐": 4
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "中",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "riso-print",
+        "direction": "三四色套印的老式插画海报，排法借孔版印刷的套色错位与粗网点。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    }
+  ]
+}

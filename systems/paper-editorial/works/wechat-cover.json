@@ -1,0 +1,12 @@
+{
+  "system": "paper-editorial",
+  "carrier": "social",
+  "canvas": "wechat-cover",
+  "concept": "八个周六：一条横卷。左边竖排题签「公众观测夜」「八个周六」，右边一条细线串起八个观测夜，每个夜晚画出当晚真实的月相，配壹到捌的序号和日期，右下一方小朱印。",
+  "sequence": [
+    {
+      "custom": { "file": "fragments/ba-ge-zhouliu.html" },
+      "serves": "整张封面：八个观测夜的月相是主角，题签交代主题，月相说明为什么选在这八个晚上"
+    }
+  ]
+}

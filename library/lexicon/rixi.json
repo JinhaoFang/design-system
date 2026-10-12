@@ -1,0 +1,97 @@
+{
+  "id": "rixi",
+  "word": "日系",
+  "phrasings": [
+    "日系风",
+    "日式的感觉",
+    "要日系一点",
+    "小清新日系"
+  ],
+  "interpretations": [
+    {
+      "name": "清透空气感",
+      "description": "高明度、低对比，浅蓝与浅米色，照片略过曝，字细，留白多；像被光洗过一遍。",
+      "materialAnchor": "过曝日光下的白纸与棉布",
+      "tonality": {
+        "静动": 1,
+        "疏密": 1,
+        "冷暖": 3,
+        "轻重": 1,
+        "庄谐": 2
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "低",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "高明度低对比的浅色底配细字与略过曝照片，排法借纸本编辑的留白版式。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "昭和纸本杂志",
+      "description": "暖白纸，竖排文字，红黑两色，细罫线，小字号精排；像一本老杂志。",
+      "materialAnchor": "暖白哑光纸上的红黑油墨印刷，昭和年代杂志的版面",
+      "tonality": {
+        "静动": 2,
+        "疏密": 3,
+        "冷暖": 4,
+        "轻重": 2,
+        "庄谐": 2
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "中",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "paper-editorial"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "日系杂货可爱",
+      "description": "圆角，手绘插画，糖果色小块，贴纸感；像文具店里的一格货架。",
+      "materialAnchor": "文具店的贴纸与信纸",
+      "tonality": {
+        "静动": 3,
+        "疏密": 3,
+        "冷暖": 5,
+        "轻重": 1,
+        "庄谐": 5
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "riso-print",
+        "direction": "糖果色小色块与手绘插画，排法借孔版印刷的多色叠放。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    }
+  ]
+}

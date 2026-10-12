@@ -1,0 +1,97 @@
+{
+  "id": "jianyue",
+  "word": "简约",
+  "phrasings": [
+    "简约一点",
+    "简单大方",
+    "越简单越好",
+    "别太花"
+  ],
+  "interpretations": [
+    {
+      "name": "只留必要的",
+      "description": "元素少到不能再少：单色、无装饰、一屏一个重点，连图标都省掉，靠字号和位置分主次。",
+      "materialAnchor": "暖白哑光纸上的油墨印刷，只用单色黑墨",
+      "tonality": {
+        "静动": 1,
+        "疏密": 1,
+        "冷暖": 4,
+        "轻重": 2,
+        "庄谐": 2
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "低",
+        "图版率": "低"
+      },
+      "recommendation": {
+        "system": "paper-editorial"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "瑞士网格式",
+      "description": "严格的网格与对齐，只用无衬线字，一到两种颜色；克制，但层级清楚，信息一点不少。",
+      "materialAnchor": "瑞士海报的单色网格印刷",
+      "tonality": {
+        "静动": 2,
+        "疏密": 3,
+        "冷暖": 1,
+        "轻重": 2,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "低"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "precision-industrial",
+        "direction": "单色或双色的无衬线字压在严格网格上，层级只靠字号与位置，排法借精密工业的网格与对齐规则。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "日式生活感",
+      "description": "米色与暖白，细字，木头和棉麻质感的照片为主，文字轻声说话；像一间收拾好的屋子。",
+      "materialAnchor": "棉麻与原木的暖白生活用品",
+      "tonality": {
+        "静动": 1,
+        "疏密": 1,
+        "冷暖": 5,
+        "轻重": 1,
+        "庄谐": 2
+      },
+      "composition": {
+        "跳跃率": "低",
+        "版面率": "低",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "米色暖白底配细字与生活照片，排法借纸本编辑的图文并排版式。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    }
+  ]
+}

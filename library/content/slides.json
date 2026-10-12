@@ -1,0 +1,77 @@
+{
+  "cover.title": "鹞岭天文台新镜落成",
+  "cover.subtitle": "1.6 米望远镜首光之后，向公众开放观测夜",
+  "cover.presenter": "鹞岭天文台",
+  "cover.date": "2026年11月14日",
+
+  "agenda.heading": "今天讲什么",
+  "agenda.items": ["为什么要建新镜", "从奠基到首光", "1.6 米意味着什么", "旧镜与新镜", "观测夜怎么办", "怎么预约"],
+
+  "section.why.number": "01",
+  "section.why.title": "为什么要建新镜",
+  "section.why.summary": "旧镜看不到更暗的天体，也接待不了公众。",
+
+  "section.build.number": "02",
+  "section.build.title": "从奠基到首光",
+  "section.build.summary": "三年半里，一块约 1 吨重的镜子沿山路上了山。",
+
+  "statement.old.claim": "0.6 米的旧镜，已经用到了极限",
+  "statement.old.support": "1987 年建成的旧镜，极限星等 22 等。要研究更暗的天体，只能排队借用别处的大型望远镜。",
+  "statement.old.source": "鹞岭天文台观测年报，2025年",
+
+  "statement.access.claim": "山上有天空，却没有地方接待访客",
+  "statement.access.support": "旧台没有接待区，山路只通小车。每年只接待约 60 位科研访客，从未向公众开放。",
+  "statement.access.source": "鹞岭天文台访客记录，2025年",
+
+  "data.aperture.heading": "口径",
+  "data.aperture.value": "1.6m",
+  "data.aperture.label": "新望远镜主镜口径",
+  "data.aperture.context": "旧镜为 0.6 米，集光面积约为旧镜的 7 倍。",
+  "data.aperture.source": "鹞岭天文台技术文档，2025年",
+
+  "data.altitude.heading": "海拔",
+  "data.altitude.value": "2,860m",
+  "data.altitude.label": "天文台所在山顶的海拔",
+  "data.altitude.context": "每年晴夜约 210 个，天顶天空亮度 21.7 等 / 平方角秒。",
+  "data.altitude.source": "场址监测，2019年至2024年",
+
+  "data.booking.heading": "名额",
+  "data.booking.value": "480",
+  "data.booking.label": "首批观测夜名额",
+  "data.booking.context": "11 月至次年 2 月共 8 场，每场 60 人。",
+  "data.booking.source": "鹞岭天文台接待计划，2026年",
+
+  "compare.heading": "旧镜与新镜",
+  "compare.leftTitle": "0.6 米旧镜",
+  "compare.leftPoints": ["口径 0.6 米", "极限星等 22 等", "手动对星，一次一个目标", "没有接待区，不对公众开放"],
+  "compare.rightTitle": "1.6 米新镜",
+  "compare.rightPoints": ["口径 1.6 米", "极限星等 24 等", "自动对星，整夜连续观测", "接待厅 60 座，设目视目镜"],
+  "compare.verdict": "集光面积约为旧镜的 7 倍，能看到暗 2 等的天体",
+
+  "image.road.visual": { "image": "summit-road" },
+  "image.road.heading": "盘山路的尽头",
+  "image.road.caption": "38 公里盘山路，约 1 吨重的主镜就是沿着它运上山的。",
+
+  "image.night.visual": { "image": "eyepiece-night" },
+  "image.night.heading": "观测夜的现场",
+  "image.night.caption": "红光照明，志愿者陪在目镜旁，每人看 5 分钟左右。",
+
+  "process.heading": "从奠基到落成",
+  "process.steps": ["奠基", "圆顶封顶", "主镜运抵", "首光", "落成典礼", "首场观测夜"],
+  "process.stepNotes": [
+    "2022 年 4 月，圆顶基础动工",
+    "2023 年 9 月，钢结构圆顶合拢",
+    "2024 年 11 月，主镜经盘山路运抵",
+    "2025 年 10 月，首次拍摄仙女星系",
+    "2026 年 11 月 14 日，落成典礼",
+    "2026 年 11 月 21 日，对公众开放"
+  ],
+
+  "quote.quote": "首光那晚，我们对准仙女星系。进入镜筒的光已经走了 250 万年，比人类的历史还长。",
+  "quote.by": "沈砚秋",
+  "quote.role": "鹞岭天文台台长，天体物理学家",
+
+  "closing.headline": "11 月 21 日，山顶见",
+  "closing.contact": "kestrelridge.example/book",
+  "closing.action": "预约观测夜"
+}

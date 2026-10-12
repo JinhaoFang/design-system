@@ -1,0 +1,18 @@
+<style>
+  :scope {
+    box-sizing: border-box;
+    min-height: 100vh;
+    padding: calc(var(--ds-space-3) * 2) var(--ds-space-3);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--ds-space-2);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+  }
+  .headline { margin: 0; font-weight: 400; font-size: var(--ds-type-2); line-height: 1.3; }
+  .lead { margin: 0; font-size: var(--ds-type-1); line-height: 1.5; color: var(--ds-color-accent); }
+</style>
+<h1 class="headline" data-ds-enter="rise" data-ds-step="slow">{{ slots.headline }}</h1>
+<p class="lead" data-ds-enter="rise" data-ds-step="slow">{{ slots.lead }}</p>

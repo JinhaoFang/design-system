@@ -1,0 +1,99 @@
+{
+  "id": "wenzhong",
+  "word": "稳重",
+  "phrasings": [
+    "要稳重",
+    "沉稳一点",
+    "靠谱可信",
+    "别太浮夸"
+  ],
+  "interpretations": [
+    {
+      "name": "老牌机构",
+      "description": "深蓝，衬线字，对称版式，徽章式的标识；像一家百年老店。",
+      "materialAnchor": "烫了徽章的深蓝布面精装书",
+      "tonality": {
+        "静动": 1,
+        "疏密": 3,
+        "冷暖": 2,
+        "轻重": 4,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "低"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "深蓝布面配烫金徽章式的小标记，字号克制、对称居中，排法借纸本编辑的单栏版式与精排字。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "沉静深色",
+      "description": "炭灰底，低对比，字号克制，动效几乎没有；稳在于不抢话。",
+      "materialAnchor": "炭灰色的哑光皮革",
+      "tonality": {
+        "静动": 1,
+        "疏密": 2,
+        "冷暖": 2,
+        "轻重": 5,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "低",
+        "版面率": "中",
+        "图版率": "低"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "precision-industrial",
+        "direction": "炭灰底低对比，字号克制，排法借精密工业的网格与标签，动效几乎没有。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "厚实有力",
+      "description": "粗体大字，实心色块，信息直接；稳重来自结实，而不是安静。",
+      "materialAnchor": "喷涂在水泥墙上的粗体字",
+      "tonality": {
+        "静动": 2,
+        "疏密": 3,
+        "冷暖": 2,
+        "轻重": 5,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "高",
+        "图版率": "低"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "precision-industrial",
+        "direction": "水泥灰底配喷涂感的粗体大字，对齐严整、动效沉稳，排法借精密工业的网格与标签体系。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "system": "mini",
+  "carrier": "social",
+  "canvas": "xiaohongshu",
+  "concept": "浏览器自带避头尾、多行且末行不是孤字的干净夹具",
+  "sequence": [
+    {
+      "unit": "title",
+      "layout": "column",
+      "content": { "title": "发布二点零新版。更新很快" }
+    }
+  ]
+}

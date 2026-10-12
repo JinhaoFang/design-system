@@ -1,0 +1,97 @@
+{
+  "id": "ganjing",
+  "word": "干净",
+  "phrasings": [
+    "要干净",
+    "干干净净",
+    "清爽整洁",
+    "别乱"
+  ],
+  "interpretations": [
+    {
+      "name": "纯白留白",
+      "description": "暖白底墨色字，只有一个强调色，元素之间间距宽松；像一张刚铺好的白纸。",
+      "materialAnchor": "暖白哑光纸上的油墨印刷，大面积留白",
+      "tonality": {
+        "静动": 1,
+        "疏密": 1,
+        "冷暖": 4,
+        "轻重": 1,
+        "庄谐": 2
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "低",
+        "图版率": "低"
+      },
+      "recommendation": {
+        "system": "paper-editorial"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "网格秩序",
+      "description": "严格的网格，清晰的层级，没有多余装饰；干净来自整齐，而不是来自少。",
+      "materialAnchor": "制图纸上的方格与标注",
+      "tonality": {
+        "静动": 1,
+        "疏密": 3,
+        "冷暖": 1,
+        "轻重": 2,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "低"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "precision-industrial",
+        "direction": "浅色制图纸底配细方格与标注线，小号等宽标签，排法借精密工业的网格与标签体系。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "透亮卡片",
+      "description": "浅冷色背景，柔和阴影的白卡片，圆润字；像一款设计清爽的软件首页。",
+      "materialAnchor": "磨砂亚克力面板上的投影",
+      "tonality": {
+        "静动": 2,
+        "疏密": 2,
+        "冷暖": 1,
+        "轻重": 1,
+        "庄谐": 3
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "中",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "precision-industrial",
+        "direction": "浅冷色背景加柔和阴影的白卡片，排法借精密工业的网格与对齐。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "rejected",
+        "date": "2026-10-11"
+      }
+    }
+  ]
+}

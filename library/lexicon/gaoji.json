@@ -1,0 +1,124 @@
+{
+  "id": "gaoji",
+  "word": "高级",
+  "phrasings": [
+    "做得高级一点",
+    "要有高级感",
+    "看起来贵一点",
+    "不要廉价感"
+  ],
+  "interpretations": [
+    {
+      "name": "留白极简",
+      "description": "大面积留白，一屏只讲一件事；暖灰白底，细衬线大标题，正文小而松；动效慢而轻，几乎只有淡入。",
+      "materialAnchor": "暖白哑光纸上的油墨印刷",
+      "tonality": {
+        "静动": 1,
+        "疏密": 1,
+        "冷暖": 4,
+        "轻重": 2,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "低",
+        "图版率": "低"
+      },
+      "recommendation": {
+        "system": "paper-editorial"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "杂志编辑感",
+      "description": "像一本制作考究的杂志：衬线大标题配小字注释，细栏线分栏，大图与文字错落排布，页码和章节标记当作装饰。",
+      "materialAnchor": "暖白哑光纸上的油墨印刷，杂志内页的栏线与页码",
+      "tonality": {
+        "静动": 2,
+        "疏密": 3,
+        "冷暖": 4,
+        "轻重": 2,
+        "庄谐": 2
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "中",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "paper-editorial"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "精密仪器感",
+      "description": "像一台精密仪器的面板：发丝细线、刻度、等宽小字标签，信息很多但每一条都对得整整齐齐；颜色克制，只留一个信号色。",
+      "materialAnchor": "精密仪器的刻度与标注，放在暖灰白的纸面上",
+      "tonality": {
+        "静动": 2,
+        "疏密": 4,
+        "冷暖": 2,
+        "轻重": 3,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "高",
+        "图版率": "低"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "precision-industrial",
+        "direction": "暖灰白纸面上的细刻度尺与小号等宽标注，发丝线网格，排法借精密工业的标签与刻度导航，动效短而准。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "黑金奢侈品感",
+      "description": "近黑底配金色细线和极宽字距的大写字母，图片少而大，动效缓慢，不闪不跳；像奢侈品牌的礼盒。",
+      "materialAnchor": "黑色哑光卡纸上的烫金工艺",
+      "tonality": {
+        "静动": 1,
+        "疏密": 2,
+        "冷暖": 3,
+        "轻重": 4,
+        "庄谐": 1
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "低",
+        "图版率": "中"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "近黑底配金色细线和宽字距，排法借纸本编辑的单栏留白版式，动效只做缓慢淡入。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    }
+  ]
+}

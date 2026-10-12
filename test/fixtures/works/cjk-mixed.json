@@ -1,0 +1,13 @@
+{
+  "system": "mini",
+  "carrier": "social",
+  "canvas": "xiaohongshu",
+  "concept": "内容里中西文紧贴、靠构建自动加间距的干净夹具",
+  "sequence": [
+    {
+      "unit": "title",
+      "layout": "stack",
+      "content": { "title": "发布2.0版本", "subtitle": "支持Markdown，快3倍" }
+    }
+  ]
+}

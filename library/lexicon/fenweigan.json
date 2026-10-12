@@ -1,0 +1,99 @@
+{
+  "id": "fenweigan",
+  "word": "有氛围感",
+  "phrasings": [
+    "要有氛围感",
+    "氛围拉满",
+    "有那种感觉",
+    "有情绪"
+  ],
+  "interpretations": [
+    {
+      "name": "电影暗调",
+      "description": "整体偏暗，有颗粒，局部有一束暖光；大图为主，字很少很轻，像电影的某一帧。",
+      "materialAnchor": "电影胶片上的暗调颗粒",
+      "tonality": {
+        "静动": 2,
+        "疏密": 2,
+        "冷暖": 4,
+        "轻重": 3,
+        "庄谐": 2
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "低",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "偏暗的全幅图像加颗粒，字少而轻，排法借纸本编辑的大图首屏。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "慵懒日光",
+      "description": "逆光、褪色的胶片色、浅暖，大量留白，手写小字；像午后窗边的一张照片。",
+      "materialAnchor": "逆光胶片里的午后窗边",
+      "tonality": {
+        "静动": 1,
+        "疏密": 2,
+        "冷暖": 5,
+        "轻重": 1,
+        "庄谐": 3
+      },
+      "composition": {
+        "跳跃率": "中",
+        "版面率": "低",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "浅暖褪色的逆光照片加手写小字，排法借纸本编辑的留白版式。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    },
+    {
+      "name": "霓虹夜色",
+      "description": "深色底配粉蓝霓虹，有光晕和反光，像下过雨的城市夜晚。",
+      "materialAnchor": "雨夜街头的霓虹灯箱",
+      "tonality": {
+        "静动": 4,
+        "疏密": 3,
+        "冷暖": 2,
+        "轻重": 3,
+        "庄谐": 3
+      },
+      "composition": {
+        "跳跃率": "高",
+        "版面率": "中",
+        "图版率": "高"
+      },
+      "recommendation": {
+        "system": "临时方向",
+        "borrowLayoutsFrom": "riso-print",
+        "direction": "深色底配粉蓝霓虹与光晕，排法借孔版印刷的大字叠放。"
+      },
+      "samples": {
+        "status": "pending"
+      },
+      "approval": {
+        "status": "approved",
+        "date": "2026-10-11"
+      }
+    }
+  ]
+}

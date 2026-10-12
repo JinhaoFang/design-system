@@ -1,0 +1,35 @@
+name: regress
+on: workflow_dispatch
+jobs:
+  regress:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - id: pw
+        run: echo "version=$(node -p "require('playwright/package.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v6
+        id: pw-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-${{ runner.os }}-${{ steps.pw.outputs.version }}
+      - if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps --only-shell chromium
+      - if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium
+      - uses: actions/cache@v6
+        with:
+          path: .cache/fonts
+          key: fonts-${{ hashFiles('library/fonts/manifest.json') }}
+      - run: pnpm ds fetch-fonts
+      - run: pnpm ds regress --systems systems --out out/regress
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: regress-output
+          path: out/regress

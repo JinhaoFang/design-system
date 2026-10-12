@@ -1,0 +1,35 @@
+{
+  "id": "riso-tokyo-art-book-fair",
+  "title": "TOKYO ART BOOK FAIR 官网",
+  "sourceType": "external",
+  "sourceUrl": "https://tokyoartbookfair.com",
+  "copyright": "TOKYO ART BOOK FAIR（主办方）",
+  "carrier": "web",
+  "systems": [
+    "riso-print"
+  ],
+  "capturedOn": "2026-10-11",
+  "media": {
+    "kind": "screenshot",
+    "status": "present",
+    "file": "screenshot.webp"
+  },
+  "annotation": {
+    "highlights": "一整块纯红底，白色巨型字母 TABF 被横线切开、错位叠放，黑色粗体的英日文信息贴边排布，右侧是竖排的日期。只用红、白、黑三色，像一张双色印的海报被直接铺满浏览器。",
+    "reasons": "三色和字形的体量关系确定了所有层级，字母被线条切割的做法和孔版/丝网印刷里常见的「色块 + 压线」手法同源；日文小字的行距与对齐一丝不苟，说明热闹的版面同样是工艺问题。",
+    "scenes": "书展、展览、活动征集的落地页与社交配图；需要用极少的专色把信息量大的活动讲清的场合。",
+    "materialAnchor": "专色单色（红、黑、白）的海报印刷，更接近丝网/孔版的实地色块，没有网点颗粒与错版，用于孔版体系时需补上套色错位和墨粒。",
+    "tonality": {
+      "静动": 4,
+      "疏密": 3,
+      "冷暖": 5,
+      "轻重": 4,
+      "庄谐": 3
+    }
+  },
+  "approval": {
+    "status": "approved",
+    "date": "2026-10-11"
+  },
+  "notes": "站内切换页面与悬停时的动效未录屏核对；首屏是静态海报式构图，是否有进场动画需裁判确认。"
+}
