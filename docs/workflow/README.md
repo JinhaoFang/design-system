@@ -57,7 +57,7 @@ git restore --source=<旧提交> --worktree -- $(node -e 'for (const s of Object
 
 ## 护栏
 
-- `pnpm verify`：类型检查和全部测试，完成标准以它通过为准。测试会用无头浏览器真实渲染，全量约 2 分钟。
+- `pnpm verify`：按步骤依次运行类型检查和全部测试，每步先打印标签，前一步失败就停止并保留退出码，完成标准以它通过为准。步骤表在 `scripts/verify.ts`；扩展方式见 `docs/cli.md`。测试会用无头浏览器真实渲染，全量约 2 分钟。
 - CI：推送和开 PR 时跑类型检查和测试；回归（`regress` 工作流）手动触发。
 
 ## 图像与评审
