@@ -47,6 +47,14 @@ Codex 能看到 `.agents/skills/` 下的全部技能，所以设计负责人专�
 node references/DispatchDock/installer/install.mjs --host claude-code --claude-dir "$PWD/.claude/skills" --no-config --yes
 ```
 
+第三方技能在 #31 退出 git 跟踪。在主工作区切到还跟踪着它们的提交（`main` 上 #31 合并之前的提交，或者迁移前拉出的分支，例如 `prototype/paper-editorial-direction`），再切回来，本机的第三方技能和 `.claude/skills/` 下的软链接会全部消失：切过去时，git 用旧提交里的版本覆盖了这些被忽略的文件；切回来时，它们在新提交里不再跟踪，git 就把它们删了。DispatchDock 的技能和 `run-spec` 不受影响。查看迁移前的历史，用 `git show`，或者另开一个 worktree 切过去，不在主工作区切换。已经被删的，从刚才切过去的那个旧提交里恢复 `skills-lock.json` 列出的技能：
+
+```bash
+git restore --source=<旧提交> --worktree -- $(node -e 'for (const s of Object.keys(require("./skills-lock.json").skills)) console.log(`.agents/skills/${s} .claude/skills/${s}`)')
+```
+
+不要直接恢复整个 `.agents/skills` 和 `.claude/skills`：旧提交里没有 `run-spec`，会把它从工作区删掉，还会带回已经移除的旧技能（如 `implement-spec`）。
+
 ## 护栏
 
 - `pnpm verify`：类型检查和全部测试，完成标准以它通过为准。测试会用无头浏览器真实渲染，全量约 2 分钟。
