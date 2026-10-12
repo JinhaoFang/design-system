@@ -1,0 +1,13 @@
+<style>
+:scope{box-sizing:border-box;min-height:100vh;padding:var(--ds-space-3);background:var(--ds-color-paper);color:var(--ds-color-ink);font-family:var(--ds-font-body)}
+h2,p{margin:0;font-size:var(--ds-type-0);font-weight:400;line-height:1.5}
+h2{font-size:var(--ds-type-1)}
+.underline{width:var(--ds-space-6);height:var(--ds-radius-1);background:var(--ds-color-accent)}
+</style>
+<div data-ds-stagger="tight">
+<h2 data-ds-enter="rise" data-ds-order="0" data-ds-step="slow">{{ slots.claim }}</h2>
+<div class="underline" data-ds-enter="draw-x" data-ds-order="1" data-ds-wait="slow"></div>
+<p data-ds-enter="fade" data-ds-order="1">{{ slots.support }}</p>
+<p data-ds-enter="fade" data-ds-order="2" data-ds-wait="base">{{ slots.support }}</p>
+<p data-ds-enter="rise" data-ds-order="3" data-ds-wait="quick">{{ slots.support }}</p>
+</div>

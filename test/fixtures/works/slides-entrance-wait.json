@@ -1,0 +1,21 @@
+{
+  "system": "mini",
+  "carrier": "slides",
+  "concept": "按时长阶梯等待后划出下划线，同组其余元素照常入场",
+  "sequence": [
+    {
+      "unit": "statement",
+      "layout": "wait",
+      "content": {
+        "claim": "发布二点零",
+        "support": "更快的搜索，更稳的同步"
+      }
+    },
+    {
+      "custom": {
+        "file": "fragments/entrance-wait.html"
+      },
+      "serves": "验证滚动或翻页停稳后的额外等待"
+    }
+  ]
+}
