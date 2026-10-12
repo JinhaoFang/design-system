@@ -34,7 +34,7 @@
   - `pnpm install` 通过 `prepare` 自动启用 `.githooks/commit-msg`；本机一次列出全部中文违规，合并进行中跳过。CI 用 `pnpm check:commits origin/main <来源分支名>` 检查非合并提交，本机复现和退出状态见 `docs/cli.md`。
 - 只做工单范围内的事。新增依赖在汇报里写明理由；依赖版本固定，`pnpm-workspace.yaml` 的 `minimumReleaseAge` 不安装 14 天内发布的版本。
 - `references/` 是参考项目的本地克隆，只读，不进 git。
-- 验证命令：`pnpm verify`（类型检查、注释位置检查、文档命令检查和全部测试）。CI 在推送和开 PR 时先检查分支提交信息，再跑和 `pnpm verify` 相同的检查。
+- 验证命令：`pnpm verify`，步骤见 `scripts/verify.ts` 的 `STEPS`。CI 什么时候跑见 `docs/workflow/README.md`「护栏」。
 
 ## 目录与归属
 

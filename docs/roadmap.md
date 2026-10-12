@@ -18,22 +18,20 @@
 | 技能 | Matt 的技能和 video-studio 保持一致（19 个），不进 git；DispatchDock 和 `run-spec` 只放 `.claude/skills/` | `docs/workflow/README.md`「技能放在哪里」 |
 | 命令手册 | 从 `AGENTS.md` 移到单独的文档，`AGENTS.md` 留指针（spec #1 用户故事 63 要求 agent 不必从代码推断用法，靠这个指针做到） | `docs/cli.md` |
 | 美学立场、幻灯片格式 | 品质门槛而非风格过滤；第一期交付 HTML 幻灯片 | `docs/adr/` |
-| 开发护栏 | `pnpm verify` 依次跑类型检查、注释位置检查、文档命令检查、测试；提交信息由 commit-msg 钩子和 CI 分支检查把关；CI 不加自动重试 | `docs/workflow/README.md`「护栏」、`docs/cli.md` |
+| 开发护栏 | `pnpm verify` 按步骤表依次检查和测试；提交信息由 commit-msg 钩子和 CI 分支检查把关；CI 不加自动重试，集成分支推送不跑 CI | `docs/workflow/README.md`「护栏」、`docs/cli.md` |
 
 ## 进度
 
 - [x] 方案 v0.3、术语表、两份 ADR
 - [ ] 第 0 阶段（spec #1）：工具链和库数据已完成（#2～#16、#29）；纸本编辑①（#17）等裁判验收；#18～#28 未开始
-- [x] 迁移到双角色流程：检查点 PR #30 把 `integration/phase-0` 合回 `main`；迁移本身的 PR 见 `chore/dev-workflow` 分支
+- [x] 迁移到双角色流程：检查点 PR #30 把 `integration/phase-0` 合回 `main`；迁移本身是 PR #31
 - [x] 彩排（spec #32 开发护栏）：`run-spec` 完整走了一遍，汇报见 `docs/reports/spec-32-dev-guardrails.html`
 - [ ] 第 1～3 阶段
 
 ## 下一步
 
-1. **用户**：审核合并 spec #32 的 PR（`spec/32-dev-guardrails`）。合并后在主工作区运行一次 `pnpm install`，启用提交信息钩子。
-2. **用户（裁判）**：验收 #17，预览命令 `pnpm ds regress && pnpm ds preview --dir out/regress`。
-3. **继续第 0 阶段**：新会话说"执行 spec #1"。`run-spec` 会从 `main` 新开 `spec/1-<短名>`，并按角色文档给 #18～#28 补上执行角色标签。
-4. **回报 video-studio**：spec #32 汇报的"回报 video-studio"和"流程发现"两节，用来改进 `run-spec`（允许推送工单分支、`land` 遇到 lockfile 变化时重装依赖、按批审查和收尾审查合并）。
+1. **用户（裁判）**：验收 #17，预览命令 `pnpm ds regress && pnpm ds preview --dir out/regress`。
+2. **继续第 0 阶段**：新会话说"执行 spec #1"。`run-spec` 会从 `main` 新开 `spec/1-<短名>`，并按角色文档给 #18～#28 补上执行角色标签。
 
 ## 待定
 
