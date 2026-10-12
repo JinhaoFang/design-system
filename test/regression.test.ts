@@ -2,6 +2,7 @@
  * Behavior tests for the regression command (回归), driven through regress(): for every system found under the systems directory (<systems>/<id>/ holding SYSTEM.md, tokens, layouts and
  * works/*.json standard-sample works) it runs buildAndCheck on each sample and on the layout overview, builds the system page beside them (linked to both), and exits 1 when anything has an error, fails validation or has no samples.
  * The systems are temp copies of the fixture system: a clean one (dirty layouts removed) and the original, whose pure black / pure white layouts the overview reaches.
+ * The all-carrier success case gets 120 seconds: it includes several builds and was measured at 59.395 seconds against the old 60-second limit on a two-core CI runner.
  */
 import { cp, mkdir, readFile, readdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -49,7 +50,7 @@ describe('regression', () => {
     const page = await readFile(join(result.outDir, 'good', 'system', 'index.html'), 'utf8');
     expect(page).toContain('../overview/web/index.html');
     expect(page).toContain('../works/web-clean/index.html');
-  });
+  }, 120_000);
 
   test('exits 1 when an overview has an error, while still checking the other systems', async () => {
     const systemsDir = await tempDir('ds-systems-');
