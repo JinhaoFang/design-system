@@ -46,7 +46,6 @@
 | `library/lexicon/` | 感觉词词典 | 设计负责人确认；其他人只提交候选 |
 | `library/exemplars/` | 范例库 | 只提交候选，批准和拒绝由裁判决定 |
 | `src/`、`test/`、`scripts/`、`package.json`、构建配置、`.github/` | 构建并检查流程、检查器、命令、测试、CI | 工程 |
-| `.claude/skills/run-spec/` | 执行技能 | 设计 |
 
 `pnpm ds` 各命令的用法、产物和格式约定见 `docs/cli.md`，运行或修改这些命令前先读它。技能放在哪里、哪些进 git，见 `docs/workflow/README.md`「技能放在哪里」。
 
