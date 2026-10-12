@@ -8,6 +8,7 @@
   },
   "scripts": {
     "ds": "node src/cli.ts",
+    "verify": "pnpm typecheck && pnpm test",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
     "fixture-font": "node scripts/make-fixture-font.ts"
