@@ -18,13 +18,13 @@
  * A group is the nearest ancestor with data-ds-stagger, else the enclosing unit section. Durations, easings, stagger and distances all come from the resolved tokens, embedded into the script at build time;
  * unknown names are rejected by validateChoreography (a BuildError before rendering); an unknown wait names the sequence item and element's opening tag.
  * CHOREOGRAPHY_HEAD activates a screen-only pending state before parsing content, only when scripts and Web Animations are available and rendering is not static.
- * Ordinary entrances stay hidden until their animations exist; covers and their descendants retain their natural covered state. Without activation, covers are hidden and other content stays visible.
+ * Ordinary entrances and their entire subtrees stay hidden until their animations exist, even when descendants explicitly set visibility:visible; covers and their descendants retain their natural covered state. Without activation, covers are hidden and other content stays visible.
  * Bootstrap failure (3000 ms after DOMContentLoaded without runtime registration), script errors and unhandled rejections release all content and cancel entrance animations.
  * Runtime (buildChoreographyScript, a classic inline script placed after the page content): non-cover entrances use fill backwards and return to natural CSS. Completed covers get data-ds-revealed,
  * which hides the entire cover subtree and removes it from the checker snapshot; replay cancels the previous animation and removes this mark. Origins are set outside keyframes, so only transform/opacity animate.
  * Initial web batch and initial slide entry wait for document.fonts.ready after forcing layout to discover used faces. The wait is capped at 3000 ms:
  * this allows large Chinese faces to load within the browser's usual font-block window without leaving content hidden indefinitely on a stalled network.
- * Waiting ordinary elements are hidden without changing layout; peel covers stay visible. Static rendering bypasses the wait; later scroll/slide entries do not wait.
+ * Waiting ordinary elements and their subtrees are hidden without changing layout; peel covers stay visible. Static rendering bypasses the wait; later scroll/slide entries do not wait.
  * Web: elements in view on load enter together after that wait; others enter in batches when scrolled into view (IntersectionObserver); covers scrolled past without being seen are finalized.
  * Under html[data-render="static"] covers are finalized synchronously, including off-screen covers; other content is shown immediately. Print CSS finalizes all covers, including unvisited slides.
  * Slides: ds:slide-prepare resets every entrance before the target is shown, including revisits; window.dsSlides.onEnter plays after the page turn settles and returns all animations for dsSlides.entered(), including extra waits.
@@ -69,7 +69,7 @@ function prepareChoreography(): void {
 }
 
 export const CHOREOGRAPHY_HEAD = `<style>
-@media screen{html[data-ds-choreography]:not([data-render="static"]) [data-ds-enter]:not([data-ds-entered],[data-ds-enter^="peel-"],[data-ds-enter^="peel-"] *){visibility:hidden!important}}
+@media screen{html[data-ds-choreography]:not([data-render="static"]) :is([data-ds-enter]:not([data-ds-entered]),[data-ds-enter]:not([data-ds-entered]) *):not([data-ds-enter^="peel-"],[data-ds-enter^="peel-"] *){visibility:hidden!important}}
 html:not([data-ds-choreography]) [data-ds-enter^="peel-"],html:not([data-ds-choreography]) [data-ds-enter^="peel-"] *{visibility:hidden!important;pointer-events:none!important}
 </style><script>(${prepareChoreography.toString()})();</script>`;
 
@@ -143,7 +143,7 @@ function choreograph(config: ChoreographyConfig): void {
     'peel-down': 'translateY(100%)',
   };
   const style = document.createElement('style');
-  style.textContent = '@media screen{[data-ds-font-wait]{visibility:hidden!important}}[data-ds-revealed]{opacity:0!important}[data-ds-revealed],[data-ds-revealed] *{visibility:hidden!important;pointer-events:none!important}' +
+  style.textContent = '@media screen{[data-ds-font-wait],[data-ds-font-wait] *:not([data-ds-enter^="peel-"],[data-ds-enter^="peel-"] *){visibility:hidden!important}}[data-ds-revealed]{opacity:0!important}[data-ds-revealed],[data-ds-revealed] *{visibility:hidden!important;pointer-events:none!important}' +
     '@media print{' + Object.entries(peelMoves).map(([effect, move]) =>
       `[data-ds-enter="${effect}"]{transform:${move}!important;opacity:0!important}[data-ds-enter="${effect}"],[data-ds-enter="${effect}"] *{visibility:hidden!important}`,
     ).join('') + '}';

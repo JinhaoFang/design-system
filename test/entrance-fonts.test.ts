@@ -2,8 +2,9 @@
  * Initial font gating through buildAndCheck fixtures and the resulting public HTML. Real font responses are held until explicitly released;
  * animation start times, visibility, timeout fallback, scroll/navigation and entered() are observed without internal calls or pixel comparisons.
  * Streaming the generated HTML without its trailing runtime verifies visibility from the first paint; disabled scripts, missing runtime, errors, rejections and print verify terminal fallbacks.
+ * Descendants explicitly request visibility:visible; DS_52_QA_DIR optionally saves subtree samples and the built fixtures.
  */
-import { readFile } from 'node:fs/promises';
+import { cp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
@@ -14,7 +15,7 @@ import { patchedWork, run } from './helpers.ts';
 
 const results = {} as Record<'web' | 'slides', BuildResult>;
 let browser: Browser;
-const content = (id: string): string => `<p id="${id}" data-ds-enter="rise" data-ds-step="slow">发布二点零</p>`;
+const content = (id: string): string => `<p id="${id}" data-ds-enter="rise" data-ds-step="slow"><span style="visibility:visible"><span style="visibility:visible">发布二点零</span></span></p>`;
 
 beforeAll(async () => {
   for (const carrier of ['web', 'slides'] as const) {
@@ -57,6 +58,32 @@ async function heldFonts(carrier: 'web' | 'slides', reducedMotion: 'no-preferenc
 }
 
 describe.each(['web', 'slides'] as const)('%s initial font readiness', (carrier) => {
+  test.each(['no-preference', 'reduce'] as const)('explicitly visible descendants stay hidden until entry under %s', async (preference) => {
+    const { context, page, release } = await heldFonts(carrier, preference);
+    const sample = (id: string) => page.locator(`#${id}, #${id} *`).evaluateAll((elements) => elements.map((el) => getComputedStyle(el).visibility));
+    try {
+      const initialWaiting = await sample('initial');
+      const laterWaiting = await sample('later');
+      expect(initialWaiting).toEqual(['hidden', 'hidden', 'hidden']);
+      expect(laterWaiting).toEqual(['hidden', 'hidden', 'hidden']);
+      release();
+      await page.waitForFunction(() => (window as any).fontEvidence.starts.length > 0);
+      const entered = await sample('initial');
+      const laterStillWaiting = await sample('later');
+      expect(entered).toEqual(['visible', 'visible', 'visible']);
+      expect(laterStillWaiting).toEqual(['hidden', 'hidden', 'hidden']);
+      const qa = process.env.DS_52_QA_DIR;
+      if (qa) {
+        await mkdir(qa, { recursive: true });
+        await cp(results[carrier].artifacts.outDir, join(qa, `subtree-${carrier}`), { recursive: true });
+        await writeFile(join(qa, `subtree-${carrier}-${preference}-assertions.json`), JSON.stringify({ carrier, preference, initialWaiting, laterWaiting, entered, laterStillWaiting }, null, 2));
+      }
+    } finally {
+      release();
+      await context.close();
+    }
+  });
+
   test.each(['no-preference', 'reduce'] as const)('late font responses delay the entire initial entrance under %s', async (preference) => {
     const { context, page, release } = await heldFonts(carrier, preference);
     try {
@@ -176,14 +203,14 @@ describe.each(['web', 'slides'] as const)('%s initial font readiness', (carrier)
       const navigation = page.goto(`http://127.0.0.1:${address.port}/index.html`);
       await page.waitForSelector('#initial', { state: 'attached' });
       const samples = await page.evaluate(async () => {
-        const samples: string[] = [];
+        const samples: string[][] = [];
         for (let frame = 0; frame < 10; frame += 1) {
           await new Promise(requestAnimationFrame);
-          samples.push(getComputedStyle(document.querySelector('#initial')!).visibility);
+          samples.push([...document.querySelectorAll('#initial, #initial *')].map((el) => getComputedStyle(el).visibility));
         }
         return samples;
       });
-      expect(samples).toEqual(Array(10).fill('hidden'));
+      expect(samples).toEqual(Array(10).fill(['hidden', 'hidden', 'hidden']));
       release();
       await navigation;
       await page.waitForFunction(() => getComputedStyle(document.querySelector('#initial')!).visibility === 'visible');

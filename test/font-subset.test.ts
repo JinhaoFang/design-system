@@ -1,8 +1,10 @@
-/* Font subset behavior through buildAndCheck: inspect delivered font size, cmap, names and checker reports, including generated content and both web widths. */
-import { readFile, writeFile } from 'node:fs/promises';
+/* Font subset behavior through buildAndCheck: inspect delivered font size, cmap, names and checker reports, including generated content, print media and both web widths. DS_52_QA_DIR optionally saves assertion evidence and the print fixture artifacts. */
+import { cp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import fontverter from 'fontverter';
 import { Blob, Face } from 'harfbuzzjs';
+import { chromium } from 'playwright';
 import { describe, expect, test } from 'vitest';
 import { box, customWork } from './custom-work.ts';
 import { fixtures, patchedWork, run } from './helpers.ts';
@@ -67,6 +69,36 @@ describe('delivered CJK subsets', () => {
     expect([...face.collectUnicodes()]).toEqual(expect.arrayContaining(['甲'.codePointAt(0), '乙'.codePointAt(0)]));
     expect(fontFindings(result)).toEqual([]);
     expect(result.artifacts.images).toHaveLength(2);
+  });
+
+  test('the font subset used by the PDF includes screen-only and print-only generated characters', async () => {
+    const work = await customWork(box('', '', '<style>.box::after{content:"甲"}@media print{.box::after{content:"乙"}}</style>'), 'slides');
+    const result = await run(work);
+    const { face } = await artifactFont(result);
+    const cmap = new Set(face.collectUnicodes());
+    const browser = await chromium.launch();
+    const content: Record<string, string> = {};
+    try {
+      const page = await browser.newPage();
+      await page.goto(pathToFileURL(result.artifacts.index).href);
+      for (const media of ['screen', 'print'] as const) {
+        await page.emulateMedia({ media });
+        await page.evaluate(() => document.fonts.ready);
+        content[media] = await page.locator('.box').evaluate((el) => getComputedStyle(el, '::after').content);
+      }
+    } finally { await browser.close(); }
+    expect(content).toEqual({ screen: '"甲"', print: '"乙"' });
+    const characters = [...'甲乙'].map((character) => ({ character, codePoint: character.codePointAt(0)!, included: cmap.has(character.codePointAt(0)!) }));
+    expect(characters.every((entry) => entry.included)).toBe(true);
+    expect(fontFindings(result)).toEqual([]);
+    expect(result.artifacts.pdf).toBeDefined();
+    expect((await readFile(result.artifacts.pdf!)).subarray(0, 5).toString()).toBe('%PDF-');
+    const qa = process.env.DS_52_QA_DIR;
+    if (qa) {
+      await mkdir(qa, { recursive: true });
+      await cp(result.artifacts.outDir, join(qa, 'print-font'), { recursive: true });
+      await writeFile(join(qa, 'print-font-assertions.json'), JSON.stringify({ content, characters, fontFindings: fontFindings(result), pdf: join(qa, 'print-font', 'slides.pdf') }, null, 2));
+    }
   });
 
   test('unknown licenses and declared Reserved Font Names retain the original bytes', async () => {

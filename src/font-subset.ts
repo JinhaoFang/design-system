@@ -1,6 +1,6 @@
 /*
  * Ships work-specific CJK font subsets, leaving the read-only source cache intact. Inputs: the final HTML, its viewports, manifest and used font entries.
- * Chromium collects decoded DOM text (including hidden content), plus CDP layout text for CSS counters, generated content and text transforms at both motion preferences and every slide.
+ * Chromium collects decoded DOM text (including hidden content), plus CDP layout text for CSS counters, generated content and text transforms in screen and print media at both motion preferences and every slide.
  * Only OFL-1.1 fonts with a verified license without Reserved Font Names are modified: pinned official license texts live in font-subset-licenses.json;
  * manifest-local license texts are also accepted, with RFN declarations checked before the OFL PREAMBLE. Unknown licenses and Latin fonts stay byte-identical.
  * Preserves the original format, PostScript/style names, copyright, license names and all layout features; copies the complete license alongside each subset.
@@ -43,34 +43,37 @@ async function pageCharacters(html: string, viewports: { width: number; height: 
       const session = await context.newCDPSession(page);
       for (const viewport of viewports) {
         await page.setViewportSize(viewport);
-        const count = await page.evaluate(() => (window as any).dsSlides?.count ?? 1);
-        for (let slide = 0; slide < count; slide += 1) {
-          await page.evaluate((index) => (window as any).dsSlides?.go(index), slide);
-          const text = await page.evaluate(() => {
-            const parts: string[] = [];
-            const transform = (text: string, element: Element): void => {
-              parts.push(text);
-              const style = getComputedStyle(element);
-              if (style.textTransform !== 'none') parts.push(text.toLocaleUpperCase(), text.toLocaleLowerCase());
-            };
-            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-            let node: Node | null;
-            while ((node = walker.nextNode())) {
-              const parent = node.parentElement;
-              if (parent && !parent.closest('script,style,noscript')) transform(node.textContent ?? '', parent);
-            }
-            for (const element of document.body.querySelectorAll('*')) {
-              if (element.matches('script,style,noscript')) continue;
-              if (element instanceof HTMLInputElement) transform(element.value, element);
-              if (element instanceof HTMLImageElement) transform(element.alt, element);
-            }
-            return parts.join('');
-          });
-          for (const character of text) chars.add(character);
-          const snapshot = await session.send('DOMSnapshot.captureSnapshot', { computedStyles: [] });
-          for (const doc of snapshot.documents) {
-            for (const index of doc.layout.text) {
-              for (const character of snapshot.strings[index] ?? '') chars.add(character);
+        for (const media of ['screen', 'print'] as const) {
+          await page.emulateMedia({ media });
+          const count = await page.evaluate(() => (window as any).dsSlides?.count ?? 1);
+          for (let slide = 0; slide < count; slide += 1) {
+            await page.evaluate((index) => (window as any).dsSlides?.go(index), slide);
+            const text = await page.evaluate(() => {
+              const parts: string[] = [];
+              const transform = (text: string, element: Element): void => {
+                parts.push(text);
+                const style = getComputedStyle(element);
+                if (style.textTransform !== 'none') parts.push(text.toLocaleUpperCase(), text.toLocaleLowerCase());
+              };
+              const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+              let node: Node | null;
+              while ((node = walker.nextNode())) {
+                const parent = node.parentElement;
+                if (parent && !parent.closest('script,style,noscript')) transform(node.textContent ?? '', parent);
+              }
+              for (const element of document.body.querySelectorAll('*')) {
+                if (element.matches('script,style,noscript')) continue;
+                if (element instanceof HTMLInputElement) transform(element.value, element);
+                if (element instanceof HTMLImageElement) transform(element.alt, element);
+              }
+              return parts.join('');
+            });
+            for (const character of text) chars.add(character);
+            const snapshot = await session.send('DOMSnapshot.captureSnapshot', { computedStyles: [] });
+            for (const doc of snapshot.documents) {
+              for (const index of doc.layout.text) {
+                for (const character of snapshot.strings[index] ?? '') chars.add(character);
+              }
             }
           }
         }
