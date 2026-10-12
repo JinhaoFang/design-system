@@ -1,0 +1,95 @@
+{% comment %}
+分栏 fenlan：方向稿 B「观测日志」的分栏段。左栏是段号（鱼尾 + 宋体 600 的卷次，ink-3），中栏是横排小标题（宋体 400，head 档）和分成两栏的正文（中间一道发丝栏线），
+右栏是要点清单：每条前一枚墨圈（○），条与条之间发丝界栏，像页边的勘误表。正文两端对齐，数字用旧式。没有朱色。
+入场：小标题上浮，正文洇出，要点逐条洇出（line 错峰）。
+手机：单栏，段号在小标题上方，正文合为一栏，要点在后。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    padding: var(--ds-space-9) var(--ds-space-8);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+    font-size: var(--ds-type-body);
+    line-height: 1.85;
+    counter-increment: pe-juan;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  :scope * { box-sizing: border-box; }
+  h2, h3, p, ul, ol, li, figure, figcaption, dl, dt, dd, blockquote { margin: 0; padding: 0; }
+  ul, ol { list-style: none; }
+  .yuwei { display: block; flex: none; width: 24px; height: 16px; fill: var(--ds-color-ink); }
+  .no::before { content: counter(pe-juan, simp-chinese-formal); }
+  .sec {
+    display: grid;
+    grid-template-columns: 160px minmax(0, 1fr) 280px;
+    gap: var(--ds-space-7);
+    max-width: 1240px;
+    margin: 0 auto;
+    padding-top: var(--ds-space-5);
+    border-top: 1px solid var(--ds-color-rule);
+  }
+  .tag {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-3);
+    align-self: start;
+    margin-top: var(--ds-space-3);
+    font-size: var(--ds-type-note);
+    font-weight: 600;
+    letter-spacing: .3em;
+    color: var(--ds-color-ink-3);
+  }
+  .heading { font-size: var(--ds-type-head); font-weight: 400; line-height: 1.35; letter-spacing: .04em; text-wrap: balance; }
+  .body {
+    margin-top: var(--ds-space-6);
+    columns: 2;
+    column-gap: var(--ds-space-7);
+    column-rule: 1px solid var(--ds-color-rule-light);
+    line-height: 1.95;
+    text-align: justify;
+    text-wrap: pretty;
+    font-feature-settings: "onum" 1;
+  }
+  .points { align-self: end; border-top: 1px solid var(--ds-color-ink); }
+  .points li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--ds-space-3);
+    padding: var(--ds-space-3) 0;
+    border-bottom: 1px solid var(--ds-color-rule-light);
+    font-size: var(--ds-type-note);
+    line-height: 1.7;
+    color: var(--ds-color-ink-2);
+    font-feature-settings: "lnum" 1, "tnum" 1;
+  }
+  .points li::before { content: "○"; color: var(--ds-color-ink-3); }
+  @media (max-width: 860px) {
+    :scope { padding: var(--ds-space-9) var(--ds-space-5); }
+    .sec { grid-template-columns: minmax(0, 1fr); gap: var(--ds-space-5); }
+    .heading { font-size: var(--ds-type-sub); }
+    .body { columns: 1; margin-top: var(--ds-space-5); }
+    .points { margin-top: var(--ds-space-3); }
+  }
+</style>
+<div class="sec">
+  <p class="tag" aria-hidden="true"><svg class="yuwei" viewBox="0 0 24 16"><path d="M0 0H24V10L17 5.5L12 11.5L7 5.5L0 10Z"/></svg><span class="no"></span></p>
+  <div class="main">
+    <h2 class="heading" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="0">{{ slots.heading }}</h2>
+    <p class="body" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="1">{{ slots.body }}</p>
+  </div>
+  <ul class="points" data-ds-stagger="line">
+    {% for point in slots.points %}<li data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink">{{ point }}</li>
+    {% endfor %}
+  </ul>
+</div>

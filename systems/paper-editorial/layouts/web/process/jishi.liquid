@@ -1,0 +1,68 @@
+{% comment %}
+纪事 jishi：方向稿 A 的「纪事」年表，改成横排（日期要横排核对）。小标题在左上（鱼尾 + 卷次 + 宋体 400 head 档），下面一张逐行的年表：墨线起，每行三格——
+序号（宋体 600，ink-3，壹贰叁…）、事项（sub 档宋体 400）、说明（ink-2，日期在前，等宽数字）；最后一行是「现在」：序号与事项改朱色，像校书人在最新一条旁点了一笔。
+入场：小标题上浮，年表逐行洇出（line 错峰）。
+手机：序号和事项同一行，说明另起一行。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    padding: var(--ds-space-9) var(--ds-space-8);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+    font-size: var(--ds-type-body);
+    line-height: 1.85;
+    counter-increment: pe-juan;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  :scope * { box-sizing: border-box; }
+  h2, h3, p, ul, ol, li, figure, figcaption, dl, dt, dd, blockquote { margin: 0; padding: 0; }
+  ul, ol { list-style: none; }
+  .yuwei { display: block; flex: none; width: 24px; height: 16px; fill: var(--ds-color-ink); }
+  .no::before { content: counter(pe-juan, simp-chinese-formal); }
+  .wrap { max-width: 1240px; margin: 0 auto; }
+  .tag { display: flex; align-items: center; gap: var(--ds-space-3); font-size: var(--ds-type-note); font-weight: 600; letter-spacing: .3em; color: var(--ds-color-ink-3); }
+  .heading { margin-top: var(--ds-space-5); font-size: var(--ds-type-head); font-weight: 400; line-height: 1.35; letter-spacing: .04em; }
+  .annals { margin-top: var(--ds-space-7); border-top: 1px solid var(--ds-color-ink); counter-reset: pe-step; }
+  .annals li {
+    display: grid;
+    grid-template-columns: 96px 10em minmax(0, 1fr);
+    gap: var(--ds-space-6);
+    align-items: baseline;
+    padding: var(--ds-space-4) 0;
+    border-bottom: 1px solid var(--ds-color-rule-light);
+    counter-increment: pe-step;
+  }
+  .annals li::before { content: counter(pe-step, simp-chinese-formal); font-weight: 600; letter-spacing: .2em; color: var(--ds-color-ink-3); }
+  .annals h3 { font-size: var(--ds-type-sub); font-weight: 400; line-height: 1.4; letter-spacing: .04em; }
+  .annals p { color: var(--ds-color-ink-2); font-feature-settings: "lnum" 1, "tnum" 1; }
+  .annals li:last-child::before, .annals li:last-child h3 { color: var(--ds-color-zhu); }
+  @media (max-width: 860px) {
+    :scope { padding: var(--ds-space-9) var(--ds-space-5); }
+    .heading { font-size: var(--ds-type-sub); }
+    .annals { margin-top: var(--ds-space-6); }
+    .annals li { grid-template-columns: 40px minmax(0, 1fr); gap: var(--ds-space-1) var(--ds-space-3); }
+    .annals h3 { font-size: var(--ds-type-lead); }
+    .annals p { grid-column: 2; font-size: var(--ds-type-note); }
+  }
+</style>
+<div class="wrap">
+  <div data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="0">
+    <p class="tag" aria-hidden="true"><svg class="yuwei" viewBox="0 0 24 16" aria-hidden="true"><path d="M0 0H24V10L17 5.5L12 11.5L7 5.5L0 10Z"/></svg><span class="no"></span></p>
+    <h2 class="heading">{{ slots.heading }}</h2>
+  </div>
+  <ol class="annals" data-ds-stagger="line">
+    {% for step in slots.steps %}<li data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink"><h3>{{ step }}</h3><p>{{ slots.stepNotes[forloop.index0] }}</p></li>
+    {% endfor %}
+  </ol>
+</div>

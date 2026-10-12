@@ -1,0 +1,73 @@
+{% comment %}
+录 lu：一张录表。左栏是小标题（宋体 400，head 档，鱼尾 + 卷次在上）和导语；右栏是逐条的录：每条一行，条名（sub 档，宋体 400，数字等高）在左，说明（ink-2）在右，
+上有墨线、条间发丝界栏，像刻本卷末的「录」。逐行核对的信息用界栏，不做卡片。六条平等排列，靠界栏和左栏的大小标题分主次。
+入场：左栏上浮，右栏逐行洇出（line 错峰）。
+手机：单栏，条名在上、说明在下。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    padding: var(--ds-space-9) var(--ds-space-8);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+    font-size: var(--ds-type-body);
+    line-height: 1.85;
+    counter-increment: pe-juan;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  :scope * { box-sizing: border-box; }
+  h2, h3, p, ul, ol, li, figure, figcaption, dl, dt, dd, blockquote { margin: 0; padding: 0; }
+  ul, ol { list-style: none; }
+  .yuwei { display: block; flex: none; width: 24px; height: 16px; fill: var(--ds-color-ink); }
+  .no::before { content: counter(pe-juan, simp-chinese-formal); }
+  .sec {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+    gap: var(--ds-space-8);
+    max-width: 1240px;
+    margin: 0 auto;
+  }
+  .side { align-self: start; }
+  .tag { display: flex; align-items: center; gap: var(--ds-space-3); font-size: var(--ds-type-note); font-weight: 600; letter-spacing: .3em; color: var(--ds-color-ink-3); }
+  .heading { margin-top: var(--ds-space-5); font-size: var(--ds-type-head); font-weight: 400; line-height: 1.35; letter-spacing: .04em; text-wrap: balance; }
+  .lead { margin-top: var(--ds-space-5); max-width: 18em; color: var(--ds-color-ink-2); text-wrap: pretty; font-feature-settings: "onum" 1; }
+  .rows { border-top: 1px solid var(--ds-color-ink); }
+  .row {
+    display: grid;
+    grid-template-columns: 11em minmax(0, 1fr);
+    gap: var(--ds-space-6);
+    align-items: baseline;
+    padding: var(--ds-space-5) 0;
+    border-bottom: 1px solid var(--ds-color-rule-light);
+  }
+  .row h3 { font-size: var(--ds-type-sub); font-weight: 400; line-height: 1.4; letter-spacing: .02em; font-feature-settings: "lnum" 1; }
+  .row p { line-height: 1.85; color: var(--ds-color-ink-2); text-wrap: pretty; font-feature-settings: "onum" 1; }
+  @media (max-width: 860px) {
+    :scope { padding: var(--ds-space-9) var(--ds-space-5); }
+    .sec { grid-template-columns: minmax(0, 1fr); gap: var(--ds-space-7); }
+    .heading { font-size: var(--ds-type-sub); }
+    .row { grid-template-columns: minmax(0, 1fr); gap: var(--ds-space-2); padding: var(--ds-space-4) 0; }
+    .row h3 { font-size: var(--ds-type-lead); }
+  }
+</style>
+<div class="sec">
+  <div class="side" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3">
+    <p class="tag" aria-hidden="true"><svg class="yuwei" viewBox="0 0 24 16" aria-hidden="true"><path d="M0 0H24V10L17 5.5L12 11.5L7 5.5L0 10Z"/></svg><span class="no"></span></p>
+    <h2 class="heading">{{ slots.heading }}</h2>
+    <p class="lead">{{ slots.lead }}</p>
+  </div>
+  <div class="rows" data-ds-stagger="line">
+    {% for title in slots.itemTitles %}<div class="row" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink"><h3>{{ title }}</h3><p>{{ slots.itemBodies[forloop.index0] }}</p></div>
+    {% endfor %}
+  </div>
+</div>

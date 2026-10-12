@@ -1,0 +1,62 @@
+{% comment %}
+版权 banquan：刻本卷末的牌记。衬纸色（paper-deep）的一条页脚，正中一块双线框的牌记：品牌（宋体 600，lead 档，字距放开），一行横排的链接（note 字号，以间隔号分开），
+最下一行是声明（caption 字号，ink-2）。牌记是短文本，可以居中。不加卷次。
+入场：牌记整体洇出。
+手机：链接折成多行、去掉间隔号（免得间隔号落在行首），牌记撑满栏宽。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    padding: var(--ds-space-9) var(--ds-space-8);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+    font-size: var(--ds-type-body);
+    line-height: 1.85;
+    counter-increment: pe-juan;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  :scope * { box-sizing: border-box; }
+  h2, h3, p, ul, ol, li, figure, figcaption, dl, dt, dd, blockquote { margin: 0; padding: 0; }
+  ul, ol { list-style: none; }
+  .yuwei { display: block; flex: none; width: 24px; height: 16px; fill: var(--ds-color-ink); }
+  .no::before { content: counter(pe-juan, simp-chinese-formal); }
+  :scope { counter-increment: none; padding: var(--ds-space-8) var(--ds-space-8) var(--ds-space-9); background: var(--ds-color-paper-deep); }
+  .plaque {
+    width: fit-content;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: var(--ds-space-5) var(--ds-space-8);
+    border: 1px solid var(--ds-color-ink);
+    outline: 1px solid var(--ds-color-ink);
+    outline-offset: 4px;
+    text-align: center;
+  }
+  .brand { font-size: var(--ds-type-lead); font-weight: 600; letter-spacing: .4em; }
+  .links { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--ds-space-1) 0; margin-top: var(--ds-space-3); font-size: var(--ds-type-note); }
+  .links a { color: var(--ds-color-ink); text-decoration: none; letter-spacing: .12em; }
+  .links a + a::before { content: "·"; padding: 0 var(--ds-space-3); color: var(--ds-color-ink-3); }
+  .links a:hover { color: var(--ds-color-zhu); }
+  .legal { margin-top: var(--ds-space-4); padding-top: var(--ds-space-3); border-top: 1px solid var(--ds-color-rule); font-size: var(--ds-type-caption); line-height: 1.7; letter-spacing: .06em; color: var(--ds-color-ink-2); }
+  @media (max-width: 860px) {
+    :scope { padding: var(--ds-space-7) var(--ds-space-5) var(--ds-space-8); }
+    .plaque { width: auto; padding: var(--ds-space-5); }
+    .brand { letter-spacing: .3em; }
+    .links { gap: var(--ds-space-2) var(--ds-space-4); }
+    .links a + a::before { display: none; }
+  }
+</style>
+<div class="plaque" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink">
+  <p class="brand">{{ slots.brand }}</p>
+  <nav class="links">{% for link in slots.links %}<a href="#">{{ link }}</a>{% endfor %}</nav>
+  <p class="legal">{{ slots.legal }}</p>
+</div>
