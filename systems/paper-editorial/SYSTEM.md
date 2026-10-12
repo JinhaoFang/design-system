@@ -295,4 +295,4 @@ license: CC0-1.0
 - 标准样张的 HTML 幻灯片：「观测日志·卷一」，12 页，作品描述在 `works/slides.json`；扉页和首光那一页是定制片段 `works/fragments/feiye.html`、`works/fragments/shouguang-ye.html`。
 - 标准样张的展示型网页：落地页「观测日志的一页」（`works/web.json`），首屏和满版星图是定制片段，其余七段用本体系的排法。
 - 来源：本体系的方向稿（分支 `prototype/paper-editorial-direction`，三个变体 A 古籍扉页、B 观测日志、C 星图图版），裁判的选择记在工单 #17。
-- 范例库里暂无已批准的纸本编辑范例。体系验收后，标准样张作为「原创」范例提交。
+- 已批准的范例：体系 2026-10-13 验收通过时，五件标准样张作为「原创」范例提交（`library/exemplars/paper-editorial-*`）。验收记录见 `acceptance.md`。
