@@ -1,7 +1,7 @@
 {% comment %}
 日志 rizhi：方向稿 B「观测日志」的首屏，去掉左侧时间栏。顶部一条日志抬头（眉题 + 2px 墨线），下面左栏是唯一的主角：宋体 200 的 display 大标题，按标点断行、两行平衡，
 朱笔下划线压在末行的后半句下（零宽锚点跟在标题最后一个字后面，笔画向左伸 4.4em，所以无论断成几行都落在末行末尾）；导语 lead 字号 ink-2 两端对齐；行动是带墨线的文字链接，悬停时墨线下方划出一道细朱线（dot）。右栏是一块图版：发丝框里的图像，四周留纸。
-入场：抬头先洇出，标题上浮（glide + paper，位移 space-3），导语、行动依次洇出（line 错峰），图版最后。标题之后朱笔从左到右划出（draw-x，lift + brush），再出导语和行动。
+入场：抬头先洇出，标题上浮（glide + paper，位移 space-3），导语、行动依次洇出（line 错峰），图版最后。导语、行动和图版也洇出之后，朱笔再等一档 glide，从左到右划出（draw-x，lift + brush），这时画面已经静下来。
 手机：单栏，标题降到 head 档，图版移到行动下方。
 {% endcomment %}
 <style>
@@ -127,7 +127,7 @@
 <p class="head" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="0">{{ slots.eyebrow }}</p>
 <div class="main">
   <div class="text">
-    <h1 class="title" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="1">{{ slots.headline }}&#8288;<span class="tail"><svg class="stroke" data-ds-enter="draw-x" data-ds-step="lift" data-ds-ease="brush" data-ds-order="2" viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true"><path d="M2 14C60 8 140 10 214 8S340 8 398 10C344 14 270 17 204 16S70 19 2 14Z"/></svg></span></h1>
+    <h1 class="title" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="1">{{ slots.headline }}&#8288;<span class="tail"><svg class="stroke" data-ds-enter="draw-x" data-ds-wait="glide" data-ds-step="lift" data-ds-ease="brush" data-ds-order="2" viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true"><path d="M2 14C60 8 140 10 214 8S340 8 398 10C344 14 270 17 204 16S70 19 2 14Z"/></svg></span></h1>
     <p class="lead" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="3">{{ slots.lead }}</p>
     <a class="act" href="#" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="4">{{ slots.cta }}</a>
   </div>
