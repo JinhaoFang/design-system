@@ -55,6 +55,17 @@ async function coverStates(page: Page) {
 }
 
 describe.each(['web', 'slides'] as const)('%s entrance actions', (carrier) => {
+  test('without scripts covers and their subtrees are hidden while ordinary entrances remain visible', async () => {
+    const context = await browser.newContext({ viewport: SIZES[carrier], javaScriptEnabled: false });
+    try {
+      const page = await context.newPage();
+      await page.goto(pathToFileURL(results[carrier].artifacts.index).href);
+      expect(await page.locator('[data-ds-enter^="peel-"],[data-ds-enter^="peel-"] *').evaluateAll((els) => els.every((el) => getComputedStyle(el).visibility === 'hidden'))).toBe(true);
+      const ordinary = page.locator('[data-ds-enter]:not([data-ds-enter^="peel-"],[data-ds-enter^="peel-"] *)');
+      expect(await ordinary.evaluateAll((els) => els.every((el) => getComputedStyle(el).visibility === 'visible'))).toBe(true);
+    } finally { await context.close(); }
+  });
+
   test('layouts and custom fragments are clean, with motion records stored only in motion.json', async () => {
     const result = results[carrier];
     expect(result.exitCode).toBe(0);

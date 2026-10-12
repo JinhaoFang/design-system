@@ -17,6 +17,9 @@
  *   data-ds-distance="<name>"                   displacement --ds-space-<name> (default: the middle space step).
  * A group is the nearest ancestor with data-ds-stagger, else the enclosing unit section. Durations, easings, stagger and distances all come from the resolved tokens, embedded into the script at build time;
  * unknown names are rejected by validateChoreography (a BuildError before rendering); an unknown wait names the sequence item and element's opening tag.
+ * CHOREOGRAPHY_HEAD activates a screen-only pending state before parsing content, only when scripts and Web Animations are available and rendering is not static.
+ * Ordinary entrances stay hidden until their animations exist; covers and their descendants retain their natural covered state. Without activation, covers are hidden and other content stays visible.
+ * Bootstrap failure (3000 ms after DOMContentLoaded without runtime registration), script errors and unhandled rejections release all content and cancel entrance animations.
  * Runtime (buildChoreographyScript, a classic inline script placed after the page content): non-cover entrances use fill backwards and return to natural CSS. Completed covers get data-ds-revealed,
  * which hides the entire cover subtree and removes it from the checker snapshot; replay cancels the previous animation and removes this mark. Origins are set outside keyframes, so only transform/opacity animate.
  * Initial web batch and initial slide entry wait for document.fonts.ready after forcing layout to discover used faces. The wait is capped at 3000 ms:
@@ -24,7 +27,7 @@
  * Waiting ordinary elements are hidden without changing layout; peel covers stay visible. Static rendering bypasses the wait; later scroll/slide entries do not wait.
  * Web: elements in view on load enter together after that wait; others enter in batches when scrolled into view (IntersectionObserver); covers scrolled past without being seen are finalized.
  * Under html[data-render="static"] covers are finalized synchronously, including off-screen covers; other content is shown immediately. Print CSS finalizes all covers, including unvisited slides.
- * Slides: ds:slide-prepare resets covers before the target is shown, including revisits; window.dsSlides.onEnter plays after the page turn settles and returns all animations for dsSlides.entered(), including extra waits.
+ * Slides: ds:slide-prepare resets every entrance before the target is shown, including revisits; window.dsSlides.onEnter plays after the page turn settles and returns all animations for dsSlides.entered(), including extra waits.
  * Reduced motion drops displacement, scaling, stagger and extra waits, and uses the shortest duration for stamp/fade/peel.
  */
 import type { EntranceOpacity, ResolvedTokens } from './tokens.ts';
@@ -40,6 +43,35 @@ export interface ChoreographyConfig {
 }
 
 const EFFECTS = ['fade', 'rise', 'fall', 'left', 'right', 'draw-x', 'draw-y', 'stamp', 'peel-left', 'peel-right', 'peel-up', 'peel-down'];
+
+function prepareChoreography(): void {
+  const root = document.documentElement;
+  if (root.getAttribute('data-render') === 'static' || typeof Element.prototype.animate !== 'function') return;
+  const fallback = (): void => {
+    root.removeAttribute('data-ds-choreography');
+    document.querySelectorAll('[data-ds-enter]').forEach((el) => {
+      el.getAnimations().forEach((animation) => animation.cancel());
+      el.removeAttribute('data-ds-font-wait');
+    });
+  };
+  let timer: number | undefined;
+  let registered = false;
+  (window as any).__dsChoreographyReady = (): void => {
+    registered = true;
+    window.clearTimeout(timer);
+  };
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!registered) timer = window.setTimeout(fallback, 3000);
+  }, { once: true });
+  window.addEventListener('error', fallback);
+  window.addEventListener('unhandledrejection', fallback);
+  root.setAttribute('data-ds-choreography', '');
+}
+
+export const CHOREOGRAPHY_HEAD = `<style>
+@media screen{html[data-ds-choreography]:not([data-render="static"]) [data-ds-enter]:not([data-ds-entered],[data-ds-enter^="peel-"],[data-ds-enter^="peel-"] *){visibility:hidden!important}}
+html:not([data-ds-choreography]) [data-ds-enter^="peel-"],html:not([data-ds-choreography]) [data-ds-enter^="peel-"] *{visibility:hidden!important;pointer-events:none!important}
+</style><script>(${prepareChoreography.toString()})();</script>`;
 
 function group(tokens: ResolvedTokens, prefix: string, pick: (entry: ResolvedTokens['entries'][number]) => number | string | undefined): Record<string, any> {
   const result: Record<string, any> = {};
@@ -111,7 +143,7 @@ function choreograph(config: ChoreographyConfig): void {
     'peel-down': 'translateY(100%)',
   };
   const style = document.createElement('style');
-  style.textContent = '[data-ds-font-wait]{visibility:hidden!important}[data-ds-revealed]{opacity:0!important}[data-ds-revealed],[data-ds-revealed] *{visibility:hidden!important;pointer-events:none!important}' +
+  style.textContent = '@media screen{[data-ds-font-wait]{visibility:hidden!important}}[data-ds-revealed]{opacity:0!important}[data-ds-revealed],[data-ds-revealed] *{visibility:hidden!important;pointer-events:none!important}' +
     '@media print{' + Object.entries(peelMoves).map(([effect, move]) =>
       `[data-ds-enter="${effect}"]{transform:${move}!important;opacity:0!important}[data-ds-enter="${effect}"],[data-ds-enter="${effect}"] *{visibility:hidden!important}`,
     ).join('') + '}';
@@ -162,13 +194,17 @@ function choreograph(config: ChoreographyConfig): void {
     active.get(el)?.forEach((animation) => animation.cancel());
     active.delete(el);
     el.removeAttribute('data-ds-revealed');
+    el.removeAttribute('data-ds-entered');
   };
   const enter = (el: HTMLElement, delay: number): Animation[] => {
     reset(el);
     const effect = el.getAttribute('data-ds-enter') || 'fade';
     const peel = peelMoves[effect];
     const draw = effect === 'draw-x' || effect === 'draw-y';
-    if (draw && reduced) return [];
+    if (draw && reduced) {
+      el.setAttribute('data-ds-entered', '');
+      return [];
+    }
     const stepName = el.getAttribute('data-ds-step') ?? defaultStep!;
     const easeName = el.getAttribute('data-ds-ease') ?? defaultEase;
     const distanceName = el.getAttribute('data-ds-distance') ?? defaultDistance;
@@ -219,6 +255,7 @@ function choreograph(config: ChoreographyConfig): void {
       }));
     } else animations.push(el.animate([from, to], options));
     active.set(el, animations);
+    el.setAttribute('data-ds-entered', '');
     Promise.all(animations.map((animation) => animation.finished)).then(() => {
       if (peel && active.get(el) === animations) el.setAttribute('data-ds-revealed', '');
     }).catch(() => undefined);
@@ -226,6 +263,11 @@ function choreograph(config: ChoreographyConfig): void {
   };
 
   const play = (elements: HTMLElement[]): Animation[] => {
+    if (!root.hasAttribute('data-ds-choreography')) {
+      showWaiting(elements);
+      elements.forEach(finalize);
+      return [];
+    }
     const groups = new Map<Element, HTMLElement[]>();
     for (const el of elements) {
       const container = groupOf(el);
@@ -267,7 +309,7 @@ function choreograph(config: ChoreographyConfig): void {
     document.addEventListener('ds:slide-prepare', (event) => {
       revision += 1;
       showWaiting(marked(document));
-      marked(event.target as Element).filter((el) => el.getAttribute('data-ds-enter')?.startsWith('peel-')).forEach(reset);
+      marked(event.target as Element).forEach(reset);
     });
     const dsSlides = (window as any).dsSlides;
     if (dsSlides && typeof dsSlides.onEnter === 'function') {
@@ -283,6 +325,7 @@ function choreograph(config: ChoreographyConfig): void {
         }
         return Promise.allSettled(play(elements).map((animation) => animation.finished));
       });
+      (window as any).__dsChoreographyReady?.();
     }
     return;
   }
@@ -299,11 +342,19 @@ function choreograph(config: ChoreographyConfig): void {
     showWaiting(inView);
     play(inView);
   });
-  if (!later.length || typeof IntersectionObserver !== 'function') return;
+  (window as any).__dsChoreographyReady?.();
+  if (!later.length) return;
+  if (typeof IntersectionObserver !== 'function') {
+    play(later);
+    return;
+  }
   const observer = new IntersectionObserver((entries) => {
     const passed = entries.filter((entry) => !entry.isIntersecting && entry.boundingClientRect.bottom <= 0);
     const batch = entries.filter((entry) => entry.isIntersecting).map((entry) => entry.target as HTMLElement);
-    passed.forEach((entry) => finalize(entry.target as HTMLElement));
+    passed.forEach((entry) => {
+      finalize(entry.target as HTMLElement);
+      entry.target.setAttribute('data-ds-entered', '');
+    });
     [...passed.map((entry) => entry.target), ...batch].forEach((el) => observer.unobserve(el));
     if (batch.length) play(batch);
   });

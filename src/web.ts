@@ -9,6 +9,7 @@
  * preventing stalled/paused/infinite entrances from blocking the recording. Timeout preserves real-time animations; screenshots and checker passes are unchanged.
  * Motion audit (motion-audit.ts): two extra passes at 1440, one with normal motion and one with reduced motion emulated, each scrolling down in steps so scroll-triggered entrances start; their animation records
  * are attached to the desktop snapshot only (snapshot.motion), so motion findings are reported once. buildWebPage embeds the entrance choreography script (choreography.ts) when given one.
+ * Its head bootstrap hides pending entrances before content can paint; the runtime releases each scroll batch only after creating its animations. No-script and error paths show terminal content.
  * checkWeb runs the rule set (ALL_RULES, or the list passed in) on both snapshots; findings that appear only at 390 get a "（手机宽度 390）" suffix, and a finding already reported at 1440 is not repeated.
  * Extras for pages that are not works (the system page, system-page.ts): WebPageInput.style / script add one <style> to the head and one inline script after the choreography script;
  * RenderWebOptions.audit replaces the scroll-through that drives the two motion audit passes (it may click replay controls), and recording: false skips the scroll recording (no video is returned).
@@ -26,6 +27,7 @@ import { runRules, sortFindings } from './checker/registry.ts';
 import type { CheckContext, Rule } from './checker/registry.ts';
 import { CARRIERS } from './carriers.ts';
 import type { FontEntry } from './library.ts';
+import { CHOREOGRAPHY_HEAD } from './choreography.ts';
 import { fontFaceCss, rootVarsCss } from './page.ts';
 import { auditMotion } from './checker/motion-audit.ts';
 import { settle, waitForRecordingEntrance } from './render.ts';
@@ -70,6 +72,7 @@ ${fontFaceCss(input.fonts)}
 html,body{margin:0;padding:0}
 </style>
 ${input.style ? `<style>\n${input.style}\n</style>\n` : ''}
+${input.choreography ? CHOREOGRAPHY_HEAD : ''}
 </head>
 <body data-carrier="web">
 <main class="ds-flow">

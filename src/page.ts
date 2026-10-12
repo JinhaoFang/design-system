@@ -2,8 +2,10 @@
  * HTML page assembly for a social image: :root custom properties from the system's tokens, @font-face (family, weight, style) for the manifest fonts the system uses
  * (relative fonts/<file> URLs, so the artifact also opens straight from disk), and one fixed-size canvas holding the rendered units.
  * Optional choreography runs in static mode for social output, finalizing peel covers without starting animations.
+ * The shared choreography head leaves static content visible and hides covers even when scripts are unavailable.
  */
 import { fontStyleOf } from './fonts.ts';
+import { CHOREOGRAPHY_HEAD } from './choreography.ts';
 import type { FontEntry } from './library.ts';
 
 export interface PageInput {
@@ -47,6 +49,7 @@ ${fontFaces}
 html,body{margin:0;padding:0}
 .ds-canvas{width:${input.width}px;height:${input.height}px;overflow:hidden;position:relative}
 </style>
+${input.choreography ? CHOREOGRAPHY_HEAD : ''}
 </head>
 <body data-carrier="social">
 <main class="ds-canvas">

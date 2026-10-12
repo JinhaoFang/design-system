@@ -5,8 +5,10 @@
  * Target entrance elements are hidden during turns except peel covers and their descendants, which keep covering content until the settled entry hook starts.
  * Screen: only the active slide is displayed at rest; the runtime scales the stage. Print (PDF): @page is 1920x1080 with no margin, the stage scale is dropped and every slide is shown stacked, one per page.
  * Print reveals ordinary entrance content even during a turn; peel covers and their descendants retain choreography.ts terminal hiding rules.
+ * If entrance bootstrap is unavailable or fails before slide activation, the first slide remains visible without relying on navigation scripts.
  */
 import { fontFaceCss, rootVarsCss } from './page.ts';
+import { CHOREOGRAPHY_HEAD } from './choreography.ts';
 import type { PageInput } from './page.ts';
 import { SLIDES_RUNTIME } from './slides-runtime.ts';
 import type { SlidesTransition } from './slides-transition.ts';
@@ -33,6 +35,8 @@ html,body{margin:0;padding:0;height:100%;overflow:hidden}
 .ds-stage{position:fixed;left:50%;top:50%;width:${SLIDE_WIDTH}px;height:${SLIDE_HEIGHT}px;transform:translate(-50%,-50%);transform-origin:center center;overflow:hidden}
 .ds-slide{display:none;position:absolute;left:0;top:0;width:${SLIDE_WIDTH}px;height:${SLIDE_HEIGHT}px;overflow:hidden}
 .ds-slide[data-active]{display:block}
+html:not([data-ds-choreography]):not([data-render="static"]) .ds-stage:not(:has([data-active])){position:static;transform:none}
+html:not([data-ds-choreography]):not([data-render="static"]) .ds-stage:not(:has([data-active])) .ds-slide:first-child{display:block}
 .ds-slide>section{width:100%;height:100%}
 ${input.transition ? `
 .ds-slide[data-turning],.ds-slide[data-leaving]{display:block;overflow:visible}
@@ -54,6 +58,7 @@ html,body{height:auto;overflow:visible;background:none!important}
 .ds-slide [data-ds-enter]:not([data-ds-enter^="peel-"],[data-ds-enter^="peel-"] *){visibility:visible!important}
 }
 </style>
+${input.choreography ? CHOREOGRAPHY_HEAD : ''}
 </head>
 <body data-carrier="slides">
 <main class="ds-stage">
