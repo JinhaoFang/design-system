@@ -5,18 +5,19 @@
  *   data-ds-enter="draw-x|draw-y"              draw from left to right (scaleX, left origin) or top to bottom (scaleY, top origin); reduced motion shows the finished drawing without animation.
  *   data-ds-enter="stamp"                      fade in while scaling from motion.stampScale (DTCG number > 1, required only when stamp is used) to the natural CSS transform.
  *   data-ds-enter="peel-left|peel-right|peel-up|peel-down"  move a cover by 100% of its own size; retain the terminal transform and opacity 0 with fill both. Reduced motion only fades out.
- *   data-ds-order="<n>"                         position in the sequence of its group (default: document order); equal numbers enter together.
+ *   data-ds-order="<n>"                         position in the sequence of its group (default: document order); equal numbers share the stagger delay before any per-element wait.
  *   data-ds-stagger="<name>"                    on a group container: the --ds-stagger-<name> step between members (default: the smallest stagger step, 0 if the system has none).
  *   data-ds-step="<name>"                       duration step --ds-duration-<name> (default: base, else the middle step).
+ *   data-ds-wait="<name>"                       extra wait --ds-duration-<name> added to this element's rank * stagger delay (default: 0); does not delay other group members.
  *   data-ds-ease="<name>"                       easing --ds-easing-<name> (default: settle, else the first one).
  *   data-ds-distance="<name>"                   displacement --ds-space-<name> (default: the middle space step).
  * A group is the nearest ancestor with data-ds-stagger, else the enclosing unit section. Durations, easings, stagger and distances all come from the resolved tokens, embedded into the script at build time;
- * unknown names are rejected by validateChoreography (a BuildError before rendering).
+ * unknown names are rejected by validateChoreography (a BuildError before rendering); an unknown wait names the sequence item and element's opening tag.
  * Runtime (buildChoreographyScript, a classic inline script placed after the page content): non-cover entrances use fill backwards and return to natural CSS. Completed covers get data-ds-revealed,
  * which hides the entire cover subtree and removes it from the checker snapshot; replay cancels the previous animation and removes this mark. Origins are set outside keyframes, so only transform/opacity animate.
  * Web: elements in view on load enter together; others enter in batches when scrolled into view (IntersectionObserver); covers scrolled past without being seen are finalized.
  * Under html[data-render="static"] covers are finalized synchronously, including off-screen covers; other content is shown immediately. Print CSS finalizes all covers, including unvisited slides.
- * Slides: registers window.dsSlides.onEnter and returns a promise for dsSlides.entered(). Reduced motion drops displacement, scaling and stagger, and uses the shortest duration for stamp/fade/peel.
+ * Slides: registers window.dsSlides.onEnter (after the page turn settles) and returns a promise for dsSlides.entered(), including extra waits. Reduced motion drops displacement, scaling, stagger and extra waits, and uses the shortest duration for stamp/fade/peel.
  */
 import type { ResolvedTokens } from './tokens.ts';
 import { BuildError } from './types.ts';
@@ -56,14 +57,15 @@ export function validateChoreography(unitsHtml: string[], tokens: ResolvedTokens
   const allowed: Record<string, string[]> = {
     enter: EFFECTS,
     step: Object.keys(config.durations),
+    wait: Object.keys(config.durations),
     ease: Object.keys(config.easings),
     stagger: Object.keys(config.staggers),
     distance: Object.keys(config.spaces),
     order: [],
   };
   const issues: string[] = [];
-  for (const html of unitsHtml) {
-    for (const match of html.matchAll(/\sdata-ds-(enter|step|ease|stagger|distance|order)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi)) {
+  for (const [index, html] of unitsHtml.entries()) {
+    for (const match of html.matchAll(/\sdata-ds-(enter|step|wait|ease|stagger|distance|order)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi)) {
       const attribute = match[1]!.toLowerCase();
       const value = match[2] ?? match[3] ?? match[4]!;
       const names = allowed[attribute!]!;
@@ -74,7 +76,8 @@ export function validateChoreography(unitsHtml: string[], tokens: ResolvedTokens
         if (!/^-?\d+$/.test(value!)) issues.push(`data-ds-order="${value}" 不是整数`);
       } else if (attribute === 'enter' && value === '') continue;
       else if (!names.includes(value!)) {
-        issues.push(`data-ds-${attribute}="${value}" 不在体系里，可用：${names.join('、') || '（无）'}`);
+        const element = attribute === 'wait' ? `；序列第 ${index + 1} 项，元素：${html.slice(html.lastIndexOf('<', match.index), html.indexOf('>', match.index) + 1)}` : '';
+        issues.push(`data-ds-${attribute}="${value}" 不在体系里，可用：${names.join('、') || '（无）'}${element}`);
       }
     }
   }
@@ -184,7 +187,9 @@ function choreograph(config: ChoreographyConfig): void {
         to.transform = `${peel}${transform}`;
       }
     }
-    const animation = el.animate([from, to], { duration, delay: reduced ? 0 : delay, easing, fill: peel ? 'both' : 'backwards' });
+    const waitName = el.getAttribute('data-ds-wait');
+    const wait = waitName === null ? 0 : (config.durations[waitName] ?? 0);
+    const animation = el.animate([from, to], { duration, delay: reduced ? 0 : delay + wait, easing, fill: peel ? 'both' : 'backwards' });
     active.set(el, animation);
     animation.finished.then(() => {
       if (peel && active.get(el) === animation) el.setAttribute('data-ds-revealed', '');
