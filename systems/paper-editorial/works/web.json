@@ -1,0 +1,83 @@
+{
+  "system": "paper-editorial",
+  "carrier": "web",
+  "concept": "观测日志的一页，装订成一卷刻本：首屏是天文台的观测日志——日志抬头、细宋体大标题，朱笔只划在「开放观测夜」下，旁边一幅北天星图小样，朱圈指出仙女星系；往下翻是古籍的卷次，缘起、图版夹页、录表逐卷展开，读过三卷安静的文字后，满版揭开一幅北天星图（全页唯一出血的一屏）；再往下是星表与纪事，最后一张横排的预约票券钤着朱印，卷末牌记收尾。",
+  "sequence": [
+    {
+      "custom": { "file": "fragments/rizhi-shouye.html" },
+      "serves": "首屏：观测日志的一页，大标题和朱笔下划线是唯一的主角，星图小样交代「看什么」"
+    },
+    {
+      "unit": "problem",
+      "layout": "yuanqi",
+      "content": {
+        "heading": { "ref": "problem.heading" },
+        "body": { "ref": "problem.body" },
+        "points": { "ref": "problem.points" }
+      }
+    },
+    {
+      "unit": "solution",
+      "layout": "jiaye",
+      "content": {
+        "heading": { "ref": "solution.heading" },
+        "body": { "ref": "solution.body" },
+        "visual": { "ref": "solution.visual" }
+      }
+    },
+    {
+      "unit": "features",
+      "layout": "lu",
+      "content": {
+        "heading": { "ref": "features.heading" },
+        "lead": { "ref": "features.lead" },
+        "itemTitles": { "ref": "features.itemTitles" },
+        "itemBodies": { "ref": "features.itemBodies" }
+      }
+    },
+    {
+      "custom": { "file": "fragments/beitian-tuban.html" },
+      "serves": "全页的高潮：三卷安静的阅读之后，满版展开首光那晚所见的北天星图"
+    },
+    {
+      "unit": "evidence",
+      "layout": "xingbiao",
+      "content": {
+        "heading": { "ref": "evidence.heading" },
+        "stats": { "ref": "evidence.stats" },
+        "statLabels": { "ref": "evidence.statLabels" },
+        "quote": { "ref": "evidence.quote" },
+        "quoteBy": { "ref": "evidence.quoteBy" },
+        "logos": { "ref": "evidence.logos" }
+      }
+    },
+    {
+      "unit": "process",
+      "layout": "jishi",
+      "content": {
+        "heading": { "ref": "process.heading" },
+        "steps": { "ref": "process.steps" },
+        "stepNotes": { "ref": "process.stepNotes" }
+      }
+    },
+    {
+      "unit": "cta",
+      "layout": "piaoquan",
+      "content": {
+        "headline": { "ref": "cta.headline" },
+        "action": { "ref": "cta.action" },
+        "lead": { "ref": "cta.lead" },
+        "note": { "ref": "cta.note" }
+      }
+    },
+    {
+      "unit": "footer",
+      "layout": "banquan",
+      "content": {
+        "brand": { "ref": "footer.brand" },
+        "links": { "ref": "footer.links" },
+        "legal": { "ref": "footer.legal" }
+      }
+    }
+  ]
+}
