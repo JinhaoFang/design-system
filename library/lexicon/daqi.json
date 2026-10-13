@@ -84,8 +84,8 @@
       },
       "recommendation": {
         "system": "临时方向",
-        "borrowLayoutsFrom": "precision-industrial",
-        "direction": "深色大块面加居中对称构图，粗重无衬线大标题，排法借精密工业的对齐规则。"
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "深色大块面加居中对称构图，粗重无衬线大标题，排法借纸本编辑的版框与单主角规则，字和色块改成深底重字。"
       },
       "samples": {
         "status": "pending"

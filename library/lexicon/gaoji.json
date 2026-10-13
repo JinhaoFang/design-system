@@ -80,8 +80,8 @@
       },
       "recommendation": {
         "system": "临时方向",
-        "borrowLayoutsFrom": "precision-industrial",
-        "direction": "暖灰白纸面上的细刻度尺与小号等宽标注，发丝线网格，排法借精密工业的标签与刻度导航，动效短而准。"
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "暖灰白纸面上的细刻度尺与小号等宽标注，发丝线网格，排法借纸本编辑的刻度与尺注，动效改得短而准。"
       },
       "samples": {
         "status": "pending"

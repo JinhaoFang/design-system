@@ -55,8 +55,8 @@
       },
       "recommendation": {
         "system": "临时方向",
-        "borrowLayoutsFrom": "precision-industrial",
-        "direction": "编号、规格表与线稿图按手册归类，等宽标签，排法借精密工业的网格与标签体系。"
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "编号、规格表与线稿图按手册归类，等宽标签，排法借纸本编辑的纪事、刻度与尺注。"
       },
       "samples": {
         "status": "pending"
@@ -84,8 +84,8 @@
       },
       "recommendation": {
         "system": "临时方向",
-        "borrowLayoutsFrom": "precision-industrial",
-        "direction": "大量白底配淡蓝绿点缀与圆润无衬线字，排法借精密工业的网格与对齐。"
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "大量白底配淡蓝绿点缀与圆润无衬线字，排法借纸本编辑的分栏与对齐，纸面换成冷白。"
       },
       "samples": {
         "status": "pending"

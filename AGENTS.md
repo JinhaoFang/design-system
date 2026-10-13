@@ -41,8 +41,8 @@
 | 位置 | 放什么 | 归属 |
 |---|---|---|
 | `docs/`、`GLOSSARY.md`、`docs/adr/` | 方案、规则文档、工作流、术语、决策记录、汇报 | 设计 |
-| `systems/<体系>/` | 种子体系：`SYSTEM.md`、数值文件、排法、标准样张的作品描述、图像和它的生成脚本 | 设计 |
-| `library/craft.md`、`library/content/`、`library/skeleton/`、`library/fonts/` | 工艺规范、标准样张内容、结构骨架、字体清单 | 设计 |
+| `systems/<体系>/` | 种子体系：`SYSTEM.md`、数值文件、排法、体系样张的作品描述、图像和它的生成脚本 | 设计 |
+| `library/craft.md`、`library/content/`、`library/skeleton/`、`library/fonts/` | 工艺规范、测试内容、结构骨架、字体清单 | 设计 |
 | `library/lexicon/` | 感觉词词典 | 设计负责人确认；其他人只提交候选 |
 | `library/exemplars/` | 范例库 | 只提交候选，批准和拒绝由裁判决定 |
 | `src/`、`test/`、`scripts/`、`package.json`、构建配置、`.github/` | 构建并检查流程、检查器、命令、测试、CI | 工程 |
