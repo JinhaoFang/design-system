@@ -1,6 +1,6 @@
 {% comment %}
 题签 tiqian：方向稿 A「古籍扉页」的跨页首屏。文武边栏（墨 3px + 发丝 1px）框住一个视口高的跨页，正中一条版心：两道墨线夹着竖排的眉题，上下各一枚鱼尾（下面那枚倒置）。
-右页是题签：标题竖排在右（title 档，宋体 200，按标点分列），左下角横排导语和行动；左页是一块图版，四周留纸。竖排只给标题和眉题，导语、行动一律横排。
+右页是题签：标题竖排在右（title 档，朱雀仿宋，按标点分列），左下角横排导语和行动；左页是一块图版，四周留纸。竖排只给标题和眉题，导语、行动一律横排。
 本排法要求标题不超过 16 字（竖排的单处上限），更长的标题用「日志」。
 入场：版框洇出，标题自上而下逐列上浮（glide + paper），眉题、导语、行动依次洇出，图版最后。
 手机：去掉版心，眉题横排在版框顶部；题签在上（仍竖排，title 档），导语和行动在下，图版放到最后。
@@ -92,7 +92,8 @@
     writing-mode: vertical-rl;
     max-height: 9em;
     font-size: var(--ds-type-title);
-    font-weight: 200;
+    font-family: var(--ds-font-latin), var(--ds-font-cjk-display);
+    font-weight: 400;
     line-height: 1.5;
     letter-spacing: .14em;
     word-break: keep-all;

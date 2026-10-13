@@ -1,5 +1,5 @@
 {% comment %}
-两页 liangye：版心竖条（两条墨线夹一条，上下两个鱼尾，中间竖排 footnote 楷书 ink-3，数字直立）把画面分成两页：右页竖排大标题（宋体 200 title 档），左页横排清单，编号用 01–07（Source Serif 300，lnum tnum），行间 rule-light 界栏。
+两页 liangye：版心竖条（两条墨线夹一条，上下两个鱼尾，中间竖排 footnote 楷书 ink-3，数字直立）把画面分成两页：右页竖排大标题（朱雀仿宋 title 档），左页横排清单，编号用 01–07（EB Garamond，lnum tnum），行间 rule-light 界栏。
 竖排文字一律 upright。公众号封面：版心改为左侧竖条，标题横排在其右，清单两栏（caption 档）。朱色：不用。
 {% endcomment %}
 <style>
@@ -63,7 +63,8 @@
     writing-mode: vertical-rl;
     text-orientation: upright;
     font-size: var(--ds-type-title);
-    font-weight: 200;
+    font-family: var(--ds-font-latin), var(--ds-font-cjk-display);
+    font-weight: 400;
     letter-spacing: .08em;
     line-height: 1.3;
   }
@@ -93,7 +94,7 @@
     content: counter(n, decimal-leading-zero);
     font-family: var(--ds-font-latin);
     font-size: var(--ds-type-lead);
-    font-weight: 300;
+    font-weight: 400;
     font-feature-settings: "lnum" 1, "tnum" 1;
     color: var(--ds-color-ink-3);
   }

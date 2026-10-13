@@ -1,5 +1,5 @@
 {% comment %}
-竖引 shuyin：金句竖排（宋体 200 head 档，两列，靠右起排），落款楷书朱色竖排在其左下，品牌小字横排在底边，不加边栏。
+竖引 shuyin：金句竖排（朱雀仿宋 head 档，两列，靠右起排），落款楷书朱色竖排在其左下，品牌小字横排在底边，不加边栏。
 方形画幅字号降到 sub 以保持两列；公众号封面改横排。朱色：仅落款。竖排数字直立（text-orientation: upright，宋体字形，每个数字一格），列高（小红书 1110、方形 760）定在「250」之后、「万」之前换列，数字不被拆开。
 {% endcomment %}
 <style>
@@ -42,7 +42,8 @@
     margin: 0;
     height: 1110px;
     font-size: var(--ds-type-head);
-    font-weight: 200;
+    font-family: var(--ds-font-latin), var(--ds-font-cjk-display);
+    font-weight: 400;
     letter-spacing: .02em;
     line-height: 2.1;
   }

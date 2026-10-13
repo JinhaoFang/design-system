@@ -1,5 +1,5 @@
 {% comment %}
-题签 tiqian：文武边栏框全幅，标题竖排在右（宋体 200，两列），副题与眉题依次排在其左，品牌落在左下朱印。公众号封面改横排，边栏收窄。
+题签 tiqian：文武边栏框全幅，标题竖排在右（朱雀仿宋，两列），副题与眉题依次排在其左，品牌落在左下朱印。公众号封面改横排，边栏收窄。
 朱色：眉题、朱印。按 title 5+4 字设计，标题宽度按 5 字折两列。竖排块统一 text-orientation: upright，字体用宋体栈（西文数字取宋体字形，每个数字占一格直立排；Chromium 不支持 text-combine-upright: digits），word-spacing 收掉中西文之间的空格；方形画幅上移并收紧副题字距以免撞内框。
 {% endcomment %}
 <style>
@@ -49,7 +49,8 @@
     margin: 0;
     height: 5.7em;
     font-size: var(--ds-type-title);
-    font-weight: 200;
+    font-family: var(--ds-font-latin), var(--ds-font-cjk-display);
+    font-weight: 400;
     letter-spacing: .12em;
     line-height: 1.3;
   }

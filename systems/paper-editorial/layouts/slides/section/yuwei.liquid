@@ -1,5 +1,5 @@
 {% comment %}
-鱼尾 yuwei：刻本版心的写法。右边一条版心竖带（两条墨线，上下鱼尾，中间卷号横排直立的等高数字），标题竖排紧贴版心左侧（宋体 200、title 档，单处不超过 16 字）；摘要横排在左下（lead ink-2）。左上大片留纸。
+鱼尾 yuwei：刻本版心的写法。右边一条版心竖带（两条墨线，上下鱼尾，中间卷号横排直立的等高数字），标题竖排紧贴版心左侧（朱雀仿宋、title 档，单处不超过 16 字）；摘要横排在左下（lead ink-2）。左上大片留纸。
 竖排只给标题；摘要横排。朱色：无。入场：标题自上而下洇出，摘要最后。
 {% endcomment %}
 <style>
@@ -50,9 +50,9 @@
     max-height: 6.6em;
     padding-top: var(--ds-space-5);
     text-wrap: balance;
-    font-family: var(--ds-font-cjk);
     font-size: var(--ds-type-title);
-    font-weight: 200;
+    font-family: var(--ds-font-latin), var(--ds-font-cjk-display);
+    font-weight: 400;
     letter-spacing: .14em;
     line-height: 1.3;
   }
@@ -68,7 +68,7 @@
   .number {
     font-family: var(--ds-font-latin);
     font-size: var(--ds-type-lead);
-    font-weight: 300;
+    font-weight: 400;
     font-feature-settings: "lnum" 1, "tnum" 1;
     letter-spacing: .08em;
     color: var(--ds-color-ink-2);

@@ -1,5 +1,5 @@
 {% comment %}
-首光 shouguang：页眉一条 2px 墨线，线上左品牌右眉题；主标题横排宋体 200（小红书 display 档，方形 title 档），朱笔下划线只划后半句；副题 ink-2；底部留白。
+首光 shouguang：页眉一条 2px 墨线，线上左品牌右眉题；主标题横排朱雀仿宋（小红书 display 档，方形 title 档），朱笔下划线只划后半句；副题 ink-2；底部留白。
 朱色：仅下划线。按 title 5+4 字设计：标题宽度按 5 字折两行，划线宽 4 字（公众号封面单行，划线移到后 4 字）。
 {% endcomment %}
 <style>
@@ -54,7 +54,8 @@
   .title {
     margin: 0;
     font-size: inherit;
-    font-weight: 200;
+    font-family: var(--ds-font-latin), var(--ds-font-cjk-display);
+    font-weight: 400;
     letter-spacing: -.01em;
     line-height: 1.16;
   }

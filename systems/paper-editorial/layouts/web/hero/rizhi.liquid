@@ -1,5 +1,5 @@
 {% comment %}
-日志 rizhi：方向稿 B「观测日志」的首屏，去掉左侧时间栏。顶部一条日志抬头（眉题 + 2px 墨线），下面左栏是唯一的主角：宋体 200 的 display 大标题，按标点断行、两行平衡，
+日志 rizhi：方向稿 B「观测日志」的首屏，去掉左侧时间栏。顶部一条日志抬头（眉题 + 2px 墨线），下面左栏是唯一的主角：朱雀仿宋 的 display 大标题，按标点断行、两行平衡，
 朱笔下划线压在末行的后半句下（零宽锚点跟在标题最后一个字后面，笔画向左伸 4.4em，所以无论断成几行都落在末行末尾）；导语 lead 字号 ink-2 两端对齐；行动是带墨线的文字链接，悬停时墨线下方划出一道细朱线（dot）。右栏是一块图版：发丝框里的图像，四周留纸。
 入场：抬头先洇出，标题上浮（glide + paper，位移 space-3），导语、行动依次洇出（line 错峰），图版最后。导语、行动和图版也洇出之后，朱笔再等一档 lift，从左到右划出（draw-x，lift + brush），这时画面已经静下来。
 手机：单栏，标题降到 head 档，图版移到行动下方。
@@ -52,9 +52,9 @@
     padding-top: var(--ds-space-8);
   }
   .title {
-    font-family: var(--ds-font-body);
     font-size: var(--ds-type-display);
-    font-weight: 200;
+    font-family: var(--ds-font-latin), var(--ds-font-cjk-display);
+    font-weight: 400;
     line-height: 1.16;
     letter-spacing: .02em;
     word-break: keep-all;

@@ -1,5 +1,5 @@
 {% comment %}
-目录 mulu：左栏标题（宋体 200、title 档），右栏逐行横排的目录，每行一条 rule-light 界栏，行首壹贰叁（楷书 ink-3，CSS 计数器 simp-chinese-formal），条目宋体 400、sub 档。页眉墨线空着，只作日志本的抬头。
+目录 mulu：左栏标题（朱雀仿宋、title 档），右栏逐行横排的目录，每行一条 rule-light 界栏，行首壹贰叁（楷书 ink-3，CSS 计数器 simp-chinese-formal），条目宋体 400、sub 档。页眉墨线空着，只作日志本的抬头。
 朱色：无。入场：标题先出，条目自上而下错峰 line（70ms）。
 {% endcomment %}
 <style>
@@ -36,9 +36,9 @@
     margin-top: var(--ds-space-8);
   }
   .heading {
-    font-family: var(--ds-font-cjk);
     font-size: var(--ds-type-title);
-    font-weight: 200;
+    font-family: var(--ds-font-latin), var(--ds-font-cjk-display);
+    font-weight: 400;
     letter-spacing: .04em;
     line-height: 1.2;
   }

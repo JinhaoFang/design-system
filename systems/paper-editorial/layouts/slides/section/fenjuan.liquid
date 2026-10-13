@@ -1,5 +1,5 @@
 {% comment %}
-分卷 fenjuan：日志的分卷页。下半页一条 2px 墨线，线上左边是超大的卷号（Source Serif 300 等高数字、colossal 档），右边标题（宋体 200、title 档）与摘要（lead ink-2）底边对齐。上半页留空，像翻开新的一卷。
+分卷 fenjuan：日志的分卷页。下半页一条 2px 墨线，线上左边是超大的卷号（EB Garamond 等高数字、colossal 档），右边标题（朱雀仿宋、title 档）与摘要（lead ink-2）底边对齐。上半页留空，像翻开新的一卷。
 朱色：无。入场：卷号从左滑入，标题升起，摘要最后洇出。
 {% endcomment %}
 <style>
@@ -43,15 +43,15 @@
   .number {
     font-family: var(--ds-font-latin);
     font-size: var(--ds-type-colossal);
-    font-weight: 300;
+    font-weight: 400;
     font-feature-settings: "lnum" 1;
     letter-spacing: -.02em;
     line-height: .8;
   }
   .title {
-    font-family: var(--ds-font-cjk);
     font-size: var(--ds-type-title);
-    font-weight: 200;
+    font-family: var(--ds-font-latin), var(--ds-font-cjk-display);
+    font-weight: 400;
     letter-spacing: .04em;
     line-height: 1.2;
   }

@@ -1,5 +1,5 @@
 {% comment %}
-题签 tiqian：古籍扉页的一个对开。文武边栏框住全页，版心（两条墨线夹一条竖带，上下鱼尾）把画面分成两页：右页标题竖排（宋体 200、title 档），左页下方横排副题（lead）、落款与日期（note，日期等宽数字）。
+题签 tiqian：古籍扉页的一个对开。文武边栏框住全页，版心（两条墨线夹一条竖带，上下鱼尾）把画面分成两页：右页标题竖排（朱雀仿宋、title 档），左页下方横排副题（lead）、落款与日期（note，日期等宽数字）。
 竖排只给标题（单处不超过 16 字），副题、日期一律横排。朱色：无。入场：标题自上而下洇出，再出左页文字。
 {% endcomment %}
 <style>
@@ -91,9 +91,9 @@
     word-spacing: -.75em;
     max-height: 7.4em;
     text-wrap: balance;
-    font-family: var(--ds-font-cjk);
     font-size: var(--ds-type-title);
-    font-weight: 200;
+    font-family: var(--ds-font-latin), var(--ds-font-cjk-display);
+    font-weight: 400;
     letter-spacing: .16em;
     line-height: 1.4;
   }

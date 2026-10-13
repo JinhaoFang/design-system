@@ -128,12 +128,12 @@
     "$type": "fontFamily",
     "body": {
       "$value": [
-        "Source Serif 4",
+        "EB Garamond",
         "Noto Serif SC"
       ],
       "$extensions": {
         "io.github.jinhaofang.design-system": {
-          "fontId": "source-serif-4-400"
+          "fontId": "eb-garamond-400"
         }
       }
     },
@@ -149,11 +149,11 @@
     },
     "cjk-display": {
       "$value": [
-        "Noto Serif SC"
+        "Zhuque Fangsong"
       ],
       "$extensions": {
         "io.github.jinhaofang.design-system": {
-          "fontId": "noto-serif-sc-200"
+          "fontId": "zhuque-fangsong-400"
         }
       }
     },
@@ -179,31 +179,31 @@
     },
     "latin": {
       "$value": [
-        "Source Serif 4"
+        "EB Garamond"
       ],
       "$extensions": {
         "io.github.jinhaofang.design-system": {
-          "fontId": "source-serif-4-400"
+          "fontId": "eb-garamond-400"
         }
       }
     },
     "latin-light": {
       "$value": [
-        "Source Serif 4"
+        "EB Garamond"
       ],
       "$extensions": {
         "io.github.jinhaofang.design-system": {
-          "fontId": "source-serif-4-300"
+          "fontId": "eb-garamond-400"
         }
       }
     },
     "latin-italic": {
       "$value": [
-        "Source Serif 4"
+        "EB Garamond"
       ],
       "$extensions": {
         "io.github.jinhaofang.design-system": {
-          "fontId": "source-serif-4-400-italic"
+          "fontId": "eb-garamond-400-italic"
         }
       }
     }

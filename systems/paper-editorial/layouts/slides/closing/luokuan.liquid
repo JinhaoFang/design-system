@@ -1,5 +1,5 @@
 {% comment %}
-落款 luokuan：书末的牌记。文武边栏框住全页；结束语居中（宋体 200、title 档），其下一条短墨线，再下是联系方式（Source Serif、lead）；行动号召收进牌记下方居中的一枚朱印（楷书竖排，每列至多三字），不做按钮。
+落款 luokuan：书末的牌记。文武边栏框住全页；结束语居中（朱雀仿宋、title 档），其下一条短墨线，再下是联系方式（EB Garamond、lead）；行动号召收进牌记下方居中的一枚朱印（楷书竖排，每列至多三字），不做按钮。
 朱色：仅朱印。入场：结束语洇出，联系方式随后，朱印最后按下落定。
 {% endcomment %}
 <style>
@@ -49,9 +49,9 @@
     text-align: center;
   }
   .headline {
-    font-family: var(--ds-font-cjk);
     font-size: var(--ds-type-title);
-    font-weight: 200;
+    font-family: var(--ds-font-latin), var(--ds-font-cjk-display);
+    font-weight: 400;
     letter-spacing: .06em;
     line-height: 1.2;
   }

@@ -1,5 +1,5 @@
 {% comment %}
-印款 yinkuan：卷尾的落款。一道文武线（墨 3px + 发丝线）开头；左边是大标题（宋体 200，title 档），下面横排导语（等高等宽数字）和附注（ink-2，发丝线隔开）；
+印款 yinkuan：卷尾的落款。一道文武线（墨 3px + 发丝线）开头；左边是大标题（朱雀仿宋，title 档），下面横排导语（等高等宽数字）和附注（ink-2，发丝线隔开）；
 右边一方大朱印，印文就是行动，竖排成两列（楷书阳文，边缘略毛），像在卷尾钤了一方印，点它即预约。这一段不加卷次，没有朱笔。
 入场：标题上浮，导语、附注洇出（line 错峰），朱印最后按下落定（stamp，turn + press）。悬停朱印时它按下去一点（dot）。
 手机：朱印移到文字下方，靠左。
@@ -43,7 +43,7 @@
     position: relative;
   }
   .wrap::before { content: ""; position: absolute; left: 0; right: 0; top: 4px; border-top: 1px solid var(--ds-color-rule); }
-  .headline { font-size: var(--ds-type-title); font-weight: 200; line-height: 1.2; letter-spacing: .02em; text-wrap: balance; }
+  .headline { font-size: var(--ds-type-title); font-family:var(--ds-font-latin), var(--ds-font-cjk-display);font-weight:400; line-height: 1.2; letter-spacing: .02em; text-wrap: balance; }
   .lead { max-width: 30em; margin-top: var(--ds-space-6); font-size: var(--ds-type-lead); line-height: 1.8; text-wrap: pretty; font-feature-settings: "lnum" 1, "tnum" 1; }
   .note { max-width: 30em; margin-top: var(--ds-space-5); padding-top: var(--ds-space-3); border-top: 1px solid var(--ds-color-rule-light); color: var(--ds-color-ink-2); text-wrap: pretty; font-feature-settings: "lnum" 1, "tnum" 1; }
   .seal {

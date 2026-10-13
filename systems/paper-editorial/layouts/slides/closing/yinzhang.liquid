@@ -1,5 +1,5 @@
 {% comment %}
-印章 yinzhang：最后一页落一枚印。页眉墨线；结束语（宋体 200、title 档）横排在约 45% 高度，整句包成一块，朱笔的宽度就是这句话的实际宽度，换内容也落在句下；联系方式（Source Serif、lead，ink-2）在下；右下一枚朱印，行动号召竖排在印里（楷书，纸色阳文，每列至多三字）。
+印章 yinzhang：最后一页落一枚印。页眉墨线；结束语（朱雀仿宋、title 档）横排在约 45% 高度，整句包成一块，朱笔的宽度就是这句话的实际宽度，换内容也落在句下；联系方式（EB Garamond、lead，ink-2）在下；右下一枚朱印，行动号召竖排在印里（楷书，纸色阳文，每列至多三字）。
 朱色：朱笔、朱印两处，合计远低于 6%。入场：结束语升起，联系方式洇出，朱笔划出，最后印章按下落定。
 {% endcomment %}
 <style>
@@ -48,9 +48,9 @@
   }
   .hl { position: relative; display: inline-block; padding-bottom: var(--ds-space-3); }
   .headline {
-    font-family: var(--ds-font-cjk);
     font-size: var(--ds-type-title);
-    font-weight: 200;
+    font-family: var(--ds-font-latin), var(--ds-font-cjk-display);
+    font-weight: 400;
     letter-spacing: .04em;
     line-height: 1.2;
   }

@@ -1,5 +1,5 @@
 {% comment %}
-界栏 jielan：日志的逐条记录。左上标题（宋体 200、title 档，标题前一个鱼尾）；右边逐行横排：行首壹贰叁（楷书 ink-3），步骤名（宋体 600、lead），注释（body ink-2，等宽数字）同一行靠右，每行一条 rule-light 界栏，像一页对齐的记录。
+界栏 jielan：日志的逐条记录。左上标题（朱雀仿宋、title 档，标题前一个鱼尾）；右边逐行横排：行首壹贰叁（楷书 ink-3），步骤名（宋体 600、lead），注释（body ink-2，等宽数字）同一行靠右，每行一条 rule-light 界栏，像一页对齐的记录。
 朱色：无。入场：标题升起，各行自上而下错峰 line。
 {% endcomment %}
 <style>
@@ -37,9 +37,9 @@
   .head { padding-top: var(--ds-space-5); }
   .yuwei { display: block; width: 32px; margin-bottom: var(--ds-space-4); fill: var(--ds-color-ink); }
   .heading {
-    font-family: var(--ds-font-cjk);
     font-size: var(--ds-type-title);
-    font-weight: 200;
+    font-family: var(--ds-font-latin), var(--ds-font-cjk-display);
+    font-weight: 400;
     letter-spacing: .04em;
     line-height: 1.2;
   }

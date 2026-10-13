@@ -1,5 +1,5 @@
 {% comment %}
-主次 zhuci：六项不等大。第一项是这一屏的主角：条名放到 title 档（宋体 200，数字等高），说明用 lead 字号写在下面；其余五项退为一张两栏的小录，条名宋体 600、说明 ink-2，
+主次 zhuci：六项不等大。第一项是这一屏的主角：条名放到 title 档（朱雀仿宋，数字等高），说明用 lead 字号写在下面；其余五项退为一张两栏的小录，条名宋体 600、说明 ink-2，
 条间发丝界栏。小标题和导语在最上一行（鱼尾 + 卷次 + 标题，导语靠右）。用大小和位置分主次，不排成等大卡片。
 入场：小标题洇出，主项上浮，小录逐条洇出（line 错峰）。
 手机：单栏，主项条名降到 head 档，小录合为一栏。
@@ -48,7 +48,7 @@
     gap: var(--ds-space-9);
     padding-top: var(--ds-space-8);
   }
-  .first h3 { font-size: var(--ds-type-title); font-weight: 200; line-height: 1.15; letter-spacing: .02em; font-feature-settings: "lnum" 1; }
+  .first h3 { font-size: var(--ds-type-title); font-family:var(--ds-font-latin), var(--ds-font-cjk-display);font-weight:400; line-height: 1.15; letter-spacing: .02em; font-feature-settings: "lnum" 1; }
   .first p { max-width: 16em; margin-top: var(--ds-space-5); font-size: var(--ds-type-lead); line-height: 1.8; color: var(--ds-color-ink-2); text-align: justify; text-wrap: pretty; font-feature-settings: "onum" 1; }
   .rest { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--ds-space-6); align-content: start; }
   .rest div { padding: var(--ds-space-4) 0; border-bottom: 1px solid var(--ds-color-rule-light); }

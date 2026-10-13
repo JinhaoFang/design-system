@@ -1,5 +1,5 @@
 {% comment %}
-日志 rizhi：观测日志的扉页。页眉是 2px 墨线上的日期（等宽数字）；主标题宋体 200、display 档，按 5 字一行折两行，末行坐在约 62% 高度的一条基线上（基线是一条贯穿全页的发丝线）；副题 lead ink-2 在基线下；落款（presenter）收进右下一枚小朱印（楷书竖排，每列至多三字）。
+日志 rizhi：观测日志的扉页。页眉是 2px 墨线上的日期（等宽数字）；主标题朱雀仿宋、display 档，按 5 字一行折两行，末行坐在约 62% 高度的一条基线上（基线是一条贯穿全页的发丝线）；副题 lead ink-2 在基线下；落款（presenter）收进右下一枚小朱印（楷书竖排，每列至多三字）。
 朱色：仅朱印。入场：标题升起，副题洇出，页眉随后，朱印最后按下落定。
 {% endcomment %}
 <style>
@@ -49,9 +49,9 @@
   .title {
     width: 5.3em;
     text-wrap: wrap;
-    font-family: var(--ds-font-cjk);
     font-size: var(--ds-type-display);
-    font-weight: 200;
+    font-family: var(--ds-font-latin), var(--ds-font-cjk-display);
+    font-weight: 400;
     letter-spacing: .02em;
     line-height: 1.14;
   }

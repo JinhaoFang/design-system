@@ -1,5 +1,5 @@
 {% comment %}
-星表 xingbiao：方向稿 B 的「星表」段。左栏是段号和小标题，右栏是一张数据表：墨线起、发丝线分行，标签在左（ink-2），数字靠右对齐（Source Serif 300，head 档，等高等宽数字），
+星表 xingbiao：方向稿 B 的「星表」段。左栏是段号和小标题，右栏是一张数据表：墨线起、发丝线分行，标签在左（ink-2），数字靠右对齐（EB Garamond，head 档，等高等宽数字），
 像星表里的一栏读数。左栏下方是一句引语（lead 字号，宋体，悬挂起始引号，与表格底边对齐），落款用楷书 ink-2 加破折号；最后一条发丝线上排合作方的标识，墨色、等高、左对齐，不做灰阶处理。
 入场：小标题上浮，表行逐行洇出（line 错峰），引语与标识随后洇出。
 手机：单栏，引语在表格之前，表格保持两列，数字降到 sub 档；标识两行折排。
@@ -36,7 +36,7 @@
   .table { border-top: 1px solid var(--ds-color-ink); }
   .table div { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: var(--ds-space-6); padding: var(--ds-space-4) 0; border-bottom: 1px solid var(--ds-color-rule-light); }
   .table dt { color: var(--ds-color-ink-2); letter-spacing: .06em; }
-  .table dd { font-family: var(--ds-font-latin); font-size: var(--ds-type-head); font-weight: 300; line-height: 1.1; font-feature-settings: "lnum" 1, "tnum" 1; }
+  .table dd { font-family: var(--ds-font-latin); font-size: var(--ds-type-head); font-weight: 400; line-height: 1.1; font-feature-settings: "lnum" 1, "tnum" 1; }
   .side { display: flex; flex-direction: column; }
   .quote { margin-top: auto; padding-top: var(--ds-space-7); }
   .quote blockquote { max-width: 20em; font-size: var(--ds-type-lead); line-height: 1.9; text-indent: -.5em; text-wrap: pretty; font-feature-settings: "onum" 1; }

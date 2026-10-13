@@ -1,5 +1,5 @@
 {% comment %}
-版心 banxin：右侧一条版心竖带（两条墨线夹住，上鱼尾），标题竖排在版心左边（宋体 200、title 档，单处不超过 12 字，过长时均衡折成两列）；左边大片纸面上目录横排，行首两位等高数字（Source Serif 300、lead 档，ink-3），条目宋体 400、lead 档，行距放宽、不画界栏，靠留白分行。
+版心 banxin：右侧一条版心竖带（两条墨线夹住，上鱼尾），标题竖排在版心左边（朱雀仿宋、title 档，单处不超过 12 字，过长时均衡折成两列）；左边大片纸面上目录横排，行首两位等高数字（EB Garamond、lead 档，ink-3），条目宋体 400、lead 档，行距放宽、不画界栏，靠留白分行。
 朱色：无。入场：版心与标题先出，条目自上而下错峰 line。
 {% endcomment %}
 <style>
@@ -54,7 +54,7 @@
     content: counter(n, decimal-leading-zero);
     flex: none;
     font-family: var(--ds-font-latin);
-    font-weight: 300;
+    font-weight: 400;
     font-feature-settings: "lnum" 1, "tnum" 1;
     color: var(--ds-color-ink-3);
   }
@@ -65,9 +65,9 @@
     max-height: 6.4em;
     padding-top: var(--ds-space-7);
     text-wrap: balance;
-    font-family: var(--ds-font-cjk);
     font-size: var(--ds-type-title);
-    font-weight: 200;
+    font-family: var(--ds-font-latin), var(--ds-font-cjk-display);
+    font-weight: 400;
     letter-spacing: .16em;
     line-height: 1.2;
   }
