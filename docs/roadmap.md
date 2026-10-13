@@ -25,7 +25,7 @@
 ## 进度
 
 - [x] 方案 v0.3、术语表、两份 ADR
-- [x] 第 0 阶段（spec #1）：工具链和库数据（#2～#16、#29）；三套种子体系验收通过（纸本编辑三种载体，精密工业、孔版印刷只做网页），验收记录在各体系的 `acceptance.md`；工具补强 #42～#54。汇报见 `docs/reports/spec-1-phase-0.html`，PR 待合并
+- [x] 第 0 阶段（spec #1）：工具链和库数据（#2～#16、#29）；两套种子体系验收通过（纸本编辑三种载体，孔版印刷只做网页），验收记录在各体系的 `acceptance.md`；工具补强 #42～#54。汇报见 `docs/reports/spec-1-phase-0.html`，PR 待合并
 - [x] 迁移到双角色流程：检查点 PR #30 把 `integration/phase-0` 合回 `main`；迁移本身是 PR #31
 - [x] 彩排（spec #32 开发护栏）：`run-spec` 完整走了一遍，汇报见 `docs/reports/spec-32-dev-guardrails.html`
 - [ ] 第 1～3 阶段

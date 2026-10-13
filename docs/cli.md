@@ -28,7 +28,7 @@
   - 退出状态：0 通过，1 提交信息违规，2 用法或运行环境错误；各入口支持 `--help`。入口测试在 `test/commit-checks.test.ts`，用提交信息文件和临时 Git 仓库驱动钩子及分支检查命令。
 - 检查命令辅助：`scripts/cli.ts` 的 `runCheckCommand(usage, check)` 接收用法和参数处理函数，后者返回全部违规消息；入口把返回值赋给 `process.exitCode`。`--help` 打印中文用法并以 0 退出；参数错误用 `usageError('中文原因')` 抛出（也可用 Node 的 `parseArgs`，其参数错误会统一转为中文），打印原因和用法、以 2 退出；违规逐条打印到 stderr、以 1 退出；运行环境错误打印中文原因、以 2 退出。现有 `ds` 命令的约定保持不变。
 - 范例库：每条范例一个目录 `library/exemplars/<id>/`，里面是 `exemplar.json` 和媒体文件（截图或录屏）。目录名必须等于 `id`。
-  - 字段：`id`、`title`、`sourceType`（`external` 外部收集 / `copy` 临摹 / `original` 原创）、`sourceUrl`（外部收集和临摹必填）、`copyright`（版权方）、`carrier`（`web` / `slides` / `social`）、`systems`（支撑哪些种子体系，如 `paper-editorial`、`precision-industrial`、`riso-print`）、`media`（`kind`：`screenshot` / `recording`；`status`：`present` 时 `file` 必须存在，`pending` 表示待补，已批准的范例不能是待补）、`annotation`（`highlights` 出色之处、`reasons` 原因、`scenes` 适合的场景、`materialAnchor` 材质锚点、`tonality` 调性位置）、`approval`（`status`：`candidate` / `approved` / `rejected`；已批准和已拒绝必须带 `date`，格式 `YYYY-MM-DD`，候选不带）。
+  - 字段：`id`、`title`、`sourceType`（`external` 外部收集 / `copy` 临摹 / `original` 原创）、`sourceUrl`（外部收集和临摹必填）、`copyright`（版权方）、`carrier`（`web` / `slides` / `social`）、`systems`（支撑哪些种子体系，如 `paper-editorial`、`riso-print`）、`media`（`kind`：`screenshot` / `recording`；`status`：`present` 时 `file` 必须存在，`pending` 表示待补，已批准的范例不能是待补）、`annotation`（`highlights` 出色之处、`reasons` 原因、`scenes` 适合的场景、`materialAnchor` 材质锚点、`tonality` 调性位置）、`approval`（`status`：`candidate` / `approved` / `rejected`；已批准和已拒绝必须带 `date`，格式 `YYYY-MM-DD`，候选不带）。
   - `tonality` 五个键 `静动`、`疏密`、`冷暖`、`轻重`、`庄谐`，值 1–5，1 靠近键名第一个字（静、疏、冷、轻、庄），5 靠近第二个字。
   - 校验：`pnpm ds validate-exemplars [--library <目录>]`。退出状态 0 表示全部完整，1 表示有问题（逐条打印在 stderr，写明范例标识和字段）。
   - 按来源类型列出：`pnpm ds list-exemplars [--source external|copy|original] [--paths] [--library <目录>]`。默认每行一条（标识、来源类型、批准状态、载体、来源链接、媒体文件，制表符分隔）；`--paths` 只打印存在的媒体文件路径。仓库公开之前移除外部截图：`pnpm ds list-exemplars --source external --paths | xargs rm`，再把相应范例的 `media.status` 改成 `pending`。
@@ -36,7 +36,7 @@
 - 感觉词词典：每个词一个文件 `library/lexicon/<id>.json`，文件名（拼音）必须等于 `id`。格式见 `src/lexicon.ts` 文件头。
   - 字段：`id`、`word`（感觉词本身）、`phrasings`（需求方常见说法，至少一条）、`interpretations`（解读，至少两种；同一个词内 `name` 和 `materialAnchor` 不能重复）。
   - 每种解读：`name`、`description`（大白话，要落到色彩、字体、版面、动效等具体决定上）、`materialAnchor`、`tonality`（五个键同范例，值 1–5）、`composition`（构图比率倾向，`跳跃率`、`版面率`、`图版率` 三个键，值 `低` / `中` / `高`）、`recommendation`、`samples`、`approval`。
-  - `recommendation`：`{"system": "paper-editorial" | "precision-industrial" | "riso-print"}`，或临时方向 `{"system": "临时方向", "borrowLayoutsFrom": <种子体系>, "direction": <一句话方向>}`。
+  - `recommendation`：`{"system": "paper-editorial" | "riso-print"}`，或临时方向 `{"system": "临时方向", "borrowLayoutsFrom": <种子体系>, "direction": <一句话方向>}`；`borrowLayoutsFrom` 也只接受这两套种子体系，指向已移除体系时校验失败。
   - `samples`：`{"status": "pending"}`（待补）或 `{"status": "present", "exemplars": [范例标识...]}`，标识必须在 `library/exemplars/` 中存在。样图可以在任何确认状态下待补。
   - `approval`：按解读逐条确认，格式同范例（候选不带 `date`，已批准和已拒绝必须带 `YYYY-MM-DD`）。词典由 agent 负责确认（需求方 2026-10-11 授权：需求方不是设计领域的）：新解读先以候选提交，agent 按美学立场和工艺规范审过后改为批准或拒绝；与工艺规范冲突的（纯黑纯白、写实贴图、等大卡片、应用界面）改写或拒绝。
   - 校验：`pnpm ds validate-lexicon [--library <目录>]`，退出状态 0 表示全部完整，1 表示有问题（逐条打印在 stderr，写明词条标识和字段）。
