@@ -4,7 +4,8 @@
  *   domeNight()    圆顶开缝、银河横过山脊: blue sky gradient with knocked-out stars, solid ridge, the dome with its slit open and the telescope inside; pink Milky Way band and horizon glow.
  *   summitRoad()   傍晚的盘山路通向山顶圆顶: pink dusk sky and sun, two blue mountain plates, the road a knocked-out ribbon climbing to the small dome at the summit.
  *   primaryMirror() 洁净室里检修 1.6 米主镜: the mirror as a large blue halftone disc in its cell, pink lamp reflections, three suited workers in outline, a row of pink ceiling lamps.
- *   eyepieceNight() 红光下的目镜前: night in blue, red light as pink over it; the tube, a visitor on tiptoe at the eyepiece, a volunteer with a red torch whose beam is a pink dot cone.
+ *   eyepieceNight() 红光下的目镜前: a tapered optical tube with dew shield, focuser, diagonal eyepiece, fork mount and braced tripod; blue dot density models its curved surface. Visitor and volunteer retain their pink-screen silhouettes.
+ * TODO(design): confirm the simplified fork-mounted telescope silhouette and the tube-to-eyepiece alignment.
  * Each returns an SVG file string. Deterministic.
  */
 import { HEX, defs, dotField, pinkPlate, plate, screen, svgFile } from '../lib/plate.mjs';
@@ -98,11 +99,14 @@ export function eyepieceNight() {
     const beam = (() => { const dx = x - 920, dy = y - 430; const ang = Math.atan2(dy, dx); return dx < 0 && Math.abs(ang - Math.PI * 0.86) < 0.22 ? 0.8 * (1 - Math.hypot(dx, dy) / 520) : 0; })();
     return Math.max(0, 0.75 - a) + Math.max(0, beam);
   } });
-  const tube = `<g transform="rotate(-28 420 420)"><rect x="80" y="330" width="560" height="150" fill="${B}"/><rect x="620" y="370" width="70" height="70" fill="${B}"/></g><path d="M420 470L360 ${H}M420 470L500 ${H}M420 470L430 ${H}" stroke="${B}" stroke-width="14"/>`;
+  const tubeShape = 'M110 278Q100 350 110 422L200 422L218 410L558 410Q610 408 640 380L640 320Q610 292 558 290L218 290L200 278Z';
+  const tubeShade = dotField({ w: 760, h: 480, cell: 8, angle: 15, seed: 23, value: (x, y) => 0.15 + 0.75 * smoothstep(300, 422, y) });
+  const mount = `<path d="M352 394L352 460Q352 498 420 498Q488 498 488 460L488 422" fill="none" stroke="${B}" stroke-width="22"/><circle cx="352" cy="400" r="22" fill="${K}" stroke="${B}" stroke-width="6"/><circle cx="352" cy="400" r="12" fill="${B}"/><path d="M394 498L446 498L454 546L386 546Z" fill="${K}" stroke="${B}" stroke-width="6"/><path d="M420 548L260 800M420 548L590 800M420 548L432 800" fill="none" stroke="${B}" stroke-width="14"/><path d="M322 700L520 700L426 758Z" fill="none" stroke="${B}" stroke-width="6"/>`;
+  const tube = `${mount}<g transform="rotate(15 420 350)"><path d="${tubeShape}" fill="${K}"/><g clip-path="url(#en-tube)"><path d="${tubeShade}" fill="${B}"/></g><path d="${tubeShape}" fill="none" stroke="${B}" stroke-width="6"/><ellipse cx="110" cy="350" rx="18" ry="72" fill="${B}"/><ellipse cx="110" cy="350" rx="10" ry="58" fill="${K}"/><ellipse cx="110" cy="350" rx="6" ry="48" fill="url(#en-glass)"/><path d="M230 290L230 410M248 290L248 410M514 290L514 410M532 290L532 410" stroke="${B}" stroke-width="8"/><path d="M640 334H680V366H640Z" fill="${K}" stroke="${B}" stroke-width="6"/><path d="M680 334H714V374H694L680 358Z" fill="${B}"/><path d="M706 342H728V360H706Z" fill="${K}" stroke="${B}" stroke-width="6"/><path d="M720 336H728V366H720Z" fill="${B}"/><path d="M652 366V392H666V366" fill="${B}"/></g>`;
   const visitor = `<path d="M690 ${H}L700 640C690 590 700 540 720 500C730 470 760 452 790 460C812 466 820 490 812 520L800 600L816 ${H}Z" fill="${K}"/><circle cx="752" cy="430" r="34" fill="${K}"/><path d="M700 ${H}L700 760M800 ${H}L806 770" stroke="${K}" stroke-width="10"/>`;
   const volunteer = `<path d="M900 ${H}L905 580C905 540 925 520 950 520C980 520 995 545 995 585L1000 ${H}Z" fill="${K}"/><circle cx="950" cy="486" r="32" fill="${K}"/><path d="M915 600L930 440" stroke="${K}" stroke-width="16" stroke-linecap="round"/>`;
   const rim = `<path d="M720 500C730 470 760 452 790 460" stroke="${P}" stroke-width="8" fill="none"/><circle cx="752" cy="430" r="34" fill="none" stroke="${P}" stroke-width="6" stroke-dasharray="60 160"/><circle cx="928" cy="432" r="14" fill="${P}"/>`;
-  const body = `${defs()}
+  const body = `${defs(`<clipPath id="en-tube"><path d="${tubeShape}"/></clipPath>`, screen('en-glass', B, { cell: 8, r: 2.4, angle: 15 }))}
 ${plate(`<path d="${night}" fill="${B}"/>${tube}${visitor}${volunteer}`)}
 ${pinkPlate(`<path d="${glow}" fill="${P}"/>${rim}`, W)}`;
   return svgFile({ w: W, h: H, title: '观测夜，访客在目镜前观看', body });

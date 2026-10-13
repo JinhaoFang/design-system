@@ -1,13 +1,13 @@
 {
   "system": "riso-print",
   "carrier": "web",
-  "concept": "一张双墨观测夜海报沿送纸方向展开：粉色套版大字把人叫来，蓝墨录表让人查清；洁净室和目镜前分别解释仪器与现场，八夜月历及盘山路把热闹落到可核对的日期和路线，最终印下一张预约票根。",
+  "concept": "一张双墨观测夜海报沿送纸方向展开：粉色套版大字把人叫来，蓝墨录表让人查清；洁净室和目镜前分别解释仪器与现场，八夜月历及盘山路把热闹落到可核对的日期和路线，最终压下一枚预约圆章。",
   "sequence": [
     {
       "custom": {
         "file": "fragments/kaifang-haibao.html"
       },
-      "serves": "首屏双墨海报：短大字只错版一次，圆顶图对齐；蓝墨信息与票根指向八夜月历。"
+      "serves": "首屏双墨海报：短大字只错版一次，圆顶图对齐；蓝墨信息与粉色圆章指向八夜月历。"
     },
     {
       "unit": "problem",
@@ -110,7 +110,7 @@
     },
     {
       "unit": "cta",
-      "layout": "piaogen",
+      "layout": "yuanzhang",
       "content": {
         "headline": {
           "ref": "cta.headline"

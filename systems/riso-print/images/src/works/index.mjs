@@ -19,8 +19,8 @@ const titleLine = (text) => {
  return `<span class="title-line"><svg class="pink-title" viewBox="0 0 ${outline.width} 116" width="${outline.width}" height="116" aria-hidden="true" ${enter(3,'left','set','set','roll')}>${outline.svg}</svg><span class="blue-title">${text}</span></span>`;
 };
 function poster() {
- const text = section(`<header class="mast"><span>鹞岭天文台</span><span class="num">2026 — 2027</span></header><div class="poster-grid"><div><p class="eyebrow" ${enter(0,'fade','snap','ink')}>${content['hero.eyebrow']}</p><h1 class="poster-title" ${enter(0)}>${titleLine('山顶')}${titleLine('开放观测夜')}</h1><p class="lead" ${enter(1)}>${content['hero.lead']}</p><a class="ticket" href="#riso-calendar" ${enter(2)}>查看八个观测夜 →</a></div><figure ${enter(1,'left','roll')}>${inline(domeNight())}<figcaption class="note">${esc('圆顶开缝，银河横过山脊上方')}</figcaption></figure></div><div class="poster-foot num"><span>11.21 起 · 每场 60 人</span><span>蓝 / 荧光粉 · 双墨印制</span></div>`, `
-:scope{min-height:100vh;padding-top:var(--ds-space-6);padding-bottom:var(--ds-space-6);}
+ const text = section(`<header class="mast"><span>鹞岭天文台</span><span class="num">2026 — 2027</span></header><div class="poster-grid"><div><p class="eyebrow" ${enter(0,'fade','snap','ink')}>${content['hero.eyebrow']}</p><h1 class="poster-title" ${enter(0)}>${titleLine('山顶')}${titleLine('开放观测夜')}</h1><p class="lead" ${enter(1)}>${content['hero.lead']}</p><a class="stamp" href="#riso-calendar" ${enter(2)}>查看八个<br>观测夜 →</a></div><figure ${enter(1,'left','roll')}>${inline(domeNight())}<figcaption class="note">${esc('圆顶开缝，银河横过山脊上方')}</figcaption></figure></div><div class="poster-foot num"><span>11.21 起 · 每场 60 人</span><span>蓝 / 荧光粉 · 双墨印制</span></div>`, `
+:scope{min-height:auto;padding-top:var(--ds-space-6);padding-bottom:var(--ds-space-6);}
 .mast,.poster-foot{display:flex;justify-content:space-between;gap:var(--ds-space-5);font-size:var(--ds-type-note);border-bottom:6px solid var(--ds-color-blue);padding-bottom:var(--ds-space-4);}
 .poster-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:var(--ds-space-8);align-items:center;margin:var(--ds-space-7) 0;}
 .eyebrow{margin-bottom:var(--ds-space-5);font-size:var(--ds-type-note);}
@@ -29,7 +29,7 @@ function poster() {
 .pink-title{position:absolute;inset:0;width:100%;height:100%;overflow:visible;translate:var(--ds-space-1) calc(var(--ds-space-1) / -2);}
 .blue-title{position:relative;mix-blend-mode:multiply;}
 .poster-grid .lead{margin-top:var(--ds-space-6);max-width:30em;}
-.ticket{margin-top:var(--ds-space-6);font-size:var(--ds-type-body);}
+.stamp{margin-top:var(--ds-space-6);font-size:var(--ds-type-body);}
 .scene{display:block;width:100%;height:auto;}
 figcaption{margin-top:var(--ds-space-3);}
 .poster-foot{border-top:2px solid var(--ds-color-blue);border-bottom:0;padding-top:var(--ds-space-4);padding-bottom:0;}
@@ -55,6 +55,6 @@ function moon(y,m,d,i) {
 }
 function calendar() {
  const cells=NIGHTS.map(([y,m,d],i)=>`<li ${enter(i,'left')}><span class="num date">${y} / ${String(m).padStart(2,'0')} / ${d}</span>${moon(y,m,d,i)}<p>周六 · 60 人</p></li>`).join('');
- return {name:'ba-ye-yueli.html',text:section(`<div id="riso-calendar" class="stack"><h2 class="heading" ${enter(0)}>八个周六，八个观测夜</h2><p>2026 年 11 月至 2027 年 2 月，每月第 3、第 4 个周六晚上。</p><div class="stripe" aria-hidden="true"></div><ol class="calendar" data-ds-stagger="line">${cells}</ol><p class="note">月相按当晚 21:00 的日期估算；粉色疏网点为亮面，蓝色密网点为暗面。月相不代表天气与可见天体。</p></div><figure class="road">${inline(summitRoad())}<figcaption class="note">鹿溪镇沿 38 公里盘山路上山，车程约 1 小时 10 分。</figcaption></figure>`,`.calendar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:2px solid var(--ds-color-blue);}.calendar li{border-bottom:2px solid var(--ds-color-blue);padding:var(--ds-space-5);display:grid;gap:var(--ds-space-4);}.calendar svg{width:var(--ds-space-9);height:var(--ds-space-9);}.date{font-size:var(--ds-type-lead);}.road{margin-top:var(--ds-space-8);max-width:860px;}.scene{display:block;width:100%;height:auto;}figcaption{margin-top:var(--ds-space-3);}@media(max-width:860px){.calendar{grid-template-columns:repeat(2,minmax(0,1fr));}.calendar li{padding:var(--ds-space-4) var(--ds-space-2);}.date{font-size:var(--ds-type-body);}}`)};
+ return {name:'ba-ye-yueli.html',text:section(`<div id="riso-calendar" class="stack"><h2 class="heading" ${enter(0)}>八个周六，八个观测夜</h2><p>2026 年 11 月至 2027 年 2 月，每月第 3、第 4 个周六晚上。</p><div class="stripe" aria-hidden="true"></div><ol class="calendar" data-ds-stagger="line">${cells}</ol><p class="note">月相按当晚 21:00 的日期估算；粉色疏网点为亮面，蓝色密网点为暗面。月相不代表天气与可见天体。</p></div><figure class="road">${inline(summitRoad())}<figcaption class="note">鹿溪镇沿 38 公里盘山路上山，车程约 1 小时 10 分。</figcaption></figure>`,`.calendar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:2px solid var(--ds-color-blue);}.calendar li{border-bottom:2px solid var(--ds-color-blue);padding:var(--ds-space-5);display:grid;gap:var(--ds-space-4);}.calendar svg{width:var(--ds-space-9);height:var(--ds-space-9);}.date{font-size:var(--ds-type-lead);}.road{margin-top:var(--ds-space-7);width:100%;}.scene{display:block;width:100%;height:auto;}figcaption{margin-top:var(--ds-space-3);}@media(max-width:860px){.calendar{grid-template-columns:repeat(2,minmax(0,1fr));}.calendar li{padding:var(--ds-space-4) var(--ds-space-2);}.date{font-size:var(--ds-type-body);}}`)};
 }
 export const FRAGMENTS = [poster,night,calendar];
