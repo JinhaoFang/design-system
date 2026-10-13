@@ -5,7 +5,7 @@
 | 图像标识 | 提示词 | 请求尺寸 | 成品宽度 |
 | --- | --- | --- | --- |
 | `projector-night` | `projector-night.txt` | 1536x1024 | 1200 |
-| `rooftop-audience` | `rooftop-audience.txt` | 1536x1024 | 1600 |
+| `rooftop-audience` | `rooftop-audience.txt` | 1536x1024 | 1600，加 `--trim` 去掉纸边（满版用） |
 | `film-moon` | `film-moon.txt` | 1024x1536 | 720 |
 | `film-locomotive` | `film-locomotive.txt` | 1024x1536 | 720 |
 | `film-lamp` | `film-lamp.txt` | 1024x1536 | 720 |

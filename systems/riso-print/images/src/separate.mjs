@@ -1,10 +1,11 @@
 /*
  * Two-drum separation for generated pictures (生图分色): turns a picture from the image model into a strict two-ink riso print, so the image model's own colours never reach the page.
  * Run from the repository root:
- *   node systems/riso-print/images/src/separate.mjs <source.png> <out.webp> [--width <px>] [--quality <0-1>] [--diffuse <0-1>] [--screen [--cell <px>] [--soften <px>]]
+ *   node systems/riso-print/images/src/separate.mjs <source.png> <out.webp> [--width <px>] [--quality <0-1>] [--diffuse <0-1>] [--trim] [--screen [--cell <px>] [--soften <px>]]
  * Default mode (snap): keeps the picture's own dot structure and snaps every pixel to the nearest of the four colours two drums can print (paper, blue, pink, pink-over-blue purple), compared in CIELAB after
- *   white-balancing the source's paper (median of the top and bottom rows) to the system paper; the rounding error is diffused to the neighbours (Floyd–Steinberg, --diffuse 0..1, default 0.85), so mid-tones become
+ *   white-balancing the source's paper (median of the top and bottom rows, or the corner pixel before --trim crops the margin) to the system paper; the rounding error is diffused to the neighbours (Floyd–Steinberg, --diffuse 0..1, default 0.85), so mid-tones become
  *   a fine grain of blue, purple and paper the way riso ink sits on uncoated stock instead of flattening into solid blue. Use this for pictures the model already drew as a two-colour riso print.
+ * --trim crops the paper margin the model leaves around the print (rows and columns less than 60% inked), for pictures that run full bleed.
  * --screen mode: for every pixel it finds the pink and blue coverage (0..1 each) whose multiplied overprint on the paper colour comes closest to the source colour (a lookup over a 21x21 coverage grid, matched in linear light),
  * then re-screens both plates as amplitude-modulated halftone dots: blue at 15°, pink at 75°, one dot per cell, dot area equal to coverage up to the point where round dots touch, then growing to a solid. Inks multiply, so pink over blue prints the system's purple.
  * The source is softened first (Gaussian blur of --soften px, default 0.6 cell) so the model's own dot pattern does not beat against the new screen. Plates stay in register (SYSTEM.md 错版: images carry no misregistration).
@@ -17,13 +18,13 @@ import { chromium } from 'playwright';
 const args = process.argv.slice(2);
 const [src, out] = args;
 if (!src || !out) {
-  console.error('用法：node systems/riso-print/images/src/separate.mjs <源图.png> <输出.webp> [--width 像素] [--quality 0-1] [--diffuse 0-1] [--screen [--cell 像素] [--soften 像素]]');
+  console.error('用法：node systems/riso-print/images/src/separate.mjs <源图.png> <输出.webp> [--width 像素] [--quality 0-1] [--diffuse 0-1] [--trim] [--screen [--cell 像素] [--soften 像素]]');
   process.exit(2);
 }
 const opt = (name, fallback) => { const i = args.indexOf(`--${name}`); return i > 0 ? Number(args[i + 1]) : fallback; };
 const tokens = JSON.parse(readFileSync(new URL('../../system.tokens.json', import.meta.url), 'utf8'));
 const hex = (name) => tokens.color[name].$value.hex;
-const config = { mode: args.includes('--screen') ? 'screen' : 'snap', paper: hex('paper'), blue: hex('blue'), pink: hex('pink'), width: opt('width', 1600), cell: opt('cell', 6), soften: opt('soften', NaN), quality: opt('quality', 0.86), diffuse: opt('diffuse', 0.85) };
+const config = { trim: args.includes('--trim'), mode: args.includes('--screen') ? 'screen' : 'snap', paper: hex('paper'), blue: hex('blue'), pink: hex('pink'), width: opt('width', 1600), cell: opt('cell', 6), soften: opt('soften', NaN), quality: opt('quality', 0.86), diffuse: opt('diffuse', 0.85) };
 const dataUrl = `data:image/png;base64,${readFileSync(resolve(src)).toString('base64')}`;
 
 const browser = await chromium.launch();
@@ -33,13 +34,33 @@ const result = await page.evaluate(async ({ dataUrl, config }) => {
   img.src = dataUrl;
   await img.decode();
   const W = config.width;
-  const H = Math.round((img.naturalHeight / img.naturalWidth) * W);
   const soften = Number.isFinite(config.soften) ? config.soften : config.cell * 0.6;
+  let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight, paperRef = null;
+  if (config.trim) {
+    const probe = document.createElement('canvas');
+    probe.width = sw; probe.height = sh;
+    const pc = probe.getContext('2d', { willReadFrequently: true });
+    pc.drawImage(img, 0, 0);
+    const d = pc.getImageData(0, 0, sw, sh).data;
+    const ref = [0, 1, 2].map((c) => d[(2 * sw + 2) * 4 + c]);
+    paperRef = ref;
+    const inked = (x, y) => { const i = (y * sw + x) * 4; return Math.abs(d[i] - ref[0]) + Math.abs(d[i + 1] - ref[1]) + Math.abs(d[i + 2] - ref[2]) > 60; };
+    const rowInk = (y) => { let n = 0; for (let x = 0; x < sw; x += 4) n += inked(x, y); return n / (sw / 4); };
+    const colInk = (x) => { let n = 0; for (let y = 0; y < sh; y += 4) n += inked(x, y); return n / (sh / 4); };
+    let top = 0, bottom = sh - 1, left = 0, right = sw - 1;
+    while (top < sh / 4 && rowInk(top) < 0.6) top++;
+    while (bottom > (sh * 3) / 4 && rowInk(bottom) < 0.6) bottom--;
+    while (left < sw / 4 && colInk(left) < 0.6) left++;
+    while (right > (sw * 3) / 4 && colInk(right) < 0.6) right--;
+    const pad = Math.round(Math.min(sw, sh) * 0.006);
+    sx = left + pad; sy = top + pad; sw = right - left - 2 * pad; sh = bottom - top - 2 * pad;
+  }
+  const H = Math.round((sh / sw) * W);
   const read = document.createElement('canvas');
   read.width = W; read.height = H;
   const rc = read.getContext('2d', { willReadFrequently: true });
   if (config.mode === 'screen') rc.filter = `blur(${soften}px)`;
-  rc.drawImage(img, 0, 0, W, H);
+  rc.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
   const px = rc.getImageData(0, 0, W, H).data;
 
   const rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
@@ -67,7 +88,7 @@ const result = await page.evaluate(async ({ dataUrl, config }) => {
   };
   if (config.mode === 'snap') {
     const inks = [[0, 0], [1, 0], [0, 1], [1, 1]].map(([cb, ck]) => [0, 1, 2].map((i) => P[i] * (1 - cb + cb * (B[i] / P[i])) * (1 - ck + ck * (K[i] / P[i]))));
-    const paperSrc = [0, 1, 2].map((c) => { const v = []; for (let x = 0; x < W; x += 7) { v.push(px[(2 * W + x) * 4 + c], px[((H - 3) * W + x) * 4 + c]); } v.sort((a, b) => a - b); return lin(v[v.length >> 1] / 255); });
+    const paperSrc = paperRef ? paperRef.map((v) => lin(v / 255)) : [0, 1, 2].map((c) => { const v = []; for (let x = 0; x < W; x += 7) { v.push(px[(2 * W + x) * 4 + c], px[((H - 3) * W + x) * 4 + c]); } v.sort((a, b) => a - b); return lin(v[v.length >> 1] / 255); });
     const toLab = (l) => { const x = (0.4124 * l[0] + 0.3576 * l[1] + 0.1805 * l[2]) / 0.9505, y = 0.2126 * l[0] + 0.7152 * l[1] + 0.0722 * l[2], z = (0.0193 * l[0] + 0.1192 * l[1] + 0.9505 * l[2]) / 1.089; const f = (t) => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116); return [116 * f(y) - 16, 500 * (f(x) - f(y)), 200 * (f(y) - f(z))]; };
     const inkLab = inks.map(toLab);
     const out8 = inks.map((l) => l.map((v) => Math.round(255 * (v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055))));
