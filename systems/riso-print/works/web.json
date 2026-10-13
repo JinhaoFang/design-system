@@ -1,0 +1,145 @@
+{
+  "system": "riso-print",
+  "carrier": "web",
+  "concept": "一张双墨观测夜海报沿送纸方向展开：粉色套版大字把人叫来，蓝墨录表让人查清；洁净室和目镜前分别解释仪器与现场，八夜月历及盘山路把热闹落到可核对的日期和路线，最终印下一张预约票根。",
+  "sequence": [
+    {
+      "custom": {
+        "file": "fragments/kaifang-haibao.html"
+      },
+      "serves": "首屏双墨海报：短大字只错版一次，圆顶图对齐；蓝墨信息与票根指向八夜月历。"
+    },
+    {
+      "unit": "problem",
+      "layout": "duizhao",
+      "content": {
+        "heading": {
+          "ref": "problem.heading"
+        },
+        "body": {
+          "ref": "problem.body"
+        },
+        "points": {
+          "ref": "problem.points"
+        }
+      }
+    },
+    {
+      "unit": "solution",
+      "layout": "fense",
+      "content": {
+        "heading": {
+          "ref": "solution.heading"
+        },
+        "body": {
+          "ref": "solution.body"
+        },
+        "visual": {
+          "ref": "solution.visual"
+        }
+      }
+    },
+    {
+      "unit": "features",
+      "layout": "canshu",
+      "content": {
+        "heading": {
+          "ref": "features.heading"
+        },
+        "lead": {
+          "ref": "features.lead"
+        },
+        "itemTitles": {
+          "ref": "features.itemTitles"
+        },
+        "itemBodies": {
+          "ref": "features.itemBodies"
+        }
+      }
+    },
+    {
+      "custom": {
+        "file": "fragments/mujing-manban.html"
+      },
+      "serves": "全页唯一满版高潮：参数之后到目镜前，观测现场图像与首屏圆顶不重复。"
+    },
+    {
+      "unit": "evidence",
+      "layout": "yanzheng",
+      "content": {
+        "heading": {
+          "ref": "evidence.heading"
+        },
+        "stats": {
+          "ref": "evidence.stats"
+        },
+        "statLabels": {
+          "ref": "evidence.statLabels"
+        },
+        "quote": {
+          "ref": "evidence.quote"
+        },
+        "quoteBy": {
+          "ref": "evidence.quoteBy"
+        },
+        "logos": {
+          "ref": "evidence.logos"
+        }
+      }
+    },
+    {
+      "unit": "process",
+      "layout": "jindu",
+      "content": {
+        "heading": {
+          "ref": "process.heading"
+        },
+        "steps": {
+          "ref": "process.steps"
+        },
+        "stepNotes": {
+          "ref": "process.stepNotes"
+        }
+      }
+    },
+    {
+      "custom": {
+        "file": "fragments/ba-ye-yueli.html"
+      },
+      "serves": "八个真实观测日期的月相历，蓝粉网点区分明暗；盘山路解释接驳路线。"
+    },
+    {
+      "unit": "cta",
+      "layout": "piaogen",
+      "content": {
+        "headline": {
+          "ref": "cta.headline"
+        },
+        "action": {
+          "ref": "cta.action"
+        },
+        "lead": {
+          "ref": "cta.lead"
+        },
+        "note": {
+          "ref": "cta.note"
+        }
+      }
+    },
+    {
+      "unit": "footer",
+      "layout": "banji",
+      "content": {
+        "brand": {
+          "ref": "footer.brand"
+        },
+        "links": {
+          "ref": "footer.links"
+        },
+        "legal": {
+          "ref": "footer.legal"
+        }
+      }
+    }
+  ]
+}
