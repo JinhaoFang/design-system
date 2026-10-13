@@ -3,7 +3,10 @@
  * Data comes from library/content/SETTING.md: mirror diameter 1600 mm, approximate thickness 200 mm, dome 10 m,
  * route 38 km and summit altitude 2860 m. Staff positions, road bends and optical geometry are schematic, never surveyed or manufacturing data.
  * All SVG labels are outlined using the manifest fonts; palette is passed in, standalone HEX and inline CSS variables share the same drawings.
- * TODO(design): review the schematic optical geometry, top-view people and five candidate partner marks before aesthetic acceptance.
+ * The cover uses a paraboloid primary and a convex hyperboloid secondary with common focus.
+ * Reflected rays intersect the secondary analytically and reach the rear focus through the primary central hole.
+ * Drawing coordinates are illustrative, not telescope focal lengths; only the known aperture is dimensioned.
+ * TODO(design): review the schematic top-view people and five candidate partner marks before aesthetic acceptance.
  */
 import { centerline, dimH, dimV, hatchDef, label, cross } from '../lib/draft.mjs';
 
@@ -19,7 +22,7 @@ export function mirror(P) {
   for (const [x,y] of [[130,320],[780,320],[190,650],[740,650]]) body += person(x,y,P);
   body += line('M320 265H420M500 265H600', P, 2, P.rule);
   body += dimH({ x1:220,x2:700,y:810,from:665,text:'Ø 1600 mm',P,size:28 });
-  body += `<path d="M920 330Q1160 290 1400 330V390H920Z" fill="url(#mirror-hatch)" stroke="${P.ink}" stroke-width="2"/>`;
+  body += `<path d="M920 330Q1160 370 1400 330V390H920Z" fill="url(#mirror-hatch)" stroke="${P.ink}" stroke-width="2"/>`;
   body += dimH({ x1:920,x2:1400,y:240,from:310,text:'1600 mm',P,size:22 });
   body += dimV({ y1:330,y2:390,x:860,from:920,text:'~200 mm',P,size:18,side:'left' });
   body += text('A-A / SCHEMATIC SECTION',920,490,P);
@@ -57,17 +60,49 @@ export function eyepiece(P) {
 }
 
 export function optical(P) {
-  let body = `<defs>${hatchDef('optic-hatch',P,10)}</defs>`;
-  body += `<path d="M150 190H950V230H190V650H950V690H150Z" fill="url(#optic-hatch)" stroke="${P.ink}" stroke-width="2"/>`;
-  body += `<path d="M965 235Q870 440 965 645H1005V235Z" fill="${P['alu-deep']}" stroke="${P.ink}" stroke-width="2"/>`;
-  body += line('M440 390L490 440L440 490',P,3);
-  body += centerline(70,440,1120,440,P);
-  body += line('M80 310H930L465 440L760 555M80 570H930L465 440',P,2,P.signal);
-  body += dimV({y1:235,y2:645,x:1140,from:1005,text:'1600 mm',P,size:24});
-  body += text('INCOMING LIGHT',70,140,P,22);
-  body += text('OPTICAL PATH / SCHEMATIC',150,790,P,24);
-  body += text('GEOMETRY NTS',780,840,P,20);
-  body += line('M985 650V740H1090',P,1,P.rule) + text('PRIMARY',970,780,P,20);
+  const axis = 420;
+  const primary = (y) => 960 - y * y / (4 * 480);
+  const secondary = (y) => 840 - 200 * Math.sqrt(1 + y * y / 89600);
+  const curve = (fn, from, to) => Array.from({length:41}, (_, i) => {
+    const y = from + (to - from) * i / 40;
+    return `${i === 0 ? 'M' : 'L'}${fn(y)} ${axis + y}`;
+  }).join('');
+  let body = `<defs>${hatchDef('optic-hatch',P,10)}<marker id="ray-direction" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="${P.signal}"/></marker></defs>`;
+  body += `<path d="M140 175H990V195H160V645H990V665H140Z" fill="url(#optic-hatch)" stroke="${P.ink}" stroke-width="2"/>`;
+  for (const [from,to] of [[-205,-36],[36,205]]) {
+    body += `<path d="${curve(primary,from,to)}L990 ${axis + to}V${axis + from}Z" fill="url(#optic-hatch)" stroke="${P.ink}" stroke-width="2"/>`;
+    body += line(curve(primary,from,to),P,4);
+  }
+  body += `<path d="${curve(secondary,-75,75)}L600 495V345Z" fill="${P['alu-deep']}" stroke="${P.ink}" stroke-width="2"/>`;
+  body += line(curve(secondary,-75,75),P,4);
+  body += centerline(70,axis,1260,axis,P);
+  for (const height of [-160,160]) {
+    const x = primary(height);
+    let low = 0, high = 1;
+    for (let i = 0; i < 60; i += 1) {
+      const t = (low + high) / 2;
+      const y = height * (1 - t);
+      if (x + (480 - x) * t > secondary(y)) low = t;
+      else high = t;
+    }
+    const t = (low + high) / 2;
+    const sy = height * (1 - t), sx = secondary(sy);
+    const ray = [[80,axis+height],[x,axis+height],[sx,axis+sy],[1200,axis]];
+    for (let i = 0; i < ray.length - 1; i += 1) {
+      const [ax,ay] = ray[i], [bx,by] = ray[i+1];
+      const mx = ax + (bx-ax) * .55, my = ay + (by-ay) * .55;
+      body += `<path d="M${ax} ${ay}L${mx} ${my}" fill="none" stroke="${P.signal}" stroke-width="2" marker-end="url(#ray-direction)"/>`;
+      body += line(`M${mx} ${my}L${bx} ${by}`,P,2,P.signal);
+    }
+  }
+  body += `<circle cx="1200" cy="420" r="6" fill="${P.ink}"/>`;
+  body += dimV({y1:215,y2:625,x:1320,from:990,P});
+  body += text('INCOMING LIGHT',70,115,P,28) + text('Ø 1600 mm',1080,150,P,24);
+  body += line('M640 340V270H480',P,1,P.rule) + text('SECONDARY / CONVEX',240,240,P,26);
+  body += line('M970 630V720H770',P,1,P.rule) + text('PRIMARY / CONCAVE',710,770,P,26);
+  body += line('M1200 435V525',P,1,P.rule) + text('FOCUS',1150,570,P,26);
+  body += text('CASSEGRAIN / SCHEMATIC',140,820,P,28);
+  body += text('GEOMETRY NTS',850,865,P,24);
   return {w:1440,h:900,body};
 }
 

@@ -1,9 +1,9 @@
 {
   "system": "precision-industrial",
   "carrier": "web",
-  "concept": "KRO-1600 型望远镜的技术文件：本色拉丝阳极氧化铝上的产品数据表，表头刻零件号与版次，首屏用专属光路示意建立仪器尺度。检验、主镜剖面和横排参数之后，唯一满版石墨屏点亮冷青口径表盘；随后恢复铝面，核对试观测数据与施工记录，两张附图交代运输和目镜操作，最后以铭板签发观测夜预约。九张简报图各出现一次。",
+  "concept": "KRO-1600 型望远镜的技术文件：本色拉丝阳极氧化铝上的产品数据表，表头刻零件号与版次，首屏用专属光路示意建立仪器尺度。检验、主镜剖面和横排参数之后，唯一满版石墨屏点亮冷青口径表盘；随后恢复铝面，核对试观测数据与施工记录，两张附图交代运输和目镜操作，最后以铭板签发观测夜预约。八张简报图各出现一次。",
   "sequence": [
-    {"custom":{"file":"fragments/datasheet-cover.html"},"serves":"首屏：KRO-1600 产品数据表的表头、零件号、版次与专属光路示意；圆顶图只是不同的附图"},
+    {"custom":{"file":"fragments/datasheet-cover.html"},"serves":"首屏：KRO-1600 产品数据表的表头、零件号、版次与专属光路示意；标题栏只保留零件号、版次、落成日期和用途"},
     {"unit":"problem","layout":"duizhao","content":{"heading":{"ref":"problem.heading"},"body":{"ref":"problem.body"},"points":{"ref":"problem.points"}}},
     {"unit":"solution","layout":"poumian","content":{"heading":{"ref":"solution.heading"},"body":{"ref":"solution.body"},"visual":{"ref":"solution.visual"}}},
     {"unit":"features","layout":"canshu","content":{"heading":{"ref":"features.heading"},"lead":{"ref":"features.lead"},"itemTitles":{"ref":"features.itemTitles"},"itemBodies":{"ref":"features.itemBodies"}}},
