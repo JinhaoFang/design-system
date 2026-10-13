@@ -4,7 +4,7 @@
  *   node systems/riso-print/images/src/separate.mjs <source.png> <out.webp> [--width <px>] [--quality <0-1>] [--diffuse <0-1>] [--trim] [--screen [--cell <px>] [--soften <px>]]
  * Default mode (snap): keeps the picture's own dot structure and snaps every pixel to the nearest of the four colours two drums can print (paper, blue, pink, pink-over-blue purple), compared in CIELAB after
  *   white-balancing the source's paper (median of the top and bottom rows, or the corner pixel before --trim crops the margin) to the system paper; the rounding error is diffused to the neighbours (Floyd–Steinberg, --diffuse 0..1, default 0.85), so mid-tones become
- *   a fine grain of blue, purple and paper the way riso ink sits on uncoated stock instead of flattening into solid blue. Use this for pictures the model already drew as a two-colour riso print.
+ *   a fine grain of blue, purple and paper the way riso ink sits on uncoated stock instead of flattening into solid blue. Use this for pictures the model already drew as a two-colour riso print. Output is lossless WebP (Chromium encodes quality 1 losslessly), so the file decodes to exactly those four colours; --quality only applies to --screen.
  * --trim crops the paper margin the model leaves around the print (rows and columns less than 60% inked), for pictures that run full bleed.
  * --screen mode: for every pixel it finds the pink and blue coverage (0..1 each) whose multiplied overprint on the paper colour comes closest to the source colour (a lookup over a 21x21 coverage grid, matched in linear light),
  * then re-screens both plates as amplitude-modulated halftone dots: blue at 15°, pink at 75°, one dot per cell, dot area equal to coverage up to the point where round dots touch, then growing to a solid. Inks multiply, so pink over blue prints the system's purple.
@@ -109,7 +109,7 @@ const result = await page.evaluate(async ({ dataUrl, config }) => {
       const o = out8[k]; snapped.data[i * 4] = o[0]; snapped.data[i * 4 + 1] = o[1]; snapped.data[i * 4 + 2] = o[2]; snapped.data[i * 4 + 3] = 255;
     }
     rc.putImageData(snapped, 0, 0);
-    return { url: read.toDataURL('image/webp', config.quality), W, H };
+    return { url: read.toDataURL('image/webp', 1), W, H };
   }
   const coverage = [new Float32Array(W * H), new Float32Array(W * H)];
   for (let i = 0; i < W * H; i++) {

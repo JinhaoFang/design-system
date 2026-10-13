@@ -76,7 +76,7 @@ function wall() {
 .film-no{font-family:var(--ds-font-num-bold);font-weight:700;font-size:var(--ds-type-head);line-height:1;}
 .film h3{font-size:var(--ds-type-lead);font-weight:700;}
 .film-meta,.film-nights{font-size:var(--ds-type-note);}
-.film-nights{color:var(--ds-color-purple);}
+.film-nights{font-weight:700;}
 @media(max-width:860px){.films{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--ds-space-6) var(--ds-space-4);}.film:nth-child(3n+2){margin-top:0;}.film:nth-child(2n){margin-top:var(--ds-space-7);}.film-no{font-size:var(--ds-type-sub);}.film h3{font-size:var(--ds-type-body);}}
 @media(prefers-reduced-motion:reduce){.sheet::before,.sheet img{transition:none;}.film:hover .sheet::before{transform:none;opacity:0;}.film:hover .sheet img{transform:none;}}
 `) };
