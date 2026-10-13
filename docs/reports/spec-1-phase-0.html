@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spec 1 第 0 阶段</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f4ef;
+  --surface: #ffffff;
+  --ink: #1d1c1a;
+  --muted: #66625a;
+  --line: #dcd7cc;
+  --accent: #2f5d8a;
+  --eng: #2f5d8a;
+  --design: #b5562a;
+  --review: #5c7a3a;
+  --ok: #2e7d4f;
+  --warn: #a8661b;
+  --tag-ink: #ffffff;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161614;
+    --surface: #201f1c;
+    --ink: #ece8df;
+    --muted: #a39e93;
+    --line: #3a3833;
+    --accent: #7fb0e0;
+    --eng: #6fa3d6;
+    --design: #e08a5c;
+    --review: #9cc06e;
+    --ok: #6cc28f;
+    --warn: #e0a85c;
+    --tag-ink: #12161a;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #161614;
+  --surface: #201f1c;
+  --ink: #ece8df;
+  --muted: #a39e93;
+  --line: #3a3833;
+  --accent: #7fb0e0;
+  --eng: #6fa3d6;
+  --design: #e08a5c;
+  --review: #9cc06e;
+  --ok: #6cc28f;
+  --warn: #e0a85c;
+  --tag-ink: #12161a;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.7 var(--sans);
+}
+main { max-width: 920px; margin: 0 auto; padding: 32px 16px 64px; }
+header { border-bottom: 2px solid var(--ink); padding-bottom: 16px; margin-bottom: 24px; }
+.eyebrow { font: 600 12px/1.4 var(--mono); letter-spacing: .08em; color: var(--muted); text-transform: uppercase; }
+h1 { font-size: 28px; line-height: 1.3; margin: 6px 0 8px; }
+h2 { font-size: 19px; margin: 40px 0 12px; padding-top: 8px; border-top: 1px solid var(--line); }
+h3 { font-size: 15px; margin: 20px 0 8px; }
+p { margin: 8px 0; }
+a { color: var(--accent); }
+code { font: 13px var(--mono); background: color-mix(in srgb, var(--line) 45%, transparent); padding: 1px 4px; border-radius: 3px; overflow-wrap: anywhere; }
+.lede { font-size: 16px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 20px 0; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
+.kpi b { display: block; font: 600 24px/1.2 var(--mono); }
+.kpi span { font-size: 12px; color: var(--muted); }
+.table-wrap { overflow-x: auto; margin: 8px 0; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; background: var(--surface); }
+th, td { text-align: left; vertical-align: top; padding: 7px 10px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; color: var(--muted); font-size: 12px; }
+td.num, th.num { text-align: right; font-family: var(--mono); white-space: nowrap; }
+.tag { display: inline-block; font: 600 11px/1.6 var(--mono); padding: 0 6px; border-radius: 3px; color: var(--tag-ink); white-space: nowrap; }
+.tag.eng { background: var(--eng); }
+.tag.design { background: var(--design); }
+.tag.review { background: var(--review); }
+.timeline { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
+.tl-row { display: grid; grid-template-columns: 110px 1fr; align-items: center; gap: 8px; margin: 6px 0; }
+.tl-label { font: 12px var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tl-track { position: relative; height: 22px; background: color-mix(in srgb, var(--line) 35%, transparent); border-radius: 3px; }
+.tl-bar { position: absolute; top: 0; bottom: 0; border-radius: 3px; font: 11px/22px var(--mono); color: var(--tag-ink); padding: 0 4px; white-space: nowrap; overflow: hidden; }
+.tl-bar.eng { background: var(--eng); }
+.tl-bar.design { background: var(--design); }
+.tl-bar.review { background: var(--review); }
+.tl-axis { display: grid; grid-template-columns: 110px 1fr; gap: 8px; }
+.tl-ticks { position: relative; height: 18px; font: 11px var(--mono); color: var(--muted); }
+.tl-ticks span { position: absolute; transform: translateX(-50%); }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--muted); margin-top: 8px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+.bars { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
+.bar-row { display: grid; grid-template-columns: 110px 1fr 120px; gap: 8px; align-items: center; margin: 6px 0; font-size: 13px; }
+.bar-track { height: 14px; background: color-mix(in srgb, var(--line) 35%, transparent); border-radius: 2px; position: relative; }
+.bar-fill { position: absolute; top: 0; bottom: 0; border-radius: 2px; background: var(--eng); }
+.bar-fill.cached { background: color-mix(in srgb, var(--eng) 50%, transparent); }
+.bar-val { font: 12px var(--mono); text-align: right; white-space: nowrap; }
+ul { padding-left: 20px; margin: 8px 0; }
+li { margin: 4px 0; }
+.status-ok { color: var(--ok); font-weight: 600; }
+.status-warn { color: var(--warn); font-weight: 600; }
+.callout { border-left: 3px solid var(--accent); background: var(--surface); padding: 10px 14px; margin: 12px 0; }
+footer { margin-top: 48px; font-size: 12px; color: var(--muted); }
+@media (max-width: 560px) {
+  h1 { font-size: 23px; }
+  .tl-row, .tl-axis { grid-template-columns: 74px 1fr; }
+  .bar-row { grid-template-columns: 74px 1fr 92px; }
+}
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <div class="eyebrow">design-system · spec 汇报 · 2026-10-13</div>
+  <h1>Spec #1 第 0 阶段：三套种子体系</h1>
+  <p class="lede">第 0 阶段的后半段：纸本编辑做完三种载体并验收；精密工业、孔版印刷按调整后的范围只做网页，也都验收通过。过程中暴露的工具缺口和审查发现，开成 13 张工程工单（#42～#54）修好了。所有子工单已关闭。<span id="pr-status"><a href="https://github.com/JinhaoFang/design-system/pull/55">PR #55</a> 等你审核合并。</span></p>
+</header>
+
+<div class="kpis">
+  <div class="kpi"><b>3/3</b><span>种子体系验收通过</span></div>
+  <div class="kpi"><b>6 + 15</b><span>设计工单 + 工程工单关闭</span></div>
+  <div class="kpi"><b>4</b><span>工单因范围调整关闭</span></div>
+  <div class="kpi"><b>488→581</b><span>测试数</span></div>
+  <div class="kpi"><b>59→1.2 MB</b><span>网页样张的字体体积</span></div>
+  <div class="kpi"><b id="kpi-codex">—</b><span>Codex 累计执行时间</span></div>
+</div>
+
+<h2>任务</h2>
+<ul>
+  <li><b>目标</b>：方案第 8 节第 0 阶段的验收标准：三套种子体系通过检查器（零错误），并经裁判认可「耐看」。纸本编辑定下全库的格式和品质基准，后两套照它来做。</li>
+  <li><b>范围</b>：本期从 #17 待验收开始，到全部子工单关闭。期间用户做了三个决定：
+    <ul>
+      <li>裁判验收由设计负责人代行（10-12）；</li>
+      <li>后两套体系只做网页，衍生产物先不做（10-13）；</li>
+      <li>体系实现改派给 Codex（10-13）。</li>
+    </ul>
+  </li>
+  <li><b>结果</b>：三套体系全部通过，回归 0 个错误，<code>pnpm verify</code> 通过。<a href="https://github.com/JinhaoFang/design-system/pull/55">PR #55</a> 已开，CI 在 PR 上运行。</li>
+</ul>
+
+<h2>交付</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>交付</th><th>对你意味着什么</th></tr></thead>
+<tbody>
+<tr><td><b>纸本编辑</b>（#17～#20）<br>社交配图、HTML 幻灯片、网页</td><td>
+  <ul>
+    <li>三种载体共 44 种排法，五件标准样张：小红书、方形、公众号封面、12 页「观测日志·卷一」、落地页。</li>
+    <li>动效语言完整落地：纸张翻页、朱笔等画面静下来再划、印章按下落定、揭去衬纸。</li>
+    <li>这是全库的品质基准，评语写在 <code>systems/paper-editorial/acceptance.md</code>。</li>
+  </ul>
+</td></tr>
+<tr><td><b>精密工业</b>（#21、#24）<br>网页</td><td>拉丝铝板做成的「KRO-1600 技术文件」。卡塞格林光路按真实几何画，全页只有一屏冷色背光的表盘作高光，安全橙预算 3%。</td></tr>
+<tr><td><b>孔版印刷</b>（#25、#28）<br>网页</td><td>只用荧光粉和蓝两只墨；错版只给大标题和一枚主图；行动号召用粉色圆章；八个观测夜画成真实月相的网点日历。验证了 ADR-0001：热闹的风格也能在检查器规则内成立。</td></tr>
+<tr><td><b>范例库</b></td><td>七件原创范例已批准：纸本编辑五件，另外两套各一件。以后的体系和盲选都有了可以参照的成品。</td></tr>
+<tr><td><b>工具</b>（#42～#54）</td><td>
+  <ul>
+    <li><b>动效</b>：入场编排多了划出、按下落定、揭去、额外等待、位移与透明度分开计时；幻灯片可以声明翻页过渡；首屏等字体就绪再入场，入场前元素不提前显露；录屏等入场结束再滚动。</li>
+    <li><b>字体</b>：构建时按作品用字做中文字体子集。</li>
+    <li><b>检查器和总览页</b>：竖排文字的孤字误报修好了；体系总览页的长截图卡片和长网址也修好了。</li>
+  </ul>
+</td></tr>
+</tbody>
+</table></div>
+
+<h2>时间线</h2>
+<div class="timeline" role="img" aria-label="派发时间线：10-12 22:40 至 10-13 16:30，各工单与设计分身的执行区间">
+  <div class="tl-axis"><div></div><div class="tl-ticks" id="ticks"></div></div>
+  <div id="rows"></div>
+  <div class="legend"><span><i style="background:var(--eng)"></i>工程（Codex）</span><span><i style="background:var(--design)"></i>设计分身（Claude 子代理，含中断）</span><span><i style="background:var(--review)"></i>审查（Codex）</span></div>
+</div>
+<div class="table-wrap"><table>
+<thead><tr><th>时刻</th><th>节点</th></tr></thead>
+<tbody>
+<tr><td class="num">10-12 22:40</td><td>你验收 #17 通过，并授权设计负责人代行之后的裁判验收；建集成分支 <code>spec/1-phase-0</code></td></tr>
+<tr><td class="num">22:49</td><td>开出翻页过渡（#43）和三种动作（#42）两张工具单，派给 Codex；幻灯片、网页各交给一个设计分身</td></tr>
+<tr><td class="num">23:05–23:45</td><td>#43、#42 合并（#42 和 #43 叠在一起出了一个打印问题，返工一次）；两个分身各做完一轮，评审后返工</td></tr>
+<tr><td class="num">约 23:50–02:30</td><td>额度上限，幻灯片分身中断</td></tr>
+<tr><td class="num">10-13 02:30–03:10</td><td>#18、#19 合入、关闭；体系总览页出现 25 个错误，开 #45 修</td></tr>
+<tr><td class="num">03:29–04:32</td><td>第一批审查：本单修 3 条、改规则 2 条、开返工单 #47；同时修好 #46、#47</td></tr>
+<tr><td class="num">04:43–07:03</td><td>做验收包时从录屏抽帧发现首屏问题，依次开 #48～#51；<b>纸本编辑验收通过</b>（#20）</td></tr>
+<tr><td class="num">07:04–07:22</td><td>第二批审查，开 #52；精密工业、孔版印刷各交给一个设计分身，先交方向稿</td></tr>
+<tr><td class="num">约 07:30–12:50</td><td>你、我分别选定两个方向后，两个分身先后卡住、撞上额度上限</td></tr>
+<tr><td class="num">约 13:00–14:11</td><td>你决定改派 Codex、后续只做网页；改写工单，关闭 4 张</td></tr>
+<tr><td class="num">14:11–15:54</td><td>#21、#25 各经两轮评审后合并；#53 修好总览页网址；<b>两套体系验收通过</b>（#24、#28）</td></tr>
+<tr><td class="num">15:54–16:40</td><td>收尾审查发现 2 条，返工单 #54；开 PR</td></tr>
+</tbody>
+</table></div>
+
+<h2>成本与效率</h2>
+<p>Codex 派发 <span id="n-dispatch">—</span> 次：工程工单 <span id="n-eng">—</span> 次（其中返工 4 次：#42、#21、#25 各一次，#54 是审查返工单），审查 3 次。同时最多 4 路在跑。</p>
+<div class="table-wrap"><table>
+<thead><tr><th>派发</th><th>类型</th><th class="num">用时（分钟）</th><th class="num">输入</th><th class="num">其中缓存</th><th class="num">输出</th></tr></thead>
+<tbody id="cost-body"></tbody>
+</table></div>
+<h3>输入 token（浅色是缓存命中，深色是未命中）</h3>
+<div class="bars" id="token-bars" role="img" aria-label="各次派发的输入 token 对比，数据同上表"></div>
+<h3>和上一期（spec #32）比</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>项</th><th class="num">spec #32</th><th class="num">本期</th></tr></thead>
+<tbody>
+<tr><td>Codex 派发次数</td><td class="num">8</td><td class="num" id="cmp-n">—</td></tr>
+<tr><td>Codex 执行时间（分钟）</td><td class="num">110</td><td class="num" id="cmp-min">—</td></tr>
+<tr><td>Codex 输入 token</td><td class="num">2,076 万</td><td class="num" id="cmp-in">—</td></tr>
+<tr><td>设计负责人主会话输入 token</td><td class="num">1,533 万</td><td class="num">约 7,800 万</td></tr>
+<tr><td>设计负责人主会话输出 token</td><td class="num">6.9 万</td><td class="num">约 16.8 万</td></tr>
+<tr><td>子代理（设计分身）</td><td class="num">0</td><td class="num">已记录约 258 万，另有 6 次中断的运行没有用量记录</td></tr>
+</tbody>
+</table></div>
+<div class="callout"><b>这期 Claude 一侧的花费偏高</b>：前半段，体系的排法和样张由 Claude 设计分身来做，加上主会话长时间看图、评审，几次撞上额度上限。你改为「体系实现派给 Codex」以后，后两套体系的四次派发合计约 2.4 小时、2,450 万输入 token（九成以上命中缓存），Claude 一侧只剩评审。</div>
+
+<h2>质量</h2>
+<ul>
+  <li><b>测试</b>：488 个增加到 581 个。新增的都是工具工单的入口测试：动作、等待、翻页、字体、子集、可见性、总览页。</li>
+  <li><b>回归</b>：三套体系共 38 份报告，全部 0 个错误。警告集中在三类：跳跃率偏低（排法本身的性质）、等大卡片误报、体系总览页长文的孤字。</li>
+  <li><b>实测</b>：
+    <ul>
+      <li>网页样张字体 59.24 MB → 1.18 MB，冷启动时字体就绪中位数 899 ms → 188 ms；</li>
+      <li>冷启动前 3 秒，修复前有 19 帧元素提前显露，修复后为 0；</li>
+      <li>朱笔在同屏所有入场结束（1150 ms）之后，于 1340 ms 开始划。</li>
+    </ul>
+  </li>
+  <li><b>审美评审</b>：每件样张都由设计负责人看过全页截图和录屏抽帧。纸本编辑幻灯片、网页各评审两轮；精密工业、孔版印刷各两轮，每轮退回五条。</li>
+</ul>
+<div class="table-wrap"><table>
+<thead><tr><th>审查</th><th>范围</th><th class="num">Standards</th><th class="num">Spec</th><th>处理</th></tr></thead>
+<tbody>
+<tr><td>第一批</td><td>#42～#45，#18、#19</td><td class="num">6</td><td class="num">2</td><td>设计负责人改 3 条（朱笔时序、列表错峰、字重）；改规则 2 条（竖排可以向下入场、横排长标题收紧字距）；工具问题开 #47</td></tr>
+<tr><td>第二批</td><td>#46～#51，#20</td><td class="num">0</td><td class="num">2</td><td>打印文字没进子集、入场元素的子元素会提前露出：开 #52</td></tr>
+<tr><td>收尾</td><td>整个分支</td><td class="num">1</td><td class="num">1</td><td>孔版的数字字体没统一；精密工业时间轴丢掉没有年份的条目：开 #54</td></tr>
+</tbody>
+</table></div>
+
+<h2>决定</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>决定</th><th>谁</th><th>理由</th></tr></thead>
+<tbody>
+<tr><td>后续裁判验收由设计负责人代行</td><td>用户</td><td>用户不是设计领域的，希望发挥设计负责人的领域能力</td></tr>
+<tr><td>后两套体系只做网页，衍生产物和衍生脚本先不做</td><td>用户</td><td>三种载体加 PDF 每套都做一遍太繁琐，需要时再做</td></tr>
+<tr><td>体系实现派给 Codex，设计负责人只定方向、写规则、评审</td><td>用户（选项 B）</td><td>token 应该主要花在 Codex 上；Claude 分身多次撞额度上限</td></tr>
+<tr><td>精密工业取方向 B（铝板数据表），借用方向 A 的表盘作唯一的暗页高光</td><td>设计负责人</td><td>材质最直接，最不像应用界面，能延续「图解即文献」</td></tr>
+<tr><td>孔版印刷取方向 A（双色海报），借用方向 C 的网格做数据类单元；只用两只墨</td><td>设计负责人</td><td>错版最有辨识度，也最容易设预算，正好验证 ADR-0001</td></tr>
+<tr><td>验收中发现的首屏问题（字体晚到、元素提前显露、录屏太早滚动、字体太大）都先修再交验收</td><td>设计负责人</td><td>验收包要能当场看出动效和手感，这几处直接决定第一眼</td></tr>
+<tr><td>字体子集提前到第 0 阶段做</td><td>设计负责人</td><td>#48 之后，字体加载时长直接决定首屏空白多久</td></tr>
+<tr><td>幻灯片朱笔「一册不超过两页，且不相邻」；横排多字的大标题收紧字距</td><td>设计负责人</td><td>评审时发现连着三页朱笔会冲淡高光；收紧字距与工艺规范工-2 一致</td></tr>
+</tbody>
+</table></div>
+
+<h2>问题与处理</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>问题</th><th>处理</th></tr></thead>
+<tbody>
+<tr><td><b>设计负责人的失误</b>：体系实现交给了 Claude 子代理，没有派给 Codex。这偏离了双角色流程「把 token 花在 Codex 上」的初衷，结果四次撞上额度上限、两次卡住被中断。</td><td>你指出后改为 B：体系实现派给 Codex。半成品留档在 <code>design/ind</code>、<code>design/riso</code> 两个分支，作为 Codex 的起点。</td></tr>
+<tr><td><b>设计负责人的失误</b>：自己做的体系有几处违反了自己写的规则，由第一批审查发现，包括朱笔早了 210 ms、列表没有错峰、字重、字距。</td><td>当轮就改了；其中两条属于有意的例外，改写进了规则的适用边界。</td></tr>
+<tr><td>#42 和 #43 分开验收都没问题，合在一起后，打印 PDF 时揭去层仍然可见。</td><td>rebase 时测试失败，暴露了问题；退回 #42 返工，补了交叉测试。</td></tr>
+<tr><td>#48（等字体就绪再入场）带出了「等待期间元素先露出来」，第二批审查又发现子元素还能露出。</td><td>先后开 #51、#52 修复。这几个问题都是看录屏抽帧发现的，自动测试覆盖不到。</td></tr>
+<tr><td>两套新体系第一版都偏「模板」：精密工业三段同构、光路图不对；孔版印刷识别符号缺失、中段太素。</td><td>各退回五条，第二轮都改到位了。</td></tr>
+<tr><td>验收评论脚本有一次 <code>gh api</code> 调用失败。</td><td>原样重跑后成功，没有重复评论。</td></tr>
+</tbody>
+</table></div>
+
+<h2>流程发现</h2>
+<ul>
+  <li><b>录屏抽帧是动效验收最有效的证据</b>：本期 5 张工具单是看录屏拼图时发现的问题。建议验收产物默认带一张「前 N 秒抽帧拼图」。</li>
+  <li><b>体系的审美工作量主要在排法和样张</b>，渲染本身很便宜。把它们派给 Codex、设计负责人写清方向和评审意见，效果可以接受：两套体系都是两轮通过。</li>
+  <li><b>分开的工程工单合在一起才暴露的问题</b>出了两次（#42 + #43，#48 + #51）。对策是合并后在验收包层面再看一遍录屏。</li>
+  <li><b>按批审查继续有用</b>：三次共发现 12 条，其中 4 条是设计负责人自己的违例。</li>
+</ul>
+
+<h2>回报 video-studio</h2>
+<ul>
+  <li>设计工单派给子代理会撞上 Claude 额度上限、卡住。<code>run-spec</code> 可以写明：<code>role:design</code> 的大块实现，优先写成带方向裁定的工程工单。</li>
+  <li><code>tickets.ts accept</code> 偶发 <code>gh api</code> 失败，重跑可以恢复。可以考虑在脚本里重试一次。</li>
+  <li><code>dispatch</code> 复用返工的 worktree、<code>land</code> 停在 rebase 冲突现场，这两个设计在本期都好用。</li>
+</ul>
+
+<h2>遗留与下一步</h2>
+<ul>
+  <li><b>用户</b>：审核合并 <a href="https://github.com/JinhaoFang/design-system/pull/55">PR #55</a>。</li>
+  <li><b>角色文档</b>：「排法和样张的实现可以派给工程负责人」要写进 <code>docs/roles/design.md</code>，你说过由另一个会话处理。</li>
+  <li><b>先不做（已记入路线图）</b>：后续体系的幻灯片、社交配图、PDF 等衍生产物，以及衍生脚本。</li>
+  <li><b>留给以后</b>：
+    <ul>
+      <li>幻灯片 PDF 约 15 MB，因为颗粒层被栅格化；</li>
+      <li>排法之间不能共享样式；</li>
+      <li>体系总览页长文的孤字警告；</li>
+      <li>CI 偶发失败的剩余原因。</li>
+    </ul>
+  </li>
+  <li><b>下一阶段</b>：第 1 阶段「用起来（盲选验收）」，见方案第 8 节。</li>
+</ul>
+
+<footer>数据来源：工单验收评论里的派发数据、<code>.codex-runs/</code> 进度记录、设计负责人会话记录（按回复去重、跳过子代理）、子代理任务通知、git 提交时间。设计分身的时间区间按提交和通知估计，标「约」。</footer>
+</main>
+<script>
+const BASE = '10-12 22:40';
+const toAbs = (t) => { const [d, hm] = t.split(' '); const [mo, day] = d.split('-').map(Number); const [h, m] = hm.split(':').map(Number); return (day - 12) * 1440 + h * 60 + m; };
+const START = toAbs(BASE);
+const END = toAbs('10-13 16:40');
+const runs = [
+  { label: '#43', kind: 'eng', start: '10-12 22:49', end: '10-12 23:02' },
+  { label: '#42', kind: 'eng', start: '10-12 22:49', end: '10-12 23:08' },
+  { label: '分身 幻灯片', kind: 'design', start: '10-12 22:56', end: '10-12 23:50' },
+  { label: '分身 网页', kind: 'design', start: '10-12 22:56', end: '10-12 23:48' },
+  { label: '#42 返工', kind: 'eng', start: '10-12 23:13', end: '10-12 23:22' },
+  { label: '#44', kind: 'eng', start: '10-12 23:25', end: '10-12 23:38' },
+  { label: '分身 幻灯片续', kind: 'design', start: '10-13 02:30', end: '10-13 02:38' },
+  { label: '#45', kind: 'eng', start: '10-13 03:10', end: '10-13 03:21' },
+  { label: '审查 1', kind: 'review', start: '10-13 03:29', end: '10-13 03:35' },
+  { label: '#46', kind: 'eng', start: '10-13 03:29', end: '10-13 03:42' },
+  { label: '#47', kind: 'eng', start: '10-13 03:36', end: '10-13 03:46' },
+  { label: '#48', kind: 'eng', start: '10-13 04:43', end: '10-13 04:53' },
+  { label: '#49', kind: 'eng', start: '10-13 05:05', end: '10-13 05:23' },
+  { label: '#50', kind: 'eng', start: '10-13 05:05', end: '10-13 05:19' },
+  { label: '#51', kind: 'eng', start: '10-13 05:47', end: '10-13 06:01' },
+  { label: '审查 2', kind: 'review', start: '10-13 07:04', end: '10-13 07:08' },
+  { label: '#52', kind: 'eng', start: '10-13 07:13', end: '10-13 07:22' },
+  { label: '分身 精密工业', kind: 'design', start: '10-13 07:15', end: '10-13 12:50' },
+  { label: '分身 孔版印刷', kind: 'design', start: '10-13 07:15', end: '10-13 12:50' },
+  { label: '#21', kind: 'eng', start: '10-13 14:11', end: '10-13 14:49' },
+  { label: '#25', kind: 'eng', start: '10-13 14:11', end: '10-13 14:44' },
+  { label: '#53', kind: 'eng', start: '10-13 14:45', end: '10-13 14:59' },
+  { label: '#25 返工', kind: 'eng', start: '10-13 14:46', end: '10-13 15:33' },
+  { label: '#21 返工', kind: 'eng', start: '10-13 14:51', end: '10-13 15:17' },
+  { label: '收尾审查', kind: 'review', start: '10-13 15:54', end: '10-13 16:06' },
+  { label: '#54 返工', kind: 'eng', start: '10-13 16:06', end: '10-13 16:20' },
+];
+const cost = [
+  { name: 'gh-42', ticket: '#42 三种动作', min: 18.7, input: 3671578, cached: 3529728, output: 27228 },
+  { name: 'gh-42-2', ticket: '#42 返工', min: 9.1, input: 1856352, cached: 1752192, output: 13277 },
+  { name: 'gh-43', ticket: '#43 翻页过渡', min: 13.2, input: 2314769, cached: 2202240, output: 17541 },
+  { name: 'gh-44', ticket: '#44 额外等待', min: 12.4, input: 2693773, cached: 2581632, output: 14682 },
+  { name: 'gh-45', ticket: '#45 总览页卡片', min: 10.7, input: 3637343, cached: 3514752, output: 16826 },
+  { name: 'gh-46', ticket: '#46 竖排孤字', min: 12.8, input: 3764643, cached: 3650944, output: 17380 },
+  { name: 'gh-47', ticket: '#47 分开计时', min: 10.3, input: 2848866, cached: 2730368, output: 15654 },
+  { name: 'gh-48', ticket: '#48 等字体', min: 10.2, input: 3186885, cached: 3049344, output: 17162 },
+  { name: 'gh-49', ticket: '#49 字体子集', min: 17.3, input: 6650245, cached: 6504064, output: 27390 },
+  { name: 'gh-50', ticket: '#50 录屏时机', min: 13.8, input: 3998210, cached: 3860992, output: 21296 },
+  { name: 'gh-51', ticket: '#51 入场前不显露', min: 13.7, input: 4099327, cached: 3964160, output: 25646 },
+  { name: 'gh-52', ticket: '#52 审查返工', min: 9.1, input: 2770893, cached: 2634112, output: 13430 },
+  { name: 'gh-53', ticket: '#53 总览页网址', min: 14.0, input: 2852331, cached: 2736640, output: 12592 },
+  { name: 'gh-21', ticket: '#21 精密工业', min: 37.6, input: 7293863, cached: 7108480, output: 43484 },
+  { name: 'gh-21-2', ticket: '#21 返工', min: 25.8, input: 4225728, cached: 4082304, output: 26797 },
+  { name: 'gh-25', ticket: '#25 孔版印刷', min: 33.1, input: 6284968, cached: 6118144, output: 41542 },
+  { name: 'gh-25-2', ticket: '#25 返工', min: 46.7, input: 6683653, cached: 6524672, output: 32464 },
+  { name: 'gh-54', ticket: '#54 收尾返工', min: 13.3, input: 3556563, cached: 3434112, output: 13848 },
+  { name: 'review-1-1', ticket: '第一批审查', min: 5.9, input: 2017567, cached: 1927296, output: 8008 },
+  { name: 'review-1-2', ticket: '第二批审查', min: 3.5, input: 1110210, cached: 1014272, output: 5420 },
+  { name: 'review-1-final', ticket: '收尾审查', min: 11.3, input: 2099378, cached: 1987968, output: 7932 },
+];
+const pct = (m) => ((m - START) / (END - START)) * 100;
+const ticks = document.getElementById('ticks');
+const step = window.innerWidth < 560 ? 360 : 180;
+for (let m = Math.ceil(START / step) * step; m <= END; m += step) {
+  const s = document.createElement('span');
+  s.style.left = pct(m) + '%';
+  const mm = ((m % 1440) + 1440) % 1440;
+  s.textContent = `${Math.floor(mm / 60)}:${String(mm % 60).padStart(2, '0')}`;
+  ticks.appendChild(s);
+}
+const rows = document.getElementById('rows');
+for (const r of runs) {
+  const row = document.createElement('div');
+  row.className = 'tl-row';
+  const a = toAbs(r.start), b = toAbs(r.end);
+  const w = Math.max(pct(b) - pct(a), 0.6);
+  row.innerHTML = `<div class="tl-label">${r.label}</div><div class="tl-track"><div class="tl-bar ${r.kind}" style="left:${pct(a)}%;width:${w}%" title="${r.label} ${r.start}–${r.end}"></div></div>`;
+  rows.appendChild(row);
+}
+const fmt = (n) => n.toLocaleString('en-US');
+const body = document.getElementById('cost-body');
+let tot = { min: 0, input: 0, cached: 0, output: 0 };
+for (const c of cost) {
+  for (const k of Object.keys(tot)) tot[k] += c[k];
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${c.ticket}<br><code>${c.name}</code></td><td>${c.name.startsWith('review') ? '<span class="tag review">审查</span>' : '<span class="tag eng">工程</span>'}</td><td class="num">${c.min.toFixed(1)}</td><td class="num">${fmt(c.input)}</td><td class="num">${fmt(c.cached)}</td><td class="num">${fmt(c.output)}</td>`;
+  body.appendChild(tr);
+}
+const totalRow = document.createElement('tr');
+totalRow.innerHTML = `<td><b>合计</b></td><td></td><td class="num"><b>${tot.min.toFixed(1)}</b></td><td class="num"><b>${fmt(tot.input)}</b></td><td class="num"><b>${fmt(tot.cached)}</b></td><td class="num"><b>${fmt(tot.output)}</b></td>`;
+body.appendChild(totalRow);
+const hrs = (m) => `${Math.floor(m / 60)} 小时 ${Math.round(m % 60)} 分`;
+document.getElementById('kpi-codex').textContent = hrs(tot.min);
+document.getElementById('n-dispatch').textContent = cost.length;
+document.getElementById('n-eng').textContent = cost.filter((c) => !c.name.startsWith('review')).length;
+document.getElementById('cmp-n').textContent = cost.length;
+document.getElementById('cmp-min').textContent = Math.round(tot.min);
+document.getElementById('cmp-in').textContent = `${Math.round(tot.input / 1e4).toLocaleString('en-US')} 万`;
+const max = Math.max(...cost.map((c) => c.input));
+const bars = document.getElementById('token-bars');
+for (const c of cost) {
+  const row = document.createElement('div');
+  row.className = 'bar-row';
+  row.innerHTML = `<div class="tl-label">${c.name}</div><div class="bar-track"><div class="bar-fill cached" style="left:0;width:${c.cached / max * 100}%"></div><div class="bar-fill" style="left:${c.cached / max * 100}%;width:${(c.input - c.cached) / max * 100}%"></div></div><div class="bar-val">${(c.input / 1e6).toFixed(2)}M</div>`;
+  bars.appendChild(row);
+}
+</script>
+</body>
+</html>
