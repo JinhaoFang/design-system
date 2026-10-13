@@ -5,6 +5,7 @@
  * The surface is a deterministic horizontal SVG engraving at the declared grain ceiling; a pair of hairlines expresses machined edges.
  * Comparison fields and specification columns use only facts from library/content/SETTING.md.
  * Year ticks are equal-spaced calendar years; dates within each year remain explicit rather than claiming measured sub-year positions.
+ * Missing, malformed or descending four-digit year prefixes fall back to the existing numbered process list without dropping content.
  * The requested 1px nameplate press uses the existing hairline width; reduced motion removes that displacement.
  * TODO(design): confirm the comparison labels, extracted specification fields and year-axis grouping.
  */
@@ -28,7 +29,7 @@ const specification = [
 ];
 const comparison = `<table class="comparison"><thead><tr><th scope="col">核对项</th><th scope="col">旧镜</th><th scope="col">新镜</th><th scope="col">单位</th></tr></thead><tbody data-ds-stagger="tick">{% for point in slots.points %}<tr ${enterPlaceholder()}>{% assign plainPoint = point.html | strip_html %}{% case plainPoint %}${oldNew.map(([label,old,current,unit],i)=>`{% when "${copy['problem.points'][i]}" %}<th scope="row">${label}</th><td class="old-value">${old}</td><td class="value">${current}</td><td class="unit">${unit}</td>`).join('')}{% else %}<th scope="row">{{ point }}</th><td>【文案待定：旧值】</td><td>【文案待定：新值】</td><td>【文案待定：单位】</td>{% endcase %}</tr>{% endfor %}</tbody></table>`;
 const specificationTable = `<table class="spec-table"><thead><tr><th scope="col">参数</th><th scope="col">数值</th><th scope="col">单位</th><th scope="col">技术说明</th></tr></thead><tbody data-ds-stagger="tick">{% for title in slots.itemTitles %}<tr ${enterPlaceholder()}>{% assign plainTitle = title.html | strip_html %}{% case plainTitle %}${specification.map(([label,value,unit],i)=>`{% when "${copy['features.itemTitles'][i]}" %}<th scope="row">${label}</th><td class="value">${value}</td><td class="unit">${unit}</td>`).join('')}{% else %}<th scope="row">{{ title }}</th><td>【文案待定：数值】</td><td>【文案待定：单位】</td>{% endcase %}<td class="description">{{ slots.itemBodies[forloop.index0] }}</td></tr>{% endfor %}</tbody></table>`;
-const yearAxis = `<ol class="timeline" data-ds-stagger="tick">{% assign firstYear = slots.stepNotes.first.html | strip_html | slice: 0, 4 | plus: 0 %}{% assign lastYear = slots.stepNotes.last.html | strip_html | slice: 0, 4 | plus: 0 %}{% for year in (firstYear..lastYear) %}<li ${enterPlaceholder()}><div class="year-scale" aria-hidden="true">${'<i></i>'.repeat(12)}</div><h3 class="year">{{ year }}</h3><div class="events">{% for step in slots.steps %}{% assign eventYear = slots.stepNotes[forloop.index0].html | strip_html | slice: 0, 4 | plus: 0 %}{% if eventYear == year %}<div class="event"><h4>{{ step }}</h4><p>{{ slots.stepNotes[forloop.index0] }}</p></div>{% endif %}{% endfor %}</div></li>{% endfor %}</ol>`;
+const datedYearAxis = `<ol class="timeline" data-ds-stagger="tick">{% assign firstYear = slots.stepNotes.first.html | strip_html | slice: 0, 4 | plus: 0 %}{% assign lastYear = slots.stepNotes.last.html | strip_html | slice: 0, 4 | plus: 0 %}{% for year in (firstYear..lastYear) %}<li ${enterPlaceholder()}><div class="year-scale" aria-hidden="true">${'<i></i>'.repeat(12)}</div><h3 class="year">{{ year }}</h3><div class="events">{% for step in slots.steps %}{% assign eventYear = slots.stepNotes[forloop.index0].html | strip_html | slice: 0, 4 | plus: 0 %}{% if eventYear == year %}<div class="event"><h4>{{ step }}</h4><p>{{ slots.stepNotes[forloop.index0] }}</p></div>{% endif %}{% endfor %}</div></li>{% endfor %}</ol>`;
 function enterPlaceholder() {
   return 'data-ds-enter="fade" data-ds-step="snap" data-ds-ease="fade" data-ds-order="{{ forloop.index0 }}"';
 }
@@ -95,6 +96,20 @@ const numbers = `<dl class="numbers" data-ds-stagger="tick">{% for stat in slots
 const logos = `<div class="logos" ${enter(5,'fade')}>{% for logo in slots.logos %}{{ logo }}{% endfor %}</div>`;
 const quote = `<div class="stack" ${enter(1,'fade')}><blockquote class="lead">{{ slots.quote }}</blockquote><p class="tag">{{ slots.quoteBy }}</p></div>`;
 const steps = `<ol class="table" data-ds-stagger="tick">{% for step in slots.steps %}<li ${enter('{{ forloop.index0 }}','fade')}><span class="index">{{ forloop.index }}</span><h3>{{ step }}</h3><p>{{ slots.stepNotes[forloop.index0] }}</p></li>{% endfor %}</ol>`;
+const yearAxis = `
+{% assign useYearAxis = true %}
+{% assign previousYear = 0 %}
+{% for step in slots.steps %}
+  {% assign yearPrefix = slots.stepNotes[forloop.index0].html | strip_html | slice: 0, 4 %}
+  {% assign eventYear = yearPrefix | plus: 0 %}
+  {% assign normalizedYear = eventYear | append: '' %}
+  {% if yearPrefix.size != 4 or normalizedYear != yearPrefix or eventYear < previousYear %}
+    {% assign useYearAxis = false %}
+  {% endif %}
+  {% assign previousYear = eventYear %}
+{% endfor %}
+{% if useYearAxis %}${datedYearAxis}{% else %}${steps}{% endif %}
+`;
 const action = `<div class="stack" ${enter(1,'fade')}>${nameplate("{{ slots.action }}", "https://kestrelridge.example/book")}<p class="tag">{{ slots.note }}</p></div>`;
 const links = `<nav class="nav" aria-label="页脚导航">{% for link in slots.links %}<a href="#document-top">{{ link }}</a>{% endfor %}</nav>`;
 

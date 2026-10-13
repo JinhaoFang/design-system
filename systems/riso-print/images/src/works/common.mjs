@@ -2,9 +2,10 @@
  * Shared scoped web styling for the two-ink riso layouts and generated fragments.
  * Visual values reference design/riso tokens and existing stencil geometry; no independent palette or motion values.
  * Exported strings are copied into each fragment/layout because the builder scopes each style block to its unit.
+ * Information text uses the existing western-first numeric stack and inherits tabular lining figures, including mixed CJK copy.
  */
 export const CSS = `
-:scope { position:relative; box-sizing:border-box; isolation:isolate; padding:var(--ds-space-7) var(--ds-space-8); background:var(--ds-color-paper); color:var(--ds-color-blue); font-family:var(--ds-font-body); font-size:var(--ds-type-body); line-height:1.7; }
+:scope { position:relative; box-sizing:border-box; isolation:isolate; padding:var(--ds-space-7) var(--ds-space-8); background:var(--ds-color-paper); color:var(--ds-color-blue); font-family:var(--ds-font-num); font-variant-numeric:tabular-nums lining-nums; font-size:var(--ds-type-body); line-height:1.7; }
 :scope * { box-sizing:border-box; }
 h1,h2,h3,p,ul,ol,li,figure,blockquote,dl,dd,dt { margin:0; padding:0; }
 ul,ol { list-style:none; }
