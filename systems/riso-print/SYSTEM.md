@@ -220,4 +220,4 @@ license: CC0-1.0
 - 标准样张：`works/web.json`，作品概念是双墨海报沿送纸方向展开，从活动吸引到信息核对，再到现场与预约。
 - 参考范例：已批准的 `riso-colossal-riso-club` 提供错版与墨粒的物理关系；`riso-risotto-studio` 提供日历和网点；`riso-tokyo-art-book-fair` 提供海报与严整信息的并置。本体系把原作收紧到两只墨。
 - 图像、排法和片段都由 `images/src/build.mjs` 生成；运行方式与文件覆盖范围见该文件头部。
-- 验收截图、录屏和检查报告保存在本工单验收目录，不提交构建产物。审美结论由设计负责人给出，本实现不自行标记已批准。
+- 已批准的范例：2026-10-13 验收通过，网页样张作为「原创」范例提交（`library/exemplars/riso-print-web-guancheye/`）。验收记录见 `acceptance.md`。

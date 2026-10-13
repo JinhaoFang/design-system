@@ -1,0 +1,34 @@
+{
+  "id": "riso-print-web-guancheye",
+  "title": "孔版印刷网页「双墨海报沿送纸方向展开」",
+  "sourceType": "original",
+  "copyright": "本库原创（CC0-1.0）；鹞岭天文台为虚构机构",
+  "carrier": "web",
+  "systems": [
+    "riso-print"
+  ],
+  "capturedOn": "2026-10-13",
+  "media": {
+    "kind": "screenshot",
+    "status": "present",
+    "file": "screenshot.webp"
+  },
+  "annotation": {
+    "highlights": "只用荧光粉和蓝两只墨。首屏是庆科黄油体的错版大标题，配两色网点叠印的圆顶夜景；中段标题叠粉色色块（叠印出紫），参数和年表用大号蓝墨序号；满版一屏是网点明暗的望远镜和粉色网点人影；八个观测夜画成真实月相的网点日历；行动号召是粉色圆章，按下有压印反馈。",
+    "reasons": "热闹有预算：双墨纪律、错版只给大标题和一枚主图、正文与数据一律蓝墨实印不错版，检查器零错误，验证了 ADR-0001。",
+    "scenes": "活动、展览、独立出版、社区与文化项目的宣传页。",
+    "materialAnchor": "Riso 孔版印刷的套色、错版与油墨颗粒",
+    "tonality": {
+      "静动": 4,
+      "疏密": 4,
+      "冷暖": 4,
+      "轻重": 2,
+      "庄谐": 4
+    }
+  },
+  "approval": {
+    "status": "approved",
+    "date": "2026-10-13"
+  },
+  "notes": "快照为 1440 宽整页截图。"
+}
