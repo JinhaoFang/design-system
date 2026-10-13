@@ -1,0 +1,35 @@
+[
+  {
+    "id": "web-long",
+    "carrier": "web",
+    "image": "web-long.png",
+    "concept": "一页安静的发布说明：更快的搜索，更稳的同步。全文搜索提速，离线后自动合并，体积减少一半。"
+  },
+  {
+    "id": "slides",
+    "carrier": "slides",
+    "image": "slides.png",
+    "concept": "一页安静的发布说明：更快的搜索，更稳的同步。全文搜索提速，离线后自动合并，体积减少一半。"
+  },
+  {
+    "id": "social-wechat",
+    "carrier": "social",
+    "canvas": "wechat-cover",
+    "image": "social-wechat.png",
+    "concept": "一页安静的发布说明：更快的搜索，更稳的同步。全文搜索提速，离线后自动合并，体积减少一半。"
+  },
+  {
+    "id": "social-xiaohongshu",
+    "carrier": "social",
+    "canvas": "xiaohongshu",
+    "image": "social-xiaohongshu.png",
+    "concept": "一页安静的发布说明：更快的搜索，更稳的同步。全文搜索提速，离线后自动合并，体积减少一半。"
+  },
+  {
+    "id": "social-square",
+    "carrier": "social",
+    "canvas": "square",
+    "image": "social-square.png",
+    "concept": "一页安静的发布说明：更快的搜索，更稳的同步。全文搜索提速，离线后自动合并，体积减少一半。"
+  }
+]

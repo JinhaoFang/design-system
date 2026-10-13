@@ -55,8 +55,8 @@
       },
       "recommendation": {
         "system": "临时方向",
-        "borrowLayoutsFrom": "precision-industrial",
-        "direction": "炭灰底低对比，字号克制，排法借精密工业的网格与标签，动效几乎没有。"
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "炭灰底低对比，字号克制，排法借纸本编辑的分栏与标签，动效几乎没有。"
       },
       "samples": {
         "status": "pending"
@@ -84,8 +84,8 @@
       },
       "recommendation": {
         "system": "临时方向",
-        "borrowLayoutsFrom": "precision-industrial",
-        "direction": "水泥灰底配喷涂感的粗体大字，对齐严整、动效沉稳，排法借精密工业的网格与标签体系。"
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "水泥灰底配喷涂感的粗体大字，对齐严整、动效沉稳，排法借纸本编辑的版框与单主角规则。"
       },
       "samples": {
         "status": "pending"

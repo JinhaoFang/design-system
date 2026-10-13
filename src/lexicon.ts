@@ -13,7 +13,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { APPROVAL_STATUSES, TONALITY_SCALES, isBlank, isFile, isIsoDate } from './exemplars.ts';
 
-export const SEED_SYSTEMS = ['paper-editorial', 'precision-industrial', 'riso-print'] as const;
+export const SEED_SYSTEMS = ['paper-editorial', 'riso-print'] as const;
 export const TEMPORARY_DIRECTION = '临时方向';
 export const COMPOSITION_RATIOS = ['跳跃率', '版面率', '图版率'] as const;
 export const COMPOSITION_LEVELS = ['低', '中', '高'] as const;

@@ -26,8 +26,8 @@
       },
       "recommendation": {
         "system": "临时方向",
-        "borrowLayoutsFrom": "precision-industrial",
-        "direction": "暖灰白纸面上的刻度尺、十字准星与等宽小号标签，发丝细线网格，排法借精密工业的标签与刻度导航。"
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "暖灰白纸面上的刻度尺、十字准星与等宽小号标签，发丝细线网格，排法借纸本编辑的刻度与尺注。"
       },
       "samples": {
         "status": "present",
@@ -58,8 +58,8 @@
       },
       "recommendation": {
         "system": "临时方向",
-        "borrowLayoutsFrom": "precision-industrial",
-        "direction": "深蓝黑底配青蓝发光线，排法借精密工业的网格与标签体系，光晕只用在一处。"
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "深蓝黑底配青蓝发光线，排法借纸本编辑的栏线与标签，墨色反成亮线，光晕只用在一处。"
       },
       "samples": {
         "status": "pending"
@@ -87,8 +87,8 @@
       },
       "recommendation": {
         "system": "临时方向",
-        "borrowLayoutsFrom": "precision-industrial",
-        "direction": "近黑或纸白的底色配超大产品图与极少文字，排法借精密工业的居中版式，滚动驱动细节展开。"
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "近黑或纸白的底色配超大产品图与极少文字，排法借纸本编辑的单主角与满版图版，滚动驱动细节展开。"
       },
       "samples": {
         "status": "pending"

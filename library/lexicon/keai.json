@@ -84,8 +84,8 @@
       },
       "recommendation": {
         "system": "临时方向",
-        "borrowLayoutsFrom": "precision-industrial",
-        "direction": "像素点阵的小图标与字，排法借精密工业的网格，颜色限制在八种以内。"
+        "borrowLayoutsFrom": "riso-print",
+        "direction": "像素点阵的小图标与字，排法借孔版印刷的网点与套色，颜色限制在八种以内，网点改成方形像素。"
       },
       "samples": {
         "status": "pending"

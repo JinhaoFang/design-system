@@ -3,8 +3,13 @@
  * It fits the fixed 1920x1080 stage to the window (uniform scale, centered), shows one .ds-slide at a time, navigates with ArrowRight/PageDown/Space (next), ArrowLeft/PageUp (previous), Home/End,
  * toggles fullscreen with F, keeps the slide number in the URL hash (#3), and lets the letterbox take the active slide's background color.
  * Choreography contract (for motion work): window.dsSlides.onEnter(fn) registers fn(slideElement, index); it runs every time a slide is entered, the first slide included (after DOMContentLoaded, so
- * scripts that register hooks during load see it). fn may return an Animation or a Promise; dsSlides.entered() resolves when everything the hooks of the current slide returned has finished.
+ * scripts that register hooks during load see it). fn may return an Animation or a Promise; dsSlides.entered() resolves after the page turn and all current-slide hooks finish (also follows superseding navigation).
  * The same entry also dispatches the bubbling CustomEvent "ds:slide-enter" on the slide ({detail:{index}}), and "ds:slide-leave" on the slide being left.
+ * Optional slides.transition.json references (slides-transition.ts) are substituted for __DS_SLIDES_TRANSITION__ by the page builder. Normal turns animate the incoming wrapper by a full width,
+ * the outgoing wrapper by the token retreat, and its shade opacity; the shadow is static. Reduced motion and data-render="static" switch instantly. Initial/hash entry never turns.
+ * The synchronous bubbling ds:slide-prepare event ({detail:{index}}) runs before displaying a target; choreography restores peel covers so they stay covering content throughout turns and revisits.
+ * Hooks and ds:slide-enter run only after the turn settles; ordinary marked entrance elements stay hidden until then. On rapid navigation the old turn and old-page entrances are canceled,
+ * wrappers reset, and the latest requested page turns from the previous requested page. A revision guard prevents stale hooks/cleanup; only the final page starts its entrance.
  * Other API: dsSlides.count, dsSlides.index, dsSlides.go(i), next(), prev(). Print media (PDF) shows all slides stacked at full size; see slides-page.ts.
  */
 export const SLIDES_RUNTIME = `(function () {
@@ -15,6 +20,53 @@ export const SLIDES_RUNTIME = `(function () {
   var hooks = [];
   var current = -1;
   var entered = Promise.resolve();
+  var transition = __DS_SLIDES_TRANSITION__;
+  var turning = null;
+  var revision = 0;
+
+  function cleanTurn(turn) {
+    turn.animations.forEach(function (animation) { animation.cancel(); });
+    [turn.previous, turn.slide].forEach(function (slide) {
+      slide.removeAttribute('data-turning');
+      slide.removeAttribute('data-leaving');
+      slide.removeAttribute('data-reverse');
+    });
+    if (turning === turn) turning = null;
+  }
+
+  function enter(slide, index) {
+    var results = [];
+    hooks.forEach(function (hook) {
+      try {
+        results.push(hook(slide, index));
+      } catch (error) {
+        console.error(error);
+      }
+    });
+    slide.dispatchEvent(new CustomEvent('ds:slide-enter', { bubbles: true, detail: { index: index } }));
+    return Promise.allSettled(results.map(settled));
+  }
+
+  function turnPage(previous, slide, direction) {
+    var style = getComputedStyle(document.documentElement);
+    var duration = parseFloat(style.getPropertyValue(transition.duration));
+    if (style.getPropertyValue(transition.duration).trim().endsWith('s') && !style.getPropertyValue(transition.duration).trim().endsWith('ms')) duration *= 1000;
+    var easing = style.getPropertyValue(transition.easing).trim();
+    var retreat = parseFloat(style.getPropertyValue(transition.retreat));
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) return null;
+    previous.setAttribute('data-leaving', '');
+    slide.setAttribute('data-turning', '');
+    if (direction < 0) slide.setAttribute('data-reverse', '');
+    var options = { duration: duration, easing: easing, fill: 'both' };
+    var animations = [
+      slide.animate([{ transform: 'translateX(' + (direction * 100) + '%)' }, { transform: 'none' }], options),
+      previous.animate([{ transform: 'none' }, { transform: 'translateX(' + (-direction * retreat) + 'px)' }], options),
+      previous.querySelector('.ds-slide-shade').animate([{ opacity: 0 }, { opacity: 1 }], options)
+    ];
+    animations.forEach(function (animation) { animation.finished.catch(function () {}); });
+    return { animations: animations, previous: previous, slide: slide };
+  }
 
   function fit() {
     var scale = Math.min(window.innerWidth / WIDTH, window.innerHeight / HEIGHT);
@@ -32,32 +84,44 @@ export const SLIDES_RUNTIME = `(function () {
   }
 
   function go(target) {
-    var index = Math.max(0, Math.min(slides.length - 1, target));
+    if (!slides.length || !Number.isFinite(target)) return;
+    var index = Math.max(0, Math.min(slides.length - 1, Math.trunc(target)));
     if (index === current) return;
+    var ownRevision = ++revision;
+    if (turning) cleanTurn(turning);
+    var previousIndex = current;
     var previous = slides[current];
+    var slide = slides[index];
+    if (transition) {
+      [previous, slide].forEach(function (item) {
+        if (item) item.getAnimations({ subtree: true }).forEach(function (animation) { animation.cancel(); });
+      });
+    }
     if (previous) {
       previous.removeAttribute('data-active');
       previous.setAttribute('aria-hidden', 'true');
       previous.dispatchEvent(new CustomEvent('ds:slide-leave', { bubbles: true, detail: { index: current } }));
     }
-    var slide = slides[index];
     current = index;
+    slide.dispatchEvent(new CustomEvent('ds:slide-prepare', { bubbles: true, detail: { index: index } }));
     slide.setAttribute('data-active', '');
     slide.removeAttribute('aria-hidden');
     backdrop(slide);
     try {
       history.replaceState(null, '', '#' + (index + 1));
     } catch (error) {}
-    var results = [];
-    hooks.forEach(function (hook) {
-      try {
-        results.push(hook(slide, index));
-      } catch (error) {
-        console.error(error);
-      }
-    });
-    slide.dispatchEvent(new CustomEvent('ds:slide-enter', { bubbles: true, detail: { index: index } }));
-    entered = Promise.allSettled(results.map(settled));
+    var turn = transition && previous && document.documentElement.getAttribute('data-render') !== 'static'
+      ? turnPage(previous, slide, index > previousIndex ? 1 : -1) : null;
+    if (turn) {
+      turning = turn;
+      entered = Promise.allSettled(turn.animations.map(settled)).then(function () {
+        if (ownRevision !== revision) return;
+        cleanTurn(turn);
+        return enter(slide, index);
+      });
+    } else {
+      entered = enter(slide, index);
+    }
   }
 
   function toggleFullscreen() {
@@ -106,8 +170,12 @@ export const SLIDES_RUNTIME = `(function () {
     onEnter: function (hook) {
       hooks.push(hook);
     },
-    entered: function () {
-      return entered;
+    entered: async function () {
+      var waiting;
+      do {
+        waiting = entered;
+        await waiting;
+      } while (waiting !== entered);
     }
   };
 

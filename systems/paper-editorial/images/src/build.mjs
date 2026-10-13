@@ -1,8 +1,8 @@
 /*
  * Entry point: regenerates every code-drawn asset of the paper-editorial system. Run from the repository root:
  *   node systems/paper-editorial/images/src/build.mjs
- * Writes the seven code-drawn standard-sample images images/<id>.svg (dome-night, summit-road, five partner marks) and the three custom fragments
- * works/fragments/*.html (xingtu-tiqian, guang-zou-le, ba-ge-zhouliu). The fragments embed generated inline SVG, so the files are build products and are overwritten on every run.
+ * Writes the seven code-drawn standard-sample images images/<id>.svg (dome-night, summit-road, five partner marks) and the five custom fragments
+ * works/fragments/*.html (xingtu-tiqian, guang-zou-le, ba-ge-zhouliu for the social sheets; feiye and shouguang-ye for the slide deck; rizhi-shouye, beitian-tuban for the landing page). The fragments embed generated inline SVG, so the files are build products and are overwritten on every run.
  * primary-mirror and eyepiece-night are not drawn here: code-drawn people looked stiff, so they come from the image model (recipes in prompts/, files images/<id>.webp, see prompts/README.md).
  * Needs the font cache (pnpm ds fetch-fonts, or .cache/fonts linked in) because labels are outlined from the real fonts. Deterministic: two runs give identical bytes.
  */
@@ -15,6 +15,10 @@ import { marks } from './art/marks.mjs';
 import { xingtuTiqian } from './works/xingtu-tiqian.mjs';
 import { guangZouLe } from './works/guang-zou-le.mjs';
 import { baGeZhouliu } from './works/ba-ge-zhouliu.mjs';
+import { shouguangYe } from './works/shouguang-ye.mjs';
+import { feiye } from './works/feiye.mjs';
+import { rizhiShouye } from './works/rizhi-shouye.mjs';
+import { beitianTuban } from './works/beitian-tuban.mjs';
 
 const imagesDir = fileURLToPath(new URL('../', import.meta.url));
 const fragmentsDir = fileURLToPath(new URL('../../works/fragments/', import.meta.url));
@@ -28,7 +32,7 @@ export function buildAll() {
   };
   for (const [id, svg] of Object.entries(images)) writeFileSync(`${imagesDir}${id}.svg`, svg);
   const written = Object.keys(images).map((id) => `images/${id}.svg`);
-  for (const make of [xingtuTiqian, guangZouLe, baGeZhouliu]) {
+  for (const make of [xingtuTiqian, guangZouLe, baGeZhouliu, shouguangYe, feiye, rizhiShouye, beitianTuban]) {
     const { name, text } = make();
     writeFileSync(`${fragmentsDir}${name}`, text);
     written.push(`works/fragments/${name}`);

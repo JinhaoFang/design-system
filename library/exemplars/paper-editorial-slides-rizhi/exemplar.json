@@ -1,0 +1,34 @@
+{
+  "id": "paper-editorial-slides-rizhi",
+  "title": "纸本编辑幻灯片「观测日志·卷一」：首光那一页",
+  "sourceType": "original",
+  "copyright": "本库原创（CC0-1.0）；鹞岭天文台为虚构机构",
+  "carrier": "slides",
+  "systems": [
+    "paper-editorial"
+  ],
+  "capturedOn": "2026-10-13",
+  "media": {
+    "kind": "screenshot",
+    "status": "present",
+    "file": "screenshot.webp"
+  },
+  "annotation": {
+    "highlights": "整份 12 页做成一册观测日志：墨线抬头、细笔宋体大字、界栏、工程图式尺寸标注。快照这一页是全册唯一的高光：「250 万年」下一道朱笔，在同页其他元素洇出、静下来之后才划过；右边是真实坐标的北天星图，仙女星系用朱圈指认。翻页时新页像纸一样从右侧滑入，旧页后退变暗。",
+    "reasons": "朱色全册只用两处，所以朱笔一出现就是重点；数字、日期一律横排等高数字，竖排只给题签；动效全部取自纸与墨的时长和缓动阶梯。",
+    "scenes": "研究成果、年度报告、文化机构的分享与发布会幻灯片。",
+    "materialAnchor": "暖白哑光纸上的油墨印刷，朱笔批校",
+    "tonality": {
+      "静动": 2,
+      "疏密": 2,
+      "冷暖": 4,
+      "轻重": 2,
+      "庄谐": 2
+    }
+  },
+  "approval": {
+    "status": "approved",
+    "date": "2026-10-13"
+  },
+  "notes": "同目录 slides.pdf 是整册 12 页的 PDF。"
+}

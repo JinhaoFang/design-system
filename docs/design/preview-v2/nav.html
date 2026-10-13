@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>体系目录</title>
+<style>
+@font-face{font-family:"Inter";font-weight:400;src:url(fonts/Inter-Regular.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:500;src:url(fonts/Inter-Medium.woff2) format("woff2")}
+@font-face{font-family:"Noto Sans SC";font-weight:400;src:url(fonts/NotoSansSC-Regular.otf) format("opentype")}
+@font-face{font-family:"Noto Sans SC";font-weight:700;src:url(fonts/NotoSansSC-Bold.otf) format("opentype")}
+:root{
+  color-scheme:light;
+  --bg:#f4f3ef;--surface:#fbfaf7;--sunk:#ebe9e3;--ink:#1a1a18;--ink-2:#55534d;--mute:#85827a;--line:#dcd9d0;--line-2:#c9c5ba;
+  --ok:#3d7a4f;--warn:#a06a12;--bad:#b3261e;
+  --ease:cubic-bezier(.2,.65,.15,1);--ease-io:cubic-bezier(.4,0,.2,1);
+  --t1:160ms;--t2:280ms;--t3:480ms;--t4:800ms;
+  --r:6px;
+  --shadow:0 1px 0 rgba(26,26,24,.04),0 12px 32px -18px rgba(26,26,24,.28);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#141413;--surface:#1b1b19;--sunk:#222220;--ink:#efede7;--ink-2:#c3c0b7;--mute:#8f8b82;--line:#2e2d2a;--line-2:#3c3a36;--ok:#7cc290;--warn:#e0a94a;--bad:#ff8a80;--shadow:0 1px 0 rgba(0,0,0,.3),0 16px 40px -20px rgba(0,0,0,.7)}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#141413;--surface:#1b1b19;--sunk:#222220;--ink:#efede7;--ink-2:#c3c0b7;--mute:#8f8b82;--line:#2e2d2a;--line-2:#3c3a36;--ok:#7cc290;--warn:#e0a94a;--bad:#ff8a80;--shadow:0 1px 0 rgba(0,0,0,.3),0 16px 40px -20px rgba(0,0,0,.7)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);color:var(--ink);font:15px/1.6 "Inter","Noto Sans SC",system-ui,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{background:var(--bg);min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:2px}
+.wrap{max-width:1240px;margin:0 auto;padding:0 clamp(16px,4vw,40px)}
+.num{font-variant-numeric:tabular-nums}
+
+.top{position:sticky;top:0;z-index:5;background:color-mix(in oklab,var(--bg) 86%,transparent);backdrop-filter:saturate(1.2) blur(10px);-webkit-backdrop-filter:saturate(1.2) blur(10px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:20px;height:56px}
+.brand{display:flex;align-items:baseline;gap:8px;font-weight:500;letter-spacing:.01em;white-space:nowrap}
+.brand b{font-weight:700}
+.brand span{color:var(--mute);font-weight:400}
+.jump{display:flex;gap:4px;margin-left:8px;overflow-x:auto;scrollbar-width:none}
+.jump a{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;color:var(--ink-2);font-size:13px;white-space:nowrap;transition:background var(--t2) var(--ease-io),color var(--t2) var(--ease-io)}
+.jump a:hover,.jump a[aria-current="true"]{background:var(--sunk);color:var(--ink)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--sys);flex:none}
+.status{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:13px;color:var(--ink-2);white-space:nowrap}
+.pill{display:inline-flex;align-items:center;gap:6px}
+.pill i{width:6px;height:6px;border-radius:50%;background:var(--ok)}
+.pill.warn i{background:var(--warn)}
+.pill.bad i{background:var(--bad)}
+.theme{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--ink-2)}
+.theme:hover{background:var(--sunk);color:var(--ink)}
+.theme svg{width:16px;height:16px}
+
+.hero{padding:clamp(40px,7vw,88px) 0 clamp(24px,4vw,40px);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end}
+.hero h1{font-size:clamp(34px,5vw,56px);line-height:1.05;letter-spacing:-.02em;font-weight:700}
+.hero p{margin-top:14px;color:var(--ink-2);max-width:34em;font-size:16px}
+.dir{font-size:12px;color:var(--mute);text-align:right;max-width:28em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:rtl}
+
+.sys{border-top:1px solid var(--line-2);padding:32px 0 8px;scroll-margin-top:72px}
+.sys-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(24px,4vw,56px);align-items:start}
+.cover{position:relative;display:block;border-radius:var(--r);overflow:hidden;background:var(--sunk);box-shadow:var(--shadow);aspect-ratio:16/10;isolation:isolate}
+.cover img{width:100%;display:block;transform:translateY(0);transition:transform 7s cubic-bezier(.45,0,.25,1)}
+.cover:hover img,.cover:focus-visible img{transform:translateY(calc(-100% + var(--h,0px)))}
+.cover::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(26,26,24,.08);pointer-events:none}
+.cover-tag{position:absolute;left:12px;bottom:12px;z-index:1;font-size:12px;padding:4px 10px;border-radius:999px;background:color-mix(in oklab,var(--surface) 88%,transparent);backdrop-filter:blur(6px);color:var(--ink-2);opacity:0;transform:translateY(4px);transition:opacity var(--t2) var(--ease-io),transform var(--t3) var(--ease)}
+.cover:hover .cover-tag{opacity:1;transform:none}
+
+.info{display:grid;gap:20px;padding-top:4px}
+.kick{display:flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.08em;color:var(--mute);text-transform:uppercase}
+.kick .dot{width:10px;height:10px}
+.info h2{font-size:clamp(28px,3.2vw,40px);line-height:1.1;letter-spacing:-.01em;font-weight:700;margin-top:-8px}
+.anchor{font-size:16px;color:var(--ink-2);line-height:1.65}
+.palette{display:flex;height:28px;border-radius:4px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(26,26,24,.08)}
+.palette i{flex:1}
+.palette i.wide{flex:2.4}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:8px 20px;font-size:14px;border-top:1px solid var(--line);padding-top:16px}
+.facts dt{color:var(--mute)}
+.facts dd{color:var(--ink)}
+.tone{display:flex;gap:14px;flex-wrap:wrap}
+.tone span{display:inline-flex;align-items:center;gap:6px}
+.tone em{font-style:normal;display:inline-flex;gap:2px}
+.tone em i{width:8px;height:3px;border-radius:2px;background:var(--line-2)}
+.tone em i.on{background:var(--ink)}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:999px;font-size:14px;font-weight:500;border:1px solid var(--line-2);background:var(--surface);transition:background var(--t2) var(--ease-io),border-color var(--t2) var(--ease-io),transform var(--t2) var(--ease)}
+.btn:hover{border-color:var(--ink)}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.primary:hover{background:color-mix(in oklab,var(--ink) 86%,var(--sys))}
+.btn .arr{transition:transform var(--t3) var(--ease)}
+.btn:hover .arr{transform:translateX(3px)}
+.btn small{font-size:12px;color:var(--mute);font-weight:400}
+.btn.primary small{color:color-mix(in oklab,var(--bg) 70%,transparent)}
+
+.fold{margin-top:28px;border-top:1px solid var(--line)}
+.fold-head{width:100%;display:flex;align-items:center;gap:12px;padding:14px 0;font-size:14px;text-align:left}
+.fold-head b{font-weight:500}
+.fold-head .n{color:var(--mute);font-size:13px}
+.fold-head .chev{margin-left:auto;width:12px;height:12px;position:relative}
+.fold-head .chev::before,.fold-head .chev::after{content:"";position:absolute;left:0;right:0;top:50%;height:1.5px;border-radius:1px;background:var(--ink-2);transition:transform var(--t3) var(--ease)}
+.fold-head .chev::after{transform:rotate(90deg)}
+.fold-head[aria-expanded="true"] .chev::after{transform:rotate(0)}
+.fold-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--t4) var(--ease)}
+.fold-body > div{overflow:hidden;min-height:0}
+.fold-body[data-open]{grid-template-rows:1fr}
+.fold-inner{padding:4px 0 24px;opacity:0;transform:translateY(-4px);transition:opacity var(--t3) var(--ease-io),transform var(--t3) var(--ease)}
+.fold-body[data-open] .fold-inner{opacity:1;transform:none}
+
+.shelf{display:flex;gap:16px;overflow-x:auto;padding:4px 2px 14px;scroll-snap-type:x proximity;scrollbar-width:thin}
+.card{flex:none;scroll-snap-align:start;display:grid;gap:10px;width:max-content}
+.thumb{height:176px;border-radius:4px;overflow:hidden;background:var(--sunk);box-shadow:var(--shadow);position:relative;transition:transform var(--t3) var(--ease),box-shadow var(--t3) var(--ease)}
+.thumb img{height:100%;width:auto;display:block}
+.thumb.web{width:281px}
+.thumb.web img{width:100%;height:auto}
+.card:hover .thumb{transform:translateY(-3px)}
+.card-meta{display:flex;justify-content:space-between;gap:12px;font-size:13px;max-width:100%}
+.card-meta b{font-weight:500}
+.card-meta span{color:var(--mute);white-space:nowrap}
+.card-sub{font-size:12px;color:var(--mute);margin-top:-6px}
+
+.reports{width:100%;border-collapse:collapse;font-size:13px}
+.reports th{text-align:left;font-weight:400;color:var(--mute);padding:8px 12px 8px 0;border-bottom:1px solid var(--line)}
+.reports td{padding:10px 12px 10px 0;border-bottom:1px solid var(--line)}
+.reports td.r{text-align:right}
+.reports a{color:var(--ink-2);text-decoration:underline;text-decoration-color:var(--line-2);text-underline-offset:3px}
+.reports a:hover{color:var(--ink);text-decoration-color:var(--ink)}
+.zero{color:var(--mute)}
+.w{color:var(--warn)}
+
+.foot{border-top:1px solid var(--line-2);margin-top:48px;padding:24px 0 48px;color:var(--mute);font-size:13px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.foot code{font-family:inherit;background:var(--sunk);padding:2px 8px;border-radius:4px;color:var(--ink-2)}
+
+.rise{animation:rise var(--t4) var(--ease) both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition-duration:0s!important}.cover:hover img{transform:none}}
+
+@media (max-width:880px){
+  .sys-grid{grid-template-columns:1fr}
+  .status .pill:not(:first-child){display:none}
+  .hero{grid-template-columns:1fr}
+  .dir{text-align:left;direction:ltr}
+}
+@media (max-width:560px){
+  .jump{display:none}
+  .thumb{height:144px}
+  .thumb.web{width:230px}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#"><b>设计体系库</b><span>预览</span></a>
+    <nav class="jump" aria-label="体系">
+      <a href="#paper-editorial" style="--sys:#b23a26"><i class="dot"></i>纸本编辑</a>
+      <a href="#riso-print" style="--sys:#ff48b0"><i class="dot"></i>孔版印刷</a>
+    </nav>
+    <div class="status">
+      <span class="pill"><i></i><span class="num">0</span> 个错误</span>
+      <span class="pill warn"><i></i><span class="num">2</span> 个警告</span>
+      <button class="theme" type="button" aria-label="切换深浅色" data-theme-toggle><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="5.5"/><path d="M8 2.5v11" /><path d="M8 2.5a5.5 5.5 0 0 1 0 11z" fill="currentColor"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="rise" style="--i:0">
+      <h1>体系目录</h1>
+      <p>两套体系。每套都有一页体系总览、自己的体系样张，以及用同一份测试内容排出的排法总览。</p>
+    </div>
+    <div class="dir rise" style="--i:1" title="/root/project/design-system/out/regress"><bdi>/root/project/design-system/out/regress</bdi></div>
+  </section>
+
+  <article class="sys" id="paper-editorial" style="--sys:#b23a26">
+    <div class="sys-grid">
+      <a class="cover rise" style="--i:2" href="/paper-editorial/system/" aria-label="打开纸本编辑的体系总览">
+        <img src="/paper-editorial/works/web/web-desktop.png" alt="">
+        <span class="cover-tag">悬停预览整页 · 网页样张</span>
+      </a>
+      <div class="info rise" style="--i:3">
+        <div class="kick"><i class="dot"></i>01 · paper-editorial</div>
+        <h2>纸本编辑</h2>
+        <p class="anchor">暖白哑光纸上的油墨印刷，朱笔批校。给有来历、值得慢慢看的项目。</p>
+        <div class="palette" aria-label="主要颜色"><i class="wide" style="background:#f1ebdf"></i><i style="background:#e8dfcd"></i><i class="wide" style="background:#1f1a14"></i><i style="background:#4f483d"></i><i style="background:#b9ae99"></i><i style="background:#b23a26"></i></div>
+        <dl class="facts">
+          <dt>调性</dt><dd class="tone"><span>静<em><i></i><i class="on"></i><i></i><i></i><i></i></em></span><span>疏<em><i></i><i class="on"></i><i></i><i></i><i></i></em></span><span>暖<em><i></i><i></i><i></i><i class="on"></i><i></i></em></span><span>轻<em><i></i><i class="on"></i><i></i><i></i><i></i></em></span><span>庄<em><i></i><i class="on"></i><i></i><i></i><i></i></em></span></dd>
+          <dt>载体</dt><dd>网页 · 幻灯片 · 社交配图</dd>
+          <dt>检查</dt><dd><span class="pill"><i></i>0 个错误</span> · <span class="w num">1</span> 个警告</dd>
+        </dl>
+        <div class="actions">
+          <a class="btn primary" href="/paper-editorial/system/">打开体系总览 <span class="arr">→</span></a>
+          <a class="btn" href="/_overview/paper-editorial/overview/">排法总览 <small class="num">26 件</small></a>
+        </div>
+      </div>
+    </div>
+    <div class="fold">
+      <button class="fold-head" type="button" aria-expanded="true" aria-controls="pe-works"><b>体系样张</b><span class="n num">5 件</span><i class="chev"></i></button>
+      <div class="fold-body" id="pe-works" data-open><div><div class="fold-inner">
+        <div class="shelf">
+          <a class="card" href="/paper-editorial/works/web/"><div class="thumb web"><img src="/paper-editorial/works/web/web-desktop.png" alt=""></div><div class="card-meta"><b>观测日志的一页</b><span class="w">1 警告</span></div><div class="card-sub">网页 · 1440 / 390</div></a>
+          <a class="card" href="/paper-editorial/works/slides/"><div class="thumb"><img src="/paper-editorial/works/slides/slide-01.png" alt=""></div><div class="card-meta"><b>观测日志·卷一</b><span>通过</span></div><div class="card-sub">幻灯片 · 12 页</div></a>
+          <a class="card" href="/paper-editorial/works/xiaohongshu/"><div class="thumb"><img src="/paper-editorial/works/xiaohongshu/social-xiaohongshu.png" alt=""></div><div class="card-meta"><b>星图题签</b><span>通过</span></div><div class="card-sub">小红书 3:4</div></a>
+          <a class="card" href="/paper-editorial/works/square/"><div class="thumb"><img src="/paper-editorial/works/square/social-square.png" alt=""></div><div class="card-meta"><b>光走了二百五十万年</b><span>通过</span></div><div class="card-sub">方形 1:1</div></a>
+          <a class="card" href="/paper-editorial/works/wechat-cover/"><div class="thumb"><img src="/paper-editorial/works/wechat-cover/social-wechat-cover.png" alt=""></div><div class="card-meta"><b>八个周六</b><span>通过</span></div><div class="card-sub">公众号封面 2.35:1</div></a>
+        </div>
+      </div></div></div>
+    </div>
+    <div class="fold">
+      <button class="fold-head" type="button" aria-expanded="false" aria-controls="pe-reports"><b>检查报告</b><span class="n num">6 份 · 0 错误 · 39 警告</span><i class="chev"></i></button>
+      <div class="fold-body" id="pe-reports"><div><div class="fold-inner">
+        <table class="reports">
+          <thead><tr><th>构建</th><th>载体</th><th class="r">错误</th><th class="r">警告</th><th>报告</th></tr></thead>
+          <tbody>
+            <tr><td>体系总览页</td><td>网页</td><td class="r zero">0</td><td class="r w">38</td><td><a href="/paper-editorial/system/report.md">report.md</a></td></tr>
+            <tr><td>观测日志的一页</td><td>网页</td><td class="r zero">0</td><td class="r w">1</td><td><a href="/paper-editorial/works/web/report.md">report.md</a></td></tr>
+            <tr><td>观测日志·卷一</td><td>幻灯片</td><td class="r zero">0</td><td class="r zero">0</td><td><a href="/paper-editorial/works/slides/report.md">report.md</a></td></tr>
+            <tr><td>星图题签</td><td>社交配图</td><td class="r zero">0</td><td class="r zero">0</td><td><a href="/paper-editorial/works/xiaohongshu/report.md">report.md</a></td></tr>
+          </tbody>
+        </table>
+      </div></div></div>
+    </div>
+  </article>
+
+  <article class="sys" id="riso-print" style="--sys:#ff48b0">
+    <div class="sys-grid">
+      <a class="cover rise" style="--i:4" href="/riso-print/system/" aria-label="打开孔版印刷的体系总览">
+        <img src="/riso-print/works/web/web-desktop.png" alt="">
+        <span class="cover-tag">悬停预览整页 · 网页样张</span>
+      </a>
+      <div class="info rise" style="--i:5">
+        <div class="kick"><i class="dot"></i>02 · riso-print</div>
+        <h2>孔版印刷</h2>
+        <p class="anchor">Riso 孔版印刷的套色、错版与油墨颗粒。热闹，但每一处热闹都有预算。</p>
+        <div class="palette" aria-label="主要颜色"><i class="wide" style="background:#f4efe4"></i><i class="wide" style="background:#3255a4"></i><i style="background:#ff48b0"></i><i style="background:#321871"></i></div>
+        <dl class="facts">
+          <dt>调性</dt><dd class="tone"><span>动<em><i></i><i></i><i></i><i class="on"></i><i></i></em></span><span>密<em><i></i><i></i><i></i><i class="on"></i><i></i></em></span><span>暖<em><i></i><i></i><i></i><i class="on"></i><i></i></em></span><span>轻<em><i></i><i class="on"></i><i></i><i></i><i></i></em></span><span>谐<em><i></i><i></i><i></i><i class="on"></i><i></i></em></span></dd>
+          <dt>载体</dt><dd>网页</dd>
+          <dt>检查</dt><dd><span class="pill"><i></i>0 个错误</span> · <span class="w num">1</span> 个警告</dd>
+        </dl>
+        <div class="actions">
+          <a class="btn primary" href="/riso-print/system/">打开体系总览 <span class="arr">→</span></a>
+          <a class="btn" href="/_overview/riso-print/overview/">排法总览 <small class="num">1 件</small></a>
+        </div>
+      </div>
+    </div>
+    <div class="fold">
+      <button class="fold-head" type="button" aria-expanded="true" aria-controls="ri-works"><b>体系样张</b><span class="n num">1 件</span><i class="chev"></i></button>
+      <div class="fold-body" id="ri-works" data-open><div><div class="fold-inner">
+        <div class="shelf">
+          <a class="card" href="/riso-print/works/web/"><div class="thumb web"><img src="/riso-print/works/web/web-desktop.png" alt=""></div><div class="card-meta"><b>山顶开放观测夜</b><span class="w">1 警告</span></div><div class="card-sub">网页 · 1440 / 390</div></a>
+        </div>
+      </div></div></div>
+    </div>
+    <div class="fold">
+      <button class="fold-head" type="button" aria-expanded="false" aria-controls="ri-reports"><b>检查报告</b><span class="n num">2 份 · 0 错误 · 33 警告</span><i class="chev"></i></button>
+      <div class="fold-body" id="ri-reports"><div><div class="fold-inner">
+        <table class="reports"><thead><tr><th>构建</th><th>载体</th><th class="r">错误</th><th class="r">警告</th><th>报告</th></tr></thead>
+          <tbody><tr><td>体系总览页</td><td>网页</td><td class="r zero">0</td><td class="r w">32</td><td><a href="/riso-print/system/report.md">report.md</a></td></tr><tr><td>山顶开放观测夜</td><td>网页</td><td class="r zero">0</td><td class="r w">1</td><td><a href="/riso-print/works/web/report.md">report.md</a></td></tr></tbody></table>
+      </div></div></div>
+    </div>
+  </article>
+
+  <footer class="foot">
+    <span>本页由 <code>pnpm ds preview</code> 生成，只在本机提供。</span>
+    <span>重新生成：<code>pnpm ds regress</code></span>
+  </footer>
+</main>
+<script>
+(() => {
+  const store = { get(k){ try { return localStorage.getItem(k); } catch { return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch {} } };
+  document.querySelectorAll('.fold-head').forEach((b) => {
+    const body = document.getElementById(b.getAttribute('aria-controls'));
+    const saved = store.get('nav-fold:' + body.id);
+    const set = (open) => { b.setAttribute('aria-expanded', String(open)); body.toggleAttribute('data-open', open); body.inert = !open; };
+    if (saved !== null) set(saved === '1'); else set(b.getAttribute('aria-expanded') === 'true');
+    b.addEventListener('click', () => { const open = b.getAttribute('aria-expanded') !== 'true'; set(open); store.set('nav-fold:' + body.id, open ? '1' : '0'); });
+  });
+  document.querySelectorAll('.cover').forEach((c) => { const sync = () => c.style.setProperty('--h', c.clientHeight + 'px'); sync(); addEventListener('resize', sync); });
+  const links = [...document.querySelectorAll('.jump a')]; const systems = links.map((a) => document.querySelector(a.getAttribute('href')));
+  const spy = () => { let cur = 0; systems.forEach((s, i) => { if (s.getBoundingClientRect().top < innerHeight * 0.4) cur = i; }); links.forEach((a, i) => a.setAttribute('aria-current', String(i === cur))); };
+  addEventListener('scroll', spy, { passive: true }); spy();
+  const root = document.documentElement; const t = store.get('nav-theme'); if (t) root.dataset.theme = t;
+  document.querySelector('[data-theme-toggle]').addEventListener('click', () => { const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; root.dataset.theme = dark ? 'light' : 'dark'; store.set('nav-theme', root.dataset.theme); });
+})();
+</script>
+</body>
+</html>

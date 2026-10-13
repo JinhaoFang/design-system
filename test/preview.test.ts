@@ -7,7 +7,7 @@
 import { copyFile, mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { startPreview } from '../src/preview.ts';
+import { navigationPage, startPreview } from '../src/preview.ts';
 import type { PreviewServer } from '../src/preview.ts';
 import { fixtures, tempDir } from './helpers.ts';
 
@@ -146,7 +146,7 @@ describe('navigation index for regression output', () => {
     await regressTree(regress, 'beta-sys');
   });
 
-  test('per system: the system page first, the samples, and one 排法总览 entry; the overview builds are not listed', async () => {
+  test('per system: the system page, sample shelf, overview entry and folded report table', async () => {
     await withPreview(regress, async (view) => {
       const html = await (await fetch(view.url)).text();
       for (const id of ['alpha-sys', 'beta-sys']) {
@@ -155,16 +155,27 @@ describe('navigation index for regression output', () => {
         expect(html).toContain(`href="/${id}/works/haibao/"`);
         expect(html).toContain(`/${id}/works/haibao/web-desktop.png`);
         expect(html).toContain(`href="/_overview/${id}/overview/"`);
-        expect(html).not.toContain(`href="/${id}/overview/web/"`);
-        expect(html).not.toContain(`/${id}/overview/social/square/title-a/`);
+        expect(html).toContain(`href="/${id}/overview/web/"`);
+        expect(html).toContain(`/${id}/overview/social/square/title-a/`);
         expect(html).not.toContain('web-scroll.webm');
-        expect(html).not.toContain('report.md');
+        expect(html).toContain('report.md');
       }
       expect(html).toContain('排法总览');
-      expect(html).toContain('3 个错误');
+      expect(html).toContain('8 个错误');
       expect(html.indexOf('href="/alpha-sys/system/"')).toBeLessThan(html.indexOf('href="/alpha-sys/works/yangzhang/"'));
-      expect(html.indexOf('href="/alpha-sys/works/yangzhang/"')).toBeLessThan(html.indexOf('href="/_overview/alpha-sys/overview/"'));
+      expect(html).toContain('aria-controls="alpha-sys-works"');
+      expect(html).toContain('aria-controls="alpha-sys-reports"');
+      expect(html).toContain('6 份 · 4 错误 · 6 警告');
     });
+  });
+
+  test('navigationPage groups fixtures, counts every report and starts with open samples and closed reports', async () => {
+    const html = await navigationPage(regress);
+    expect((html.match(/class="sys rise"/g) ?? []).length).toBe(2);
+    expect(html).toContain('aria-expanded="true" aria-controls="alpha-sys-works"');
+    expect(html).toContain('aria-expanded="false" aria-controls="alpha-sys-reports"');
+    expect(html).toContain('8 个错误');
+    expect(html).toContain('12 个警告');
   });
 
   test('the overview listing groups builds by carrier and canvas, opens each build and reaches the reports', async () => {
@@ -224,7 +235,7 @@ describe('navigation index for a single system folder or a lone overview', () =>
       expect(html).toContain('href="/system/"');
       expect(html).toContain('href="/works/yangzhang/"');
       expect(html).toContain('href="/_overview/overview/"');
-      expect(html).not.toContain('href="/overview/web/"');
+      expect(html).toContain('href="/overview/web/"');
       const listing = await (await fetch(new URL('/_overview/overview/', view.url))).text();
       expect(listing).toContain('href="/overview/web/"');
     });

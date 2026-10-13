@@ -1,6 +1,6 @@
 {% comment %}
   纸本编辑的体系总览页页头：一页扉页的题签。
-  文武边栏（外粗内细的双线）框住全幅；体系名竖排，宋体 200 放在右边；材质锚点一句横排在左下，「朱笔批校」下面一道朱笔下划线，
+  文武边栏（外粗内细的双线）框住全幅；体系名竖排，朱雀仿宋 放在右边；材质锚点一句横排在左下，「朱笔批校」下面一道朱笔下划线，
   页面加载时在标题洇出之后划过（lift 1200ms + brush 缓动，只动 transform）；一枚朱印（纸本）落在句子右边。
   减少动态效果、静态渲染时下划线直接显示画好的状态。变量：system.name / category / id / materialAnchor。
 {% endcomment %}
@@ -88,8 +88,8 @@
   transform: rotate(-2deg);
 }
 .tq-name {
-  font-family: var(--ds-font-cjk-display);
-  font-weight: 200;
+  font-family: var(--ds-font-latin), var(--ds-font-cjk-display);
+  font-weight: 400;
   font-size: var(--ds-type-title);
   line-height: 1.15;
   letter-spacing: 0.2em;

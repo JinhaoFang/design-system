@@ -10,6 +10,7 @@ import { tempDir } from './helpers.ts';
 
 const execFileAsync = promisify(execFile);
 const cli = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'cli.ts');
+const REMOVED_SYSTEM = ['precision', 'industrial'].join('-');
 
 function interpretation(name: string, overrides: any = {}): any {
   return {
@@ -32,12 +33,12 @@ function entry(id: string, overrides: any = {}): any {
     phrasings: ['看起来高级一点', '要有高级感'],
     interpretations: [
       interpretation('留白极简'),
-      interpretation('精密仪器感', {
-        description: '像一台仪器的面板：细线、刻度、等宽小字，信息密但井然有序。',
-        materialAnchor: '精密仪器的刻度与标注，放在暖灰白的纸面上',
+      interpretation('套色印刷感', {
+        description: '套色、错版与油墨颗粒，信息密但井然有序。',
+        materialAnchor: '孔版印刷的套色、错版与油墨颗粒',
         tonality: { 静动: 2, 疏密: 4, 冷暖: 2, 轻重: 3, 庄谐: 1 },
         composition: { 跳跃率: '中', 版面率: '高', 图版率: '低' },
-        recommendation: { system: 'precision-industrial' },
+        recommendation: { system: 'riso-print' },
       }),
     ],
     ...overrides,
@@ -145,6 +146,8 @@ describe('validateLexicon recommendation, samples and approval', () => {
 
   test.each([
     ['an unknown system', { system: 'neon-glow' }, 'recommendation.system'],
+    ['a removed system', { system: REMOVED_SYSTEM }, 'recommendation.system'],
+    ['a temporary direction borrowing from a removed system', { system: '临时方向', borrowLayoutsFrom: REMOVED_SYSTEM, direction: '深色底。' }, 'recommendation.borrowLayoutsFrom'],
     ['a temporary direction without a system to borrow layouts from', { system: '临时方向', direction: '深色底。' }, 'recommendation.borrowLayoutsFrom'],
     ['a temporary direction without a description', { system: '临时方向', borrowLayoutsFrom: 'riso-print' }, 'recommendation.direction'],
   ])('rejects %s', async (_name, recommendation, field) => {
@@ -218,9 +221,9 @@ describe('listLexicon', () => {
     const rows = await listLexicon(await mixedLibrary());
     expect(rows.map((row) => [row.id, row.interpretation])).toEqual([
       ['aa-first', '留白极简'],
-      ['aa-first', '精密仪器感'],
+      ['aa-first', '套色印刷感'],
       ['bb-second', '留白极简'],
-      ['bb-second', '精密仪器感'],
+      ['bb-second', '套色印刷感'],
     ]);
     expect(rows[0]).toMatchObject({ word: '大气', system: 'paper-editorial', approvalStatus: 'approved', samples: ['real-one'] });
     expect(rows[3]).toMatchObject({ system: '临时方向', approvalStatus: 'candidate', samples: [] });
@@ -270,13 +273,28 @@ describe('lexicon commands', () => {
 
     const onlyApproved = await ds('list-lexicon', '--status', 'approved', '--library', library);
     expect(onlyApproved.stdout.trim().split('\n')).toHaveLength(1);
-    const onlyIndustrial = await ds('list-lexicon', '--system', 'precision-industrial', '--library', library);
-    expect(onlyIndustrial.stdout.trim().split('\t')[2]).toBe('精密仪器感');
+    const onlyRiso = await ds('list-lexicon', '--system', 'riso-print', '--library', library);
+    expect(onlyRiso.code).toBe(0);
+    expect(onlyRiso.stdout.trim().split('\n')).toHaveLength(1);
+    expect(onlyRiso.stdout.trim().split('\t')[2]).toBe('套色印刷感');
   });
 
   test('list-lexicon rejects an unknown status or system with exit 2', async () => {
     const library = await makeLibrary([entry('lst-two')]);
     expect((await ds('list-lexicon', '--status', 'maybe', '--library', library)).code).toBe(2);
     expect((await ds('list-lexicon', '--system', 'neon-glow', '--library', library)).code).toBe(2);
+    expect((await ds('list-lexicon', '--system', REMOVED_SYSTEM, '--library', library)).code).toBe(2);
+  });
+
+  test.each([
+    [{ system: REMOVED_SYSTEM }, 'recommendation.system'],
+    [{ system: '临时方向', borrowLayoutsFrom: REMOVED_SYSTEM, direction: '深色底。' }, 'recommendation.borrowLayoutsFrom'],
+  ])('validate-lexicon rejects removed-system references with exit 1 (%j)', async (recommendation, field) => {
+    const item = entry('removed');
+    item.interpretations[0].recommendation = recommendation;
+    const result = await ds('validate-lexicon', '--library', await makeLibrary([item]));
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain(`removed：interpretations[0].${field}`);
+    expect(result.stderr).toContain('paper-editorial / riso-print');
   });
 });

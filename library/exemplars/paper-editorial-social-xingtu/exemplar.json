@@ -1,0 +1,33 @@
+{
+  "id": "paper-editorial-social-xingtu",
+  "title": "纸本编辑小红书配图「星图题签」",
+  "sourceType": "original",
+  "copyright": "本库原创（CC0-1.0）；鹞岭天文台为虚构机构",
+  "carrier": "social",
+  "systems": [
+    "paper-editorial"
+  ],
+  "capturedOn": "2026-10-13",
+  "media": {
+    "kind": "screenshot",
+    "status": "present",
+    "file": "screenshot.webp"
+  },
+  "annotation": {
+    "highlights": "一页古籍扉页：文武边栏框住全幅，上半是真实坐标的北天星图，仙女星系朱笔圈出；「鹞岭天文台」竖排题签在右，副题沿发丝界栏向下；左下一枚朱印「预约」，日期和预约入口横排在印旁。",
+    "reasons": "竖排只给题签，要核对的日期横排；朱色只落在星图的一个圈和一枚印上。",
+    "scenes": "讲一件值得慢慢看的事的社交配图，竖版画幅。",
+    "materialAnchor": "暖白哑光纸上的油墨印刷，朱笔批校",
+    "tonality": {
+      "静动": 2,
+      "疏密": 2,
+      "冷暖": 4,
+      "轻重": 2,
+      "庄谐": 2
+    }
+  },
+  "approval": {
+    "status": "approved",
+    "date": "2026-10-13"
+  }
+}

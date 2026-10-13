@@ -4,28 +4,33 @@
  * Output files in outDir: index.html, fonts/, report.json, report.md, plus per carrier: social-<canvas>.png (social); web-desktop.png, web-mobile.png (full page) and web-scroll.webm (web, built by web.ts; canvas reported as "1440+390");
  * slide-<nn>.png, slides.pdf, slides.webm (slides, built by slides.ts; the stage canvas is reported as "stage"). Returns the Report, artifact paths and the exit status (0 = no errors, 1 = errors found).
  * validateSystem is the first stage on its own (the validate-system subcommand): SYSTEM.md, token file, font references and system units; it throws one BuildError listing every problem.
- * Image ids referenced by the work (briefs in <library>/content/images.json) are resolved to files in <system>/images/ and copied into outDir/images/ (assets.ts); a missing id fails the build before rendering.
+ * Image ids referenced by slots or custom <img src="images/<id>.<ext>"> use work.images briefs before <library>/content/images.json and files in <system>/images/, copied into outDir/images/ (assets.ts); missing briefs/files fail before rendering.
  * Entrance choreography attributes (data-ds-enter and friends, choreography.ts) in the rendered units are validated against the system's tokens before rendering.
- * copyFonts (copy the used font files from the cache into outDir/fonts) is exported for other page builders (system-page.ts).
+ * Slides optionally load <system>/slides.transition.json (token references, slides-transition.ts) before assembling their page; motion.json stores both animation audit passes.
+ * Web/slides motion.json is the sole persisted copy of { animations, reduced }, the same animation records used by the checker (duration, easing, properties, entrance, delay and keyframes).
+ * CJK fonts are subset from the final page before rendering (font-subset.ts); font checks read the shipped files in outDir/fonts.
  * Validation problems (bad system, work, fonts or image files) throw BuildError before or during rendering and produce no report. Carriers without a renderer yet (see RENDERABLE_CARRIERS) fail after validation.
  */
-import { copyFile, mkdir, writeFile } from 'node:fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import { resolveWorkImages } from './assets.ts';
 import { assertChoreography, buildChoreographyScript } from './choreography.ts';
 import { ALL_RULES } from './checker/rules/index.ts';
 import { loadFontCheckData } from './checker/font-data.ts';
-import type { FontCheckData } from './checker/font-data.ts';
+import type { MotionSnapshot } from './checker/motion-audit.ts';
 import { runRules } from './checker/registry.ts';
 import { RENDERABLE_CARRIERS, SOCIAL_CANVASES } from './carriers.ts';
 import type { CarrierId } from './carriers.ts';
 import { loadFontManifest, loadImageBriefs, loadSharedContent, loadSkeleton, loadSystemUnits, mergeUnits } from './library.ts';
 import type { FontEntry, FontManifest, Skeleton } from './library.ts';
 import { DEFAULT_FONT_CACHE } from './fonts.ts';
+import { copyFonts } from './font-subset.ts';
 import { renderCustom, renderUnit } from './layout.ts';
 import { buildPage } from './page.ts';
 import { renderImage } from './render.ts';
 import { buildSlides } from './slides.ts';
+import { buildSlidesPage, SLIDE_WIDTH, SLIDE_HEIGHT } from './slides-page.ts';
+import { loadSlidesTransition } from './slides-transition.ts';
 import { exitCodeFor, makeReport, reportToMarkdown } from './report.ts';
 import { validateSystemDoc } from './system.ts';
 import type { SystemMeta } from './system.ts';
@@ -34,7 +39,7 @@ import type { ParsedTokens, ResolvedTokens } from './tokens.ts';
 import { BuildError } from './types.ts';
 import type { Finding, Report } from './types.ts';
 import { loadWork, resolveFragments, validateWork } from './work.ts';
-import { WEB_VIEWPORTS, checkWeb, renderWeb } from './web.ts';
+import { WEB_VIEWPORTS, buildWebPage, checkWeb, renderWeb } from './web.ts';
 import type { Work } from './work.ts';
 
 export interface BuildOptions {
@@ -60,7 +65,7 @@ export interface ValidatedSystem {
 export interface BuildResult {
   exitCode: 0 | 1;
   report: Report;
-  artifacts: { outDir: string; index: string; images: string[]; pdf?: string; video?: string; reportJson: string; reportMarkdown: string };
+  artifacts: { outDir: string; index: string; images: string[]; pdf?: string; video?: string; motionJson?: string; reportJson: string; reportMarkdown: string };
 }
 
 async function collect<T>(issues: string[], action: () => Promise<T>): Promise<T | undefined> {
@@ -101,17 +106,6 @@ export async function validateSystem(options: ValidateOptions): Promise<Validate
   return { meta: doc.meta, tokens: tokenFile.parsed, manifest, skeletons };
 }
 
-export async function copyFonts(fontCacheDir: string, fonts: FontEntry[], outDir: string): Promise<void> {
-  await mkdir(join(outDir, 'fonts'), { recursive: true });
-  for (const font of fonts) {
-    try {
-      await copyFile(join(fontCacheDir, font.file), join(outDir, 'fonts', font.file));
-    } catch {
-      throw new BuildError([`本地字体缓存里没有字体文件：${join(fontCacheDir, font.file)}（先运行「抓取字体」：pnpm ds fetch-fonts）`]);
-    }
-  }
-}
-
 async function writeReport(outDir: string, report: Report): Promise<{ reportJson: string; reportMarkdown: string }> {
   const reportJson = join(outDir, 'report.json');
   const reportMarkdown = join(outDir, 'report.md');
@@ -125,18 +119,23 @@ async function finishSlides(input: {
   work: Work;
   tokens: ResolvedTokens;
   usedFonts: FontEntry[];
-  fontCheck: FontCheckData;
+  manifest: FontManifest;
+  fontCacheDir: string;
   unitsHtml: string[];
   outDir: string;
 }): Promise<BuildResult> {
-  const { systemDir, work, tokens, usedFonts, fontCheck, unitsHtml, outDir } = input;
-  const slides = await buildSlides({ work, tokens, fonts: usedFonts, fontCheck, unitsHtml, outDir });
+  const { systemDir, work, tokens, usedFonts, manifest, fontCacheDir, unitsHtml, outDir } = input;
+  const transition = await loadSlidesTransition(systemDir, tokens);
+  const html = buildSlidesPage({ title: work.concept, cssVars: tokens.cssVars, fonts: usedFonts, unitsHtml, choreography: buildChoreographyScript(tokens), transition });
+  await copyFonts({ fontCacheDir, fonts: usedFonts, manifest, outDir, html, viewports: [{ width: SLIDE_WIDTH, height: SLIDE_HEIGHT }] });
+  const fontCheck = await loadFontCheckData(manifest.fonts, usedFonts, join(outDir, 'fonts'));
+  const slides = await buildSlides({ work, tokens, fonts: usedFonts, fontCheck, unitsHtml, outDir, transition });
   const report = makeReport(
     { system: basename(systemDir), work: { concept: work.concept, carrier: work.carrier, canvas: work.canvas ?? 'stage' } },
     slides.findings,
   );
   const files = await writeReport(outDir, report);
-  return { exitCode: exitCodeFor(report), report, artifacts: { outDir, index: slides.index, images: slides.images, pdf: slides.pdf, video: slides.video, ...files } };
+  return { exitCode: exitCodeFor(report), report, artifacts: { outDir, index: slides.index, images: slides.images, pdf: slides.pdf, video: slides.video, motionJson: slides.motionJson, ...files } };
 }
 
 export async function buildAndCheck(options: BuildOptions): Promise<BuildResult> {
@@ -165,28 +164,29 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
   }
 
   assertChoreography(unitsHtml, tokens);
-  await copyFonts(fontCacheDir, usedFonts, outDir);
-  const fontCheck = await loadFontCheckData(system.manifest.fonts, usedFonts, fontCacheDir);
-  if (work.carrier === 'slides') return finishSlides({ systemDir, work, tokens, usedFonts, fontCheck, unitsHtml, outDir });
+  if (work.carrier === 'slides') return finishSlides({ systemDir, work, tokens, usedFonts, manifest: system.manifest, fontCacheDir, unitsHtml, outDir });
+  const pageInput = { title: work.concept, cssVars: tokens.cssVars, fonts: usedFonts, unitsHtml, choreography: buildChoreographyScript(tokens) };
+  const size = work.carrier === 'web' ? WEB_VIEWPORTS.desktop : SOCIAL_CANVASES[work.canvas as keyof typeof SOCIAL_CANVASES];
+  const html = work.carrier === 'web' ? buildWebPage(pageInput) : buildPage({ ...pageInput, ...size });
+  await copyFonts({ fontCacheDir, fonts: usedFonts, manifest: system.manifest, outDir, html, viewports: work.carrier === 'web' ? Object.values(WEB_VIEWPORTS) : [size] });
+  const fontCheck = await loadFontCheckData(system.manifest.fonts, usedFonts, join(outDir, 'fonts'));
 
   let index: string;
   let images: string[];
   let video: string | undefined;
   let findings: Finding[];
   let canvas: string;
+  let motion: MotionSnapshot | undefined;
   if (work.carrier === 'web') {
-    const web = await renderWeb({ outDir, title: work.concept, cssVars: tokens.cssVars, fonts: usedFonts, unitsHtml, choreography: buildChoreographyScript(tokens) });
+    const web = await renderWeb({ outDir, ...pageInput });
     ({ index, images, video } = web);
     findings = checkWeb(web.snapshots, { work, tokens, fonts: fontCheck });
+    motion = web.snapshots.desktop.motion;
     canvas = `${WEB_VIEWPORTS.desktop.width}+${WEB_VIEWPORTS.mobile.width}`;
   } else {
     canvas = work.canvas!;
-    const size = SOCIAL_CANVASES[canvas as keyof typeof SOCIAL_CANVASES];
     index = join(outDir, 'index.html');
-    await writeFile(
-      index,
-      buildPage({ title: work.concept, cssVars: tokens.cssVars, fonts: usedFonts, ...size, unitsHtml }),
-    );
+    await writeFile(index, html);
     const png = join(outDir, `social-${canvas}.png`);
     const snapshot = await renderImage(index, size, png);
     images = [png];
@@ -198,6 +198,8 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
     findings,
   );
   const files = await writeReport(outDir, report);
+  const motionJson = motion ? join(outDir, 'motion.json') : undefined;
+  if (motionJson) await writeFile(motionJson, `${JSON.stringify(motion, null, 2)}\n`);
 
-  return { exitCode: exitCodeFor(report), report, artifacts: { outDir, index, images, ...(video !== undefined && { video }), ...files } };
+  return { exitCode: exitCodeFor(report), report, artifacts: { outDir, index, images, ...(video !== undefined && { video }), ...(motionJson && { motionJson }), ...files } };
 }

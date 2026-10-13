@@ -5,10 +5,12 @@
  *   texture-floor/shadow-direction: a shadow with an offset of at least minOffsetPx is reported when its direction differs from the system's light direction by more than toleranceDeg.
  *   texture-floor/radius-nesting: a child sitting in the corner of a rounded parent should have parent radius = child radius + parent padding (+ border); reported beyond tolerancePx.
  *   composition/*: measured ratios are compared with the system's declared [min, max] range with a slack of rangeSlack (absolute, in ratio units) so float noise never trips a boundary.
+ *   cjk-typography: character boxes may overlap by lineOverlapTolerancePx along the layout inline axis without starting a new line.
  */
 export const RULE_DATA = {
   'texture-floor/hueless-gray': { lightness: [0.2, 0.9], chromaBelow: 0.01 },
   'texture-floor/shadow-direction': { toleranceDeg: 15, minOffsetPx: 0.5 },
   'texture-floor/radius-nesting': { tolerancePx: 1 },
   composition: { rangeSlack: 0.005 },
+  'cjk-typography': { lineOverlapTolerancePx: 1 },
 } as const;

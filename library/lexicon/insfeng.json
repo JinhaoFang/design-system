@@ -84,8 +84,8 @@
       },
       "recommendation": {
         "system": "临时方向",
-        "borrowLayoutsFrom": "precision-industrial",
-        "direction": "黑白照片排成方格网，小字说明，排法借精密工业的网格体系。"
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "黑白照片排成方格网，小字说明，排法借纸本编辑的图版与图注，图版改成等距方格。"
       },
       "samples": {
         "status": "pending"

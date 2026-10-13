@@ -1,20 +1,23 @@
 /*
  * Behavior tests for the system page (体系总览页), driven through buildSystemPage with the fixture system and the fixture library.
  * They assert artifact specs only: the files that come out, the system's values appearing in the page text, the animation records the replays produce under normal and reduced motion,
- * the links and thumbnails of the layout overview, standard samples and approved exemplars, the tables of SYSTEM.md, the fonts grouped by family, and the checker report (zero errors, composition and anti-homogeneity skipped). No DOM structure, no pixels.
+ * the links and thumbnails of the layout overview, standard samples and approved exemplars, the tables of SYSTEM.md, the fonts grouped by family, and the checker report (zero errors, composition and anti-homogeneity skipped). Structure assertions cover section anchor links and static table/tab disclosure; no pixels.
  * One page is built once for the whole file (a real Chromium run), with a layout overview, a standard sample and a few exemplars linked into it; the paper-editorial page is built once more when the font cache exists (italic specimens, tables, zero errors).
+ * Separate sample and exemplar pages cover long captions and long external source URLs; their checker reports cover both web widths.
  */
 import { existsSync } from 'node:fs';
-import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { access, copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { chromium } from 'playwright';
+import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 import { beforeAll, describe, expect, test } from 'vitest';
 import { buildAndCheck } from '../src/build-and-check.ts';
 import { buildOverview } from '../src/overview.ts';
 import { buildSystemPage } from '../src/system-page.ts';
 import type { SystemPageResult } from '../src/system-page.ts';
-import { fixtures, pngSize, tempDir } from './helpers.ts';
+import { fixtures, pngSize, repoRoot, tempDir } from './helpers.ts';
 import { overviewLibrary } from './overview-helpers.ts';
-import { editText, patchedSystem, systemMd, writeFileDeep } from './system-helpers.ts';
+import { editText, patchedLibrary, patchedSystem, systemMd, writeFileDeep } from './system-helpers.ts';
 
 async function writeExemplar(library: string, id: string, patch: Record<string, unknown>): Promise<void> {
   const dir = join(library, 'exemplars', id);
@@ -153,6 +156,67 @@ describe('tables, fonts and thumbnails', () => {
   });
 });
 
+describe('generated navigation and static disclosure', () => {
+  test('every section links to its own anchor, preserves its count and visible content, and only the header has entrance motion', async () => {
+    const browser = await chromium.launch();
+    try {
+      const context = await browser.newContext();
+      await context.addInitScript(() => {
+        Object.defineProperty(window, 'localStorage', { get() { throw new Error('storage disabled'); } });
+        new MutationObserver((_records, observer) => {
+          if (document.documentElement) { document.documentElement.dataset.render = 'static'; observer.disconnect(); }
+        }).observe(document, { childList: true });
+      });
+      const view = await context.newPage();
+      const errors: string[] = [];
+      view.on('pageerror', (error) => errors.push(error.message));
+      await view.goto(pathToFileURL(page.artifacts.index).href);
+      await view.evaluate(async () => {
+        document.querySelectorAll('img').forEach((img) => img.loading = 'eager');
+        await Promise.all([...document.images].map((img) => img.decode().catch(() => {})));
+      });
+      const structure = await view.evaluate(() => ({
+        sections: [...document.querySelectorAll('.sp-section')].map((s) => {
+          const a = s.querySelector('.v2-heading')!;
+          const body = s.querySelector('.sp-main')!;
+          return { href: a.getAttribute('href') === `#${s.id}`, expanded: a.hasAttribute('aria-expanded'), buttons: s.querySelectorAll('.sp-head button').length, count: !!a.querySelector('.v2-meta'), visible: body.getBoundingClientRect().height > 0 };
+        }),
+        tabs: document.querySelectorAll('[role="tab"]').length,
+        panels: [...document.querySelectorAll('.v2-panel')].map((el) => getComputedStyle(el).display),
+        folds: [...document.querySelectorAll('details')].every((el) => el.open),
+        entrances: document.querySelectorAll('.sp-section [data-ds-enter]').length,
+        webThumbs: [...document.querySelectorAll<HTMLImageElement>('#layouts-web .sp-layout img')].map((el) => {
+          const style = getComputedStyle(el);
+          const frame = el.closest('.sp-layout-thumb')!.getBoundingClientRect();
+          return { src: el.getAttribute('src'), ratio: (el.getBoundingClientRect().width - parseFloat(style.borderLeftWidth) - parseFloat(style.borderRightWidth)) / (el.getBoundingClientRect().height - parseFloat(style.borderTopWidth) - parseFloat(style.borderBottomWidth)), naturalRatio: el.naturalWidth / el.naturalHeight, frameRatio: frame.width / frame.height, fit: style.objectFit, position: style.objectPosition };
+        }),
+      }));
+      expect(structure.sections).toHaveLength(10);
+      for (const section of structure.sections) expect(section).toEqual({ href: true, expanded: false, buttons: 0, count: true, visible: true });
+      expect(html).not.toContain('全部收起');
+      expect(html).not.toContain('全部展开');
+      expect(html).not.toContain('已收起，点标题展开');
+      expect(structure.tabs).toBe(3);
+      expect(structure.panels).toHaveLength(3);
+      expect(structure.panels).not.toContain('none');
+      expect(structure.folds).toBe(true);
+      expect(structure.entrances).toBe(0);
+      expect(structure.webThumbs).toHaveLength(5);
+      for (const thumb of structure.webThumbs) {
+        expect(thumb.src).toContain('layout-thumbnails/web-');
+        expect(thumb.ratio).toBeCloseTo(thumb.naturalRatio, 1);
+        expect(thumb.frameRatio).toBeCloseTo(4 / 3, 2);
+        expect(thumb.fit).toBe('cover');
+        expect(thumb.position).toBe('50% 0%');
+      }
+      expect(errors).toEqual([]);
+      await context.close();
+    } finally {
+      await browser.close();
+    }
+  });
+});
+
 describe('motion replays', () => {
   test('replaying every control records an animation for each entrance type, duration step, easing and stagger step', () => {
     const slots = slotsOf(page.replays.animations);
@@ -211,6 +275,29 @@ describe('checks on the page', () => {
   });
 });
 
+describe('sample thumbnail proportions', () => {
+  test('long web screenshots and long descriptions alongside slides and every social canvas have no layout errors at either web width', async () => {
+    const source = join(repoRoot, 'test', 'fixtures', 'system-page-samples');
+    const samples: { id: string; carrier: string; canvas?: string; image: string; concept: string }[] = JSON.parse(await readFile(join(source, 'samples.json'), 'utf8'));
+    const base = await tempDir('ds-system-page-samples-');
+    const worksDir = join(base, 'works');
+    for (const sample of samples) {
+      const dir = join(worksDir, sample.id);
+      await mkdir(dir, { recursive: true });
+      await writeFile(join(dir, 'index.html'), '<!doctype html><title>Sample</title>');
+      await copyFile(join(source, sample.image), join(dir, sample.image));
+      await writeFile(join(dir, 'report.json'), JSON.stringify({ system: 'mini', work: sample, summary: { errors: 0, warnings: 0 } }));
+    }
+    const result = await buildSystemPage({ systemDir: fixtures.system, outDir: join(base, 'system'), libraryDir: fixtures.library, fontCacheDir: fixtures.fontCache, worksDir });
+    expect(result.report.summary.errors, JSON.stringify(result.report.findings, null, 1)).toBe(0);
+    expect(result.report.findings.filter((finding) => finding.category === 'cjk-typography' && finding.location.unit === 'works' && finding.severity === 'error')).toEqual([]);
+    expect(result.exitCode).toBe(0);
+    const [desktop, mobile] = result.artifacts.images;
+    expect((await pngSize(desktop!)).width).toBe(1440);
+    expect((await pngSize(mobile!)).width).toBe(390);
+  });
+});
+
 describe('links', () => {
   const localLinks = () => [...html.matchAll(/(?:href|src)="([^"#:]+)"/g)].map((match) => match[1]!);
 
@@ -232,6 +319,33 @@ describe('links', () => {
   });
 });
 
+describe('long exemplar source URLs', () => {
+  test('external paths and query strings have no typesetting errors at either web width', async () => {
+    const urls = [
+      'https://www.thisiscolossal.com/2026/04/gabriella-marcella-risotto/?reference=external&view=full',
+      `https://example.com${'/04'.repeat(40)}/?view=full`,
+      `http://${'long-subdomain.'.repeat(8)}example.com:8080/full/source/path`,
+    ];
+    const library = await patchedLibrary(async (dir) => {
+      for (const [index, sourceUrl] of urls.entries()) await writeExemplar(dir, `long-url-${index}`, { sourceUrl });
+    });
+    const result = await buildSystemPage({ systemDir: fixtures.system, outDir: await tempDir(), libraryDir: library, fontCacheDir: fixtures.fontCache });
+    expect(result.report.findings.filter((finding) => finding.category === 'cjk-typography' && finding.location.unit === 'works')).toEqual([]);
+    expect(result.report.summary.errors, JSON.stringify(result.report.findings, null, 1)).toBe(0);
+    expect(result.exitCode).toBe(0);
+    const html = await readFile(result.artifacts.index, 'utf8');
+    for (const sourceUrl of urls) {
+      const escaped = sourceUrl.replaceAll('&', '&amp;');
+      expect(html).toContain(`href="${escaped}"`);
+      expect(html).toContain(`title="${escaped}"`);
+      expect(html).toContain(`>${new URL(sourceUrl).hostname}</a>`);
+    }
+    const [desktop, mobile] = result.artifacts.images;
+    expect((await pngSize(desktop!)).width).toBe(1440);
+    expect((await pngSize(mobile!)).width).toBe(390);
+  });
+});
+
 const realFonts = existsSync(join(process.cwd(), '.cache', 'fonts'));
 
 describe.skipIf(!realFonts)('the paper-editorial system page', () => {
@@ -247,7 +361,7 @@ describe('the page without links and with a custom header', () => {
     const text = await readFile(bare.artifacts.index, 'utf8');
     expect(bare.report.summary.errors).toBe(0);
     expect(text).toContain('排法总览还没有生成');
-    expect(text).toContain('标准样张还没有生成');
+    expect(text).toContain('体系样张还没有生成');
     expect(text).toContain('还没有已批准的范例');
   });
 

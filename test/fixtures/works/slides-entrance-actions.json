@@ -1,0 +1,37 @@
+{
+  "system": "mini",
+  "carrier": "slides",
+  "concept": "划出、按下落定和揭去的动效夹具",
+  "sequence": [
+    {
+      "unit": "cover",
+      "layout": "stack",
+      "content": {
+        "title": "发布二点零",
+        "subtitle": "更快的搜索，更稳的同步"
+      }
+    },
+    {
+      "unit": "statement",
+      "layout": "actions",
+      "content": {
+        "claim": "更快的搜索",
+        "support": "更稳的同步"
+      }
+    },
+    {
+      "custom": {
+        "file": "fragments/entrance-actions.html"
+      },
+      "serves": "验证进页触发的三种入场动作与揭去终态"
+    },
+    {
+      "unit": "closing",
+      "layout": "plain",
+      "content": {
+        "headline": "发布二点零",
+        "contact": "更稳的同步"
+      }
+    }
+  ]
+}

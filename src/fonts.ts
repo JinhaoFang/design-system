@@ -4,7 +4,8 @@
  * Entry fields: id (kebab-case, unique; token files reference it), family (CSS family used in @font-face), postScriptName (the name Chromium reports for the file, from the
  * font's own name table; the checker matches rendered fonts on it), weight (1-1000), style (optional, normal | italic, default normal; an italic face is its own entry with its own file and PostScript name, and its @font-face carries font-style:italic), scripts (cjk | latin: what the font covers), file (cache file name),
  * license { name, url (official license page), file? (license text next to the manifest) }, permissions { commercial, webEmbed, fileEmbed } (booleans, checked against the
- * official license), carriers (carrier ids the license allows), pptSafe (a common system font that survives PPT without embedding), source { url (http, https or file), sha256 of the downloaded file }.
+ * official license), carriers (carrier ids the license allows), pptSafe (a common system font that survives PPT without embedding), source { url (http, https or file), sha256 of the final font file,
+ * archive? { type: zip, file: exact POSIX member path, sha256: archive checksum } }. With archive, url points to the ZIP; member paths must be relative, without empty, dot or parent segments, backslashes, colons or NULs.
  * Consistency: a carrier that ships the font inside HTML (web, slides) requires permissions.webEmbed.
  * loadFontManifest throws one BuildError listing every problem; an empty list is valid (the real library starts empty).
  */
@@ -30,7 +31,7 @@ export interface FontEntry {
   permissions: { commercial: boolean; webEmbed: boolean; fileEmbed: boolean };
   carriers: string[];
   pptSafe: boolean;
-  source: { url: string; sha256: string };
+  source: { url: string; sha256: string; archive?: { type: 'zip'; file: string; sha256: string } };
 }
 
 export const fontStyleOf = (font: FontEntry): (typeof FONT_STYLES)[number] => font.style ?? 'normal';
@@ -107,6 +108,19 @@ export function checkFontEntries(fonts: unknown, source: string): string[] {
       if (!isUrl(sourceInfo.url, ['https:', 'http:', 'file:'])) issues.push(`${at} 的 source.url 需为官方下载地址`);
       if (!isString(sourceInfo.sha256) || !/^[0-9a-f]{64}$/.test(sourceInfo.sha256)) {
         issues.push(`${at} 的 source.sha256 需为 64 位小写十六进制`);
+      }
+      if (sourceInfo.archive !== undefined) {
+        const archive = sourceInfo.archive;
+        if (!isObject(archive)) issues.push(`${at} 的 source.archive 需为对象（type、file、sha256）`);
+        else {
+          if (archive.type !== 'zip') issues.push(`${at} 的 source.archive.type 只支持 zip`);
+          if (!isString(archive.file) || /[\\:\0]/.test(archive.file) || archive.file.split('/').some((part) => ['', '.', '..'].includes(part))) {
+            issues.push(`${at} 的 source.archive.file 需为包内文件的相对路径（用 / 分隔，不能含空段、.、..、反斜杠、冒号或空字符）`);
+          }
+          if (!isString(archive.sha256) || !/^[0-9a-f]{64}$/.test(archive.sha256)) {
+            issues.push(`${at} 的 source.archive.sha256 需为 64 位小写十六进制`);
+          }
+        }
       }
     }
   });

@@ -18,6 +18,7 @@ import { scanArtifacts } from './artifact-scan.ts';
 import type { ArtifactEntry } from './artifact-scan.ts';
 import { escapeHtml } from './layout.ts';
 import { FLAT_CSS, OVERVIEW_ROUTE, countsText, detectLayout, encodePath, groupedHome, listingBases, overviewListing, pageShell } from './preview-nav.ts';
+import { DEFAULT_FONT_CACHE } from './fonts.ts';
 import { BuildError } from './types.ts';
 
 export interface PreviewOptions {
@@ -93,7 +94,7 @@ export async function navigationPage(dir: string): Promise<string> {
   const layout = await detectLayout(dir, entries);
   if (layout.kind !== 'flat') return groupedHome(dir, layout, flatSections);
   const body = entries.length ? await flatSections(entries) : '<p class="empty">这个目录下没有可打开的产物（含 index.html 的子目录）。</p>';
-  return pageShell('预览导航', dir, body, FLAT_CSS);
+  return pageShell('预览导航', dir, body, FLAT_CSS, '', entries);
 }
 
 async function overviewPage(root: string, pathname: string): Promise<string | undefined> {
@@ -139,6 +140,12 @@ async function handle(root: string, req: IncomingMessage, res: ServerResponse): 
     pathname = decodeURIComponent(new URL(req.url ?? '/', 'http://localhost').pathname);
   } catch {
     return send(res, 400, 'text/plain; charset=utf-8', '路径无法解析');
+  }
+  if (pathname.startsWith('/_preview-fonts/')) {
+    const name = pathname.slice('/_preview-fonts/'.length);
+    if (!['Inter-Regular.woff2', 'Inter-Medium.woff2', 'NotoSansSC-Regular.otf', 'NotoSansSC-Bold.otf'].includes(name)) return send(res, 404, 'text/plain', '找不到');
+    const file = join(DEFAULT_FONT_CACHE, name);
+    try { return await serveFile(req, res, file, (await stat(file)).size); } catch { return send(res, 404, 'text/plain', '找不到字体'); }
   }
   if (pathname === '/') return send(res, 200, MIME['.html']!, await navigationPage(root));
   const listing = await overviewPage(root, pathname);

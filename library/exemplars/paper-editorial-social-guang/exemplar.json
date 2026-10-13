@@ -1,0 +1,33 @@
+{
+  "id": "paper-editorial-social-guang",
+  "title": "纸本编辑方形配图「光走了二百五十万年」",
+  "sourceType": "original",
+  "copyright": "本库原创（CC0-1.0）；鹞岭天文台为虚构机构",
+  "carrier": "social",
+  "systems": [
+    "paper-editorial"
+  ],
+  "capturedOn": "2026-10-13",
+  "media": {
+    "kind": "screenshot",
+    "status": "present",
+    "file": "screenshot.webp"
+  },
+  "annotation": {
+    "highlights": "观测日志的一页：页眉一道墨线上的日志抬头，台长的一句话横排成三行细字，「250 万年」下一道朱笔；右下一块仙女星系的点描图版，左下楷书落款。",
+    "reasons": "一句话就是主角，图版退为注脚；细笔大字配点描图版，像印在同一张纸上。",
+    "scenes": "金句、引语类的方形社交配图。",
+    "materialAnchor": "暖白哑光纸上的油墨印刷，朱笔批校",
+    "tonality": {
+      "静动": 2,
+      "疏密": 2,
+      "冷暖": 4,
+      "轻重": 2,
+      "庄谐": 2
+    }
+  },
+  "approval": {
+    "status": "approved",
+    "date": "2026-10-13"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "duration": "--ds-duration-slow",
+  "easing": "--ds-easing-settle",
+  "shadow": "--ds-shadow-page",
+  "shadeColor": "--ds-color-page-shade",
+  "retreat": "--ds-space-4"
+}

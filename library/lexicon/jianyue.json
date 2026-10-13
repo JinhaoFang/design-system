@@ -53,8 +53,8 @@
       },
       "recommendation": {
         "system": "临时方向",
-        "borrowLayoutsFrom": "precision-industrial",
-        "direction": "单色或双色的无衬线字压在严格网格上，层级只靠字号与位置，排法借精密工业的网格与对齐规则。"
+        "borrowLayoutsFrom": "paper-editorial",
+        "direction": "单色或双色的无衬线字压在严格网格上，层级只靠字号与位置，排法借纸本编辑的分栏与对齐，宋体换成无衬线。"
       },
       "samples": {
         "status": "pending"

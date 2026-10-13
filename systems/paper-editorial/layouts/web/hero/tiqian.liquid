@@ -1,0 +1,168 @@
+{% comment %}
+题签 tiqian：方向稿 A「古籍扉页」的跨页首屏。文武边栏（墨 3px + 发丝 1px）框住一个视口高的跨页，正中一条版心：两道墨线夹着竖排的眉题，上下各一枚鱼尾（下面那枚倒置）。
+右页是题签：标题竖排在右（title 档，朱雀仿宋，按标点分列），左下角横排导语和行动；左页是一块图版，四周留纸。竖排只给标题和眉题，导语、行动一律横排。
+本排法要求标题不超过 16 字（竖排的单处上限），更长的标题用「日志」。
+入场：版框洇出，标题自上而下逐列上浮（glide + paper），眉题、导语、行动依次洇出，图版最后。
+手机：去掉版心，眉题横排在版框顶部；题签在上（仍竖排，title 档），导语和行动在下，图版放到最后。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: var(--ds-space-6) var(--ds-space-8) var(--ds-space-7);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+    font-size: var(--ds-type-body);
+    line-height: 1.85;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  :scope * { box-sizing: border-box; }
+  p, h1, figure { margin: 0; }
+  .spread {
+    position: relative;
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) 72px minmax(0, 1fr);
+    width: 100%;
+    max-width: 1312px;
+    margin: 0 auto;
+    border: 3px solid var(--ds-color-ink);
+  }
+  .spread::before {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border: 1px solid var(--ds-color-rule);
+    pointer-events: none;
+  }
+  .page-l {
+    display: grid;
+    place-items: center;
+    padding: var(--ds-space-7) var(--ds-space-6);
+  }
+  .plate { width: 100%; }
+  .plate img { display: block; width: 100%; height: auto; }
+  .banxin {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--ds-space-4) 0;
+  }
+  .banxin::before, .banxin::after {
+    content: "";
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    background: var(--ds-color-ink);
+  }
+  .banxin::before { left: 14px; }
+  .banxin::after { right: 14px; }
+  .yuwei { display: block; width: 24px; height: 16px; fill: var(--ds-color-ink); }
+  .yuwei.up { transform: scaleY(-1); }
+  .eyebrow {
+    writing-mode: vertical-rl;
+    font-size: var(--ds-type-note);
+    letter-spacing: .5em;
+    color: var(--ds-color-ink-2);
+  }
+  .page-r {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--ds-space-7);
+    padding: var(--ds-space-8) var(--ds-space-7) var(--ds-space-7);
+  }
+  .title {
+    grid-column: 2;
+    grid-row: 1;
+    writing-mode: vertical-rl;
+    max-height: 9em;
+    font-size: var(--ds-type-title);
+    font-family: var(--ds-font-latin), var(--ds-font-cjk-display);
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: .14em;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+  .text {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: end;
+    max-width: 18em;
+  }
+  .lead {
+    font-size: var(--ds-type-body);
+    line-height: 1.95;
+    color: var(--ds-color-ink-2);
+    text-align: justify;
+    text-wrap: pretty;
+    font-feature-settings: "onum" 1;
+  }
+  .act {
+    position: relative;
+    display: inline-block;
+    margin-top: var(--ds-space-5);
+    padding-bottom: var(--ds-space-1);
+    border-bottom: 1px solid var(--ds-color-ink);
+    color: var(--ds-color-ink);
+    font-weight: 600;
+    letter-spacing: .2em;
+    text-decoration: none;
+  }
+  .act::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    height: 2px;
+    background: var(--ds-color-zhu);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--ds-duration-dot) var(--ds-easing-ink);
+  }
+  .act:hover::after, .act:focus-visible::after { transform: scaleX(1); }
+  @media (max-width: 860px) {
+    :scope { min-height: auto; padding: var(--ds-space-5); }
+    .spread { grid-template-columns: minmax(0, 1fr); }
+    .banxin { order: -2; flex-direction: row; justify-content: flex-start; gap: var(--ds-space-3); padding: var(--ds-space-5) var(--ds-space-5) 0; }
+    .banxin::before, .banxin::after, .banxin .yuwei.up { display: none; }
+    .eyebrow { writing-mode: horizontal-tb; letter-spacing: .3em; }
+    .page-r { order: -1; grid-template-columns: 1fr; gap: var(--ds-space-6); padding: var(--ds-space-6) var(--ds-space-5); }
+    .title { grid-column: 1; justify-self: end; max-height: none; height: 8.6em; }
+    .text { grid-column: 1; grid-row: 2; max-width: none; }
+    .page-l { padding: 0 var(--ds-space-5) var(--ds-space-6); }
+  }
+</style>
+<div class="spread" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="0">
+  <div class="page-l">
+    <figure class="plate" data-ds-enter="fade" data-ds-step="glide" data-ds-ease="ink" data-ds-order="5">{{ slots.visual }}</figure>
+  </div>
+  <div class="banxin">
+    <svg class="yuwei" viewBox="0 0 24 16" aria-hidden="true"><path d="M0 0H24V10L17 5.5L12 11.5L7 5.5L0 10Z"/></svg>
+    <p class="eyebrow" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="2">{{ slots.eyebrow }}</p>
+    <svg class="yuwei up" viewBox="0 0 24 16" aria-hidden="true"><path d="M0 0H24V10L17 5.5L12 11.5L7 5.5L0 10Z"/></svg>
+  </div>
+  <div class="page-r">
+    <h1 class="title" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="1">{{ slots.headline }}</h1>
+    <div class="text">
+      <p class="lead" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="3">{{ slots.lead }}</p>
+      <a class="act" href="#" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="4">{{ slots.cta }}</a>
+    </div>
+  </div>
+</div>

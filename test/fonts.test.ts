@@ -8,10 +8,12 @@ import { readFile, readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { promisify } from 'node:util';
+import { zipSync } from 'fflate';
 import { describe, expect, test } from 'vitest';
 import { validateSystem } from '../src/build-and-check.ts';
 import { fetchFonts } from '../src/fetch-fonts.ts';
 import { loadFontManifest } from '../src/fonts.ts';
+import type { FontEntry } from '../src/fonts.ts';
 import type { BuildResult } from '../src/build-and-check.ts';
 import { fixtures, repoRoot, run, tempDir } from './helpers.ts';
 import { box, customWork } from './custom-work.ts';
@@ -82,11 +84,12 @@ describe('font list format', () => {
 const FONT_BYTES = Buffer.from('pretend this is a font file, long enough to hash');
 const FONT_SHA = createHash('sha256').update(FONT_BYTES).digest('hex');
 
-async function libraryFor(url: string, sha256 = FONT_SHA): Promise<string> {
+async function libraryFor(url: string, sha256 = FONT_SHA, archive?: FontEntry['source']['archive']): Promise<string> {
   return patchedLibrary((dir) =>
     editJson(join(dir, 'fonts', 'manifest.json'), (m) => {
       m.fonts[0].file = 'Pretend-Regular.woff2';
       m.fonts[0].source = { url, sha256 };
+      if (archive !== undefined) m.fonts[0].source.archive = archive;
     }),
   );
 }
@@ -251,6 +254,93 @@ describe('fetch-fonts', () => {
       code: 2,
       stderr: expect.stringContaining('校验和'),
     });
+  });
+});
+
+describe('fetch-fonts ZIP sources', () => {
+  const member = 'release/fonts/Pretend-Regular.woff2';
+
+  async function zipSource() {
+    const path = join(await tempDir(), 'release.zip');
+    const data = zipSync({ [member]: FONT_BYTES, 'release/OFL.txt': Buffer.from('license fixture') });
+    await writeFile(path, data);
+    return { path, url: pathToFileURL(path).href, archive: { type: 'zip' as const, file: member, sha256: createHash('sha256').update(data).digest('hex') } };
+  }
+
+  test('extracts only the requested member into the cache and reuses it without reading the ZIP again', async () => {
+    const source = await zipSource();
+    const library = await libraryFor(source.url, FONT_SHA, source.archive);
+    const cache = await tempDir('ds-cache-');
+    expect(await fetchFonts({ libraryDir: library, fontCacheDir: cache, ids: ['noto-sans-sc-fixture'] })).toEqual({
+      fetched: ['noto-sans-sc-fixture'], cached: [],
+    });
+    expect(await readdir(cache)).toEqual(['Pretend-Regular.woff2']);
+    expect(await readFile(join(cache, 'Pretend-Regular.woff2'))).toEqual(FONT_BYTES);
+    await writeFile(source.path, 'the ZIP is no longer valid');
+    expect(await fetchFonts({ libraryDir: library, fontCacheDir: cache })).toEqual({
+      fetched: [], cached: ['noto-sans-sc-fixture'],
+    });
+  });
+
+  test.each(['archive checksum', 'missing member', 'inherited member', 'font checksum', 'invalid ZIP'] as const)(
+    '%s fails with the font id and leaves no bad files, including an existing corrupt cache', async (failure) => {
+      const source = await zipSource();
+      let fontSha = FONT_SHA;
+      let reason: RegExp;
+      if (failure === 'archive checksum') {
+        source.archive.sha256 = 'a'.repeat(64);
+        reason = /压缩包校验和不符/;
+      } else if (failure === 'missing member') {
+        source.archive.file = 'missing.woff2';
+        reason = /没有指定文件「missing\.woff2」/;
+      } else if (failure === 'inherited member') {
+        source.archive.file = 'constructor';
+        reason = /没有指定文件「constructor」/;
+      } else if (failure === 'font checksum') {
+        fontSha = 'b'.repeat(64);
+        reason = /校验和不符/;
+      } else {
+        const invalid = Buffer.from('not a ZIP');
+        await writeFile(source.path, invalid);
+        source.archive.sha256 = createHash('sha256').update(invalid).digest('hex');
+        reason = /无法读取 ZIP/;
+      }
+      const library = await libraryFor(source.url, fontSha, source.archive);
+      for (const corruptCache of [false, true]) {
+        const cache = await tempDir('ds-cache-');
+        if (corruptCache) await writeFile(join(cache, 'Pretend-Regular.woff2'), 'corrupted');
+        const attempt = fetchFonts({ libraryDir: library, fontCacheDir: cache });
+        await expect(attempt).rejects.toThrow(/noto-sans-sc-fixture/);
+        await expect(attempt).rejects.toThrow(reason);
+        expect(await readdir(cache)).toEqual([]);
+      }
+    },
+  );
+
+  test('replaces an invalid cached font with the verified ZIP member', async () => {
+    const source = await zipSource();
+    const cache = await tempDir('ds-cache-');
+    await writeFile(join(cache, 'Pretend-Regular.woff2'), 'corrupted');
+    expect((await fetchFonts({ libraryDir: await libraryFor(source.url, FONT_SHA, source.archive), fontCacheDir: cache })).fetched).toEqual(['noto-sans-sc-fixture']);
+    expect(await readFile(join(cache, 'Pretend-Regular.woff2'))).toEqual(FONT_BYTES);
+    expect(await readdir(cache)).toEqual(['Pretend-Regular.woff2']);
+  });
+
+  test.each([
+    ['archive object', null, /source\.archive/],
+    ['type', { type: 'tar', file: member, sha256: FONT_SHA }, /source\.archive\.type/],
+    ['missing file', { type: 'zip', sha256: FONT_SHA }, /source\.archive\.file/],
+    ['checksum', { type: 'zip', file: member, sha256: 'abc' }, /source\.archive\.sha256/],
+    ...['', '/font.ttf', '../font.ttf', 'fonts/../font.ttf', './font.ttf', 'fonts//font.ttf', 'fonts/', 'fonts\\font.ttf', 'C:/font.ttf', 'font\0.ttf'].map((file) =>
+      [file, { type: 'zip', file, sha256: FONT_SHA }, /source\.archive\.file/] as const,
+    ),
+  ] as const)('rejects invalid archive declaration: %s before downloading', async (_name, archive, reason) => {
+    const library = await libraryFor('file:///nonexistent-release.zip');
+    await editJson(join(library, 'fonts', 'manifest.json'), (m) => { m.fonts[0].source.archive = archive; });
+    const cache = await tempDir('ds-cache-');
+    const attempt = fetchFonts({ libraryDir: library, fontCacheDir: cache });
+    await expect(attempt).rejects.toThrow(reason);
+    expect(await readdir(cache)).toEqual([]);
   });
 });
 

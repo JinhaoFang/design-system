@@ -1,0 +1,61 @@
+{% comment %}
+页尾 yewei：方向稿 B 的日志页尾。2px 墨线开头；左边品牌（宋体 600，sub 档）和声明（caption 字号，ink-2，最多两行宽）；右边是链接，横排流动成行，链接之间留空，不排成等大的格子。
+底部一行发丝线收住，像日志最后一页的页脚。不加卷次。
+入场：整条洇出。
+手机：上下排列，链接两行折排。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    padding: var(--ds-space-9) var(--ds-space-8);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+    font-size: var(--ds-type-body);
+    line-height: 1.85;
+    counter-increment: pe-juan;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  :scope * { box-sizing: border-box; }
+  h2, h3, p, ul, ol, li, figure, figcaption, dl, dt, dd, blockquote { margin: 0; padding: 0; }
+  ul, ol { list-style: none; }
+  .yuwei { display: block; flex: none; width: 24px; height: 16px; fill: var(--ds-color-ink); }
+  .no::before { content: counter(pe-juan, simp-chinese-formal); }
+  :scope { counter-increment: none; padding: 0 var(--ds-space-8) var(--ds-space-8); }
+  .wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: var(--ds-space-8);
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: var(--ds-space-6) 0 var(--ds-space-7);
+    border-top: 2px solid var(--ds-color-ink);
+    border-bottom: 1px solid var(--ds-color-rule);
+  }
+  .brand { font-size: var(--ds-type-sub); font-weight: 600; letter-spacing: .2em; line-height: 1.3; }
+  .legal { max-width: 26em; margin-top: var(--ds-space-4); font-size: var(--ds-type-caption); line-height: 1.7; color: var(--ds-color-ink-2); }
+  .links { display: flex; flex-wrap: wrap; align-content: start; gap: var(--ds-space-3) var(--ds-space-6); padding-top: var(--ds-space-2); }
+  .links a { color: var(--ds-color-ink); text-decoration: none; letter-spacing: .12em; border-bottom: 1px solid transparent; }
+  .links a:hover { border-bottom-color: var(--ds-color-zhu); }
+  @media (max-width: 860px) {
+    :scope { padding: 0 var(--ds-space-5) var(--ds-space-7); }
+    .wrap { grid-template-columns: minmax(0, 1fr); gap: var(--ds-space-5); }
+    .links { gap: var(--ds-space-2) var(--ds-space-5); }
+  }
+</style>
+<div class="wrap" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink">
+  <div>
+    <p class="brand">{{ slots.brand }}</p>
+    <p class="legal">{{ slots.legal }}</p>
+  </div>
+  <nav class="links">{% for link in slots.links %}<a href="#">{{ link }}</a>{% endfor %}</nav>
+</div>

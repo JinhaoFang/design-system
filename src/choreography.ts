@@ -2,19 +2,35 @@
  * Entrance choreography helper (入场编排): a declarative way for layouts (.liquid) and custom fragments to stage entrances using only the system's motion values.
  * Authoring API (plain data attributes in the layout or fragment HTML):
  *   data-ds-enter="fade|rise|fall|left|right"   mark an element to enter; rise/fall/left/right add a short displacement on top of the fade (empty value = fade).
- *   data-ds-order="<n>"                         position in the sequence of its group (default: document order); equal numbers enter together.
+ *   data-ds-enter="draw-x|draw-y"              draw from left to right (scaleX, left origin) or top to bottom (scaleY, top origin); reduced motion shows the finished drawing without animation.
+ *   data-ds-enter="stamp"                      fade in while scaling from motion.stampScale (DTCG number > 1, required only when stamp is used) to the natural CSS transform.
+ *   data-ds-enter="peel-left|peel-right|peel-up|peel-down"  move a cover by 100% of its own size; retain the terminal transform and opacity 0 with fill both. Reduced motion only fades out.
+ *   data-ds-order="<n>"                         position in the sequence of its group (default: document order); equal numbers share the stagger delay before any per-element wait.
  *   data-ds-stagger="<name>"                    on a group container: the --ds-stagger-<name> step between members (default: the smallest stagger step, 0 if the system has none).
  *   data-ds-step="<name>"                       duration step --ds-duration-<name> (default: base, else the middle step).
+ *   data-ds-wait="<name>"                       extra wait --ds-duration-<name> added to this element's rank * stagger delay (default: 0); does not delay other group members.
  *   data-ds-ease="<name>"                       easing --ds-easing-<name> (default: settle, else the first one).
+ *   data-ds-opacity-step="<name>" / data-ds-opacity-ease="<name>" override opacity timing for transform entrances (rise/fall/left/right, draw, stamp, peel).
+ *   System defaults: token root $extensions["io.github.jinhaofang.design-system"].entrance.opacity = { step: "<duration name>", ease: "<easing name>" }.
+ *   With a default or either override, transform and opacity use separate animations with the same delay; missing opacity fields fall back to the entrance's step/ease.
+ *   Draw also fades in and peel also fades out when separate timing is selected. Without any declaration their original transform-only behavior is retained; fade and reduced motion ignore opacity timing.
  *   data-ds-distance="<name>"                   displacement --ds-space-<name> (default: the middle space step).
  * A group is the nearest ancestor with data-ds-stagger, else the enclosing unit section. Durations, easings, stagger and distances all come from the resolved tokens, embedded into the script at build time;
- * unknown names are rejected by validateChoreography (a BuildError before rendering).
- * Runtime (buildChoreographyScript, a classic inline script placed after the page content): animates with element.animate from (opacity 0, offset) to the natural CSS state, fill "backwards" only, so the
- * element is in its normal state once the animation ends or is finished (stills). Web: elements in view on load enter together; the others enter in batches when scrolled into view (IntersectionObserver); elements scrolled past without being seen are left alone.
- * Under html[data-render="static"] it does nothing (content is shown immediately). Slides: registers window.dsSlides.onEnter and enters the marked elements of each slide when it is entered, returning
- * a promise for dsSlides.entered(). Under prefers-reduced-motion: reduce it drops the displacement and the stagger and keeps only a fade of the shortest duration step.
+ * unknown names are rejected by validateChoreography (a BuildError before rendering); an unknown wait names the sequence item and element's opening tag.
+ * CHOREOGRAPHY_HEAD activates a screen-only pending state before parsing content, only when scripts and Web Animations are available and rendering is not static.
+ * Ordinary entrances and their entire subtrees stay hidden until their animations exist, even when descendants explicitly set visibility:visible; covers and their descendants retain their natural covered state. Without activation, covers are hidden and other content stays visible.
+ * Bootstrap failure (3000 ms after DOMContentLoaded without runtime registration), script errors and unhandled rejections release all content and cancel entrance animations.
+ * Runtime (buildChoreographyScript, a classic inline script placed after the page content): non-cover entrances use fill backwards and return to natural CSS. Completed covers get data-ds-revealed,
+ * which hides the entire cover subtree and removes it from the checker snapshot; replay cancels the previous animation and removes this mark. Origins are set outside keyframes, so only transform/opacity animate.
+ * Initial web batch and initial slide entry wait for document.fonts.ready after forcing layout to discover used faces. The wait is capped at 3000 ms:
+ * this allows large Chinese faces to load within the browser's usual font-block window without leaving content hidden indefinitely on a stalled network.
+ * Waiting ordinary elements and their subtrees are hidden without changing layout; peel covers stay visible. Static rendering bypasses the wait; later scroll/slide entries do not wait.
+ * Web: elements in view on load enter together after that wait; others enter in batches when scrolled into view (IntersectionObserver); covers scrolled past without being seen are finalized.
+ * Under html[data-render="static"] covers are finalized synchronously, including off-screen covers; other content is shown immediately. Print CSS finalizes all covers, including unvisited slides.
+ * Slides: ds:slide-prepare resets every entrance before the target is shown, including revisits; window.dsSlides.onEnter plays after the page turn settles and returns all animations for dsSlides.entered(), including extra waits.
+ * Reduced motion drops displacement, scaling, stagger and extra waits, and uses the shortest duration for stamp/fade/peel.
  */
-import type { ResolvedTokens } from './tokens.ts';
+import type { EntranceOpacity, ResolvedTokens } from './tokens.ts';
 import { BuildError } from './types.ts';
 
 export interface ChoreographyConfig {
@@ -22,9 +38,40 @@ export interface ChoreographyConfig {
   staggers: Record<string, number>;
   easings: Record<string, string>;
   spaces: Record<string, number>;
+  stampScale: number | undefined;
+  opacity: EntranceOpacity | undefined;
 }
 
-const EFFECTS = ['fade', 'rise', 'fall', 'left', 'right'];
+const EFFECTS = ['fade', 'rise', 'fall', 'left', 'right', 'draw-x', 'draw-y', 'stamp', 'peel-left', 'peel-right', 'peel-up', 'peel-down'];
+
+function prepareChoreography(): void {
+  const root = document.documentElement;
+  if (root.getAttribute('data-render') === 'static' || typeof Element.prototype.animate !== 'function') return;
+  const fallback = (): void => {
+    root.removeAttribute('data-ds-choreography');
+    document.querySelectorAll('[data-ds-enter]').forEach((el) => {
+      el.getAnimations().forEach((animation) => animation.cancel());
+      el.removeAttribute('data-ds-font-wait');
+    });
+  };
+  let timer: number | undefined;
+  let registered = false;
+  (window as any).__dsChoreographyReady = (): void => {
+    registered = true;
+    window.clearTimeout(timer);
+  };
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!registered) timer = window.setTimeout(fallback, 3000);
+  }, { once: true });
+  window.addEventListener('error', fallback);
+  window.addEventListener('unhandledrejection', fallback);
+  root.setAttribute('data-ds-choreography', '');
+}
+
+export const CHOREOGRAPHY_HEAD = `<style>
+@media screen{html[data-ds-choreography]:not([data-render="static"]) :is([data-ds-enter]:not([data-ds-entered]),[data-ds-enter]:not([data-ds-entered]) *):not([data-ds-enter^="peel-"],[data-ds-enter^="peel-"] *){visibility:hidden!important}}
+html:not([data-ds-choreography]) [data-ds-enter^="peel-"],html:not([data-ds-choreography]) [data-ds-enter^="peel-"] *{visibility:hidden!important;pointer-events:none!important}
+</style><script>(${prepareChoreography.toString()})();</script>`;
 
 function group(tokens: ResolvedTokens, prefix: string, pick: (entry: ResolvedTokens['entries'][number]) => number | string | undefined): Record<string, any> {
   const result: Record<string, any> = {};
@@ -42,6 +89,8 @@ export function choreographyConfig(tokens: ResolvedTokens): ChoreographyConfig {
     staggers: group(tokens, '--ds-stagger-', (entry) => entry.number),
     easings: group(tokens, '--ds-easing-', (entry) => entry.css),
     spaces: group(tokens, '--ds-space-', (entry) => entry.number),
+    stampScale: tokens.entries.find((entry) => entry.cssVar === '--ds-motion-stampScale')?.number,
+    opacity: tokens.entranceOpacity,
   };
 }
 
@@ -50,20 +99,29 @@ export function validateChoreography(unitsHtml: string[], tokens: ResolvedTokens
   const allowed: Record<string, string[]> = {
     enter: EFFECTS,
     step: Object.keys(config.durations),
+    wait: Object.keys(config.durations),
     ease: Object.keys(config.easings),
+    'opacity-step': Object.keys(config.durations),
+    'opacity-ease': Object.keys(config.easings),
     stagger: Object.keys(config.staggers),
     distance: Object.keys(config.spaces),
     order: [],
   };
   const issues: string[] = [];
-  for (const html of unitsHtml) {
-    for (const [, attribute, value] of html.matchAll(/\sdata-ds-(enter|step|ease|stagger|distance|order)="([^"]*)"/g)) {
+  for (const [index, html] of unitsHtml.entries()) {
+    for (const match of html.matchAll(/\sdata-ds-(enter|step|wait|ease|opacity-step|opacity-ease|stagger|distance|order)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi)) {
+      const attribute = match[1]!.toLowerCase();
+      const value = match[2] ?? match[3] ?? match[4]!;
       const names = allowed[attribute!]!;
+      if (attribute === 'enter' && value === 'stamp' && config.stampScale === undefined) {
+        issues.push('data-ds-enter="stamp" 缺少体系令牌 motion.stampScale（$type: number，$value: 大于 1 的起始放大倍数）');
+      }
       if (attribute === 'order') {
         if (!/^-?\d+$/.test(value!)) issues.push(`data-ds-order="${value}" 不是整数`);
       } else if (attribute === 'enter' && value === '') continue;
       else if (!names.includes(value!)) {
-        issues.push(`data-ds-${attribute}="${value}" 不在体系里，可用：${names.join('、') || '（无）'}`);
+        const element = attribute === 'wait' ? `；序列第 ${index + 1} 项，元素：${html.slice(html.lastIndexOf('<', match.index), html.indexOf('>', match.index) + 1)}` : '';
+        issues.push(`data-ds-${attribute}="${value}" 不在体系里，可用：${names.join('、') || '（无）'}${element}`);
       }
     }
   }
@@ -77,8 +135,30 @@ export function assertChoreography(unitsHtml: string[], tokens: ResolvedTokens):
 
 function choreograph(config: ChoreographyConfig): void {
   const root = document.documentElement;
-  if (root.getAttribute('data-render') === 'static') return;
-  if (typeof Element.prototype.animate !== 'function') return;
+  const marked = (scope: ParentNode): HTMLElement[] => [...scope.querySelectorAll<HTMLElement>('[data-ds-enter]')];
+  const peelMoves: Record<string, string> = {
+    'peel-left': 'translateX(-100%)',
+    'peel-right': 'translateX(100%)',
+    'peel-up': 'translateY(-100%)',
+    'peel-down': 'translateY(100%)',
+  };
+  const style = document.createElement('style');
+  style.textContent = '@media screen{[data-ds-font-wait],[data-ds-font-wait] *:not([data-ds-enter^="peel-"],[data-ds-enter^="peel-"] *){visibility:hidden!important}}[data-ds-revealed]{opacity:0!important}[data-ds-revealed],[data-ds-revealed] *{visibility:hidden!important;pointer-events:none!important}' +
+    '@media print{' + Object.entries(peelMoves).map(([effect, move]) =>
+      `[data-ds-enter="${effect}"]{transform:${move}!important;opacity:0!important}[data-ds-enter="${effect}"],[data-ds-enter="${effect}"] *{visibility:hidden!important}`,
+    ).join('') + '}';
+  document.head.append(style);
+  const finalize = (el: HTMLElement): void => {
+    const move = peelMoves[el.getAttribute('data-ds-enter') ?? ''];
+    if (!move) return;
+    el.style.transform = move;
+    el.style.opacity = '0';
+    el.setAttribute('data-ds-revealed', '');
+  };
+  if (root.getAttribute('data-render') === 'static' || typeof Element.prototype.animate !== 'function') {
+    marked(document).forEach(finalize);
+    return;
+  }
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const middle = (names: string[], sortBy: (name: string) => number): string | undefined => names.slice().sort((a, b) => sortBy(a) - sortBy(b))[Math.floor((names.length - 1) / 2)];
   const durationNames = Object.keys(config.durations);
@@ -109,8 +189,22 @@ function choreograph(config: ChoreographyConfig): void {
     return moves[effect] ?? '';
   };
 
-  const enter = (el: Element, delay: number): Animation => {
+  const active = new WeakMap<Element, Animation[]>();
+  const reset = (el: HTMLElement): void => {
+    active.get(el)?.forEach((animation) => animation.cancel());
+    active.delete(el);
+    el.removeAttribute('data-ds-revealed');
+    el.removeAttribute('data-ds-entered');
+  };
+  const enter = (el: HTMLElement, delay: number): Animation[] => {
+    reset(el);
     const effect = el.getAttribute('data-ds-enter') || 'fade';
+    const peel = peelMoves[effect];
+    const draw = effect === 'draw-x' || effect === 'draw-y';
+    if (draw && reduced) {
+      el.setAttribute('data-ds-entered', '');
+      return [];
+    }
     const stepName = el.getAttribute('data-ds-step') ?? defaultStep!;
     const easeName = el.getAttribute('data-ds-ease') ?? defaultEase;
     const distanceName = el.getAttribute('data-ds-distance') ?? defaultDistance;
@@ -124,13 +218,57 @@ function choreograph(config: ChoreographyConfig): void {
       from['transform'] = move;
       to['transform'] = 'none';
     }
-    const animation = el.animate([from, to], { duration, delay: reduced ? 0 : delay, easing, fill: 'backwards' });
-    animation.finished.catch(() => undefined);
-    return animation;
+    const natural = getComputedStyle(el).transform;
+    const transform = natural === 'none' ? '' : ` ${natural}`;
+    if (draw) {
+      el.style.transformOrigin = effect === 'draw-x' ? 'left center' : 'center top';
+      delete from.opacity;
+      delete to.opacity;
+      from.transform = `${effect === 'draw-x' ? 'scaleX(0)' : 'scaleY(0)'}${transform}`;
+      to.transform = natural;
+    } else if (effect === 'stamp' && !reduced) {
+      from.transform = `scale(${config.stampScale})${transform}`;
+      to.transform = natural;
+    } else if (peel) {
+      from.opacity = 1;
+      to.opacity = 0;
+      if (!reduced) {
+        delete from.opacity;
+        delete to.opacity;
+        from.transform = natural;
+        to.transform = `${peel}${transform}`;
+      }
+    }
+    const waitName = el.getAttribute('data-ds-wait');
+    const wait = waitName === null ? 0 : (config.durations[waitName] ?? 0);
+    const options: KeyframeAnimationOptions = { duration, delay: reduced ? 0 : delay + wait, easing, fill: peel ? 'both' : 'backwards' };
+    const opacityStep = el.getAttribute('data-ds-opacity-step') ?? config.opacity?.step ?? stepName;
+    const opacityEase = el.getAttribute('data-ds-opacity-ease') ?? config.opacity?.ease ?? easeName;
+    const split = !reduced && from.transform !== undefined && (config.opacity !== undefined || el.hasAttribute('data-ds-opacity-step') || el.hasAttribute('data-ds-opacity-ease'));
+    const animations: Animation[] = [];
+    if (split) {
+      delete from.opacity;
+      delete to.opacity;
+      animations.push(el.animate([from, to], options));
+      animations.push(el.animate([{ opacity: peel ? 1 : 0 }, { opacity: peel ? 0 : 1 }], {
+        ...options, duration: config.durations[opacityStep]!, easing: config.easings[opacityEase]!,
+      }));
+    } else animations.push(el.animate([from, to], options));
+    active.set(el, animations);
+    el.setAttribute('data-ds-entered', '');
+    Promise.all(animations.map((animation) => animation.finished)).then(() => {
+      if (peel && active.get(el) === animations) el.setAttribute('data-ds-revealed', '');
+    }).catch(() => undefined);
+    return animations;
   };
 
-  const play = (elements: Element[]): Animation[] => {
-    const groups = new Map<Element, Element[]>();
+  const play = (elements: HTMLElement[]): Animation[] => {
+    if (!root.hasAttribute('data-ds-choreography')) {
+      showWaiting(elements);
+      elements.forEach(finalize);
+      return [];
+    }
+    const groups = new Map<Element, HTMLElement[]>();
     for (const el of elements) {
       const container = groupOf(el);
       groups.set(container, [...(groups.get(container) ?? []), el]);
@@ -140,17 +278,54 @@ function choreograph(config: ChoreographyConfig): void {
       const keyed = members.map((el, position) => ({ el, order: orderOf(el, position) }));
       const ranks = [...new Set(keyed.map((item) => item.order))].sort((a, b) => a - b);
       const step = staggerOf(container);
-      for (const item of keyed) animations.push(enter(item.el, ranks.indexOf(item.order) * step));
+      for (const item of keyed) {
+        animations.push(...enter(item.el, ranks.indexOf(item.order) * step));
+      }
     }
     return animations;
   };
 
-  const marked = (scope: ParentNode): Element[] => [...scope.querySelectorAll('[data-ds-enter]')];
+  const hideWaiting = (elements: HTMLElement[]): void => {
+    elements.filter((el) => !el.closest('[data-ds-enter^="peel-"]')).forEach((el) => el.setAttribute('data-ds-font-wait', ''));
+  };
+  const showWaiting = (elements: HTMLElement[]): void => {
+    elements.forEach((el) => el.removeAttribute('data-ds-font-wait'));
+  };
+  const waitForFonts = (): Promise<void> => {
+    document.body.getBoundingClientRect();
+    return new Promise((resolve) => {
+      const timeout = window.setTimeout(resolve, 3000);
+      const ready = (): void => {
+        window.clearTimeout(timeout);
+        resolve();
+      };
+      document.fonts.ready.then(ready, ready);
+    });
+  };
 
   if (document.body.getAttribute('data-carrier') === 'slides') {
+    let initial = true;
+    let revision = 0;
+    document.addEventListener('ds:slide-prepare', (event) => {
+      revision += 1;
+      showWaiting(marked(document));
+      marked(event.target as Element).forEach(reset);
+    });
     const dsSlides = (window as any).dsSlides;
     if (dsSlides && typeof dsSlides.onEnter === 'function') {
-      dsSlides.onEnter((slide: Element) => Promise.allSettled(play(marked(slide)).map((animation) => animation.finished)));
+      dsSlides.onEnter(async (slide: Element) => {
+        const ownRevision = ++revision;
+        const elements = marked(slide);
+        if (initial) {
+          initial = false;
+          hideWaiting(elements);
+          await waitForFonts();
+          if (ownRevision !== revision) return;
+          showWaiting(elements);
+        }
+        return Promise.allSettled(play(elements).map((animation) => animation.finished));
+      });
+      (window as any).__dsChoreographyReady?.();
     }
     return;
   }
@@ -162,11 +337,24 @@ function choreograph(config: ChoreographyConfig): void {
   };
   const inView = pending.filter(visible);
   const later = pending.filter((el) => !inView.includes(el));
-  play(inView);
-  if (!later.length || typeof IntersectionObserver !== 'function') return;
+  hideWaiting(inView);
+  void waitForFonts().then(() => {
+    showWaiting(inView);
+    play(inView);
+  });
+  (window as any).__dsChoreographyReady?.();
+  if (!later.length) return;
+  if (typeof IntersectionObserver !== 'function') {
+    play(later);
+    return;
+  }
   const observer = new IntersectionObserver((entries) => {
     const passed = entries.filter((entry) => !entry.isIntersecting && entry.boundingClientRect.bottom <= 0);
-    const batch = entries.filter((entry) => entry.isIntersecting).map((entry) => entry.target);
+    const batch = entries.filter((entry) => entry.isIntersecting).map((entry) => entry.target as HTMLElement);
+    passed.forEach((entry) => {
+      finalize(entry.target as HTMLElement);
+      entry.target.setAttribute('data-ds-entered', '');
+    });
     [...passed.map((entry) => entry.target), ...batch].forEach((el) => observer.unobserve(el));
     if (batch.length) play(batch);
   });

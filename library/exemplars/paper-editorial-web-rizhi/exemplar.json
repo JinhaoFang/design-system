@@ -1,0 +1,34 @@
+{
+  "id": "paper-editorial-web-rizhi",
+  "title": "纸本编辑网页「观测日志的一页，装订成一卷刻本」",
+  "sourceType": "original",
+  "copyright": "本库原创（CC0-1.0）；鹞岭天文台为虚构机构",
+  "carrier": "web",
+  "systems": [
+    "paper-editorial"
+  ],
+  "capturedOn": "2026-10-13",
+  "media": {
+    "kind": "screenshot",
+    "status": "present",
+    "file": "screenshot.webp"
+  },
+  "annotation": {
+    "highlights": "首屏是天文台的观测日志：日志抬头、细宋体大标题，朱笔只划在「开放观测夜」下；往下翻是古籍的卷次（壹贰叁自动编号），缘起、图版夹页、录表逐卷展开，读过三卷安静的文字后，满版揭开一幅北天星图作为全页唯一出血的一屏；再往下是星表与纪事，最后一张横排的预约票券钤着朱印，卷末牌记收尾。",
+    "reasons": "整页节奏有意安排：安静段与满版高潮交替，段间靠留白和衬纸分段而不画分隔线；票券这类要核对的信息坚持横排；手机宽度下竖排题签退化为段首横排。",
+    "scenes": "文化机构、博物馆、天文台、出版社的项目介绍落地页。",
+    "materialAnchor": "暖白哑光纸上的油墨印刷，朱笔批校",
+    "tonality": {
+      "静动": 2,
+      "疏密": 2,
+      "冷暖": 4,
+      "轻重": 2,
+      "庄谐": 2
+    }
+  },
+  "approval": {
+    "status": "approved",
+    "date": "2026-10-13"
+  },
+  "notes": "快照为 1440 宽整页截图。"
+}

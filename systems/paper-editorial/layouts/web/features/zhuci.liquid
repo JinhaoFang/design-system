@@ -1,0 +1,83 @@
+{% comment %}
+主次 zhuci：六项不等大。第一项是这一屏的主角：条名放到 title 档（朱雀仿宋，数字等高），说明用 lead 字号写在下面；其余五项退为一张两栏的小录，条名宋体 600、说明 ink-2，
+条间发丝界栏。小标题和导语在最上一行（鱼尾 + 卷次 + 标题，导语靠右）。用大小和位置分主次，不排成等大卡片。
+入场：小标题洇出，主项上浮，小录逐条洇出（line 错峰）。
+手机：单栏，主项条名降到 head 档，小录合为一栏。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    padding: var(--ds-space-9) var(--ds-space-8);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+    font-size: var(--ds-type-body);
+    line-height: 1.85;
+    counter-increment: pe-juan;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  :scope * { box-sizing: border-box; }
+  h2, h3, p, ul, ol, li, figure, figcaption, dl, dt, dd, blockquote { margin: 0; padding: 0; }
+  ul, ol { list-style: none; }
+  .yuwei { display: block; flex: none; width: 24px; height: 16px; fill: var(--ds-color-ink); }
+  .no::before { content: counter(pe-juan, simp-chinese-formal); }
+  .wrap { max-width: 1240px; margin: 0 auto; }
+  .top {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 22em);
+    gap: var(--ds-space-6);
+    align-items: baseline;
+    padding-bottom: var(--ds-space-4);
+    border-bottom: 1px solid var(--ds-color-ink);
+  }
+  .tag { display: flex; align-items: center; gap: var(--ds-space-3); font-size: var(--ds-type-note); font-weight: 600; letter-spacing: .3em; color: var(--ds-color-ink-3); }
+  .heading { font-size: var(--ds-type-sub); font-weight: 600; line-height: 1.4; letter-spacing: .06em; }
+  .lead { font-size: var(--ds-type-note); line-height: 1.8; color: var(--ds-color-ink-2); text-wrap: pretty; font-feature-settings: "onum" 1; }
+  .main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--ds-space-9);
+    padding-top: var(--ds-space-8);
+  }
+  .first h3 { font-size: var(--ds-type-title); font-family:var(--ds-font-latin), var(--ds-font-cjk-display);font-weight:400; line-height: 1.15; letter-spacing: .02em; font-feature-settings: "lnum" 1; }
+  .first p { max-width: 16em; margin-top: var(--ds-space-5); font-size: var(--ds-type-lead); line-height: 1.8; color: var(--ds-color-ink-2); text-align: justify; text-wrap: pretty; font-feature-settings: "onum" 1; }
+  .rest { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--ds-space-6); align-content: start; }
+  .rest div { padding: var(--ds-space-4) 0; border-bottom: 1px solid var(--ds-color-rule-light); }
+  .rest h3 { font-size: var(--ds-type-body); font-weight: 600; line-height: 1.6; letter-spacing: .04em; font-feature-settings: "lnum" 1; }
+  .rest p { margin-top: var(--ds-space-1); font-size: var(--ds-type-note); line-height: 1.75; color: var(--ds-color-ink-2); text-wrap: pretty; font-feature-settings: "onum" 1; }
+  @media (max-width: 860px) {
+    :scope { padding: var(--ds-space-9) var(--ds-space-5); }
+    .top { grid-template-columns: auto minmax(0, 1fr); gap: var(--ds-space-3); }
+    .lead { grid-column: 1 / -1; }
+    .main { grid-template-columns: minmax(0, 1fr); gap: var(--ds-space-6); padding-top: var(--ds-space-7); }
+    .first h3 { font-size: var(--ds-type-head); }
+    .first p { font-size: var(--ds-type-body); max-width: none; }
+    .rest { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>
+<div class="wrap">
+  <div class="top" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="0">
+    <p class="tag" aria-hidden="true"><svg class="yuwei" viewBox="0 0 24 16" aria-hidden="true"><path d="M0 0H24V10L17 5.5L12 11.5L7 5.5L0 10Z"/></svg><span class="no"></span></p>
+    <h2 class="heading">{{ slots.heading }}</h2>
+    <p class="lead">{{ slots.lead }}</p>
+  </div>
+  <div class="main">
+    <div class="first" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="1">
+      <h3>{{ slots.itemTitles[0] }}</h3>
+      <p>{{ slots.itemBodies[0] }}</p>
+    </div>
+    <div class="rest" data-ds-stagger="line">
+      {% for title in slots.itemTitles offset:1 %}{% assign i = forloop.index0 | plus: 1 %}<div data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink"><h3>{{ title }}</h3><p>{{ slots.itemBodies[i] }}</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>

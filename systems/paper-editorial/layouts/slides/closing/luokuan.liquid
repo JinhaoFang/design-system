@@ -1,0 +1,89 @@
+{% comment %}
+落款 luokuan：书末的牌记。文武边栏框住全页；结束语居中（朱雀仿宋、title 档），其下一条短墨线，再下是联系方式（EB Garamond、lead）；行动号召收进牌记下方居中的一枚朱印（楷书竖排，每列至多三字），不做按钮。
+朱色：仅朱印。入场：结束语洇出，联系方式随后，朱印最后按下落定。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    padding: var(--ds-space-6) var(--ds-space-7);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+    text-spacing-trim: trim-both;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  p, h1, h2, ol, ul, li, figure, figcaption, blockquote { margin: 0; padding: 0; }
+  p, li, blockquote { text-wrap: pretty; }
+  h1, h2 { text-wrap: balance; }
+  .frame {
+    position: absolute;
+    inset: var(--ds-space-5);
+    border: 3px solid var(--ds-color-ink);
+    pointer-events: none;
+  }
+  .frame::before {
+    content: "";
+    position: absolute;
+    inset: var(--ds-space-1);
+    border: 1px solid var(--ds-color-rule);
+  }
+  .main {
+    position: absolute;
+    inset: var(--ds-space-8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .headline {
+    font-size: var(--ds-type-title);
+    font-family: var(--ds-font-latin), var(--ds-font-cjk-display);
+    font-weight: 400;
+    letter-spacing: .06em;
+    line-height: 1.2;
+  }
+  .bar { width: var(--ds-space-8); margin: var(--ds-space-5) 0; border-top: 2px solid var(--ds-color-ink); }
+  .contact {
+    font-family: var(--ds-font-latin);
+    font-size: var(--ds-type-lead);
+    letter-spacing: .04em;
+    color: var(--ds-color-ink-2);
+  }
+  .seal {
+    box-sizing: content-box;
+    max-height: 3em;
+    margin-top: var(--ds-space-7);
+    padding: var(--ds-space-2);
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    background: var(--ds-color-zhu);
+    color: var(--ds-color-paper);
+    font-family: var(--ds-font-kai);
+    font-size: var(--ds-type-lead);
+    line-height: 1.15;
+    text-align: start;
+    filter: url(#pe-rough-s);
+  }
+  .contact:has(> :empty), .seal:has(> :empty) { display: none; }
+</style>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="pe-rough-s" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="2.4" result="d"/><feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="2" seed="9" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.1 1.92" result="holes"/><feComposite in="d" in2="holes" operator="in"/></filter></svg>
+<div class="frame"></div>
+<div class="main">
+  <h1 class="headline" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-step="glide" data-ds-order="1">{{ slots.headline }}</h1>
+  <div class="bar" aria-hidden="true"></div>
+  <p class="contact" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="2">{{ slots.contact }}</p>
+  <p class="seal" data-ds-enter="stamp" data-ds-step="turn" data-ds-ease="press" data-ds-order="3">{{ slots.action }}</p>
+</div>

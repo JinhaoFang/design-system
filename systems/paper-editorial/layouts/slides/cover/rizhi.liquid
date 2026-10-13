@@ -1,0 +1,103 @@
+{% comment %}
+日志 rizhi：观测日志的扉页。页眉是 2px 墨线上的日期（等宽数字）；主标题朱雀仿宋、display 档，按 5 字一行折两行，末行坐在约 62% 高度的一条基线上（基线是一条贯穿全页的发丝线）；副题 lead ink-2 在基线下；落款（presenter）收进右下一枚小朱印（楷书竖排，每列至多三字）。
+朱色：仅朱印。入场：标题升起，副题洇出，页眉随后，朱印最后按下落定。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    padding: var(--ds-space-6) var(--ds-space-7);
+    background: var(--ds-color-paper);
+    color: var(--ds-color-ink);
+    font-family: var(--ds-font-body);
+    text-spacing-trim: trim-both;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .30 0 0 0 0 .24 0 0 0 0 .17 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  p, h1, h2, ol, ul, li, figure, figcaption, blockquote { margin: 0; padding: 0; }
+  p, li, blockquote { text-wrap: pretty; }
+  h1, h2 { text-wrap: balance; }
+  .run {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--ds-space-5);
+    padding-bottom: var(--ds-space-2);
+    border-bottom: 2px solid var(--ds-color-ink);
+    font-size: var(--ds-type-caption);
+    letter-spacing: .16em;
+    line-height: 1.5;
+    color: var(--ds-color-ink-2);
+  }
+  .run .date { font-feature-settings: "lnum" 1, "tnum" 1; letter-spacing: .08em; }
+  .main {
+    position: absolute;
+    left: var(--ds-space-7);
+    right: var(--ds-space-7);
+    bottom: 38%;
+  }
+  .title {
+    width: 5.3em;
+    text-wrap: wrap;
+    font-size: var(--ds-type-display);
+    font-family: var(--ds-font-latin), var(--ds-font-cjk-display);
+    font-weight: 400;
+    letter-spacing: .02em;
+    line-height: 1.14;
+  }
+  .base {
+    position: absolute;
+    left: var(--ds-space-7);
+    right: var(--ds-space-7);
+    top: 62%;
+    border-top: 1px solid var(--ds-color-rule);
+  }
+  .subtitle {
+    position: absolute;
+    left: var(--ds-space-7);
+    top: calc(62% + var(--ds-space-5));
+    max-width: 24em;
+    font-size: var(--ds-type-lead);
+    letter-spacing: .04em;
+    line-height: 1.6;
+    color: var(--ds-color-ink-2);
+  }
+  .subtitle:has(> :empty) { display: none; }
+  .seal {
+    position: absolute;
+    right: var(--ds-space-8);
+    bottom: var(--ds-space-7);
+    box-sizing: content-box;
+    max-height: 3em;
+    padding: var(--ds-space-2);
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    background: var(--ds-color-zhu);
+    color: var(--ds-color-paper);
+    font-family: var(--ds-font-kai);
+    font-size: var(--ds-type-lead);
+    letter-spacing: 0;
+    line-height: 1.15;
+    filter: url(#pe-rough-s);
+    transform: rotate(-3deg);
+  }
+  .seal:has(> :empty) { display: none; }
+</style>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="pe-rough-s" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="2.4" result="d"/><feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="2" seed="9" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.1 1.92" result="holes"/><feComposite in="d" in2="holes" operator="in"/></filter></svg>
+<div class="run" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="3"><span></span><span class="date">{{ slots.date }}</span></div>
+<div class="main">
+  <h1 class="title" data-ds-enter="rise" data-ds-step="glide" data-ds-ease="paper" data-ds-distance="3" data-ds-order="1">{{ slots.title }}</h1>
+</div>
+<div class="base" aria-hidden="true"></div>
+<p class="subtitle" data-ds-enter="fade" data-ds-step="ink" data-ds-ease="ink" data-ds-order="2">{{ slots.subtitle }}</p>
+<p class="seal" data-ds-enter="stamp" data-ds-step="turn" data-ds-ease="press" data-ds-order="4">{{ slots.presenter }}</p>

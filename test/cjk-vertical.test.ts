@@ -1,14 +1,15 @@
 /*
  * Behavior tests for line detection in vertical writing (each column is a line; line start is the top, line end the bottom), driven only through buildAndCheck.
  * The vertical layouts are written into a temp copy of the fixture system so the shared fixture system (overview and regression builds) stays unchanged.
- * Block height is fixed at 7.25 em, so the column breaks after seven characters.
+ * Block size is fixed at 7.25 em (three for short seals), so line breaks are deterministic.
+ * Rotated fixtures put the transform on a wrapper ancestor, as on paper-editorial seals.
  */
 import { cp, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, test } from 'vitest';
 import { fixtures, patchedWork, run, tempDir } from './helpers.ts';
 
-function layout(writingMode: string, lineBreak: string): string {
+function layout(writingMode: string, lineBreak: string, rotated = false, short = false): string {
   return `<style>
   :scope {
     box-sizing: border-box;
@@ -22,9 +23,10 @@ function layout(writingMode: string, lineBreak: string): string {
     color: var(--ds-color-ink);
     font-family: var(--ds-font-body);
   }
-  .title { font-weight: 400; font-size: var(--ds-type-0); line-height: 1.5; margin: 0; writing-mode: ${writingMode}; height: calc(var(--ds-type-0) * 7.25); line-break: ${lineBreak}; }
+  .rotation { transform: ${rotated ? 'rotate(-3deg)' : 'none'}; transition: transform var(--ds-duration-quick) var(--ds-easing-settle); }
+  .title { font-weight: 400; font-size: var(--ds-type-0); line-height: 1.5; margin: 0; writing-mode: ${writingMode}; ${writingMode === 'horizontal-tb' ? 'width' : 'height'}: calc(var(--ds-type-0) * ${short ? '3.25' : '7.25'}); line-break: ${lineBreak}; }
 </style>
-<h1 class="title">{{ slots.title }}</h1>
+<div class="rotation"><h1 class="title">{{ slots.title }}</h1></div>
 `;
 }
 
@@ -36,6 +38,11 @@ async function verticalSystem(): Promise<string> {
   await writeFile(join(titles, 'vertical-lr.liquid'), layout('vertical-lr', 'auto'));
   await writeFile(join(titles, 'sideways-lr.liquid'), layout('sideways-lr', 'auto'));
   await writeFile(join(titles, 'vertical-anywhere.liquid'), layout('vertical-rl', 'anywhere'));
+  for (const mode of ['vertical-rl', 'vertical-lr', 'sideways-lr', 'horizontal-tb']) {
+    await writeFile(join(titles, `rotated-${mode}.liquid`), layout(mode, 'auto', true));
+    await writeFile(join(titles, `rotated-${mode}-anywhere.liquid`), layout(mode, 'anywhere', true));
+    await writeFile(join(titles, `rotated-${mode}-short.liquid`), layout(mode, 'auto', true, true));
+  }
   return dir;
 }
 
@@ -82,5 +89,37 @@ describe('cjk vertical writing', () => {
   test('a single column is not an orphan', async () => {
     const result = await runVertical('vertical-rl', '发布二点零');
     expect(result.report.findings).toEqual([]);
+  });
+
+  test.each(['vertical-rl', 'vertical-lr'])('rotated %s: a three/two-character seal has no orphan', async (mode) => {
+    const result = await runVertical(`rotated-${mode}-short`, '预约观测夜');
+    expect(result.report.findings).toEqual([]);
+    expect(result.exitCode).toBe(0);
+  });
+
+  test.each(['vertical-rl', 'vertical-lr', 'sideways-lr', 'horizontal-tb'])('rotated %s: a genuine orphan still warns', async (mode) => {
+    const result = await runVertical(`rotated-${mode}`, '发布二点零新版本');
+    expect(result.exitCode).toBe(0);
+    expect(result.report.findings).toEqual([
+      expect.objectContaining({ ruleId: 'cjk-typography/orphan-line', severity: 'warning', message: expect.stringContaining('本') }),
+    ]);
+  });
+
+  test.each(['vertical-rl', 'vertical-lr', 'sideways-lr', 'horizontal-tb'])('rotated %s: legal punctuation has no findings', async (mode) => {
+    const result = await runVertical(`rotated-${mode}`, PUNCTUATED);
+    expect(result.report.findings).toEqual([]);
+  });
+
+  test.each(['vertical-rl', 'horizontal-tb'])('rotated %s: illegal line edges are still detected', async (mode) => {
+    const start = await runVertical(`rotated-${mode}-anywhere`, '发布二点零新版。更新很快');
+    expect(start.exitCode).toBe(1);
+    expect(start.report.findings).toEqual([
+      expect.objectContaining({ ruleId: 'cjk-typography/line-start-forbidden', severity: 'error', message: expect.stringContaining('。') }),
+    ]);
+    const end = await runVertical(`rotated-${mode}-anywhere`, '发布二点零新「版本」更新');
+    expect(end.exitCode).toBe(1);
+    expect(end.report.findings).toEqual([
+      expect.objectContaining({ ruleId: 'cjk-typography/line-end-forbidden', severity: 'error', message: expect.stringContaining('「') }),
+    ]);
   });
 });

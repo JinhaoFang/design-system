@@ -13,6 +13,7 @@
 | `agents/run-spec.md`、`agents/run-spec.json` | 执行技能的本仓库配置 |
 | `agents/triage-labels.md`、`agents/domain.md` | Matt 技能的标签表、术语文档布局 |
 | `adr/` | 架构决策记录 |
+| `design/` | 设计负责人给工具界面定稿的原型和规则，例如 `design/preview-v2/`（预览导航与体系总览页） |
 | `../GLOSSARY.md` | 术语表 |
 | `../library/craft.md` | 工艺规范 |
 

@@ -1,0 +1,42 @@
+<style>
+:scope { position:relative; box-sizing:border-box; isolation:isolate; padding:var(--ds-space-7) var(--ds-space-8); background:var(--ds-color-paper); color:var(--ds-color-blue); font-family:var(--ds-font-num); font-variant-numeric:tabular-nums lining-nums; font-size:var(--ds-type-body); line-height:1.7; }
+:scope * { box-sizing:border-box; }
+h1,h2,h3,p,ul,ol,li,figure,blockquote,dl,dd,dt { margin:0; padding:0; }
+ul,ol { list-style:none; }
+p,blockquote,figcaption { text-wrap:pretty; }
+a { color:inherit; text-underline-offset:.25em; }
+a:focus-visible { outline:2px solid var(--ds-color-blue); outline-offset:var(--ds-space-1); }
+.wrap { max-width:1240px; margin:0 auto; }
+.kicker { font-size:var(--ds-type-note); border-top:6px solid var(--ds-color-blue); padding-top:var(--ds-space-3); margin-bottom:var(--ds-space-6); }
+.heading { font-size:var(--ds-type-head); line-height:1.35; font-weight:700; text-wrap:balance; }
+.print-heading { width:fit-content; max-width:100%; padding:var(--ds-space-2) var(--ds-space-4); background:var(--ds-color-pink); color:var(--ds-color-purple); margin-bottom:var(--ds-space-5); }
+.lead { font-size:var(--ds-type-lead); max-width:40em; text-wrap:pretty; }
+.body { max-width:40em; text-wrap:pretty; }
+.stack { display:grid; gap:var(--ds-space-5); }
+.split { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--ds-space-8); align-items:center; }
+figure img { display:block; width:100%; height:auto; }
+.stripe { height:var(--ds-space-3); margin:var(--ds-space-5) 0; background:repeating-linear-gradient(135deg,var(--ds-color-pink) 0 var(--ds-space-1),transparent var(--ds-space-1) var(--ds-space-2)); }
+.rows { border-top:2px solid var(--ds-color-blue); }
+.row { display:grid; grid-template-columns:var(--ds-space-8) minmax(0,1fr) minmax(0,2fr); gap:var(--ds-space-5); padding:var(--ds-space-4) 0; border-bottom:2px solid var(--ds-color-blue); align-items:baseline; }
+.num { font-family:var(--ds-font-num); font-variant-numeric:tabular-nums lining-nums; }
+.row .num { font-size:var(--ds-type-head); font-weight:700; line-height:1.16; }
+.row h3 { font-size:var(--ds-type-lead); font-weight:700; }
+.note { font-size:var(--ds-type-note); }
+.stamp { display:grid; place-content:center; text-align:center; width:var(--ds-space-10); height:var(--ds-space-10); border-radius:var(--ds-radius-disc); background:var(--ds-color-pink); color:var(--ds-color-purple); font-weight:700; font-size:var(--ds-type-lead); text-decoration:none; padding:var(--ds-space-4); transition:transform var(--ds-duration-press) var(--ds-easing-press); }
+.stamp:hover,.stamp:focus-visible { transform:scale(calc(1 / var(--ds-motion-stampScale))); }
+.stamp:active { transform:translateY(var(--ds-space-1)) scale(calc(1 / var(--ds-motion-stampScale))); }
+.logos { display:flex; flex-wrap:wrap; gap:var(--ds-space-5); align-items:center; }
+.logos img { width:var(--ds-space-10); height:auto; }
+blockquote { font-size:var(--ds-type-sub); line-height:1.7; max-width:30em; }
+.cite { font-size:var(--ds-type-body); margin-top:var(--ds-space-5); }
+@media(max-width:860px) {
+ :scope { padding:var(--ds-space-6) var(--ds-space-5); }
+ .split { grid-template-columns:1fr; gap:var(--ds-space-7); }
+ .heading { font-size:var(--ds-type-sub); }
+ .lead { font-size:var(--ds-type-body); }
+ .row { grid-template-columns:var(--ds-space-8) minmax(0,1fr); gap:var(--ds-space-3); }
+ .row p { grid-column:1 / -1; }
+ blockquote { font-size:var(--ds-type-lead); }
+}
+@media(prefers-reduced-motion:reduce) { .stamp { transition:none; }.stamp:hover,.stamp:focus-visible,.stamp:active { transform:none; } }
+:scope{border-top:6px solid var(--ds-color-blue);}.wrap{border-left:2px dashed var(--ds-color-blue);padding-left:var(--ds-space-6);}</style><div class="wrap"><div class="stack"><h2 class="heading" data-ds-enter="rise" data-ds-order="0" data-ds-step="feed" data-ds-ease="feed" data-ds-distance="3">{{ slots.headline }}</h2><p class="lead" data-ds-enter="rise" data-ds-order="1" data-ds-step="feed" data-ds-ease="feed" data-ds-distance="3">{{ slots.lead }}</p><p class="note" data-ds-enter="rise" data-ds-order="2" data-ds-step="feed" data-ds-ease="feed" data-ds-distance="3">{{ slots.note }}</p><a class="stamp" href="https://kestrelridge.example/book" data-ds-enter="stamp" data-ds-order="3" data-ds-step="press" data-ds-ease="press" data-ds-distance="3" data-ds-wait="roll">{{ slots.action }}</a></div></div>

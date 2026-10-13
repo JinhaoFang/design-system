@@ -8,14 +8,14 @@ p,h1,h2,div,span,figure{margin:0;padding:0}
 .chart svg{display:block;width:100%;height:100%}
 .cap{position:absolute;left:112px;top:940px;font-family:var(--ds-font-kai);font-size:var(--ds-type-caption);letter-spacing:.12em;color:var(--ds-color-ink-3)}
 .tail{position:absolute;left:934px;top:424px;line-height:0}
-.title{position:absolute;left:890px;top:470px;width:120px;writing-mode:vertical-rl;text-orientation:upright;font-weight:200;font-size:var(--ds-type-title);line-height:1;letter-spacing:.12em;white-space:nowrap}
+.title{position:absolute;left:890px;top:470px;width:120px;writing-mode:vertical-rl;text-orientation:upright;font-family:var(--ds-font-latin), var(--ds-font-cjk-display);font-weight:400;font-size:var(--ds-type-title);line-height:1;letter-spacing:.12em;white-space:nowrap}
 .rule{position:absolute;left:826px;top:952px;height:330px;width:0;border-left:1px solid var(--ds-color-rule-light)}
 .sub{position:absolute;left:836px;top:960px;width:44px;writing-mode:vertical-rl;text-orientation:upright;font-weight:600;font-size:var(--ds-type-lead);line-height:1;letter-spacing:.3em;white-space:nowrap}
-.date{position:absolute;left:770px;top:972px;width:34px;writing-mode:vertical-rl;text-orientation:upright;font-family:var(--ds-font-kai);font-size:var(--ds-type-note);line-height:1;letter-spacing:.2em;color:var(--ds-color-zhu);white-space:nowrap}
 .seal{position:absolute;box-sizing:border-box;display:grid;place-items:center;background:var(--ds-color-zhu);color:var(--ds-color-paper);font-family:var(--ds-font-kai);font-weight:400;line-height:1;filter:url(#ds-rough)}
 .seal span{display:block}
 .seal{left:104px;top:1190px;width:132px;height:132px;padding:var(--ds-space-2);grid-template-rows:1fr 1fr;font-size:var(--ds-type-sub);transform:rotate(-3deg)}
-.book{position:absolute;left:272px;top:1224px;font-size:var(--ds-type-caption);line-height:1.7;color:var(--ds-color-ink-2)}
+.book{position:absolute;left:272px;top:1196px;font-size:var(--ds-type-caption);line-height:1.7;color:var(--ds-color-ink-2)}
+.book span{display:block;font-family:var(--ds-font-kai);letter-spacing:.08em;color:var(--ds-color-zhu)}
 .book b{display:block;font-weight:600;letter-spacing:.2em;color:var(--ds-color-ink)}
 .book i{font-family:var(--ds-font-latin);font-style:normal;letter-spacing:.04em}
 </style>
@@ -26,6 +26,5 @@ p,h1,h2,div,span,figure{margin:0;padding:0}
 <h1 class="title">鹞岭天文台</h1>
 <div class="rule"></div>
 <p class="sub">公众观测夜</p>
-<p class="date">十一月二十一日起</p>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="ds-rough" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="2.4" result="d"/><feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="2" seed="9" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.1 1.92" result="holes"/><feComposite in="d" in2="holes" operator="in"/></filter></svg><div class="seal"><span>预</span><span>约</span></div>
-<p class="book"><b>预约入口</b><i>kestrelridge.example/book</i></p>
+<p class="book"><span>2026 年 11 月 21 日起</span><b>预约入口</b><i>kestrelridge.example/book</i></p>

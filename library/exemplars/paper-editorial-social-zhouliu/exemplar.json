@@ -1,0 +1,33 @@
+{
+  "id": "paper-editorial-social-zhouliu",
+  "title": "纸本编辑公众号封面「八个周六」",
+  "sourceType": "original",
+  "copyright": "本库原创（CC0-1.0）；鹞岭天文台为虚构机构",
+  "carrier": "social",
+  "systems": [
+    "paper-editorial"
+  ],
+  "capturedOn": "2026-10-13",
+  "media": {
+    "kind": "screenshot",
+    "status": "present",
+    "file": "screenshot.webp"
+  },
+  "annotation": {
+    "highlights": "一条横卷：左边竖排题签「公众观测夜」「八个周六」，右边一条细线串起八个观测夜，每个夜晚画出当晚真实的月相，配壹到捌的序号和日期，右下一方小朱印。",
+    "reasons": "月相按真实日期计算，图解本身就是信息；横长画幅里用竖排题签收住左端。",
+    "scenes": "活动排期、系列预告类的横幅封面。",
+    "materialAnchor": "暖白哑光纸上的油墨印刷，朱笔批校",
+    "tonality": {
+      "静动": 2,
+      "疏密": 2,
+      "冷暖": 4,
+      "轻重": 2,
+      "庄谐": 2
+    }
+  },
+  "approval": {
+    "status": "approved",
+    "date": "2026-10-13"
+  }
+}

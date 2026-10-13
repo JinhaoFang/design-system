@@ -1,5 +1,5 @@
 {% comment %}
-批语 piyu：横排大字金句（宋体 200，小红书与方形取 title 档），开头引号悬挂到行首之外（只用开引号），句中「250 万年」下一道朱笔；落款前用破折号，楷书 ink-2；品牌小字在底边。
+批语 piyu：横排大字金句（朱雀仿宋，小红书与方形取 title 档），开头引号悬挂到行首之外（只用开引号），句中「250 万年」下一道朱笔；落款前用破折号，楷书 ink-2；品牌小字在底边。
 朱色：仅下划线。小红书与方形左缘 100px、字距 -.035em，让悬挂的开引号离画布边至少 48px。划线位置按本句换行（title 档每行 8 字）用 em 定位；公众号封面取 sub 档两行。
 {% endcomment %}
 <style>
@@ -32,7 +32,8 @@
   .quote {
     margin: 0;
     font-size: inherit;
-    font-weight: 200;
+    font-family: var(--ds-font-latin), var(--ds-font-cjk-display);
+    font-weight: 400;
     letter-spacing: -.035em;
     line-height: 1.6;
     text-indent: -1em;

@@ -1,0 +1,187 @@
+{
+  "system": "paper-editorial",
+  "carrier": "slides",
+  "concept": "观测日志·卷一：整份幻灯片是一册天文台的观测日志。扉页是日志本翻开的第一页（细笔大标题坐在基线上，右上一块圆顶夜景的图版揭去衬纸，落款是一枚小朱印）；两个章节页是日志的分卷，大号卷号压在一条墨线上；中间每一页都像从同一本里翻出来：墨线抬头、细笔大字、界栏、工程图式的尺寸标注。全册只在两处动朱笔：首光那一页「250 万年」和结尾「山顶见」，名额那一页改用不带朱笔的尺注；行动号召落在最后一枚朱印里。",
+  "sequence": [
+    {
+      "custom": {
+        "file": "fragments/feiye.html"
+      },
+      "serves": "扉页时刻：日志本翻开的第一页。细笔大标题坐在基线上，右上一块圆顶夜景的图版揭去衬纸，落款收进右下的小朱印"
+    },
+    {
+      "unit": "agenda",
+      "layout": "mulu",
+      "content": {
+        "heading": {
+          "ref": "agenda.heading"
+        },
+        "items": {
+          "ref": "agenda.items"
+        }
+      }
+    },
+    {
+      "unit": "section",
+      "layout": "fenjuan",
+      "content": {
+        "number": {
+          "ref": "section.why.number"
+        },
+        "title": {
+          "ref": "section.why.title"
+        },
+        "summary": {
+          "ref": "section.why.summary"
+        }
+      }
+    },
+    {
+      "unit": "statement",
+      "layout": "duanyu",
+      "content": {
+        "claim": {
+          "ref": "statement.old.claim"
+        },
+        "support": {
+          "ref": "statement.old.support"
+        },
+        "source": {
+          "ref": "statement.old.source"
+        }
+      }
+    },
+    {
+      "unit": "data",
+      "layout": "chizhu",
+      "content": {
+        "heading": {
+          "ref": "data.aperture.heading"
+        },
+        "value": {
+          "ref": "data.aperture.value"
+        },
+        "label": {
+          "ref": "data.aperture.label"
+        },
+        "context": {
+          "ref": "data.aperture.context"
+        },
+        "source": {
+          "ref": "data.aperture.source"
+        }
+      }
+    },
+    {
+      "unit": "compare",
+      "layout": "liangye",
+      "content": {
+        "heading": {
+          "ref": "compare.heading"
+        },
+        "leftTitle": {
+          "ref": "compare.leftTitle"
+        },
+        "leftPoints": {
+          "ref": "compare.leftPoints"
+        },
+        "rightTitle": {
+          "ref": "compare.rightTitle"
+        },
+        "rightPoints": {
+          "ref": "compare.rightPoints"
+        },
+        "verdict": {
+          "ref": "compare.verdict"
+        }
+      }
+    },
+    {
+      "unit": "section",
+      "layout": "fenjuan",
+      "content": {
+        "number": {
+          "ref": "section.build.number"
+        },
+        "title": {
+          "ref": "section.build.title"
+        },
+        "summary": {
+          "ref": "section.build.summary"
+        }
+      }
+    },
+    {
+      "unit": "image",
+      "layout": "banye",
+      "content": {
+        "visual": {
+          "ref": "image.road.visual"
+        },
+        "heading": {
+          "ref": "image.road.heading"
+        },
+        "caption": {
+          "ref": "image.road.caption"
+        }
+      }
+    },
+    {
+      "unit": "process",
+      "layout": "jishi",
+      "content": {
+        "heading": {
+          "ref": "process.heading"
+        },
+        "steps": {
+          "ref": "process.steps"
+        },
+        "stepNotes": {
+          "ref": "process.stepNotes"
+        }
+      }
+    },
+    {
+      "custom": {
+        "file": "fragments/shouguang-ye.html"
+      },
+      "serves": "全册的高光：首光那一页日志。「250 万年」下一道朱笔，右边是首光那晚的北天星图，仙女星系用朱圈指认"
+    },
+    {
+      "unit": "data",
+      "layout": "chizhu",
+      "content": {
+        "heading": {
+          "ref": "data.booking.heading"
+        },
+        "value": {
+          "ref": "data.booking.value"
+        },
+        "label": {
+          "ref": "data.booking.label"
+        },
+        "context": {
+          "ref": "data.booking.context"
+        },
+        "source": {
+          "ref": "data.booking.source"
+        }
+      }
+    },
+    {
+      "unit": "closing",
+      "layout": "yinzhang",
+      "content": {
+        "headline": {
+          "ref": "closing.headline"
+        },
+        "contact": {
+          "ref": "closing.contact"
+        },
+        "action": {
+          "ref": "closing.action"
+        }
+      }
+    }
+  ]
+}

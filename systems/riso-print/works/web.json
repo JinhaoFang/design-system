@@ -1,0 +1,163 @@
+{
+  "system": "riso-print",
+  "carrier": "web",
+  "concept": "每一场都是一版套色：整页像南岸纱厂屋顶放映季的一张孔版海报，十个放映夜就是十版，粉版只在首屏大字落一次，片单是六张双墨场景海报，最后压下一枚领票圆章。",
+  "images": {
+    "projector-night": {
+      "brief": "首屏主图：纱厂屋顶女儿墙上的老式放映机，粉色光束射向夜空",
+      "alt": "纱厂屋顶的放映机，粉色光束射向夜空"
+    },
+    "rooftop-audience": {
+      "brief": "满版现场：观众裹着毯子坐在屋顶银幕前，背景是烟囱和水塔",
+      "alt": "屋顶银幕前裹着毯子的观众"
+    },
+    "riso-stall": {
+      "brief": "孔版摊：屋顶折叠桌上的孔版印刷机正在出当晚的海报",
+      "alt": "屋顶孔版摊正在印当晚的海报"
+    },
+    "film-moon": {
+      "brief": "《月球旅行记》场景海报",
+      "alt": "《月球旅行记》场景海报"
+    },
+    "film-locomotive": {
+      "brief": "《将军号》场景海报",
+      "alt": "《将军号》场景海报"
+    },
+    "film-lamp": {
+      "brief": "《神女》场景海报",
+      "alt": "《神女》场景海报"
+    },
+    "film-windows": {
+      "brief": "《马路天使》场景海报",
+      "alt": "《马路天使》场景海报"
+    },
+    "film-wall": {
+      "brief": "《小城之春》场景海报",
+      "alt": "《小城之春》场景海报"
+    },
+    "film-birds": {
+      "brief": "《乌鸦与麻雀》场景海报",
+      "alt": "《乌鸦与麻雀》场景海报"
+    },
+    "mark-nanan-street": {
+      "brief": "合作方标识：南岸街道社区中心",
+      "alt": "南岸街道社区中心"
+    },
+    "mark-erhao-press": {
+      "brief": "合作方标识：二号孔版工作室",
+      "alt": "二号孔版工作室"
+    },
+    "mark-shiye-books": {
+      "brief": "合作方标识：拾页书店",
+      "alt": "拾页书店"
+    },
+    "mark-mill-park": {
+      "brief": "合作方标识：南岸纱厂文创园",
+      "alt": "南岸纱厂文创园"
+    }
+  },
+  "sequence": [
+    {
+      "custom": {
+        "file": "fragments/kaichang-haibao.html"
+      },
+      "serves": "首屏双墨海报：两行大字只错版一次，放映机光束对开；蓝墨日期与粉色圆章指向领票。"
+    },
+    {
+      "custom": {
+        "file": "fragments/pianmu-qiang.html"
+      },
+      "serves": "片单海报墙：六部老片各一张双墨场景海报，编号、年份、导演和场次逐张核对。"
+    },
+    {
+      "custom": {
+        "file": "fragments/shichang-shiban.html"
+      },
+      "serves": "作品概念落点：十个放映夜编成十版，孔版摊现场开印；现场乐队两夜用粉色标签。"
+    },
+    {
+      "unit": "process",
+      "layout": "jindu",
+      "content": {
+        "heading": "一晚怎么过",
+        "steps": [
+          "18:30 开门领毯",
+          "19:00 孔版摊开印",
+          "19:30 开映",
+          "约 21:30 散场"
+        ],
+        "stepNotes": [
+          "从纱厂北门上楼，凭票领一条毯子和一杯热饮",
+          "看当晚这一版海报印出来，编号带走",
+          "默片场有现场乐队，有声片配中文字幕",
+          "小雨照常放映、发雨衣；大雨改到楼下三号车间"
+        ]
+      }
+    },
+    {
+      "custom": {
+        "file": "fragments/wuding-manban.html"
+      },
+      "serves": "全页唯一满版高潮：读完片单和流程，屋顶观众的现场图横跨整页，文字放在图下的蓝带里。"
+    },
+    {
+      "unit": "evidence",
+      "layout": "yinzheng",
+      "content": {
+        "heading": "去年第一季",
+        "stats": [
+          "8",
+          "1,460",
+          "91%",
+          "1,600"
+        ],
+        "statLabels": [
+          "场放映",
+          "人次",
+          "平均上座率",
+          "张现场印的海报"
+        ],
+        "quote": "本来只想看一场电影，结果每个周五都裹着毯子在屋顶坐到散场。",
+        "quoteBy": "去年的观众，南岸街道居民",
+        "logos": [
+          {
+            "image": "mark-nanan-street"
+          },
+          {
+            "image": "mark-erhao-press"
+          },
+          {
+            "image": "mark-shiye-books"
+          },
+          {
+            "image": "mark-mill-park"
+          }
+        ]
+      }
+    },
+    {
+      "unit": "cta",
+      "layout": "piaogen",
+      "content": {
+        "headline": "领一张票上屋顶",
+        "action": "领票",
+        "lead": "单场 35 元，含一条毯子和一杯热饮；10 场季票 280 元；12 岁以下免费。",
+        "note": "每场 200 座，开映前 1 小时停止售票。"
+      }
+    },
+    {
+      "unit": "footer",
+      "layout": "mowei",
+      "content": {
+        "brand": "南岸纱厂屋顶放映",
+        "links": [
+          "片单",
+          "日历",
+          "领票",
+          "交通"
+        ],
+        "legal": "南岸纱厂与本活动均为虚构，用于展示孔版印刷体系；六部影片均已进入公有领域。"
+      }
+    }
+  ]
+}
