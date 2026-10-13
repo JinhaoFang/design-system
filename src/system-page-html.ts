@@ -4,7 +4,9 @@
  * the ladders, never by name, so any system works); the background, text, secondary text and hairline colors are picked by role name (paper/ink/ink-2/rule and common synonyms), the accent by name or else the most chromatic color
  * (the accent only marks hover, replay demos and the system's own header), everything falls back to lightness extremes.
  * A system may bring its own header fragment (customHeader, <system>/system-page/header.html, rendered with system.* variables by system-page.ts); without one a default header is drawn.
- * Sections (a one-line head each, number + title, full-width content): 意图 (prose, tone meter, key rules as rule | 理由 | 适用边界 columns), 样张 (thumbnails of the standard samples, approved exemplars), 排法 (a thumbnail card per layout with
+ * The generator emits the v2 TOC rail, mobile dialog, section buttons with matching aria-controls, carrier tab panels, and tables longer than six rows as details.
+ * Static mode expands all disclosures; interactions use system-page-runtime.js and system-page-v2.css. Only the header has scroll entrances.
+ * Sections (a one-line head each, number + title + count, full-width content): 意图 (prose, tone meter, key rules as rule | 理由 | 适用边界 columns), 样张 (thumbnails of the standard samples, approved exemplars), 排法 (a thumbnail card per layout with
  * its Chinese name and description, linked to its overview build), 材质锚点 (statement and table), 色彩 (colors grouped by the name before the first "-" as contiguous bands; the SYSTEM.md table is the legend), 字体 (one block per family: specimen,
  * the loaded weights and styles side by side, license in one line, roles), 字阶间距 (type ladder one row per step with the sample clipped to one line, space and radius steps), 版面, 质感与符号, 动效.
  * The motion section is live: every entrance type (data-ds-replay="enter"), duration step ("duration"), easing ("easing") and stagger step ("stagger") has a replay button whose target carries data-ds-slot="<kind>-<name>";
@@ -17,6 +19,7 @@
  * Exemplar HTTP(S) source links show only the hostname; href and title keep the full URL. Other source strings keep their original label.
  * Source rows stay on one line and ellipsize within the card, including unusually long hostnames; this display policy does not exempt any text from CJK checking.
  */
+import { readFileSync } from 'node:fs';
 import { TONE_PAIRS } from './system.ts';
 import type { SystemMeta, ToneKey } from './system.ts';
 import { converter, parse } from 'culori';
@@ -359,10 +362,10 @@ em{font-style:${hasItalic ? 'italic' : 'normal'}}${hasItalic ? '' : `em{text-dec
 
 function sectionBlock(id: string, no: string, title: string, content: string): string {
   return `<section id="${id}" class="sp-section" data-ds-unit="${id}">
-<div class="sp-head"><div class="sp-no" data-ds-enter="fade">${no}</div><h2 class="sp-title" data-ds-enter="rise">${esc(title)}</h2></div>
-<div class="sp-main">
+<h2 class="sp-head"><button type="button" class="v2-toggle" aria-expanded="true" aria-controls="${id}-body"><span class="sp-no">${no}</span><span class="sp-title">${esc(title)}</span><span class="v2-meta">${esc(sectionCount(id, content))}</span><span class="v2-chev" aria-hidden="true"></span></button></h2>
+<div class="v2-body" id="${id}-body"><div class="sp-main">
 ${content}
-</div>
+</div></div><div class="v2-collapsed-note">已收起，点标题展开</div>
 </section>`;
 }
 
@@ -396,8 +399,49 @@ function defaultHeader(model: PageModel): string {
 <p class="sp-lead" data-ds-enter="rise" data-ds-order="1">${esc(meta.materialAnchor)}</p>`;
 }
 
-function navigation(items: [string, string][]): string {
-  return `<nav class="sp-nav">${items.map(([id, label]) => `<a href="#${id}">${esc(label)}</a>`).join('')}</nav>`;
+function sectionCount(id: string, content: string): string {
+  const n = (pattern: RegExp) => [...content.matchAll(pattern)].length;
+  switch (id) {
+    case 'intent': return `${[...content.matchAll(/<li><strong>规则<\/strong>/g)].length || [...(content.split('sp-prose-wide')[1] ?? '').matchAll(/<li>(?!<span)/g)].length} 条关键规则`;
+    case 'works': return `${n(/class="sp-work"/g)} 件样张 · ${n(/class="sp-ex"/g)} 件范例`;
+    case 'layouts': return `${n(/class="sp-unit"/g)} 个叙事单元 · ${n(/class="sp-layout"/g)} 种排法`;
+    case 'color': return `${n(/class="sp-chipcol"/g)} 色 · ${n(/class="sp-band"/g)} 组`;
+    case 'type': return `${n(/class="sp-family"/g)} 款字体`;
+    case 'scale': return `${n(/class="sp-step"/g)} 档字阶 · ${n(/class="sp-space"/g)} 档间距`;
+    case 'motion': return `${n(/data-ds-replay=/g)} 个可重放演示`;
+    default: return '';
+  }
+}
+
+function navigation(model: PageModel, blocks: string[]): string {
+  const items = blocks.map((block) => {
+    const id = /<section id="([^"]+)"/.exec(block)![1]!;
+    const no = /class="sp-no">([^<]+)/.exec(block)![1]!;
+    const title = /class="sp-title"[^>]*>([^<]+)/.exec(block)![1]!;
+    const count = /class="v2-meta">([^<]*)/.exec(block)![1]!;
+    const subs = id === 'layouts' ? '' : [...block.matchAll(/<h3 class="sp-sub" id="([^"]+)">([^<]+)/g)].map((m) => `<a href="#${m[1]}"><span></span><span>${m[2]}</span></a>`).join('');
+    return { id, no, title, count, subs };
+  });
+  const links = (mobile: boolean) => items.map((it) => `<a href="#${it.id}" data-for="${it.id}"><span class="v2-n">${it.no}</span><span>${it.title}${mobile && it.count ? `<span class="v2-meta">${it.count}</span>` : ''}</span></a>${!mobile && it.subs ? `<div class="v2-subs" data-subs="${it.id}"><div>${it.subs}</div></div>` : ''}`).join('');
+  const progress = '<div class="v2-progress"><i></i></div>';
+  const overall = model.layouts.find((g) => g.overall)?.overall;
+  const overview = overall ? `<a data-overview-listing="${escapeHtml(overall.href.replace(/[^/]+\/index.html$/, ''))}" href="${escapeHtml(overall.href.replace(/[^/]+\/index.html$/, 'overview.md'))}">排法总览</a>` : '';
+  return `<aside class="v2-rail" aria-label="目录"><div class="v2-rail-inner"><div class="v2-rail-top"><div class="v2-rail-k">${esc(model.meta.name)} · 目录</div><nav class="v2-toc">${links(false)}<i class="v2-thumb"></i></nav></div><div class="v2-tools">${progress}<div class="v2-row"><button type="button" data-all="close">全部收起</button><button type="button" data-all="open">全部展开</button></div><button type="button" data-reduce aria-pressed="false">减少动态效果</button><a href="/">← 预览导航</a>${overview}</div></div></aside><div class="v2-main"><div class="v2-bar"><div class="v2-bar-now"><b>${esc(model.meta.name)}</b><span data-now></span></div><button type="button" data-open-sheet aria-expanded="false">目录</button>${progress}</div>${blocks.join('\n')}</div><div class="v2-sheet" role="dialog" aria-modal="true" aria-label="目录" inert><div class="v2-sheet-head"><b>${esc(model.meta.name)} · 目录</b><button type="button" data-close-sheet>关闭</button></div><nav class="v2-toc">${links(true)}</nav></div>`;
+}
+
+function enhanceBlocks(blocks: string[]): string[] {
+  return blocks.map((block) => {
+    const id = /<section id="([^"]+)"/.exec(block)![1]!;
+    let index = 0;
+    block = block.replace(/<h3 class="sp-sub">/g, () => `<h3 class="sp-sub" id="${id}-s${++index}">`);
+    let tableIndex = 0;
+    return block.replace(/<div class="sp-tablewrap"><table>[\s\S]*?<\/table><\/div>/g, (table, offset: number) => {
+      const rows = [...(table.split('<tbody>')[1] ?? '').matchAll(/<tr>/g)].length;
+      if (rows <= 6) return table;
+      const heading = [...block.slice(0, offset).matchAll(/<h[34][^>]*>(.*?)<\/h[34]>/g)].at(-1)?.[1] ?? '完整表格';
+      return `<details class="v2-more" data-fold-key="${id}-table-${++tableIndex}"><summary><span>${heading} · ${rows} 行</span></summary>${table}</details>`;
+    });
+  });
 }
 
 function intentSection(model: PageModel, no: string): string {
@@ -434,7 +478,7 @@ function colorSection(model: PageModel, no: string): string {
       const chips = group
         .map(
           (color) =>
-            `<div class="sp-chipcol"><div class="sp-swatch" style="background:var(${color.cssVar})"></div><div class="sp-chipcol-label"><b>${esc(color.name)}</b>${esc(color.css)}${
+            `<div class="sp-chipcol"><div class="sp-swatch" style="background:var(${color.cssVar})"></div><div class="sp-chipcol-label"><b>${esc(color.name)}</b><code>${esc(color.css)}</code>${
               !model.colorLegend && color.hex ? `<br>${esc(color.hex)}` : ''
             }</div></div>`,
         )
@@ -630,7 +674,7 @@ function layoutCard(layout: LayoutItem): string {
 }
 
 function layoutsSection(model: PageModel, no: string): string {
-  const filled = model.layouts.filter((group) => group.units.length);
+  const filled = model.layouts.filter((group) => group.units.length).sort((a, b) => ['web', 'slides', 'social'].indexOf(a.carrier) - ['web', 'slides', 'social'].indexOf(b.carrier));
   const empty = model.layouts.filter((group) => !group.units.length).map((group) => CARRIERS[group.carrier].label);
   const groups = filled
     .map((group) => {
@@ -641,12 +685,13 @@ function layoutsSection(model: PageModel, no: string): string {
         ? `<div class="sp-overall"><a href="${escapeHtml(group.overall.href)}">${group.overall.image ? `<img src="${escapeHtml(group.overall.image)}" alt="${esc(group.overall.label)}" loading="lazy">` : esc(group.overall.label)}</a><div class="sp-layout-note">${esc('整体排法总览：全部排法依次排成一页')}</div></div>`
         : '';
       const wholeOnly = group.units.every((unit) => unit.layouts.every((layout) => !layout.image));
-      return `${sub(`${CARRIERS[group.carrier].label} · ${group.carrier}`)}<div class="sp-units">${units}</div>${wholeOnly ? overall : ''}`;
+      return `<div class="v2-panel" role="tabpanel" id="layouts-${group.carrier}" ${filled.length > 1 ? `aria-labelledby="tab-${group.carrier}"` : ''}>${sub(`${CARRIERS[group.carrier].label} · ${group.carrier}`)}<div class="sp-units">${units}</div>${wholeOnly ? overall : ''}</div>`;
     })
     .join('');
   const note = !model.overviewGenerated ? `<p class="sp-missing">${esc('这套体系的排法总览还没有生成。')}</p>` : '';
   const none = empty.length ? `<p class="sp-missing">${esc(`${empty.join('、')}：还没有排法。`)}</p>` : '';
-  return sectionBlock('layouts', no, '排法', `${note}${groups}${none}`);
+  const tabs = filled.length > 1 ? `<div class="v2-tabs" role="tablist" aria-label="排法载体">${filled.map((g, i) => `<button type="button" role="tab" id="tab-${g.carrier}" aria-controls="layouts-${g.carrier}" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}">${esc(CARRIERS[g.carrier].label)}<span> ${g.units.reduce((n, u) => n + u.layouts.length, 0)}</span></button>`).join('')}<i class="v2-tabline"></i></div>` : '';
+  return sectionBlock('layouts', no, '排法', `${note}${tabs}${groups}${none}`);
 }
 
 function workCard(work: LinkView): string {
@@ -677,11 +722,11 @@ function exemplarCard(exemplar: ExemplarView): string {
 }
 
 function worksSection(model: PageModel, no: string): string {
-  const works = model.works.length ? `<div class="sp-works">${model.works.map(workCard).join('')}</div>` : `<p class="sp-missing">${esc('这套体系的标准样张还没有生成。')}</p>`;
+  const works = model.works.length ? `<div class="sp-works">${model.works.map(workCard).join('')}</div>` : `<p class="sp-missing">${esc('这套体系的体系样张还没有生成。')}</p>`;
   const exemplars = model.exemplars.length
     ? `<div class="sp-exemplars">${model.exemplars.map(exemplarCard).join('')}</div>`
     : `<p class="sp-missing">${esc('这套体系还没有已批准的范例。')}</p>`;
-  return sectionBlock('works', no, '标准样张与范例', `${works}${sub('已批准的范例')}${exemplars}`);
+  return sectionBlock('works', no, '体系样张与范例', `${works}${sub('已批准的范例')}${exemplars}`);
 }
 
 export function replayScript(tokens: ResolvedTokens): string {
@@ -710,7 +755,9 @@ function replay(config: {
   const root = document.documentElement;
   const toggle = document.querySelector('[data-ds-reduce-toggle]') as HTMLElement | null;
   const state = document.querySelector('[data-ds-reduce-state]') as HTMLElement | null;
-  let reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let preference = false;
+  let reduced = media.matches;
   const durationValues = Object.values(config.durations);
   const shortest = Math.min(...durationValues);
   const longest = Math.max(...durationValues);
@@ -727,10 +774,13 @@ function replay(config: {
   paint();
   if (toggle) {
     toggle.addEventListener('click', () => {
-      reduced = !reduced;
+      preference = !preference;
+      reduced = media.matches || preference;
       paint();
     });
   }
+
+  media.addEventListener('change', () => { reduced = media.matches || preference; paint(); });
 
   const offset = (effect: string): string => {
     const moves: Record<string, string> = {
@@ -797,14 +847,39 @@ export function renderSystemPage(model: PageModel): RenderedPage {
     ['texture', '质感', textureSection],
     ['motion', '动效', motionSection],
   ];
-  const nav = navigation(sections.map(([id, label]) => [id, label]));
-  const blocks = sections.map(([, , render], index) => render(model, String(index + 1).padStart(2, '0'))).join('\n');
-  const body = `<div class="sp">
+  const blocks = enhanceBlocks(sections.map(([, , render], index) => render(model, String(index + 1).padStart(2, '0'))));
+  const nav = navigation(model, blocks);
+  const body = `<div class="sp" data-system="${escapeHtml(model.meta.id)}">
 <header class="sp-header" data-ds-unit="header" ${headerTag}>
 ${header}
 </header>
-${nav}
-${blocks}
+<div class="v2-frame">${nav}</div>
 </div>`;
-  return { title: `${model.meta.name} · 体系总览页`, style: styleSheet(model), body, script: replayScript(model.tokens) };
+  return { title: `${model.meta.name} · 体系总览页`, style: styleSheet(model) + navigationStyle(model), body, script: replayScript(model.tokens) + readFileSync(new URL('./system-page-runtime.js', import.meta.url), 'utf8') };
+}
+
+function navigationStyle(model: PageModel): string {
+  const colors = palette(colorViews(model));
+  const space = steps(model.tokens, '--ds-space-');
+  const type = steps(model.tokens, '--ds-type-');
+  const duration = steps(model.tokens, '--ds-duration-');
+  const easing = model.tokens.entries.filter((e) => e.cssVar.startsWith('--ds-easing-'));
+  const values: Record<string, string> = {
+    '--ds-color-paper': colors.bg, '--ds-color-ink': colors.ink, '--ds-color-ink-2': colors.soft, '--ds-color-rule': colors.line,
+    '--ds-type-caption': at(type, .125), '--ds-type-note': at(type, .25), '--ds-type-body': at(type, .25),
+    '--ds-duration-turn': at(duration, 0), '--ds-duration-ink': at(duration, .5), '--ds-duration-glide': at(duration, .75),
+    '--ds-easing-paper': `var(${easing[0]!.cssVar})`, '--ds-easing-ink': `var(${easing[Math.min(1, easing.length - 1)]!.cssVar})`,
+  };
+  for (let n = 1; n <= 8; n++) values[`--ds-space-${n}`] = at(space, (n - 1) / 8);
+  const names = new Set(model.tokens.entries.map((e) => e.cssVar));
+  const numberedSpaces = Array.from({ length: 8 }, (_value, i) => `--ds-space-${i + 1}`).every((name) => names.has(name));
+  const css = readFileSync(new URL('./system-page-v2.css', import.meta.url), 'utf8').replace(/var\((--ds-[^)]+)\)/g, (match, key: string) => names.has(key) && (numberedSpaces || !key.startsWith('--ds-space-')) ? match : values[key] ?? match);
+  return css + `:root{--sp-body-gap:${numberedSpaces && names.has('--ds-space-5') ? 'var(--ds-space-5)' : at(space, .5)};--sp-middle:${at(duration, .5)};--sp-fold:${at(duration, .75)};--sp-ease:var(${easing[0]!.cssVar})}`;
+}
+
+export function previewMetadata(model: PageModel): object {
+  const colors = colorViews(model);
+  const accentVar = palette(colors).accent;
+  return { id: model.meta.id, name: model.meta.name, materialAnchor: model.meta.materialAnchor, tone: model.meta.tone, carriers: model.meta.carriers,
+    colors: colors.map((c) => ({ name: c.name, css: c.css })), accent: colors.find((c) => `var(${c.cssVar})` === accentVar)?.css };
 }

@@ -1,12 +1,14 @@
 /*
  * Behavior tests for the system page (体系总览页), driven through buildSystemPage with the fixture system and the fixture library.
  * They assert artifact specs only: the files that come out, the system's values appearing in the page text, the animation records the replays produce under normal and reduced motion,
- * the links and thumbnails of the layout overview, standard samples and approved exemplars, the tables of SYSTEM.md, the fonts grouped by family, and the checker report (zero errors, composition and anti-homogeneity skipped). No DOM structure, no pixels.
+ * the links and thumbnails of the layout overview, standard samples and approved exemplars, the tables of SYSTEM.md, the fonts grouped by family, and the checker report (zero errors, composition and anti-homogeneity skipped). Structure assertions cover the v2 disclosure contract; no pixels.
  * One page is built once for the whole file (a real Chromium run), with a layout overview, a standard sample and a few exemplars linked into it; the paper-editorial page is built once more when the font cache exists (italic specimens, tables, zero errors).
  * Separate sample and exemplar pages cover long captions and long external source URLs; their checker reports cover both web widths.
  */
 import { existsSync } from 'node:fs';
 import { access, copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { chromium } from 'playwright';
+import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 import { beforeAll, describe, expect, test } from 'vitest';
 import { buildAndCheck } from '../src/build-and-check.ts';
@@ -154,6 +156,50 @@ describe('tables, fonts and thumbnails', () => {
   });
 });
 
+describe('generated navigation and static disclosure', () => {
+  test('every section controls its generated body, has a count, and only the header has entrance motion', async () => {
+    const browser = await chromium.launch();
+    try {
+      const context = await browser.newContext();
+      await context.addInitScript(() => {
+        Object.defineProperty(window, 'localStorage', { get() { throw new Error('storage disabled'); } });
+        new MutationObserver((_records, observer) => {
+          if (document.documentElement) { document.documentElement.dataset.render = 'static'; observer.disconnect(); }
+        }).observe(document, { childList: true });
+      });
+      const view = await context.newPage();
+      const errors: string[] = [];
+      view.on('pageerror', (error) => errors.push(error.message));
+      await view.goto(pathToFileURL(page.artifacts.index).href);
+      const structure = await view.evaluate(() => ({
+        sections: [...document.querySelectorAll('.sp-section')].map((s) => {
+          const b = s.querySelector('.v2-toggle')!;
+          const body = document.getElementById(b.getAttribute('aria-controls')!);
+          return { expanded: b.getAttribute('aria-expanded'), target: !!body && s.contains(body), hidden: body?.hasAttribute('data-collapsed') };
+        }),
+        tabs: document.querySelectorAll('[role="tab"]').length,
+        panels: [...document.querySelectorAll('.v2-panel')].map((el) => getComputedStyle(el).display),
+        folds: [...document.querySelectorAll('details')].every((el) => el.open),
+        entrances: document.querySelectorAll('.sp-section [data-ds-enter]').length,
+        webThumbs: [...document.querySelectorAll('#layouts-web .sp-layout img')].map((el) => el.getAttribute('src')),
+      }));
+      expect(structure.sections).toHaveLength(10);
+      for (const section of structure.sections) expect(section).toEqual({ expanded: 'true', target: true, hidden: false });
+      expect(structure.tabs).toBe(3);
+      expect(structure.panels).toHaveLength(3);
+      expect(structure.panels).not.toContain('none');
+      expect(structure.folds).toBe(true);
+      expect(structure.entrances).toBe(0);
+      expect(structure.webThumbs).toHaveLength(5);
+      for (const src of structure.webThumbs) expect(src).toContain('layout-thumbnails/web-');
+      expect(errors).toEqual([]);
+      await context.close();
+    } finally {
+      await browser.close();
+    }
+  });
+});
+
 describe('motion replays', () => {
   test('replaying every control records an animation for each entrance type, duration step, easing and stagger step', () => {
     const slots = slotsOf(page.replays.animations);
@@ -298,7 +344,7 @@ describe('the page without links and with a custom header', () => {
     const text = await readFile(bare.artifacts.index, 'utf8');
     expect(bare.report.summary.errors).toBe(0);
     expect(text).toContain('排法总览还没有生成');
-    expect(text).toContain('标准样张还没有生成');
+    expect(text).toContain('体系样张还没有生成');
     expect(text).toContain('还没有已批准的范例');
   });
 

@@ -1,9 +1,10 @@
 /*
  * System page (体系总览页): buildSystemPage generates, for any system directory, one interactive page that shows the system's intent, material anchor, colors, fonts (grouped by family, with licenses), type/space/radius steps,
- * composition constraints, textures, identity marks, motion (live replays) and layouts, with thumbnails of the layout overview and the standard samples (linked to their builds) and the approved exemplars. Markup lives in system-page-html.ts.
- * Input: system directory, output directory, library directory (skeletons, font list, exemplars), font cache, optional overviewDir (output of the layout overview) and worksDir (a directory of built standard samples,
+ * composition constraints, textures, identity marks, motion (live replays) and layouts, with thumbnails of the layout overview and the system samples (linked to their builds) and the approved exemplars. Markup lives in system-page-html.ts.
+ * Input: system directory, output directory, library directory (skeletons, font list, exemplars), font cache, optional overviewDir (output of the layout overview) and worksDir (a directory of built system samples,
  * one build per sub-directory); the links and thumbnails are built from whatever artifacts (directories with an index.html and PNGs) those directories contain, as relative paths from outDir.
- * A social layout's thumbnail is its overview build (social/<canvas>/<unit>-<layout>, canvas xiaohongshu when present, else the first); web and slides link their whole-page overview build.
+ * Social thumbnails use their overview build (prefer xiaohongshu); web thumbnails are static 1440px Chromium screenshots of each section[data-ds-unit][data-ds-layout], stored in layout-thumbnails/.
+ * Slide thumbnails use the matching slide-NN.png with the slide hash; web links point at the overview build. preview-meta.json carries name, material anchor, tone, carriers and token colors for the navigation home.
  * Content: SYSTEM.md sections (header and prose), the token file resolved for the system's web carrier (or its first carrier), the font list entries the tokens use, the layouts directory.
  * Tables of SYSTEM.md are rendered as tables, except three kinds that are taken out of the prose and used as data: the layout table (a header with 排法, rows "`id` 中文名" + 说明) gives each layout its name and description,
  * a duration or easing table keyed by `name` gives the live motion cells their 用在 note, and (read, not removed) the color table is the legend of the color bands.
@@ -15,6 +16,9 @@
  * exitCode: 0 = no errors in the report, 1 = errors. Validation problems throw BuildError.
  */
 import { copyFile, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
+import { chromium } from 'playwright';
+import { settle } from './render.ts';
 import { basename, join, relative, sep } from 'node:path';
 import { Liquid } from 'liquidjs';
 import type { Page } from 'playwright';
@@ -36,7 +40,7 @@ import { layoutsOf } from './overview.ts';
 import { exitCodeFor, makeReport, reportToMarkdown } from './report.ts';
 import { parseSections, splitHeader } from './system.ts';
 import type { Section } from './system.ts';
-import { renderSystemPage } from './system-page-html.ts';
+import { previewMetadata, renderSystemPage } from './system-page-html.ts';
 import type { ExemplarView, FontView, LayoutItem, LayoutView, LinkView, PageModel } from './system-page-html.ts';
 import { resolveForCarrier } from './tokens.ts';
 import { BuildError } from './types.ts';
@@ -127,15 +131,20 @@ async function workLinks(outDir: string, worksDir: string | undefined): Promise<
 interface OverviewIndex {
   whole: Map<string, LinkView>;
   social: Map<string, LinkView>;
+  web: Map<string, LinkView>;
+  slides: Map<string, LinkView>;
 }
 
 async function indexOverview(outDir: string, overviewDir: string | undefined): Promise<OverviewIndex | undefined> {
   if (!overviewDir) return undefined;
-  const index: OverviewIndex = { whole: new Map(), social: new Map() };
+  const index: OverviewIndex = { whole: new Map(), social: new Map(), web: new Map(), slides: new Map() };
   const canvasOf = new Map<string, string>();
   for (const entry of await scanArtifacts(overviewDir)) {
     const parts = entry.rel.split('/');
-    if (parts.length === 1) index.whole.set(parts[0]!, linkOf(outDir, entry, CARRIERS[parts[0] as CarrierId]?.label ?? parts[0]!));
+    if (parts.length === 1) {
+      index.whole.set(parts[0]!, linkOf(outDir, entry, CARRIERS[parts[0] as CarrierId]?.label ?? parts[0]!));
+      if (parts[0] === 'web' || parts[0] === 'slides') await unitThumbnails(outDir, entry, index[parts[0]]);
+    }
     if (parts[0] === 'social' && parts.length === 3) {
       const key = parts[2]!;
       const canvas = parts[1]!;
@@ -146,6 +155,40 @@ async function indexOverview(outDir: string, overviewDir: string | undefined): P
     }
   }
   return index;
+}
+
+async function unitThumbnails(outDir: string, entry: ArtifactEntry, target: Map<string, LinkView>): Promise<void> {
+  const browser = await chromium.launch();
+  try {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
+    await context.addInitScript(() => document.documentElement ? document.documentElement.dataset.render = 'static' : new MutationObserver((_r, observer) => {
+      if (document.documentElement) { document.documentElement.dataset.render = 'static'; observer.disconnect(); }
+    }).observe(document, { childList: true }));
+    const page = await context.newPage();
+    await page.goto(pathToFileURL(join(entry.dir, 'index.html')).href);
+    await settle(page);
+    const units = page.locator('section[data-ds-unit][data-ds-layout]');
+    await mkdir(join(outDir, 'layout-thumbnails'), { recursive: true });
+    for (let i = 0; i < await units.count(); i++) {
+      const unit = units.nth(i);
+      const id = await unit.getAttribute('data-ds-unit');
+      const layout = await unit.getAttribute('data-ds-layout');
+      const key = `${id}-${layout}`;
+      const link = linkOf(outDir, entry, key);
+      if (entry.carrier === 'slides') {
+        const slide = await unit.evaluate((el) => el.closest('[data-ds-slide]')?.getAttribute('data-ds-slide'));
+        const image = entry.images.find((name) => name === `slide-${String(slide).padStart(2, '0')}.png`);
+        if (image) target.set(key, { ...link, href: `${link.href}#${slide}`, image: posix(relative(outDir, join(entry.dir, image))) });
+      } else {
+        const image = `layout-thumbnails/web-${key}.png`;
+        await unit.screenshot({ path: join(outDir, image), animations: 'disabled' });
+        target.set(key, { ...link, image });
+      }
+    }
+    await context.close();
+  } finally {
+    await browser.close();
+  }
 }
 
 const SOURCE_LABEL: Record<string, string> = { external: '外部收集', copy: '临摹', original: '原创' };
@@ -262,7 +305,7 @@ async function layoutViews(systemDir: string, system: Awaited<ReturnType<typeof 
     for (const [id, spec] of Object.entries(system.skeletons[carrier]?.units ?? {})) {
       const names = await layoutsOf(systemDir, carrier, id);
       const layouts: LayoutItem[] = names.map((name) => {
-        const build = carrier === 'social' ? overview?.social.get(`${id}-${name}`) : undefined;
+        const build = overview?.[carrier].get(`${id}-${name}`);
         const note = notes.layouts.get(name);
         return {
           id: name,
@@ -349,6 +392,7 @@ export async function buildSystemPage(options: SystemPageOptions): Promise<Syste
     works: await workLinks(outDir, options.worksDir && (await pathExists(options.worksDir)) ? options.worksDir : undefined),
     exemplars: await approvedExemplars(libraryDir, system.meta.id, outDir),
   };
+  await writeFile(join(outDir, 'preview-meta.json'), `${JSON.stringify(previewMetadata(model), null, 2)}\n`);
   const page = renderSystemPage(model);
   assertChoreography([page.body], tokens);
 
