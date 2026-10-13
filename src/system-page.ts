@@ -3,7 +3,7 @@
  * composition constraints, textures, identity marks, motion (live replays) and layouts, with thumbnails of the layout overview and the system samples (linked to their builds) and the approved exemplars. Markup lives in system-page-html.ts.
  * Input: system directory, output directory, library directory (skeletons, font list, exemplars), font cache, optional overviewDir (output of the layout overview) and worksDir (a directory of built system samples,
  * one build per sub-directory); the links and thumbnails are built from whatever artifacts (directories with an index.html and PNGs) those directories contain, as relative paths from outDir.
- * Social thumbnails use their overview build (prefer xiaohongshu); web thumbnails are static 1440px Chromium screenshots of each section[data-ds-unit][data-ds-layout], stored in layout-thumbnails/.
+ * Social thumbnails use their overview build (prefer xiaohongshu); web thumbnails are static Chromium screenshots at a 1440px viewport of each complete section[data-ds-unit][data-ds-layout], with image width equal to unit width, stored in layout-thumbnails/.
  * Slide thumbnails use the matching slide-NN.png with the slide hash; web links point at the overview build. preview-meta.json carries name, material anchor, tone, carriers and token colors for the navigation home.
  * Content: SYSTEM.md sections (header and prose), the token file resolved for the system's web carrier (or its first carrier), the font list entries the tokens use, the layouts directory.
  * Tables of SYSTEM.md are rendered as tables, except three kinds that are taken out of the prose and used as data: the layout table (a header with 排法, rows "`id` 中文名" + 说明) gives each layout its name and description,
@@ -182,7 +182,7 @@ async function unitThumbnails(outDir: string, entry: ArtifactEntry, target: Map<
         if (image) target.set(key, { ...link, href: `${link.href}#${slide}`, image: posix(relative(outDir, join(entry.dir, image))) });
       } else {
         const image = `layout-thumbnails/web-${key}.png`;
-        await unit.screenshot({ path: join(outDir, image), animations: 'disabled' });
+        await unit.screenshot({ path: join(outDir, image), animations: 'disabled', scale: 'css' });
         target.set(key, { ...link, image });
       }
     }

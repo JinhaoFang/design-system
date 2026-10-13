@@ -1,8 +1,6 @@
 /*
- * Interaction for generated system pages: persisted section/table folds and carrier tabs, scroll spy, transform-only TOC/tab indicators, mobile contents dialog and synchronized reduced motion.
+ * Interaction for generated system pages: persisted table folds and carrier tabs, scroll spy, transform-only TOC/tab indicators, mobile contents dialog and synchronized reduced motion.
  * Markup is emitted by system-page-html.ts; this runtime never reparents content. Static rendering always reveals every section, table and panel regardless of storage.
- * TODO(design): Review the fold feel produced by compositor-only feedback and the mobile long-table scroll width.
- * Fold feedback uses FLIP translations of following sections and opacity, so the checker can retain its transform/opacity-only constraint instead of animating grid-template-rows.
  */
 (() => {
   const $ = (s, r = document) => r.querySelector(s);
@@ -11,8 +9,6 @@
   const staticMode = root.dataset.render === 'static';
   const key = `system-page:${$('.sp').dataset.system}`;
   const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
-  const saved = store.get(key + ':sections');
-  const collapsed = new Set(Array.isArray(saved) ? saved.filter((v) => typeof v === 'string') : []);
   const rail = $('.v2-rail');
   const bar = $('.v2-bar');
   const sheet = $('.v2-sheet');
@@ -27,35 +23,8 @@
     el.animate(frames, { duration: duration(timing), easing: getComputedStyle(root).getPropertyValue('--sp-ease').trim() }).finished.catch(() => {});
   };
   const items = $$('.sp-section').map((s) => {
-    const btn = $('.v2-toggle', s);
-    const body = $('#' + btn.getAttribute('aria-controls'));
-    let revision = 0;
-    const set = (open, remember = true, feedback = true) => {
-      const current = ++revision;
-      const main = $('.sp-main', body);
-      const bounds = main.getBoundingClientRect();
-      main.getAnimations().forEach((a) => a.cancel());
-      main.removeAttribute('style');
-      const after = $$('.sp-section').filter((el) => el.offsetTop > s.offsetTop);
-      const before = after.map((el) => el.getBoundingClientRect().top);
-      btn.setAttribute('aria-expanded', String(open || staticMode));
-      body.toggleAttribute('data-collapsed', !open && !staticMode);
-      body.inert = !open && !staticMode;
-      if (feedback) {
-        after.forEach((el, i) => animate(el, [{ transform: `translateY(${before[i] - el.getBoundingClientRect().top}px)` }, { transform: 'none' }], '--sp-fold'));
-        if (open) animate(main, [{ opacity: 0 }, { opacity: 1 }], '--sp-middle');
-        else if (!staticMode && !reduced()) {
-          Object.assign(main.style, { position: 'absolute', width: bounds.width + 'px', height: bounds.height + 'px', paddingTop: getComputedStyle(root).getPropertyValue('--sp-body-gap').trim(), opacity: '1', pointerEvents: 'none' });
-          const animation = main.animate([{ opacity: 1 }, { opacity: 0 }], { duration: duration('--sp-fold'), easing: getComputedStyle(root).getPropertyValue('--sp-ease').trim() });
-          const clear = () => { if (current === revision) main.removeAttribute('style'); };
-          animation.finished.then(clear, clear);
-        }
-      }
-      if (remember) { open ? collapsed.delete(s.id) : collapsed.add(s.id); store.set(key + ':sections', [...collapsed]); }
-      requestAnimationFrame(spy);
-    };
-    btn.addEventListener('click', () => set(btn.getAttribute('aria-expanded') !== 'true'));
-    return { s, btn, set, no: $('.sp-no', btn).textContent, title: $('.sp-title', btn).textContent };
+    const head = $('.v2-heading', s);
+    return { s, no: $('.sp-no', head).textContent, title: $('.sp-title', head).textContent };
   });
   const pairs = $$('[role="tab"]').map((b) => ({ b, panel: document.getElementById(b.getAttribute('aria-controls')) }));
   const line = $('.v2-tabline');
@@ -112,7 +81,6 @@
       if ((e.shiftKey && i <= 0) || (!e.shiftKey && i === focusable.length - 1)) { e.preventDefault(); focusable[e.shiftKey ? focusable.length - 1 : 0].focus(); }
     }
   });
-  $$('[data-all]').forEach((b) => b.addEventListener('click', () => items.forEach((it) => it.set(b.dataset.all === 'open', true, false))));
   const originalReduce = $('[data-ds-reduce-toggle]');
   const syncReduce = () => {
     $('button[data-reduce]').setAttribute('aria-pressed', originalReduce.getAttribute('aria-pressed'));
@@ -127,7 +95,6 @@
   const reveal = (id) => {
     const target = document.getElementById(id);
     const item = items.find((it) => it.s === target?.closest('.sp-section'));
-    item?.set(true, true, false);
     let parent = target;
     while (parent && parent !== item?.s) { if (parent.matches('details')) parent.open = true; parent = parent.parentElement; }
     return target;
@@ -146,7 +113,6 @@
     const a = $(`a[data-for="${active.s.id}"]`, rail);
     thumb.style.transform = `translateY(${a.offsetTop}px) scaleY(${a.offsetHeight})`;
   }
-  items.forEach((it) => { if (collapsed.has(it.s.id)) it.set(false, false, false); });
   if (location.hash) { const target = reveal(decodeURIComponent(location.hash.slice(1))); requestAnimationFrame(() => target?.scrollIntoView()); }
   addEventListener('scroll', spy, { passive: true });
   addEventListener('resize', () => { spy(); alignTab(); });

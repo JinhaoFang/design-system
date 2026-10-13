@@ -1,7 +1,7 @@
 /*
  * Behavior tests for the system page (体系总览页), driven through buildSystemPage with the fixture system and the fixture library.
  * They assert artifact specs only: the files that come out, the system's values appearing in the page text, the animation records the replays produce under normal and reduced motion,
- * the links and thumbnails of the layout overview, standard samples and approved exemplars, the tables of SYSTEM.md, the fonts grouped by family, and the checker report (zero errors, composition and anti-homogeneity skipped). Structure assertions cover the v2 disclosure contract; no pixels.
+ * the links and thumbnails of the layout overview, standard samples and approved exemplars, the tables of SYSTEM.md, the fonts grouped by family, and the checker report (zero errors, composition and anti-homogeneity skipped). Structure assertions cover section anchor links and static table/tab disclosure; no pixels.
  * One page is built once for the whole file (a real Chromium run), with a layout overview, a standard sample and a few exemplars linked into it; the paper-editorial page is built once more when the font cache exists (italic specimens, tables, zero errors).
  * Separate sample and exemplar pages cover long captions and long external source URLs; their checker reports cover both web widths.
  */
@@ -157,7 +157,7 @@ describe('tables, fonts and thumbnails', () => {
 });
 
 describe('generated navigation and static disclosure', () => {
-  test('every section controls its generated body, has a count, and only the header has entrance motion', async () => {
+  test('every section links to its own anchor, preserves its count and visible content, and only the header has entrance motion', async () => {
     const browser = await chromium.launch();
     try {
       const context = await browser.newContext();
@@ -171,27 +171,44 @@ describe('generated navigation and static disclosure', () => {
       const errors: string[] = [];
       view.on('pageerror', (error) => errors.push(error.message));
       await view.goto(pathToFileURL(page.artifacts.index).href);
+      await view.evaluate(async () => {
+        document.querySelectorAll('img').forEach((img) => img.loading = 'eager');
+        await Promise.all([...document.images].map((img) => img.decode().catch(() => {})));
+      });
       const structure = await view.evaluate(() => ({
         sections: [...document.querySelectorAll('.sp-section')].map((s) => {
-          const b = s.querySelector('.v2-toggle')!;
-          const body = document.getElementById(b.getAttribute('aria-controls')!);
-          return { expanded: b.getAttribute('aria-expanded'), target: !!body && s.contains(body), hidden: body?.hasAttribute('data-collapsed') };
+          const a = s.querySelector('.v2-heading')!;
+          const body = s.querySelector('.sp-main')!;
+          return { href: a.getAttribute('href') === `#${s.id}`, expanded: a.hasAttribute('aria-expanded'), buttons: s.querySelectorAll('.sp-head button').length, count: !!a.querySelector('.v2-meta'), visible: body.getBoundingClientRect().height > 0 };
         }),
         tabs: document.querySelectorAll('[role="tab"]').length,
         panels: [...document.querySelectorAll('.v2-panel')].map((el) => getComputedStyle(el).display),
         folds: [...document.querySelectorAll('details')].every((el) => el.open),
         entrances: document.querySelectorAll('.sp-section [data-ds-enter]').length,
-        webThumbs: [...document.querySelectorAll('#layouts-web .sp-layout img')].map((el) => el.getAttribute('src')),
+        webThumbs: [...document.querySelectorAll<HTMLImageElement>('#layouts-web .sp-layout img')].map((el) => {
+          const style = getComputedStyle(el);
+          const frame = el.closest('.sp-layout-thumb')!.getBoundingClientRect();
+          return { src: el.getAttribute('src'), ratio: (el.getBoundingClientRect().width - parseFloat(style.borderLeftWidth) - parseFloat(style.borderRightWidth)) / (el.getBoundingClientRect().height - parseFloat(style.borderTopWidth) - parseFloat(style.borderBottomWidth)), naturalRatio: el.naturalWidth / el.naturalHeight, frameRatio: frame.width / frame.height, fit: style.objectFit, position: style.objectPosition };
+        }),
       }));
       expect(structure.sections).toHaveLength(10);
-      for (const section of structure.sections) expect(section).toEqual({ expanded: 'true', target: true, hidden: false });
+      for (const section of structure.sections) expect(section).toEqual({ href: true, expanded: false, buttons: 0, count: true, visible: true });
+      expect(html).not.toContain('全部收起');
+      expect(html).not.toContain('全部展开');
+      expect(html).not.toContain('已收起，点标题展开');
       expect(structure.tabs).toBe(3);
       expect(structure.panels).toHaveLength(3);
       expect(structure.panels).not.toContain('none');
       expect(structure.folds).toBe(true);
       expect(structure.entrances).toBe(0);
       expect(structure.webThumbs).toHaveLength(5);
-      for (const src of structure.webThumbs) expect(src).toContain('layout-thumbnails/web-');
+      for (const thumb of structure.webThumbs) {
+        expect(thumb.src).toContain('layout-thumbnails/web-');
+        expect(thumb.ratio).toBeCloseTo(thumb.naturalRatio, 1);
+        expect(thumb.frameRatio).toBeCloseTo(4 / 3, 2);
+        expect(thumb.fit).toBe('cover');
+        expect(thumb.position).toBe('50% 0%');
+      }
       expect(errors).toEqual([]);
       await context.close();
     } finally {

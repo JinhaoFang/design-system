@@ -16,7 +16,7 @@
  * code in tables does not wrap (a wrapped curve would start a line with a forbidden character), italic specimens are set in italic; *emphasis* is real italic when the system loads an italic face, otherwise upright with an underline.
  * Sample captions have the existing 14rem card minimum (capped at the available width), independent of thumbnail proportions or lazy image loading.
  * Web thumbnails keep the existing 20:16 crop as a responsive 5:4 box anchored at the top; other thumbnails retain their natural aspect ratio within the existing 16rem height limit.
- * Layout thumbnails use uniform frames: web 4:3, slides 16:9, social its declared canvas. Section headings and anchor statements step down once in the type ladder below 640px.
+ * Layout thumbnails use uniform frames: web 4:3, slides 16:9, social its declared canvas. Web images scale to frame width before top cropping, preserving both horizontal edges. Section headings and anchor statements step down once in the type ladder below 640px.
  * Exemplar HTTP(S) source links show only the hostname; href and title keep the full URL. Other source strings keep their original label.
  * Source rows stay on one line and ellipsize within the card, including unusually long hostnames; this display policy does not exempt any text from CJK checking.
  */
@@ -335,7 +335,9 @@ em{font-style:${hasItalic ? 'italic' : 'normal'}}${hasItalic ? '' : `em{text-dec
 .sp-layout{display:grid;gap:${S(0.05)};align-content:start;min-width:0}
 .sp-layout-thumb{overflow:hidden}
 .sp-layout-thumb a{display:block;height:100%}
-.sp-layout-thumb img{width:100%;height:100%;object-fit:cover;object-position:top;border:1px solid ${line}}
+.sp-layout-thumb img{width:100%;height:100%;object-fit:cover;object-position:top center;border:1px solid ${line}}
+#layouts-web .sp-layout-thumb{border:1px solid ${line}}
+#layouts-web .sp-layout-thumb img{height:auto;display:block;border:0}
 .sp-layout-name{font-size:${text};line-height:1.35}
 .sp-layout-id{font-size:${small};color:${soft}}
 .sp-layout-note{font-size:${small};color:${soft};line-height:1.5}
@@ -368,10 +370,10 @@ em{font-style:${hasItalic ? 'italic' : 'normal'}}${hasItalic ? '' : `em{text-dec
 
 function sectionBlock(id: string, no: string, title: string, content: string): string {
   return `<section id="${id}" class="sp-section" data-ds-unit="${id}">
-<h2 class="sp-head"><button type="button" class="v2-toggle" aria-expanded="true" aria-controls="${id}-body"><span class="sp-no">${no}</span><span class="sp-title">${esc(title)}</span><span class="v2-meta">${esc(sectionCount(id, content))}</span><span class="v2-chev" aria-hidden="true"></span></button></h2>
+<h2 class="sp-head"><a class="v2-heading" href="#${id}"><span class="sp-no">${no}</span><span class="sp-title">${esc(title)}</span><span class="v2-meta">${esc(sectionCount(id, content))}</span></a></h2>
 <div class="v2-body" id="${id}-body"><div class="sp-main">
 ${content}
-</div></div><div class="v2-collapsed-note">已收起，点标题展开</div>
+</div></div>
 </section>`;
 }
 
@@ -432,7 +434,7 @@ function navigation(model: PageModel, blocks: string[]): string {
   const progress = '<div class="v2-progress"><i></i></div>';
   const overall = model.layouts.find((g) => g.overall)?.overall;
   const overview = overall ? `<a data-overview-listing="${escapeHtml(overall.href.replace(/[^/]+\/index.html$/, ''))}" href="${escapeHtml(overall.href.replace(/[^/]+\/index.html$/, 'overview.md'))}">排法总览</a>` : '';
-  return `<aside class="v2-rail" aria-label="目录"><div class="v2-rail-inner"><div class="v2-rail-top"><div class="v2-rail-k">${esc(model.meta.name)} · 目录</div><nav class="v2-toc">${links(false)}<i class="v2-thumb"></i></nav></div><div class="v2-tools">${progress}<div class="v2-row"><button type="button" data-all="close">全部收起</button><button type="button" data-all="open">全部展开</button></div><button type="button" data-reduce aria-pressed="false">减少动态效果</button><a href="/">← 预览导航</a>${overview}</div></div></aside><div class="v2-main"><div class="v2-bar"><div class="v2-bar-now"><b>${esc(model.meta.name)}</b><span data-now></span></div><button type="button" data-open-sheet aria-expanded="false">目录</button>${progress}</div>${blocks.join('\n')}</div><div class="v2-sheet" role="dialog" aria-modal="true" aria-label="目录" inert><div class="v2-sheet-head"><b>${esc(model.meta.name)} · 目录</b><button type="button" data-close-sheet>关闭</button></div><nav class="v2-toc">${links(true)}</nav></div>`;
+  return `<aside class="v2-rail" aria-label="目录"><div class="v2-rail-inner"><div class="v2-rail-top"><div class="v2-rail-k">${esc(model.meta.name)} · 目录</div><nav class="v2-toc">${links(false)}<i class="v2-thumb"></i></nav></div><div class="v2-tools">${progress}<button type="button" data-reduce aria-pressed="false">减少动态效果</button><a href="/">← 预览导航</a>${overview}</div></div></aside><div class="v2-main"><div class="v2-bar"><div class="v2-bar-now"><b>${esc(model.meta.name)}</b><span data-now></span></div><button type="button" data-open-sheet aria-expanded="false">目录</button>${progress}</div>${blocks.join('\n')}</div><div class="v2-sheet" role="dialog" aria-modal="true" aria-label="目录" inert><div class="v2-sheet-head"><b>${esc(model.meta.name)} · 目录</b><button type="button" data-close-sheet>关闭</button></div><nav class="v2-toc">${links(true)}</nav></div>`;
 }
 
 function enhanceBlocks(blocks: string[]): string[] {
@@ -874,14 +876,14 @@ function navigationStyle(model: PageModel): string {
   const values: Record<string, string> = {
     '--ds-color-paper': colors.bg, '--ds-color-ink': colors.ink, '--ds-color-ink-2': colors.soft, '--ds-color-rule': colors.line,
     '--ds-type-caption': at(type, .125), '--ds-type-note': at(type, .25), '--ds-type-body': at(type, .25),
-    '--ds-duration-turn': at(duration, 0), '--ds-duration-ink': at(duration, .5), '--ds-duration-glide': at(duration, .75),
+    '--ds-duration-turn': at(duration, 0), '--ds-duration-ink': at(duration, .5),
     '--ds-easing-paper': `var(${easing[0]!.cssVar})`, '--ds-easing-ink': `var(${easing[Math.min(1, easing.length - 1)]!.cssVar})`,
   };
   for (let n = 1; n <= 8; n++) values[`--ds-space-${n}`] = at(space, (n - 1) / 8);
   const names = new Set(model.tokens.entries.map((e) => e.cssVar));
   const numberedSpaces = Array.from({ length: 8 }, (_value, i) => `--ds-space-${i + 1}`).every((name) => names.has(name));
   const css = readFileSync(new URL('./system-page-v2.css', import.meta.url), 'utf8').replace(/var\((--ds-[^)]+)\)/g, (match, key: string) => names.has(key) && (numberedSpaces || !key.startsWith('--ds-space-')) ? match : values[key] ?? match);
-  return css + `:root{--sp-body-gap:${numberedSpaces && names.has('--ds-space-5') ? 'var(--ds-space-5)' : at(space, .5)};--sp-middle:${at(duration, .5)};--sp-fold:${at(duration, .75)};--sp-ease:var(${easing[0]!.cssVar})}`;
+  return css + `:root{--sp-middle:${at(duration, .5)};--sp-ease:var(${easing[0]!.cssVar})}`;
 }
 
 export function previewMetadata(model: PageModel): object {
