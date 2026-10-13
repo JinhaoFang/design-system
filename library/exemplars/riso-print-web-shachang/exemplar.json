@@ -27,7 +27,8 @@
     }
   },
   "approval": {
-    "status": "candidate"
+    "status": "approved",
+    "date": "2026-10-13"
   },
   "notes": "快照为 1440 宽整页截图。"
 }

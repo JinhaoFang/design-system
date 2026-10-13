@@ -220,4 +220,4 @@ license: CC0-1.0
 - 体系样张：`works/web.json`，「纱厂屋顶 · 秋夜露天电影季」。内容由用户在 2026-10-13 确认。作品概念是「每一场都是一版套色」：十个放映夜编成十版，孔版摊每晚现场开印当晚这一版。
 - 参考范例：已批准的 `riso-colossal-riso-club` 提供错版与墨粒的物理关系；`riso-risotto-studio` 提供日历和网点；`riso-tokyo-art-book-fair` 提供海报与严整信息的并置。本体系把原作收紧到两只墨。
 - 图像、排法和片段都由 `images/src/build.mjs` 生成；运行方式与文件覆盖范围见该文件头部。
-- 范例候选：重做后的网页样张作为「原创」范例候选提交（`library/exemplars/riso-print-web-shachang/`），等裁判批准。旧的天文台样张随内容一起撤下。验收记录见 `acceptance.md`。
+- 已批准的范例：重做后的网页样张 2026-10-13 经用户验收通过，作为「原创」范例入库（`library/exemplars/riso-print-web-shachang/`）。旧的天文台样张随内容一起撤下。验收记录见 `acceptance.md`。
