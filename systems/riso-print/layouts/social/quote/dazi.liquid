@@ -1,0 +1,55 @@
+{% comment %}
+大字 dazi：金句用思源黑体粗 title 档（方形 head 档）横排压满版心，一只粉色的大引号（庆科黄油体 colossal，装饰，伪元素）叠在左上，与蓝字相叠成紫；
+落款前一道蓝短线，品牌在底部右侧。不错版。公众号封面金句缩到 lead 档、引号收小。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--ds-color-paper);
+    color: var(--ds-color-blue);
+    font-family: var(--ds-font-body);
+    line-height: 1.5;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 9;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: var(--ds-grain-max);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .2  0 0 0 0 .1  0 0 0 0 .44  0 0 0 1.1 -.2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  p, h1, h2, h3, ul, ol, li, figure, blockquote { margin: 0; padding: 0; list-style: none; text-wrap: pretty; }
+  .mis { position: relative; display: block; }
+  .mis > .ink { position: relative; display: block; mix-blend-mode: multiply; }
+  .mis > .pl { position: absolute; left: var(--ds-space-1); top: calc(var(--ds-space-1) * -0.5); width: 100%; height: 100%; pointer-events: none; mix-blend-mode: multiply; }
+  .mis > .pl::before { content: attr(data-mis); display: block; color: var(--ds-color-pink); }
+  .num { font-family: var(--ds-font-num); font-variant-numeric: tabular-nums lining-nums; }
+  .stamp { box-sizing: border-box; display: grid; place-items: center; border-radius: var(--ds-radius-disc); background: var(--ds-color-pink); color: var(--ds-color-purple); font-family: var(--ds-font-display); line-height: 1.05; text-align: center; text-wrap: balance; mix-blend-mode: multiply; }
+  .band { background-image: repeating-linear-gradient(-45deg, var(--ds-color-pink) 0 var(--ds-space-1), transparent var(--ds-space-1) var(--ds-space-2)); mix-blend-mode: multiply; }
+  .dots { background-image: radial-gradient(circle, var(--ds-color-pink) 0 36%, transparent 38%); background-size: var(--ds-space-2) var(--ds-space-2); mix-blend-mode: multiply; }
+  .dots-blue { background-image: radial-gradient(circle, var(--ds-color-blue) 0 30%, transparent 32%); background-size: var(--ds-space-2) var(--ds-space-2); mix-blend-mode: multiply; }
+
+  :scope { padding: var(--ds-space-8) var(--ds-space-6) var(--ds-space-7); display: flex; flex-direction: column; }
+  :scope::before { content: "“"; position: absolute; left: var(--ds-space-4); top: calc(var(--ds-space-6) * -1); font-family: var(--ds-font-num); font-weight: 700; font-size: var(--ds-type-colossal); line-height: 1; color: var(--ds-color-pink); mix-blend-mode: multiply; }
+  .quote { position: relative; margin-top: var(--ds-space-9); font-family: var(--ds-font-cjk-strong); font-weight: 700; font-size: var(--ds-type-title); line-height: 1.28; mix-blend-mode: multiply; }
+  .by { margin-top: var(--ds-space-6); display: flex; align-items: center; column-gap: var(--ds-space-3); font-size: var(--ds-type-lead); }
+  .by::before { content: ""; width: var(--ds-space-6); border-top: 6px solid var(--ds-color-blue); }
+  .brand { margin-top: auto; align-self: flex-end; font-family: var(--ds-font-cjk-strong); font-weight: 700; font-size: var(--ds-type-note); letter-spacing: .08em; }
+  @media (min-aspect-ratio: 9/10) and (max-aspect-ratio: 11/10) { .quote { font-size: var(--ds-type-head); margin-top: var(--ds-space-8); } }
+  @media (min-aspect-ratio: 2/1) {
+    :scope { padding: var(--ds-space-4) var(--ds-space-6) var(--ds-space-4) var(--ds-space-9); }
+    :scope::before { font-size: var(--ds-type-poster); left: var(--ds-space-3); top: calc(var(--ds-space-5) * -1); }
+    .quote { margin-top: var(--ds-space-2); font-size: var(--ds-type-lead); }
+    .by { margin-top: var(--ds-space-3); font-size: var(--ds-type-note); }
+  }
+</style>
+<blockquote class="quote" data-ds-enter="rise" data-ds-step="feed" data-ds-ease="feed" data-ds-distance="2" data-ds-order="0">{{ slots.quote }}</blockquote>
+<p class="by" data-ds-enter="fade" data-ds-order="1">{{ slots.by }}</p>
+<p class="brand" data-ds-enter="fade" data-ds-order="2">{{ slots.brand }}</p>

@@ -1,0 +1,59 @@
+{% comment %}
+框印 kuangyin：金句放在一个 8px 蓝框里（思源黑体粗 head 档，方形 sub 档），框在画面竖向居中，同样大小的粉框按体系常量错开，两框相叠处是紫——错版落在框上，字不错版。
+框下方左边落款、右边一枚粉色圆章写品牌首字。公众号封面框占整幅，圆章收小在右。
+{% endcomment %}
+<style>
+  :scope {
+    box-sizing: border-box;
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--ds-color-paper);
+    color: var(--ds-color-blue);
+    font-family: var(--ds-font-body);
+    line-height: 1.5;
+  }
+  :scope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 9;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: var(--ds-grain-max);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .2  0 0 0 0 .1  0 0 0 0 .44  0 0 0 1.1 -.2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  p, h1, h2, h3, ul, ol, li, figure, blockquote { margin: 0; padding: 0; list-style: none; text-wrap: pretty; }
+  .mis { position: relative; display: block; }
+  .mis > .ink { position: relative; display: block; mix-blend-mode: multiply; }
+  .mis > .pl { position: absolute; left: var(--ds-space-1); top: calc(var(--ds-space-1) * -0.5); width: 100%; height: 100%; pointer-events: none; mix-blend-mode: multiply; }
+  .mis > .pl::before { content: attr(data-mis); display: block; color: var(--ds-color-pink); }
+  .num { font-family: var(--ds-font-num); font-variant-numeric: tabular-nums lining-nums; }
+  .stamp { box-sizing: border-box; display: grid; place-items: center; border-radius: var(--ds-radius-disc); background: var(--ds-color-pink); color: var(--ds-color-purple); font-family: var(--ds-font-display); line-height: 1.05; text-align: center; text-wrap: balance; mix-blend-mode: multiply; }
+  .band { background-image: repeating-linear-gradient(-45deg, var(--ds-color-pink) 0 var(--ds-space-1), transparent var(--ds-space-1) var(--ds-space-2)); mix-blend-mode: multiply; }
+  .dots { background-image: radial-gradient(circle, var(--ds-color-pink) 0 36%, transparent 38%); background-size: var(--ds-space-2) var(--ds-space-2); mix-blend-mode: multiply; }
+  .dots-blue { background-image: radial-gradient(circle, var(--ds-color-blue) 0 30%, transparent 32%); background-size: var(--ds-space-2) var(--ds-space-2); mix-blend-mode: multiply; }
+
+  :scope { padding: var(--ds-space-7) var(--ds-space-6); display: flex; flex-direction: column; }
+  .frame { position: relative; margin: auto 0; box-sizing: border-box; padding: var(--ds-space-9) var(--ds-space-6); display: flex; align-items: center; }
+  .frame::before, .frame::after { content: ""; position: absolute; inset: 0; border: 8px solid var(--ds-color-blue); mix-blend-mode: multiply; }
+  .frame::after { border-color: var(--ds-color-pink); transform: translate(var(--ds-space-1), calc(var(--ds-space-1) * -0.5)); }
+  .quote { position: relative; font-size: var(--ds-type-head); line-height: 1.35; font-weight: 700; font-family: var(--ds-font-cjk-strong); }
+  .foot { margin-top: var(--ds-space-6); display: flex; justify-content: space-between; align-items: center; }
+  .by { font-size: var(--ds-type-lead); }
+  .stamp { width: var(--ds-space-10); height: var(--ds-space-10); padding: var(--ds-space-5); font-size: var(--ds-type-lead); text-wrap: balance; transform: rotate(-8deg); }
+  @media (min-aspect-ratio: 9/10) and (max-aspect-ratio: 11/10) { .stamp { width: var(--ds-space-9); height: var(--ds-space-9); padding: var(--ds-space-3); font-size: var(--ds-type-body); } }
+  @media (min-aspect-ratio: 9/10) and (max-aspect-ratio: 11/10) { .quote { font-size: var(--ds-type-sub); } .frame { padding: var(--ds-space-6) var(--ds-space-5); } }
+  @media (min-aspect-ratio: 2/1) {
+    :scope { padding: var(--ds-space-4) var(--ds-space-5); flex-direction: row; column-gap: var(--ds-space-5); }
+    .frame { flex: 1; margin: 0; padding: var(--ds-space-4) var(--ds-space-5); }
+    .quote { font-size: var(--ds-type-lead); }
+    .foot { margin-top: 0; flex-direction: column; justify-content: space-between; align-items: end; }
+    .by { font-size: var(--ds-type-caption); }
+    .stamp { width: var(--ds-space-8); height: var(--ds-space-8); font-size: var(--ds-type-lead); }
+  }
+</style>
+<div class="frame" data-ds-enter="fade" data-ds-step="feed" data-ds-order="0"><blockquote class="quote">{{ slots.quote }}</blockquote></div>
+<div class="foot"><p class="by" data-ds-enter="fade" data-ds-order="1">{{ slots.by }}</p><p class="stamp" data-ds-enter="stamp" data-ds-step="press" data-ds-ease="press" data-ds-wait="feed" data-ds-order="3">{{ slots.brand }}</p></div>

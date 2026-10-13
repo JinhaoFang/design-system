@@ -1,0 +1,7 @@
+{
+  "duration": "--ds-duration-feed",
+  "easing": "--ds-easing-feed",
+  "shadow": "--ds-shadow-feed",
+  "shadeColor": "--ds-color-blue-shade",
+  "retreat": "--ds-space-6"
+}
