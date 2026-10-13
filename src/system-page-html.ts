@@ -16,6 +16,7 @@
  * code in tables does not wrap (a wrapped curve would start a line with a forbidden character), italic specimens are set in italic; *emphasis* is real italic when the system loads an italic face, otherwise upright with an underline.
  * Sample captions have the existing 14rem card minimum (capped at the available width), independent of thumbnail proportions or lazy image loading.
  * Web thumbnails keep the existing 20:16 crop as a responsive 5:4 box anchored at the top; other thumbnails retain their natural aspect ratio within the existing 16rem height limit.
+ * Layout thumbnails use uniform frames: web 4:3, slides 16:9, social its declared canvas. Section headings and anchor statements step down once in the type ladder below 640px.
  * Exemplar HTTP(S) source links show only the hostname; href and title keep the full URL. Other source strings keep their original label.
  * Source rows stay on one line and ellipsize within the card, including unusually long hostnames; this display policy does not exempt any text from CJK checking.
  */
@@ -44,6 +45,7 @@ export interface LinkView {
   detail?: string;
   image?: string;
   cropped?: boolean;
+  aspectRatio?: string;
 }
 
 export interface ExemplarView {
@@ -63,6 +65,7 @@ export interface LayoutItem {
   href?: string;
   image?: string;
   note?: string;
+  aspectRatio?: string;
 }
 
 export interface LayoutView {
@@ -139,9 +142,9 @@ function steps(tokens: ResolvedTokens, prefix: string): Step[] {
     .sort((a, b) => a.value - b.value);
 }
 
-function at(list: Step[], fraction: number): string {
+function at(list: Step[], fraction: number, lowerBy = 0): string {
   if (list.length === 0) return '0';
-  return `var(${list[Math.round(fraction * (list.length - 1))]!.cssVar})`;
+  return `var(${list[Math.max(0, Math.round(fraction * (list.length - 1)) - lowerBy)]!.cssVar})`;
 }
 
 interface ColorView {
@@ -330,7 +333,9 @@ em{font-style:${hasItalic ? 'italic' : 'normal'}}${hasItalic ? '' : `em{text-dec
 .sp-unit-k{font-size:${small};letter-spacing:0.12em;color:${soft};padding-bottom:${S(0.05)};border-bottom:1px solid ${ink}}
 .sp-layouts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:${S(0.2)}}
 .sp-layout{display:grid;gap:${S(0.05)};align-content:start;min-width:0}
-.sp-layout img{width:100%;height:auto;border:1px solid ${line}}
+.sp-layout-thumb{overflow:hidden}
+.sp-layout-thumb a{display:block;height:100%}
+.sp-layout-thumb img{width:100%;height:100%;object-fit:cover;object-position:top;border:1px solid ${line}}
 .sp-layout-name{font-size:${text};line-height:1.35}
 .sp-layout-id{font-size:${small};color:${soft}}
 .sp-layout-note{font-size:${small};color:${soft};line-height:1.5}
@@ -357,6 +362,7 @@ em{font-style:${hasItalic ? 'italic' : 'normal'}}${hasItalic ? '' : `em{text-dec
 .sp-family{grid-template-columns:minmax(0,2fr) minmax(0,5fr)}
 .sp-prose li:has(> ul){grid-template-columns:minmax(0,5fr) minmax(0,4fr) minmax(0,4fr)}
 }
+@media(width < 640px){.sp-no,.sp-title,.sp-statement{font-size:${at(types, 0.625, 1)}}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}`;
 }
 
@@ -667,10 +673,11 @@ ${sub('缓动')}<div class="sp-cells">${easingCells}</div>`,
   );
 }
 
-function layoutCard(layout: LayoutItem): string {
+function layoutCard(layout: LayoutItem, carrier: CarrierId): string {
   const image = layout.image ? `<img src="${escapeHtml(layout.image)}" alt="${esc(layout.name ?? layout.id)}" loading="lazy">` : '';
   const picture = layout.href ? `<a href="${escapeHtml(layout.href)}">${image || esc(layout.name ?? layout.id)}</a>` : image;
-  return `<div class="sp-layout">${picture}<div class="sp-layout-name">${esc(layout.name ?? layout.id)}</div><div class="sp-layout-id">${escapeHtml(layout.id)}</div>${layout.description ? `<div class="sp-layout-note">${esc(layout.description)}</div>` : ''}</div>`;
+  const aspectRatio = carrier === 'web' ? '4 / 3' : carrier === 'slides' ? '16 / 9' : layout.aspectRatio;
+  return `<div class="sp-layout">${image ? `<div class="sp-layout-thumb"${aspectRatio ? ` style="aspect-ratio:${escapeHtml(aspectRatio)}"` : ''}>${picture}</div>` : picture}<div class="sp-layout-name">${esc(layout.name ?? layout.id)}</div><div class="sp-layout-id">${escapeHtml(layout.id)}</div>${layout.description ? `<div class="sp-layout-note">${esc(layout.description)}</div>` : ''}</div>`;
 }
 
 function layoutsSection(model: PageModel, no: string): string {
@@ -679,13 +686,13 @@ function layoutsSection(model: PageModel, no: string): string {
   const groups = filled
     .map((group) => {
       const units = group.units
-        .map((unit) => `<div class="sp-unit"><div class="sp-unit-k">${esc(unit.label)}</div><div class="sp-layouts">${unit.layouts.map(layoutCard).join('')}</div></div>`)
+        .map((unit) => `<div class="sp-unit"><div class="sp-unit-k">${esc(unit.label)}</div><div class="sp-layouts">${unit.layouts.map((layout) => layoutCard(layout, group.carrier)).join('')}</div></div>`)
         .join('');
       const overall = group.overall
         ? `<div class="sp-overall"><a href="${escapeHtml(group.overall.href)}">${group.overall.image ? `<img src="${escapeHtml(group.overall.image)}" alt="${esc(group.overall.label)}" loading="lazy">` : esc(group.overall.label)}</a><div class="sp-layout-note">${esc('整体排法总览：全部排法依次排成一页')}</div></div>`
         : '';
       const wholeOnly = group.units.every((unit) => unit.layouts.every((layout) => !layout.image));
-      return `<div class="v2-panel" role="tabpanel" id="layouts-${group.carrier}" ${filled.length > 1 ? `aria-labelledby="tab-${group.carrier}"` : ''}>${sub(`${CARRIERS[group.carrier].label} · ${group.carrier}`)}<div class="sp-units">${units}</div>${wholeOnly ? overall : ''}</div>`;
+      return `<div class="v2-panel" role="tabpanel" id="layouts-${group.carrier}" ${filled.length > 1 ? `aria-labelledby="tab-${group.carrier}"` : ''}>${filled.length > 1 ? '' : sub(`${CARRIERS[group.carrier].label} · ${group.carrier}`)}<div class="sp-units">${units}</div>${wholeOnly ? overall : ''}</div>`;
     })
     .join('');
   const note = !model.overviewGenerated ? `<p class="sp-missing">${esc('这套体系的排法总览还没有生成。')}</p>` : '';

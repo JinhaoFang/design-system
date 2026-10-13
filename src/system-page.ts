@@ -113,7 +113,8 @@ function thumbnailOf(outDir: string, entry: ArtifactEntry): string | undefined {
 
 function linkOf(outDir: string, entry: ArtifactEntry, label: string): LinkView {
   const image = thumbnailOf(outDir, entry);
-  return { href: linkTo(outDir, entry), label, note: noteOf(entry), ...(image !== undefined && { image }), ...(entry.carrier === 'web' && { cropped: true }) };
+  const canvas = entry.canvas ? CARRIERS.social.canvases[entry.canvas as keyof typeof CARRIERS.social.canvases] : undefined;
+  return { href: linkTo(outDir, entry), label, note: noteOf(entry), ...(image !== undefined && { image }), ...(entry.carrier === 'web' && { cropped: true }), ...(entry.carrier === 'social' && canvas && { aspectRatio: `${canvas.width} / ${canvas.height}` }) };
 }
 
 const PREFERRED_CANVAS = 'xiaohongshu';
@@ -310,7 +311,7 @@ async function layoutViews(systemDir: string, system: Awaited<ReturnType<typeof 
         return {
           id: name,
           ...(note && { name: note.name, description: note.description }),
-          ...(build && { href: build.href, ...(build.image !== undefined && { image: build.image }), ...(build.note && { note: build.note }) }),
+          ...(build && { href: build.href, ...(build.image !== undefined && { image: build.image }), ...(build.note && { note: build.note }), ...(build.aspectRatio && { aspectRatio: build.aspectRatio }) }),
         };
       });
       if (layouts.length) units.push({ id, label: spec.label, layouts });

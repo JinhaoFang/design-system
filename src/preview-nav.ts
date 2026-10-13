@@ -7,6 +7,7 @@
  * A folder counts as a system when it has a system/ page build or overview/overview.md.
  * groupedHome(root, layout, flatSection) -> the home page: per system the system page as the primary entry, the system samples as thumbnails with error and warning counts, and one "排法总览" entry with its totals
  * The v2 home reads preview-meta.json emitted by buildSystemPage; it includes sticky navigation, cover panoramas, sample shelves, persisted folds/theme and a report table containing every build.
+ * Palette swatches are deduplicated by resolved color value; paper and ink values remain wide even when first declared under another role. Tone labels show the nearer pole (the first at the midpoint).
  * The overview action opens overviewListing at OVERVIEW_ROUTE + <overview folder>/; the overview builds and their reports are not listed on the home page; "others" are rendered by the flatSection callback. A lone overview shows its listing directly.
  * overviewListing(root, entries, base, home) -> the listing page for the builds under the overview folder `base` (relative path, "" for the root), grouped by carrier and canvas, each a thumbnail that opens the build,
  * with links to its report and to overview.md. listingBases(layout) are the folders for which that page exists. pageShell/encodePath/countsText/FLAT_CSS are shared with the flat listing.
@@ -52,7 +53,7 @@ export function pageShell(title: string, dir: string, body: string, css = '', ju
 }
 
 function status(errors: number, warnings: number): string {
-  return `<span class="pill${errors ? ' bad' : ''}"><i></i>${errors} 个错误</span><span class="pill warn"><i></i>${warnings} 个警告</span>`;
+  return `<span class="check-status"><span class="pill${errors ? ' bad' : ''}"><i></i>${errors} 个错误</span><span class="pill warn"><i></i>${warnings} 个警告</span></span>`;
 }
 
 function fold(id: string, title: string, count: string, body: string, open: boolean): string {
@@ -210,8 +211,13 @@ async function systemSection(group: SystemGroup, meta: PreviewMeta, index: numbe
   const overviewHref = `${OVERVIEW_ROUTE}${encodePath(group.overviewBase)}/`;
   const colors = meta.colors ?? [];
   const accent = meta.accent ?? colors.find((c) => /accent|primary|brand|pink/.test(c.name))?.css;
-  const palette = colors.map((c) => `<i${/^(paper|ink)$/.test(c.name) ? ' class="wide"' : ''} style="background:${escapeHtml(c.css)}"></i>`).join('');
-  const tone = Object.entries(meta.tone ?? {}).map(([label, value]) => `<span>${escapeHtml(TONE_PAIRS[label as ToneKey] ?? label)}<em>${[1, 2, 3, 4, 5].map((n) => `<i${n === value ? ' class="on"' : ''}></i>`).join('')}</em></span>`).join('');
+  const wide = new Set(colors.filter((c) => /^(paper|ink)$/.test(c.name)).map((c) => c.css));
+  const palette = [...new Set(colors.map((c) => c.css))].map((css) => `<i${wide.has(css) ? ' class="wide"' : ''} style="background:${escapeHtml(css)}"></i>`).join('');
+  const tone = Object.entries(meta.tone ?? {}).map(([label, value]) => {
+    const pair = TONE_PAIRS[label as ToneKey] ?? label;
+    const pole = pair.split('—')[value > 3 ? 1 : 0] ?? pair;
+    return `<span aria-label="${escapeHtml(`${pair}：${value} / 5`)}">${escapeHtml(pole)}<em>${[1, 2, 3, 4, 5].map((n) => `<i${n === value ? ' class="on"' : ''}></i>`).join('')}</em></span>`;
+  }).join('');
   const cards = (await Promise.all(group.works.map((entry) => card(entry, entry.concept?.split(/[：:]/)[0] || entry.rel.split('/').pop() || entry.rel)))).join('');
   const rows: string[] = [];
   for (const entry of entries) rows.push(`<tr><td><a href="/${encodePath(entry.rel)}/">${escapeHtml(entry === group.system ? '体系总览页' : entry.concept || entry.rel)}</a></td><td>${escapeHtml(entry.carrier ?? '')}</td><td class="r ${entry.errors ? 'bad' : 'zero'}">${entry.errors ?? '—'}</td><td class="r ${entry.warnings ? 'w' : 'zero'}">${entry.warnings ?? '—'}</td><td>${await reportLinks(entry)}</td></tr>`);

@@ -34,7 +34,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .jump a:hover,.jump a[aria-current="true"]{background:var(--sunk);color:var(--ink)}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--sys);flex:none}
 .status{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:13px;color:var(--ink-2);white-space:nowrap}
-.pill{display:inline-flex;align-items:center;gap:6px}
+.check-status{display:inline-flex;align-items:center;gap:14px}
+.pill{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .pill i{width:6px;height:6px;border-radius:50%;background:var(--ok)}
 .pill.warn i{background:var(--warn)}
 .pill.bad i{background:var(--bad)}
