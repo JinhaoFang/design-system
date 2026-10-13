@@ -3,7 +3,7 @@
  * They assert artifact specs only: the files that come out, the system's values appearing in the page text, the animation records the replays produce under normal and reduced motion,
  * the links and thumbnails of the layout overview, standard samples and approved exemplars, the tables of SYSTEM.md, the fonts grouped by family, and the checker report (zero errors, composition and anti-homogeneity skipped). No DOM structure, no pixels.
  * One page is built once for the whole file (a real Chromium run), with a layout overview, a standard sample and a few exemplars linked into it; the paper-editorial page is built once more when the font cache exists (italic specimens, tables, zero errors).
- * A separate sample page uses small artifact stubs with PNGs at real carrier dimensions (including a 1440x12000 long screenshot) and long captions; its checker report covers both web widths.
+ * Separate sample and exemplar pages cover long captions and long external source URLs; their checker reports cover both web widths.
  */
 import { existsSync } from 'node:fs';
 import { access, copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
@@ -15,7 +15,7 @@ import { buildSystemPage } from '../src/system-page.ts';
 import type { SystemPageResult } from '../src/system-page.ts';
 import { fixtures, pngSize, repoRoot, tempDir } from './helpers.ts';
 import { overviewLibrary } from './overview-helpers.ts';
-import { editText, patchedSystem, systemMd, writeFileDeep } from './system-helpers.ts';
+import { editText, patchedLibrary, patchedSystem, systemMd, writeFileDeep } from './system-helpers.ts';
 
 async function writeExemplar(library: string, id: string, patch: Record<string, unknown>): Promise<void> {
   const dir = join(library, 'exemplars', id);
@@ -253,6 +253,33 @@ describe('links', () => {
     expect(html).not.toContain('still-candidate');
     expect(html).not.toContain('other-system');
     expect(await exists(join(page.artifacts.outDir, 'exemplars', 'shown-web', 'screenshot.png'))).toBe(true);
+  });
+});
+
+describe('long exemplar source URLs', () => {
+  test('external paths and query strings have no typesetting errors at either web width', async () => {
+    const urls = [
+      'https://www.thisiscolossal.com/2026/04/gabriella-marcella-risotto/?reference=external&view=full',
+      `https://example.com${'/04'.repeat(40)}/?view=full`,
+      `http://${'long-subdomain.'.repeat(8)}example.com:8080/full/source/path`,
+    ];
+    const library = await patchedLibrary(async (dir) => {
+      for (const [index, sourceUrl] of urls.entries()) await writeExemplar(dir, `long-url-${index}`, { sourceUrl });
+    });
+    const result = await buildSystemPage({ systemDir: fixtures.system, outDir: await tempDir(), libraryDir: library, fontCacheDir: fixtures.fontCache });
+    expect(result.report.findings.filter((finding) => finding.category === 'cjk-typography' && finding.location.unit === 'works')).toEqual([]);
+    expect(result.report.summary.errors, JSON.stringify(result.report.findings, null, 1)).toBe(0);
+    expect(result.exitCode).toBe(0);
+    const html = await readFile(result.artifacts.index, 'utf8');
+    for (const sourceUrl of urls) {
+      const escaped = sourceUrl.replaceAll('&', '&amp;');
+      expect(html).toContain(`href="${escaped}"`);
+      expect(html).toContain(`title="${escaped}"`);
+      expect(html).toContain(`>${new URL(sourceUrl).hostname}</a>`);
+    }
+    const [desktop, mobile] = result.artifacts.images;
+    expect((await pngSize(desktop!)).width).toBe(1440);
+    expect((await pngSize(mobile!)).width).toBe(390);
   });
 });
 

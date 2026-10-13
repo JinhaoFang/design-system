@@ -14,6 +14,8 @@
  * code in tables does not wrap (a wrapped curve would start a line with a forbidden character), italic specimens are set in italic; *emphasis* is real italic when the system loads an italic face, otherwise upright with an underline.
  * Sample captions have the existing 14rem card minimum (capped at the available width), independent of thumbnail proportions or lazy image loading.
  * Web thumbnails keep the existing 20:16 crop as a responsive 5:4 box anchored at the top; other thumbnails retain their natural aspect ratio within the existing 16rem height limit.
+ * Exemplar HTTP(S) source links show only the hostname; href and title keep the full URL. Other source strings keep their original label.
+ * Source rows stay on one line and ellipsize within the card, including unusually long hostnames; this display policy does not exempt any text from CJK checking.
  */
 import { TONE_PAIRS } from './system.ts';
 import type { SystemMeta, ToneKey } from './system.ts';
@@ -339,8 +341,9 @@ em{font-style:${hasItalic ? 'italic' : 'normal'}}${hasItalic ? '' : `em{text-dec
 .sp-work-k{font-size:${text}}
 .sp-work-v{font-size:${small};color:${soft}}
 .sp-exemplars{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(14rem,100%),1fr));gap:${S(0.3)}}
-.sp-ex{display:grid;gap:${S(0.1)};align-content:start}
+.sp-ex{display:grid;gap:${S(0.1)};align-content:start;min-width:0}
 .sp-ex img{width:100%;height:auto;border:1px solid ${line}}
+.sp-ex-source{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .sp-missing{font-size:${small};color:${soft}}
 @media(min-width:900px){
 .sp{padding-inline:${S(0.5)}}
@@ -651,9 +654,18 @@ function workCard(work: LinkView): string {
   return `<div class="sp-work"><a href="${escapeHtml(work.href)}">${image || esc(work.label)}</a><div class="sp-work-k">${esc(work.label)}</div>${work.detail ? `<div class="sp-work-v">${esc(work.detail)}</div>` : ''}${work.note ? `<div class="sp-work-v">${esc(work.note)}</div>` : ''}</div>`;
 }
 
+function exemplarSourceLabel(sourceUrl: string): string {
+  try {
+    const url = new URL(sourceUrl);
+    return url.protocol === 'https:' || url.protocol === 'http:' ? url.hostname : sourceUrl;
+  } catch {
+    return sourceUrl;
+  }
+}
+
 function exemplarCard(exemplar: ExemplarView): string {
   const source = exemplar.sourceUrl
-    ? `<div class="sp-work-v">${esc('来源：')}<a href="${escapeHtml(exemplar.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(exemplar.sourceUrl)}</a></div>`
+    ? `<div class="sp-work-v sp-ex-source">${esc('来源：')}<a href="${escapeHtml(exemplar.sourceUrl)}" title="${escapeHtml(exemplar.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(exemplarSourceLabel(exemplar.sourceUrl))}</a></div>`
     : '';
   const media =
     exemplar.media?.kind === 'screenshot'
