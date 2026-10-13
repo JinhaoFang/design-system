@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "culori": "4.0.2",
+    "fflate": "0.8.2",
     "fontverter": "2.0.0",
     "harfbuzzjs": "1.6.2",
     "liquidjs": "10.29.0",

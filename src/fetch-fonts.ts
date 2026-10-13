@@ -4,11 +4,14 @@
  * A cached file whose sha256 already matches is kept without any request; a missing or mismatching one is downloaded again. A download is verified before it is moved into the
  * cache, so a mismatch (or any failure) never leaves a bad file behind; all problems are collected into one BuildError naming the font id.
  * Sources: file: URLs are read from disk (used by tests); http(s) goes through undici and honors HTTP_PROXY / HTTPS_PROXY / NO_PROXY from the environment, except loopback hosts, which are always direct.
+ * Optional source.archive selects one ZIP member: verify archive.sha256 before decoding, read only archive.file in memory, then verify source.sha256 on the extracted font.
+ * Only the verified font reaches disk; archives and unrelated members never enter the cache. A ZIP source's stale invalid cache file is removed before retrying, even if the retry fails.
  */
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { unzipSync } from 'fflate';
 import { Agent, EnvHttpProxyAgent, fetch } from 'undici';
 import { DEFAULT_FONT_CACHE, loadFontManifest } from './fonts.ts';
 import type { FontEntry } from './fonts.ts';
@@ -51,11 +54,28 @@ async function cachedMatches(path: string, expected: string): Promise<boolean> {
 async function fetchOne(entry: FontEntry, cacheDir: string): Promise<'fetched' | 'cached'> {
   const target = join(cacheDir, entry.file);
   if (await cachedMatches(target, entry.source.sha256)) return 'cached';
-  let data: Buffer;
+  const archive = entry.source.archive;
+  if (archive) await rm(target, { force: true });
+  let data: Uint8Array;
   try {
     data = await download(new URL(entry.source.url));
   } catch (error) {
     throw new BuildError([`字体「${entry.id}」下载失败：${entry.source.url}（${(error as Error).message}）`]);
+  }
+  if (archive) {
+    const actual = sha256(data);
+    if (actual !== archive.sha256) {
+      throw new BuildError([`字体「${entry.id}」压缩包校验和不符：清单记录 ${archive.sha256}，下载到的压缩包是 ${actual}（${entry.source.url}）`]);
+    }
+    let extracted: Uint8Array | undefined;
+    try {
+      const member = unzipSync(data, { filter: (member) => member.name === archive.file })[archive.file];
+      if (member instanceof Uint8Array) extracted = member;
+    } catch (error) {
+      throw new BuildError([`字体「${entry.id}」无法读取 ZIP 压缩包：${entry.source.url}（${(error as Error).message}）`]);
+    }
+    if (!extracted) throw new BuildError([`字体「${entry.id}」压缩包里没有指定文件「${archive.file}」（${entry.source.url}）`]);
+    data = extracted;
   }
   const actual = sha256(data);
   if (actual !== entry.source.sha256) {
