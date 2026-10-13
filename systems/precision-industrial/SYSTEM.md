@@ -239,4 +239,4 @@ license: CC0-1.0
 - 复现：仓库根目录运行 `node systems/precision-industrial/images/src/build.mjs`。脚本只读字体缓存，生成图解、网页排法、作品片段和体系总览页页头；不写共享目录。所有生成结果确定、可重复。
 - 起点：`design/ind` 的正文、数值和工程绘图库；主体是方向 B 的铝板数据表，借 A 的表盘与唯一暗屏，不取 C 的机架模块，不取社交配图排法或幻灯片转场。
 - 已批准参考：`industrial-artcraft`，借刻度、标签、细线与节拍的编排逻辑，不借三维场景、光标力场或常动效果。
-- 人工审美验收由设计负责人进行，本工单不写通过记录，也不批准范例。
+- 已批准的范例：2026-10-13 验收通过，网页样张作为「原创」范例提交（`library/exemplars/precision-industrial-web-kro1600/`）。验收记录见 `acceptance.md`。
