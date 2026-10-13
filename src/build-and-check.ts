@@ -4,7 +4,7 @@
  * Output files in outDir: index.html, fonts/, report.json, report.md, plus per carrier: social-<canvas>.png (social); web-desktop.png, web-mobile.png (full page) and web-scroll.webm (web, built by web.ts; canvas reported as "1440+390");
  * slide-<nn>.png, slides.pdf, slides.webm (slides, built by slides.ts; the stage canvas is reported as "stage"). Returns the Report, artifact paths and the exit status (0 = no errors, 1 = errors found).
  * validateSystem is the first stage on its own (the validate-system subcommand): SYSTEM.md, token file, font references and system units; it throws one BuildError listing every problem.
- * Image ids referenced by the work (briefs in <library>/content/images.json) are resolved to files in <system>/images/ and copied into outDir/images/ (assets.ts); a missing id fails the build before rendering.
+ * Image ids referenced by slots or custom <img src="images/<id>.<ext>"> use work.images briefs before <library>/content/images.json and files in <system>/images/, copied into outDir/images/ (assets.ts); missing briefs/files fail before rendering.
  * Entrance choreography attributes (data-ds-enter and friends, choreography.ts) in the rendered units are validated against the system's tokens before rendering.
  * Slides optionally load <system>/slides.transition.json (token references, slides-transition.ts) before assembling their page; motion.json stores both animation audit passes.
  * Web/slides motion.json is the sole persisted copy of { animations, reduced }, the same animation records used by the checker (duration, easing, properties, entrance, delay and keyframes).

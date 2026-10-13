@@ -1,12 +1,14 @@
 /*
  * Work description (作品描述): loading and validation against the carrier's skeleton, before any rendering.
- * Shape: { system, carrier, canvas? (required for social), concept, sequence: [ {unit, layout, content} | {custom, serves} ] }.
- *   content maps slot name -> string | {image: <id>} (image slots; the alt text comes from the library's image briefs, content/images.json) | list of those (slots with maxItems) | {"ref": "<key>"} pointing at the library's shared content (library/content/<carrier>.json).
+ * Shape: { system, carrier, canvas? (required for social), concept, images?, sequence: [ {unit, layout, content} | {custom, serves} ] }.
+ *   images is an optional map { "<image-id>": { brief, alt } }, validated like library/content/images.json; work briefs override library briefs with the same id.
+ *   content maps slot name -> string | {image: <id>} (image slots; alt comes from the work brief first, then the library brief) | list of those (slots with maxItems) | {"ref": "<key>"} pointing at the library's shared content (library/content/<carrier>.json).
  *   custom is an HTML fragment (may carry one <style>) for the work concept, either an inline string or {"file": "fragments/<name>.html"} naming a fragment file; serves says which part of the work concept it serves.
  *   A fragment file lives at <system>/works/fragments/*.html and the path is relative to <system>/works/: it must start with fragments/, end in .html, contain no .. segment, and (after resolving symlinks) stay inside <system>/works/fragments/.
  *   resolveFragments(raw, systemDir) replaces each {file} by the file's text before validateWork; a missing, unsafe or empty file is a BuildError listing every such problem. "system" names the system the work was written for; building with another system (reskinning) is allowed.
  * validateWork returns the work with refs resolved and fails with BuildError listing every problem: unknown unit/slot, missing primary slot, over the character or item limit, wrong value shape, unequal list-group lengths, missing shared key, missing serves.
- * Image ids are checked against the image briefs; assets.ts later resolves each id to a picture in the system directory and fills src.
+ * Image ids are checked against the merged image briefs; assets.ts later resolves each id to a picture in the system directory and fills src.
+ * Custom fragments may reference <img src="images/<image-id>.<ext>"> in the current system; assets.ts checks the merged brief and exact file, then copies it. Fragment alt is left as authored.
  * Layout existence and layout-slot checks happen in layout.ts. Social works hold exactly one sequence item.
  */
 import { readFile, realpath } from 'node:fs/promises';
@@ -14,6 +16,7 @@ import { isAbsolute, join, sep } from 'node:path';
 import { CARRIERS, CARRIER_IDS, isCarrierId } from './carriers.ts';
 import type { CarrierId } from './carriers.ts';
 import type { ImageBrief, SharedValue, Skeleton, SlotSpec } from './library.ts';
+import { validateImageBriefs } from './library.ts';
 import { BuildError } from './types.ts';
 
 export interface ImageItem {
@@ -45,6 +48,7 @@ export interface Work {
   carrier: CarrierId;
   canvas?: string;
   concept: string;
+  images?: Record<string, ImageBrief>;
   sequence: WorkItem[];
 }
 
@@ -53,6 +57,7 @@ export interface RawWork {
   carrier: CarrierId;
   canvas?: string;
   concept: string;
+  images?: Record<string, ImageBrief>;
   sequence: any[];
 }
 
@@ -172,7 +177,7 @@ function checkItem(value: unknown, spec: SlotSpec, where: string, issues: string
       issues.push(`${where} 是图片槽位，内容需要是 { "image": 图像标识 }`);
       return undefined;
     }
-    const brief = images?.[id];
+    const brief = images && Object.hasOwn(images, id) ? images[id] : undefined;
     if (!brief) {
       issues.push(`${where} 的图像标识 "${id}" 不在图像简报清单里${images ? '' : '（全库没有图像简报清单 content/images.json）'}`);
       return undefined;
@@ -194,7 +199,9 @@ function checkItem(value: unknown, spec: SlotSpec, where: string, issues: string
   return value;
 }
 
-export function validateWork(raw: RawWork, skeleton: Skeleton, shared?: Record<string, SharedValue>, images?: Record<string, ImageBrief>): Work {
+export function validateWork(raw: RawWork, skeleton: Skeleton, shared?: Record<string, SharedValue>, libraryImages?: Record<string, ImageBrief>): Work {
+  const ownImages = raw.images === undefined ? undefined : validateImageBriefs(raw.images, '作品描述 images');
+  const images = ownImages === undefined && libraryImages === undefined ? undefined : { ...libraryImages, ...ownImages };
   const issues: string[] = [];
   const sequence: WorkItem[] = [];
   raw.sequence.forEach((item: any, index: number) => {
@@ -266,5 +273,5 @@ export function validateWork(raw: RawWork, skeleton: Skeleton, shared?: Record<s
     sequence.push({ kind: 'unit', unit: item.unit, layout: item.layout, content });
   });
   if (issues.length) throw new BuildError(issues);
-  return { system: raw.system, carrier: raw.carrier, ...(raw.canvas !== undefined ? { canvas: raw.canvas } : {}), concept: raw.concept, sequence };
+  return { system: raw.system, carrier: raw.carrier, ...(raw.canvas !== undefined ? { canvas: raw.canvas } : {}), concept: raw.concept, ...(images !== undefined ? { images } : {}), sequence };
 }

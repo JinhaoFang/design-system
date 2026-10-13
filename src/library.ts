@@ -133,17 +133,20 @@ export async function loadSharedContent(libraryDir: string, carrier: string): Pr
   return data as Record<string, SharedValue> | undefined;
 }
 
-export async function loadImageBriefs(libraryDir: string): Promise<Record<string, ImageBrief> | undefined> {
-  const path = join(libraryDir, 'content', 'images.json');
-  const data = await readOptionalJson(path, '图像简报清单');
-  if (data === undefined) return undefined;
+export function validateImageBriefs(data: unknown, source: string): Record<string, ImageBrief> {
   const issues: string[] = [];
-  if (data === null || typeof data !== 'object' || Array.isArray(data)) throw new BuildError([`图像简报清单 ${path} 需要是以图像标识为键的对象`]);
+  if (data === null || typeof data !== 'object' || Array.isArray(data)) throw new BuildError([`图像简报清单 ${source} 需要是以图像标识为键的对象`]);
   for (const [id, entry] of Object.entries<any>(data)) {
-    if (!IMAGE_ID.test(id)) issues.push(`图像简报标识「${id}」只能用小写字母、数字和连字符，并以字母开头`);
-    if (typeof entry?.brief !== 'string' || entry.brief === '') issues.push(`图像简报「${id}」缺少 brief（这张图讲什么）`);
-    if (typeof entry?.alt !== 'string' || entry.alt === '') issues.push(`图像简报「${id}」缺少替代文字 alt`);
+    if (!IMAGE_ID.test(id)) issues.push(`${source} 图像简报标识「${id}」只能用小写字母、数字和连字符，并以字母开头`);
+    if (typeof entry?.brief !== 'string' || entry.brief === '') issues.push(`${source} 图像简报「${id}」缺少 brief（这张图讲什么）`);
+    if (typeof entry?.alt !== 'string' || entry.alt === '') issues.push(`${source} 图像简报「${id}」缺少替代文字 alt`);
   }
   if (issues.length) throw new BuildError(issues);
   return data as Record<string, ImageBrief>;
+}
+
+export async function loadImageBriefs(libraryDir: string): Promise<Record<string, ImageBrief> | undefined> {
+  const path = join(libraryDir, 'content', 'images.json');
+  const data = await readOptionalJson(path, '图像简报清单');
+  return data === undefined ? undefined : validateImageBriefs(data, path);
 }
