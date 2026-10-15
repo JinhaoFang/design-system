@@ -3,7 +3,7 @@
  * Run from the repository root; an optional file path supports manual checks
  * and command-driven fixtures without expanding the default document scope.
  * Count Markdown syntax and whitespace, excluding line terminators. Skip pipe
- * table rows, indented code and backtick/tilde fenced code; closing fences must
+ * table rows and backtick/tilde fenced code; closing fences must
  * use the same character and at least the opening run length. Use shared CLI
  * diagnostics and exit codes: 0 clean, 1 violations, 2 usage/environment errors.
  */
@@ -37,7 +37,7 @@ process.exitCode = await runCheckCommand('node scripts/check-cli-lines.ts [文�
     }
     if (tableSeparator.test(lines[index + 1] ?? '') && line.includes('|')) table = true;
     if (table && !line.includes('|')) table = false;
-    if (/^(?: {4}|\t)/.test(line) || /^ {0,3}\|/.test(line) || table) continue;
+    if (/^ {0,3}\|/.test(line) || table) continue;
     const length = Array.from(line).length;
     if (length > MAX_LINE_LENGTH) {
       issues.push(`${path}:${index + 1} 长度 ${length} 个字符，超过上限 ${MAX_LINE_LENGTH}。`);

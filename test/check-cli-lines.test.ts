@@ -45,7 +45,7 @@ test('reports all long lines with their file, physical line number and Unicode l
   expect(result.stderr).not.toContain('用法：');
 });
 
-test('skips pipe table rows and fenced or indented code, including fence information strings', () => {
+test('skips pipe table rows and fenced code, including information strings, but reports indented code', () => {
   const long = '字'.repeat(300);
   const result = run(fixture([
     `| 标题 | ${long} |`,
@@ -64,8 +64,22 @@ test('skips pipe table rows and fenced or indented code, including fence informa
     `\t${long}`,
     'short',
   ].join('\n')));
-  expect(result.status).toBe(0);
-  expect(result.stderr).toBe('');
+  expect(result.status).toBe(1);
+  expect(result.stderr).toContain('docs/cli.md:13 长度 304 个字符，超过上限 160。');
+  expect(result.stderr).toContain('docs/cli.md:14 长度 301 个字符，超过上限 160。');
+  expect(result.stderr.match(/超过上限/g)).toHaveLength(2);
+});
+
+test.each([
+  { name: 'four-space nested list item', prefix: '    - ', length: 167 },
+  { name: 'tab-indented line', prefix: '\t', length: 162 },
+])('reports a long $name with its file, line and whitespace-inclusive length', ({ prefix, length }) => {
+  const root = fixture(`- parent\n${prefix}${'字'.repeat(161)}\n`);
+  const path = join(root, 'docs/cli.md');
+  const result = run(root, path);
+  expect(result.status).toBe(1);
+  expect(result.stderr).toContain(`${path}:2 长度 ${length} 个字符，超过上限 160。`);
+  expect(result.stderr.match(/超过上限/g)).toHaveLength(1);
 });
 
 test('resumes checking after code blocks and does not exempt ordinary inline pipes or code', () => {
