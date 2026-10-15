@@ -47,7 +47,7 @@
 | `library/exemplars/` | 范例库 | 只提交候选，批准和拒绝由裁判决定 |
 | `src/`、`test/`、`scripts/`、`package.json`、构建配置、`.github/` | 构建并检查流程、检查器、命令、测试、CI | 工程 |
 
-`pnpm ds` 各命令的用法、产物和格式约定见 `docs/cli.md`，运行或修改这些命令前先读它。技能放在哪里、哪些进 git，见 `docs/workflow/README.md`「技能放在哪里」。
+`pnpm ds` 各命令的用法、产物和格式约定见 `docs/cli.md`，每个命令一节；运行或修改某个命令前，先读它那一节。技能放在哪里、哪些进 git，见 `docs/workflow/README.md`「技能放在哪里」。
 
 ## 代码约定
 
