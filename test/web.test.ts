@@ -1,5 +1,5 @@
-/* Behavior tests for the web (展示型网页) carrier through buildAndCheck: two full-page screenshot widths, a scroll recording, settled static output, and checker findings located by unit/layout/slot. */
-import { readFile, stat } from 'node:fs/promises';
+/* Behavior tests for the web (展示型网页) carrier through buildAndCheck: two full-page screenshot widths, exact viewport-height segments, a timestamped entrance contact sheet, a scroll recording, settled static output, and checker findings located by unit/layout/slot. */
+import { readFile, readdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, test } from 'vitest';
 import { fixtures, patchedWork, pngSize, run } from './helpers.ts';
@@ -17,7 +17,7 @@ const heroWork = (layout: string) =>
   });
 
 describe('web work', () => {
-  test('builds clean, with full-page screenshots at widths 1440 and 390 and a recording of the scroll', async () => {
+  test('builds clean, with full-page screenshots, exact segments, an entrance sheet and a scroll recording', async () => {
     const result = await run(fixtures.work('web-clean'));
     expect(result.report.findings).toEqual([]);
     expect(result.exitCode).toBe(0);
@@ -31,6 +31,38 @@ describe('web work', () => {
     expect(mobileSize.width).toBe(390);
     expect(desktopSize.height).toBeGreaterThan(900);
     expect(mobileSize.height).toBeGreaterThan(844);
+
+    const qa = JSON.parse(await readFile(join(result.artifacts.outDir, 'web-qa.json'), 'utf8'));
+    const files = await readdir(result.artifacts.outDir);
+    for (const [name, size, height] of [['desktop', desktopSize, 900], ['mobile', mobileSize, 844]] as const) {
+      const segments = qa.segments[name];
+      const expectedCount = Math.ceil(size.height / height);
+      expect(segments).toMatchObject({ width: size.width, height: size.height, segmentHeight: height });
+      expect(segments.segments).toHaveLength(expectedCount);
+      expect(files.filter((file) => file.startsWith(`web-segment-${name}-`))).toHaveLength(expectedCount);
+      for (const [index, segment] of segments.segments.entries()) {
+        expect(segment.file).toBe(`web-segment-${name}-${String(index + 1).padStart(3, '0')}.png`);
+        expect(segment.y).toBe(index * height);
+        const segmentSize = await pngSize(join(result.artifacts.outDir, segment.file));
+        expect(segmentSize).toEqual({ width: size.width, height: Math.min(height, size.height - index * height) });
+        expect(segment.height).toBe(segmentSize.height);
+      }
+      expect(segments.segments.reduce((sum: number, segment: { height: number }) => sum + segment.height, 0)).toBe(size.height);
+    }
+    const entrance = qa.entrance;
+    expect(entrance.intervalMs).toBe(200);
+    expect(entrance.durationMs).toBeGreaterThanOrEqual(800);
+    expect(entrance.frames).toHaveLength(entrance.durationMs / entrance.intervalMs + 1);
+    expect(entrance.actualDurationMs).toBe(entrance.frames.at(-1).timeMs);
+    for (const [index, frame] of entrance.frames.entries()) {
+      expect(frame.scheduledMs).toBe(index * entrance.intervalMs);
+      expect(frame.timeMs).toBeGreaterThanOrEqual(frame.scheduledMs - 1);
+      expect(frame.captureDurationMs).toBeGreaterThanOrEqual(0);
+      if (index) expect(frame.timeMs).toBeGreaterThan(entrance.frames[index - 1].timeMs);
+    }
+    expect(entrance.width).toBe(1440);
+    expect(entrance.height).toBe(Math.ceil(entrance.frames.length / entrance.columns) * entrance.cellHeight);
+    expect(await pngSize(join(result.artifacts.outDir, entrance.file))).toEqual({ width: entrance.width, height: entrance.height });
 
     const video = result.artifacts.video!;
     expect(video).toMatch(/web-scroll\.webm$/);
