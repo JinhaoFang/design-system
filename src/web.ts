@@ -13,6 +13,7 @@
  * checkWeb runs the rule set (ALL_RULES, or the list passed in) on both snapshots; findings that appear only at 390 get a "（手机宽度 390）" suffix, and a finding already reported at 1440 is not repeated.
  * Extras for pages that are not works (the system page, system-page.ts): WebPageInput.style / script add one <style> to the head and one inline script after the choreography script;
  * Web works opt into qa: viewport-height segments, a real-time entrance contact sheet and web-qa.json (web-qa.ts), beside the full-page PNGs.
+ * Entrance sampling stops after the viewing hold; contact-sheet composition waits until the video is saved, so optional QA work cannot extend the first-screen hold.
  * RenderWebOptions.audit replaces the scroll-through that drives the two motion audit passes (it may click replay controls), and recording: false skips the scroll recording (no video is returned).
  */
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
@@ -180,20 +181,21 @@ export async function renderWeb(input: WebPageInput & { outDir: string }, option
         capture?.navigationFinished();
         await waitForRecordingEntrance(page);
         await page.waitForTimeout(LEAD_IN_MS);
+        await capture?.stop();
+        await scrollToBottom(page);
+        await page.waitForTimeout(HOLD_MS);
+        const recording = page.video()!;
+        await context.close();
+        const video = join(input.outDir, 'web-scroll.webm');
+        await recording.saveAs(video);
         if (capture) {
           const entrance = await capture.finish(qaPage!, input.outDir);
           await writeFile(join(input.outDir, 'web-qa.json'), `${JSON.stringify({ segments, entrance }, null, 2)}\n`);
         }
+        return { index, images, video, snapshots };
       } finally {
         await capture?.abort();
       }
-      await scrollToBottom(page);
-      await page.waitForTimeout(HOLD_MS);
-      const recording = page.video()!;
-      await context.close();
-      const video = join(input.outDir, 'web-scroll.webm');
-      await recording.saveAs(video);
-      return { index, images, video, snapshots };
     } finally {
       await rm(recordings, { recursive: true, force: true });
     }

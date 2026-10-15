@@ -21,12 +21,24 @@ describe('web work', () => {
   test.each(['retry', 'mixed', 'all'] as const)('entrance screenshot failures (%s) preserve the build result and contact sheet', async (mode) => {
     const launch = chromium.launch.bind(chromium);
     const attempts: number[] = [];
+    const events: string[] = [];
     let sheetText = '';
     const mock = vi.spyOn(chromium, 'launch').mockImplementation(async (...args) => {
       const browser = await launch(...args);
+      const newPage = browser.newPage.bind(browser);
+      vi.spyOn(browser, 'newPage').mockImplementation(async (...options) => {
+        const page = await newPage(...options);
+        const setContent = page.setContent.bind(page);
+        vi.spyOn(page, 'setContent').mockImplementation(async (...input) => {
+          if (input[0].includes('grid-template-columns')) events.push('compose');
+          return setContent(...input);
+        });
+        return page;
+      });
       const newContext = browser.newContext.bind(browser);
       vi.spyOn(browser, 'newContext').mockImplementation(async (...options) => {
         const context = await newContext(...options);
+        if (options[0]?.recordVideo) context.on('page', (page) => page.on('close', () => events.push('video-closed')));
         const newSession = context.newCDPSession.bind(context);
         vi.spyOn(context, 'newCDPSession').mockImplementation(async (page) => {
           const session = await newSession(page);
@@ -63,6 +75,7 @@ describe('web work', () => {
       const result = await run(fixtures.work('web-clean'));
       expect(result.exitCode).toBe(0);
       expect(result.report.findings).toEqual([]);
+      expect(events).toEqual(['video-closed', 'compose']);
       const qa = JSON.parse(await readFile(join(result.artifacts.outDir, 'web-qa.json'), 'utf8'));
       const frames = qa.entrance.frames;
       expect(frames).toHaveLength(qa.entrance.durationMs / 200 + 1);

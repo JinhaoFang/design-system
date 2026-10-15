@@ -6,6 +6,7 @@
  * A browser-native three-column contact sheet uses 1/3-size desktop frames and default text styling for timestamps. JSON records segment geometry and contact-sheet timing/layout for non-pixel verification.
  * Segment names sort after web-desktop.png so existing thumbnail consumers keep using the full-page image.
  * Each entrance sample retries once on a CDP screenshot error. Exhausted samples retain their timing, phase and errors in JSON and a viewport-sized failure cell in the contact sheet.
+ * stop drains the last scheduled sample and detaches CDP; finish composes the retained frames after recording so contact-sheet work does not delay scrolling.
  * Only buildAndCheck web works opt in; system-page rendering keeps its existing artifacts. Old numbered segments are removed before writing replacements.
  */
 import { readdir, rm, writeFile } from 'node:fs/promises';
@@ -92,17 +93,25 @@ export async function startWebEntranceCapture(page: Page) {
     }
   })();
   void running.catch(() => {});
-  return {
-    navigationFinished() {
-      phase = 'entrance';
-    },
-    async finish(sheet: Page, outDir: string) {
-      stopping = true;
+  let stopped: Promise<void> | undefined;
+  const stop = () => {
+    stopping = true;
+    stopped ??= (async () => {
       try {
         await running;
       } finally {
         await session.detach();
       }
+    })();
+    return stopped;
+  };
+  return {
+    stop,
+    navigationFinished() {
+      phase = 'entrance';
+    },
+    async finish(sheet: Page, outDir: string) {
+      await stop();
       await sheet.setViewportSize({ width: page.viewportSize()!.width, height: page.viewportSize()!.height });
       const size = page.viewportSize()!;
       await sheet.setContent(`<style>body{margin:0}main{display:grid;grid-template-columns:repeat(${COLUMNS},1fr)}img{width:100%;display:block}[data-capture-failed]{aspect-ratio:${size.width}/${size.height};display:grid;place-items:center}</style><main>${frames.map((frame) => `<div>${frame.data === undefined ? '<div data-capture-failed>截图失败</div>' : `<img src="data:image/png;base64,${frame.data}">`}<div>${frame.timeMs} ms</div></div>`).join('')}</main>`);
