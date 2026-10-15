@@ -132,8 +132,8 @@ footer { margin-top: 48px; font-size: 12px; color: var(--muted); }
 <h2>任务</h2>
 <ul>
   <li><b>目标</b>：解决 spec #1 执行中暴露的两处工具问题。一是命令手册难读、容易冲突：一行最长 1,971 字，spec #1 期间 18 次提交改它，两次合并停在它的冲突上。二是截图验收靠手写命令：执行会话里 21 次手写 ffmpeg 切图、拼抽帧，两次因为没装 PIL 重来。</li>
-  <li><b>范围</b>：#66 命令手册；#67 网页作品的验收截图；收尾审查后的返工 #70。幻灯片、社交配图的拼图不做。</li>
-  <li><b>结果</b>：<code>pnpm verify</code> 通过（<span data-k="testsAfter"></span> 项）。收尾审查见「质量」一节。</li>
+  <li><b>范围</b>：#66 命令手册；#67 网页作品的验收截图；收尾审查后的返工 #70；PR 上 CI 失败后的返工 #72。幻灯片、社交配图的拼图不做。</li>
+  <li><b>结果</b>：<code>pnpm verify</code> 通过（<span data-k="testsAfter"></span> 项）；CI 恢复通过，design-system 的 CI 从 10-13 起一直是红的。收尾审查见「质量」一节。</li>
 </ul>
 
 <h2>交付</h2>
@@ -152,6 +152,7 @@ footer { margin-top: 48px; font-size: 12px; color: var(--muted); }
     <li>每次构建网页作品，产物目录里多出桌面和手机两种宽度的分段截图（每段一屏高），以及一张首屏入场抽帧拼图（每 200ms 一格，标出时刻）。</li>
     <li>拼图里能看出出场先后、有没有提前露出、什么时候停稳；孔版样张和故意提前露出的夹具都实测过。</li>
     <li>只用已有的 Playwright 和 Node，构建只慢了 4.85%（37.1 秒 → 38.9 秒）。</li>
+    <li>某一帧截图失败时重试一次，还失败就在拼图上标「截图失败」，构建照常完成（#72）。</li>
     <li>设计负责人角色文档的验收一节写明：网页作品看分段截图和拼图，不手写切图命令。</li>
   </ul>
 </td></tr>
@@ -169,7 +170,7 @@ footer { margin-top: 48px; font-size: 12px; color: var(--muted); }
 </table></div>
 
 <h2>成本与效率</h2>
-<p>Codex 派发 <span data-k="nDispatch"></span> 次：工程 <span data-k="nEng"></span> 次（其中返工 <span data-k="nRework"></span> 次），审查 <span data-k="nReview"></span> 次。三张工单前后依赖，没有并行。</p>
+<p>Codex 派发 <span data-k="nDispatch"></span> 次：工程 <span data-k="nEng"></span> 次（其中返工 <span data-k="nRework"></span> 次），审查 <span data-k="nReview"></span> 次。四张工单前后依赖，没有并行。</p>
 <div class="table-wrap"><table>
 <thead><tr><th>派发</th><th>类型</th><th class="num">用时（分钟）</th><th class="num">输入</th><th class="num">其中缓存</th><th class="num">输出</th></tr></thead>
 <tbody id="cost-body"></tbody>
@@ -212,6 +213,8 @@ footer { margin-top: 48px; font-size: 12px; color: var(--muted); }
 <tr><td><b>设计负责人的失误</b>：#66 要靠「读起来顺不顺」验收，却没先改一节当样板就派了出去；spec 还写了「内容只重排、拆行」，Codex 照字面逐字保留，硬折出 179 行半句话。</td><td>退回返工一次，第二轮通过。规则改成：要靠判断验收的工具产出也先做样板（<code>docs/roles/design.md</code>）。</td></tr>
 <tr><td><b>设计负责人的失误</b>：「不用 ffmpeg」是我替你定的，写进了 spec，却没在回复里单列。你读 spec 时发现和复盘时的说法对不上。</td><td>当时补了说明，你授权我定。规则改成：替你定的事在回复里单列，和之前说的不一样时点明。</td></tr>
 <tr><td>重装 <code>run-spec</code> 后 <code>skills-lock.json</code> 没提交，主工作区不干净，<code>land</code> 会拒绝合并 #66。</td><td>锁文件放进 PR #69 提交；video-studio 的安装说明写明重装后要提交。</td></tr>
+<tr><td><b>CI 红了两天没人发现</b>：一条回归用例从 10-13 起在 CI 上每次都超过 60 秒，<code>main</code> 也是红的，PR #55、#68 都是带着失败合并的；路线图把它记成「偶发」。原因是 spec #1 加的字体子集和打印媒体采集让构建变慢，这条用例 10-12 时在 CI 上已经要 48 秒。</td><td>#72 把用例的构建从 19 次减到 7 次，CI 上 31.7 秒，断言比原来多。video-studio 的 <code>run-spec</code> 收尾改成等 PR 上的 CI 跑完再交。</td></tr>
+<tr><td>#67 的入场抽帧在 CI 上截图失败，拖垮了构建；本机三次全量验证都没出现。</td><td>#72：失败帧重试一次，仍失败就跳过、记录阶段和原因，拼图上标出；拼图合成挪到录屏保存之后，不再挡住录屏。</td></tr>
 <tr><td>#67 第一版的分段文件名排在整页截图前面，抢了样张缩略图。</td><td>Codex 自己跑全量验证时发现，改名为 <code>web-segment-&lt;宽度&gt;-&lt;编号&gt;.png</code>。</td></tr>
 <tr><td>#66 第一轮交回后，验收隔了一天半才做（10-13 23:54 交回，10-15 11:20 才验收）。</td><td>中间在等第一轮改进的复核，属于排期，不影响结果。</td></tr>
 </tbody>
@@ -221,12 +224,13 @@ footer { margin-top: 48px; font-size: 12px; color: var(--muted); }
 <ul>
   <li><b>规则放错了阶段</b>：「先做定稿」「方向先给用户看」原来只写在执行技能里，可这两类决定发生在写 spec、拆工单的时候。已移进设计负责人角色文档的「工作流」（PR #69）。</li>
   <li><b>「难回头」要有标准</b>：换不换 ffmpeg 只影响一个工具，不算难回头；缺的是替你定的事没有单列。照「技术选型都要问」去改，会把每个细节都推给你。</li>
-  <li>这几条连同证据记在 video-studio 的 <code>docs/research/run-spec-migration.md</code>「第一轮改进之后」（问题 33～39）。</li>
+  <li><b>PR 上的 CI 不能不看</b>：集成分支推送不跑 CI，<code>land</code> 只在本机验证，PR 上的 CI 是整个 spec 唯一一次在 CI 环境里跑。这次它抓到了本机复现不了的截图失败。</li>
+  <li>这几条连同证据记在 video-studio 的 <code>docs/research/run-spec-migration.md</code>「第一轮改进之后」（问题 33～40）。</li>
 </ul>
 
 <h2>遗留与下一步</h2>
 <ul>
-  <li><b>你</b>：审核合并 <a href="https://github.com/JinhaoFang/design-system/pull/69">PR #69</a>（做决定的三条、锁文件）和本 PR。两个 PR 都改了路线图和设计负责人角色文档，改的是不同段落，先合哪个都可以。</li>
+  <li><b>你</b>：先合并本 PR，再合并 <a href="https://github.com/JinhaoFang/design-system/pull/69">PR #69</a>（做决定的三条、锁文件）。#69 的 CI 挂在同一条回归用例上，本 PR 合进 <code>main</code> 以后它才能变绿。两个 PR 改的是路线图和角色文档的不同段落，实测合并没有冲突。</li>
   <li><b>要你决定</b>：spec #1 子代理留下的 <code>.claude/worktrees/proto-paper</code> 和 <code>design/ind</code>、<code>design/riso</code>、<code>prototype/paper-editorial-direction</code>（远端也有）删不删，已记进路线图的待定项。</li>
   <li><b>限制</b>：200ms 抽帧会漏过更短的瞬闪，录屏仍保留可复查。</li>
   <li><b>下一阶段</b>：第 1 阶段「用起来（盲选验收）」，先按方案第 8 节写 spec。</li>
@@ -237,12 +241,12 @@ footer { margin-top: 48px; font-size: 12px; color: var(--muted); }
 <script>
 const DATA = {
   testsBefore: 625,
-  testsAfter: 633,
+  testsAfter: 636,
   manualLines: { before: 54, after: 739, longestBefore: 1971, longestAfter: 159 },
   buildSeconds: { before: 37.1, after: 38.9 },
   days: [
     { label: '10-13', start: '23:20', end: '24:00' },
-    { label: '10-15', start: '11:15', end: '12:45' },
+    { label: '10-15', start: '11:15', end: '13:45' },
   ],
   runs: [
     { label: '#66', kind: 'eng', day: '10-13', start: '23:27', end: '23:41' },
@@ -250,6 +254,7 @@ const DATA = {
     { label: '#67', kind: 'eng', day: '10-15', start: '11:25', end: '12:04' },
     { label: '收尾审查', kind: 'review', day: '10-15', start: '12:13', end: '12:19' },
     { label: '#70 审查返工', kind: 'eng', day: '10-15', start: '12:20', end: '12:27' },
+    { label: '#72 CI 返工', kind: 'eng', day: '10-15', start: '12:57', end: '13:35' },
   ],
   events: [
     ['10-13 23:22', 'spec #65 建立，#66、#67 两张工程工单，#67 排在 #66 后面避免手册冲突'],
@@ -262,7 +267,9 @@ const DATA = {
     ['12:12', '#67 验收通过、合并'],
     ['12:13', '派 Codex 做收尾审查：Standards 0 项，Spec 2 项'],
     ['12:20', '开审查返工单 #70，派出'],
-    ['12:35', '#70 验收通过、合并，子工单全部关闭；开 PR'],
+    ['12:35', '#70 验收通过、合并；开 PR #71'],
+    ['12:55', 'PR #71 的 CI 失败：一条回归用例超时（10-13 起每次都失败），#67 的抽帧在 CI 上截图失败；开 #72，允许推送工单分支跑 CI'],
+    ['13:35', '#72 的工单分支 CI 通过，这是 10-13 以来第一次；验收、合并'],
   ],
   cost: [
     { name: 'gh-66', ticket: '#66 命令手册', min: 14.1, input: 1925122, cached: 1841664, output: 15864 },
@@ -270,10 +277,11 @@ const DATA = {
     { name: 'gh-67', ticket: '#67 验收截图', min: 39.3, input: 2419588, cached: 2224256, output: 19610 },
     { name: 'review-65-final', ticket: '收尾审查（含 2 个子代理）', min: 6.1, input: 2264580, cached: 2065408, output: 10783 },
     { name: 'gh-70', ticket: '#70 长行检查不豁免缩进行', min: 6.6, input: 844428, cached: 787200, output: 4322, rework: true },
+    { name: 'gh-72', ticket: '#72 CI 变绿（含等 CI 两轮）', min: 38.3, input: 9027931, cached: 8740864, output: 30662, rework: true },
   ],
   claude: [
     { session: '10-13 23:19–00:00', calls: 64, input: 18857242, output: 47150 },
-    { session: '10-15 11:06–12:40', calls: 103, input: 20072328, output: 91716 },
+    { session: '10-15 11:06–13:45', calls: 151, input: 35426182, output: 119714 },
   ],
   prev: { name: 'spec #32', dispatches: 8, minutes: 110, codexInput: 20760000, claudeInput: 15330000, claudeOutput: 69000 },
   reviews: [
@@ -302,7 +310,7 @@ const kpis = [
   [`+${((DATA.buildSeconds.after / DATA.buildSeconds.before - 1) * 100).toFixed(1)}%`, '网页构建用时（多出截图和拼图）'],
   [`${DATA.testsBefore}→${DATA.testsAfter}`, '测试数'],
   [`${Math.round(totals.min)} 分`, 'Codex 累计执行时间'],
-  [`${vals.nRework} 次`, '返工（含审查返工单）'],
+  [`${vals.nRework} 次`, '返工（含审查和 CI 返工单）'],
 ];
 $('#kpis').innerHTML = kpis.map(([b, s]) => `<div class="kpi"><b>${b}</b><span>${s}</span></div>`).join('');
 const toMin = (hm) => { const [h, m] = hm.split(':').map(Number); return h * 60 + m; };
