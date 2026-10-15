@@ -71,7 +71,7 @@
       "source": "JinhaoFang/video-studio",
       "sourceType": "github",
       "skillPath": ".claude/skills/run-spec/SKILL.md",
-      "computedHash": "6003e4997f6e71846c6161bd20956da85728017f467f1a71f549ed1f599792ff"
+      "computedHash": "8c1953aaf6030222ad0b130671409da0ba929f8663b84b4973d417231ec05827"
     },
     "setup-matt-pocock-skills": {
       "source": "mattpocock/skills",
@@ -83,7 +83,7 @@
       "source": "JinhaoFang/video-studio",
       "sourceType": "github",
       "skillPath": ".claude/skills/setup-run-spec/SKILL.md",
-      "computedHash": "8f89713f114d1024b3b3f5eeaa408cc628c8207a4a47f68b79cac760afecb840"
+      "computedHash": "3280d840e9e86b196c959eaba2387ddd70131f59e2fce6cca04a07bbab0c697f"
     },
     "teach": {
       "source": "mattpocock/skills",
