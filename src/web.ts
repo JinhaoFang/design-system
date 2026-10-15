@@ -177,6 +177,7 @@ export async function renderWeb(input: WebPageInput & { outDir: string }, option
       const capture = qaPage ? await startWebEntranceCapture(page) : undefined;
       try {
         await page.goto(url);
+        capture?.navigationFinished();
         await waitForRecordingEntrance(page);
         await page.waitForTimeout(LEAD_IN_MS);
         if (capture) {

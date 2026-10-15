@@ -5,6 +5,7 @@
  * Slow screenshot calls may delay sampling; actual timestamps and capture durations are retained rather than claiming an exact cadence. The final regular sample preserves the frame-count/duration relationship.
  * A browser-native three-column contact sheet uses 1/3-size desktop frames and default text styling for timestamps. JSON records segment geometry and contact-sheet timing/layout for non-pixel verification.
  * Segment names sort after web-desktop.png so existing thumbnail consumers keep using the full-page image.
+ * Each entrance sample retries once on a CDP screenshot error. Exhausted samples retain their timing, phase and errors in JSON and a viewport-sized failure cell in the contact sheet.
  * Only buildAndCheck web works opt in; system-page rendering keeps its existing artifacts. Old numbered segments are removed before writing replacements.
  */
 import { readdir, rm, writeFile } from 'node:fs/promises';
@@ -46,17 +47,32 @@ export async function writeWebSegments(page: Page, png: Buffer, outDir: string, 
 
 export async function startWebEntranceCapture(page: Page) {
   const session = await page.context().newCDPSession(page);
-  const frames: { scheduledMs: number; timeMs: number; captureDurationMs: number; data: string }[] = [];
+  type Phase = 'before-navigation' | 'navigation' | 'entrance';
+  const frames: { scheduledMs: number; timeMs: number; captureDurationMs: number; phase: Phase; status: 'captured' | 'skipped'; attempts: number; errors: string[]; data?: string }[] = [];
+  let phase: Phase = 'before-navigation';
   const started = performance.now();
   let stopping = false;
   let aborted = false;
   const capture = async (scheduledMs: number) => {
     const at = performance.now();
-    const { data } = await session.send('Page.captureScreenshot', {
-      format: 'png', captureBeyondViewport: false, optimizeForSpeed: true,
-      clip: { x: 0, y: 0, ...page.viewportSize()!, scale: 1 / COLUMNS },
-    });
-    frames.push({ scheduledMs, timeMs: Math.round(at - started), captureDurationMs: Math.round(performance.now() - at), data });
+    const capturePhase = phase;
+    const errors: string[] = [];
+    let data: string | undefined;
+    let attempts = 0;
+    while (attempts < 2) {
+      attempts += 1;
+      try {
+        ({ data } = await session.send('Page.captureScreenshot', {
+          format: 'png', captureBeyondViewport: false, optimizeForSpeed: true,
+          clip: { x: 0, y: 0, ...page.viewportSize()!, scale: 1 / COLUMNS },
+        }));
+        break;
+      } catch (error) {
+        errors.push(error instanceof Error ? error.message : String(error));
+      }
+    }
+    frames.push({ scheduledMs, timeMs: Math.round(at - started), captureDurationMs: Math.round(performance.now() - at), phase: capturePhase,
+      status: data === undefined ? 'skipped' : 'captured', attempts, errors, ...(data !== undefined && { data }) });
   };
   try {
     await capture(0);
@@ -64,6 +80,7 @@ export async function startWebEntranceCapture(page: Page) {
     await session.detach();
     throw error;
   }
+  phase = 'navigation';
   const running = (async () => {
     for (let index = 1; !aborted; index += 1) {
       const scheduledMs = index * FRAME_INTERVAL_MS;
@@ -76,6 +93,9 @@ export async function startWebEntranceCapture(page: Page) {
   })();
   void running.catch(() => {});
   return {
+    navigationFinished() {
+      phase = 'entrance';
+    },
     async finish(sheet: Page, outDir: string) {
       stopping = true;
       try {
@@ -84,7 +104,8 @@ export async function startWebEntranceCapture(page: Page) {
         await session.detach();
       }
       await sheet.setViewportSize({ width: page.viewportSize()!.width, height: page.viewportSize()!.height });
-      await sheet.setContent(`<style>body{margin:0}main{display:grid;grid-template-columns:repeat(${COLUMNS},1fr)}img{width:100%;display:block}</style><main>${frames.map((frame) => `<div><img src="data:image/png;base64,${frame.data}"><div>${frame.timeMs} ms</div></div>`).join('')}</main>`);
+      const size = page.viewportSize()!;
+      await sheet.setContent(`<style>body{margin:0}main{display:grid;grid-template-columns:repeat(${COLUMNS},1fr)}img{width:100%;display:block}[data-capture-failed]{aspect-ratio:${size.width}/${size.height};display:grid;place-items:center}</style><main>${frames.map((frame) => `<div>${frame.data === undefined ? '<div data-capture-failed>截图失败</div>' : `<img src="data:image/png;base64,${frame.data}">`}<div>${frame.timeMs} ms</div></div>`).join('')}</main>`);
       await sheet.locator('img').evaluateAll(async (images) => Promise.all(images.map((image) => (image as HTMLImageElement).decode())));
       const layout = await sheet.locator('main').evaluate((main) => {
         const cell = main.firstElementChild!.getBoundingClientRect();
