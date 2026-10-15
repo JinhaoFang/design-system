@@ -69,9 +69,10 @@
     },
     "run-spec": {
       "source": "JinhaoFang/video-studio",
+      "ref": "workflow-v1",
       "sourceType": "github",
       "skillPath": ".claude/skills/run-spec/SKILL.md",
-      "computedHash": "8c1953aaf6030222ad0b130671409da0ba929f8663b84b4973d417231ec05827"
+      "computedHash": "65418bf7804b419f6c41a3f6cbb1140c4d7e470c38203ae9bd5387f877e150a2"
     },
     "setup-matt-pocock-skills": {
       "source": "mattpocock/skills",
@@ -81,9 +82,10 @@
     },
     "setup-run-spec": {
       "source": "JinhaoFang/video-studio",
+      "ref": "workflow-v1",
       "sourceType": "github",
       "skillPath": ".claude/skills/setup-run-spec/SKILL.md",
-      "computedHash": "3280d840e9e86b196c959eaba2387ddd70131f59e2fce6cca04a07bbab0c697f"
+      "computedHash": "27f0b57a456ce60aabe1333cc98c7eccc8c9707ed9a7544442c1e9f67e4b35ef"
     },
     "teach": {
       "source": "mattpocock/skills",
