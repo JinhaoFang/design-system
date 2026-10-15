@@ -35,7 +35,7 @@
 
 - 先看汇报里的 `TODO(design)` 和推断清单。涉及审美的条目，逐条对照构建产物（截图、录屏、排法总览、体系总览页）确认；然后抽查关键 diff，不逐行读全部代码。
 - 照定稿实现的工单，逐项对照定稿看；具象图逐张看是代码画的还是生图，代码画得假的退回。
-- 产物用 `pnpm ds build`、`overview`、`system-page`、`regress` 生成，`pnpm ds preview` 起服务操作；截图用 Read 直接看图。参数见 `docs/cli.md`。
+- 产物用 `pnpm ds build`、`overview`、`system-page`、`regress` 生成，`pnpm ds preview` 起服务操作；截图用 Read 直接看图。网页作品看构建顺带产出的分段截图 `web-segment-*` 和首屏入场拼图 `web-entrance.png`，不手写切图命令。参数见 `docs/cli.md`。
 - `code-review` 两条线的审查（是否符合仓库规范，是否做到了工单要求）按批派给 Codex 做，你只取舍，做法见 `run-spec` 第 6 步。
 - 对不满意的推断，三选一：做决定写进下一个工单；补充说明后重新派发；自己做最后的审美微调。
 - 交给裁判时给可运行的预览，见 `docs/workflow/README.md`「图像与评审」。种子体系交验收包：体系总览页、排法总览、体系样张在体系交付的各载体上的渲染、录屏和没有错误的检查报告；裁判的结论和评语记进该体系的验收记录。

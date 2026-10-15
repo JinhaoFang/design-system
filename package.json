@@ -14,6 +14,7 @@
     "check:commits": "node scripts/check-commit-range.ts",
     "prepare": "node scripts/install-hooks.ts",
     "check:doc-commands": "node scripts/check-doc-commands.ts",
+    "check:cli-lines": "node scripts/check-cli-lines.ts",
     "test": "vitest run",
     "fixture-font": "node scripts/make-fixture-font.ts"
   },

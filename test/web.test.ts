@@ -1,7 +1,8 @@
-/* Behavior tests for the web (展示型网页) carrier through buildAndCheck: two full-page screenshot widths, a scroll recording, settled static output, and checker findings located by unit/layout/slot. */
-import { readFile, stat } from 'node:fs/promises';
+/* Behavior tests for the web (展示型网页) carrier through buildAndCheck: two full-page screenshot widths, exact viewport-height segments, a timestamped entrance contact sheet, a scroll recording, settled static output, and checker findings located by unit/layout/slot. */
+import { readFile, readdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
-import { describe, expect, test } from 'vitest';
+import { chromium } from 'playwright';
+import { describe, expect, test, vi } from 'vitest';
 import { fixtures, patchedWork, pngSize, run } from './helpers.ts';
 import { patchedSystem, writeFileDeep } from './system-helpers.ts';
 
@@ -17,7 +18,90 @@ const heroWork = (layout: string) =>
   });
 
 describe('web work', () => {
-  test('builds clean, with full-page screenshots at widths 1440 and 390 and a recording of the scroll', async () => {
+  test.each(['retry', 'mixed', 'all'] as const)('entrance screenshot failures (%s) preserve the build result and contact sheet', async (mode) => {
+    const launch = chromium.launch.bind(chromium);
+    const attempts: number[] = [];
+    const events: string[] = [];
+    let sheetText = '';
+    const mock = vi.spyOn(chromium, 'launch').mockImplementation(async (...args) => {
+      const browser = await launch(...args);
+      const newPage = browser.newPage.bind(browser);
+      vi.spyOn(browser, 'newPage').mockImplementation(async (...options) => {
+        const page = await newPage(...options);
+        const setContent = page.setContent.bind(page);
+        vi.spyOn(page, 'setContent').mockImplementation(async (...input) => {
+          if (input[0].includes('grid-template-columns')) events.push('compose');
+          return setContent(...input);
+        });
+        return page;
+      });
+      const newContext = browser.newContext.bind(browser);
+      vi.spyOn(browser, 'newContext').mockImplementation(async (...options) => {
+        const context = await newContext(...options);
+        if (options[0]?.recordVideo) context.on('page', (page) => page.on('close', () => events.push('video-closed')));
+        const newSession = context.newCDPSession.bind(context);
+        vi.spyOn(context, 'newCDPSession').mockImplementation(async (page) => {
+          const session = await newSession(page);
+          const send = session.send.bind(session);
+          let frame = 0;
+          let attempt = 0;
+          vi.spyOn(session, 'send').mockImplementation(async (method, params) => {
+            if (method === 'Page.captureScreenshot') {
+              attempt += 1;
+              attempts[frame] = attempt;
+              const fail = mode === 'all' || (mode === 'retry' ? attempt === 1 : frame === 0 || frame === 2 || (frame === 1 && attempt === 1));
+              if (!fail || attempt === 2) {
+                frame += 1;
+                attempt = 0;
+              }
+              if (fail) throw new Error('Protocol error (Page.captureScreenshot): Unable to capture screenshot');
+            }
+            return send(method, params);
+          });
+          return session;
+        });
+        return context;
+      });
+      const close = browser.close.bind(browser);
+      vi.spyOn(browser, 'close').mockImplementation(async (...options) => {
+        for (const page of browser.contexts().flatMap((context) => context.pages())) {
+          if (await page.locator('main img, main [data-capture-failed]').count()) sheetText = await page.locator('main').innerText();
+        }
+        return close(...options);
+      });
+      return browser;
+    });
+    try {
+      const result = await run(fixtures.work('web-clean'));
+      expect(result.exitCode).toBe(0);
+      expect(result.report.findings).toEqual([]);
+      expect(events).toEqual(['video-closed', 'compose']);
+      const qa = JSON.parse(await readFile(join(result.artifacts.outDir, 'web-qa.json'), 'utf8'));
+      const frames = qa.entrance.frames;
+      expect(frames).toHaveLength(qa.entrance.durationMs / 200 + 1);
+      expect(frames.map((frame: { attempts: number }) => frame.attempts)).toEqual(attempts);
+      expect(frames[0].attempts).toBe(2);
+      expect(frames[0].errors[0]).toContain('Unable to capture screenshot');
+      const failed = frames.filter((frame: { status: string }) => frame.status === 'skipped');
+      expect(failed.length).toBe(mode === 'retry' ? 0 : mode === 'mixed' ? 2 : frames.length);
+      if (failed.length) {
+        expect(sheetText).toContain('截图失败');
+        expect(frames[0]).toMatchObject({ scheduledMs: 0, phase: 'before-navigation', status: 'skipped', attempts: 2 });
+      }
+      expect(await pngSize(join(result.artifacts.outDir, qa.entrance.file))).toEqual({ width: qa.entrance.width, height: qa.entrance.height });
+      expect(qa.entrance.height).toBe(Math.ceil(frames.length / 3) * qa.entrance.cellHeight);
+      if (process.env.WEB_QA_EVIDENCE_DIR) {
+        const { cp, mkdir } = await import('node:fs/promises');
+        const dir = join(process.env.WEB_QA_EVIDENCE_DIR, mode);
+        await mkdir(dir, { recursive: true });
+        for (const file of ['web-qa.json', 'web-entrance.png']) await cp(join(result.artifacts.outDir, file), join(dir, file));
+      }
+    } finally {
+      mock.mockRestore();
+    }
+  });
+
+  test('builds clean, with full-page screenshots, exact segments, an entrance sheet and a scroll recording', async () => {
     const result = await run(fixtures.work('web-clean'));
     expect(result.report.findings).toEqual([]);
     expect(result.exitCode).toBe(0);
@@ -31,6 +115,38 @@ describe('web work', () => {
     expect(mobileSize.width).toBe(390);
     expect(desktopSize.height).toBeGreaterThan(900);
     expect(mobileSize.height).toBeGreaterThan(844);
+
+    const qa = JSON.parse(await readFile(join(result.artifacts.outDir, 'web-qa.json'), 'utf8'));
+    const files = await readdir(result.artifacts.outDir);
+    for (const [name, size, height] of [['desktop', desktopSize, 900], ['mobile', mobileSize, 844]] as const) {
+      const segments = qa.segments[name];
+      const expectedCount = Math.ceil(size.height / height);
+      expect(segments).toMatchObject({ width: size.width, height: size.height, segmentHeight: height });
+      expect(segments.segments).toHaveLength(expectedCount);
+      expect(files.filter((file) => file.startsWith(`web-segment-${name}-`))).toHaveLength(expectedCount);
+      for (const [index, segment] of segments.segments.entries()) {
+        expect(segment.file).toBe(`web-segment-${name}-${String(index + 1).padStart(3, '0')}.png`);
+        expect(segment.y).toBe(index * height);
+        const segmentSize = await pngSize(join(result.artifacts.outDir, segment.file));
+        expect(segmentSize).toEqual({ width: size.width, height: Math.min(height, size.height - index * height) });
+        expect(segment.height).toBe(segmentSize.height);
+      }
+      expect(segments.segments.reduce((sum: number, segment: { height: number }) => sum + segment.height, 0)).toBe(size.height);
+    }
+    const entrance = qa.entrance;
+    expect(entrance.intervalMs).toBe(200);
+    expect(entrance.durationMs).toBeGreaterThanOrEqual(800);
+    expect(entrance.frames).toHaveLength(entrance.durationMs / entrance.intervalMs + 1);
+    expect(entrance.actualDurationMs).toBe(entrance.frames.at(-1).timeMs);
+    for (const [index, frame] of entrance.frames.entries()) {
+      expect(frame.scheduledMs).toBe(index * entrance.intervalMs);
+      expect(frame.timeMs).toBeGreaterThanOrEqual(frame.scheduledMs - 1);
+      expect(frame.captureDurationMs).toBeGreaterThanOrEqual(0);
+      if (index) expect(frame.timeMs).toBeGreaterThan(entrance.frames[index - 1].timeMs);
+    }
+    expect(entrance.width).toBe(1440);
+    expect(entrance.height).toBe(Math.ceil(entrance.frames.length / entrance.columns) * entrance.cellHeight);
+    expect(await pngSize(join(result.artifacts.outDir, entrance.file))).toEqual({ width: entrance.width, height: entrance.height });
 
     const video = result.artifacts.video!;
     expect(video).toMatch(/web-scroll\.webm$/);

@@ -1,7 +1,7 @@
 /*
  * The build-and-check pipeline (the product's one entry point): validate system -> validate work -> tokens to CSS -> render layouts to HTML -> render PNG -> run rules -> write report.
  * Input: system directory, work description file, output directory, library directory (skeleton + font list + optional shared content).
- * Output files in outDir: index.html, fonts/, report.json, report.md, plus per carrier: social-<canvas>.png (social); web-desktop.png, web-mobile.png (full page) and web-scroll.webm (web, built by web.ts; canvas reported as "1440+390");
+ * Output files in outDir: index.html, fonts/, report.json, report.md, plus per carrier: social-<canvas>.png (social); web-desktop.png, web-mobile.png (full page), web-scroll.webm, viewport-height segments and web-entrance.png/web-qa.json (web, built by web.ts; canvas reported as "1440+390");
  * slide-<nn>.png, slides.pdf, slides.webm (slides, built by slides.ts; the stage canvas is reported as "stage"). Returns the Report, artifact paths and the exit status (0 = no errors, 1 = errors found).
  * validateSystem is the first stage on its own (the validate-system subcommand): SYSTEM.md, token file, font references and system units; it throws one BuildError listing every problem.
  * Image ids referenced by slots or custom <img src="images/<id>.<ext>"> use work.images briefs before <library>/content/images.json and files in <system>/images/, copied into outDir/images/ (assets.ts); missing briefs/files fail before rendering.
@@ -178,7 +178,7 @@ export async function buildAndCheck(options: BuildOptions): Promise<BuildResult>
   let canvas: string;
   let motion: MotionSnapshot | undefined;
   if (work.carrier === 'web') {
-    const web = await renderWeb({ outDir, ...pageInput });
+    const web = await renderWeb({ outDir, ...pageInput }, { qa: true });
     ({ index, images, video } = web);
     findings = checkWeb(web.snapshots, { work, tokens, fonts: fontCheck });
     motion = web.snapshots.desktop.motion;

@@ -12,6 +12,7 @@ const STEPS = [
   { label: '类型检查', command: ['pnpm', 'typecheck'] },
   { label: '注释位置检查', command: ['pnpm', 'check:comments'] },
   { label: '文档命令检查', command: ['pnpm', 'check:doc-commands'] },
+  { label: '命令手册长行检查', command: ['pnpm', 'check:cli-lines'] },
   { label: '测试', command: ['pnpm', 'test'] },
 ];
 

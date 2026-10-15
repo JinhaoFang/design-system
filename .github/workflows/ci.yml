@@ -45,6 +45,7 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm check:comments
       - run: pnpm check:doc-commands
+      - run: pnpm check:cli-lines
       - run: mkdir -p "${{ runner.temp }}/ds-tests"
       - run: pnpm test --reporter=verbose
         env:

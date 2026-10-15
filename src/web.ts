@@ -12,6 +12,8 @@
  * Its head bootstrap hides pending entrances before content can paint; the runtime releases each scroll batch only after creating its animations. No-script and error paths show terminal content.
  * checkWeb runs the rule set (ALL_RULES, or the list passed in) on both snapshots; findings that appear only at 390 get a "（手机宽度 390）" suffix, and a finding already reported at 1440 is not repeated.
  * Extras for pages that are not works (the system page, system-page.ts): WebPageInput.style / script add one <style> to the head and one inline script after the choreography script;
+ * Web works opt into qa: viewport-height segments, a real-time entrance contact sheet and web-qa.json (web-qa.ts), beside the full-page PNGs.
+ * Entrance sampling stops after the viewing hold; contact-sheet composition waits until the video is saved, so optional QA work cannot extend the first-screen hold.
  * RenderWebOptions.audit replaces the scroll-through that drives the two motion audit passes (it may click replay controls), and recording: false skips the scroll recording (no video is returned).
  */
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
@@ -32,6 +34,7 @@ import { fontFaceCss, rootVarsCss } from './page.ts';
 import { auditMotion } from './checker/motion-audit.ts';
 import { settle, waitForRecordingEntrance } from './render.ts';
 import type { Finding } from './types.ts';
+import { startWebEntranceCapture, writeWebSegments } from './web-qa.ts';
 
 export const WEB_VIEWPORTS = {
   desktop: { width: CARRIERS.web.canvases.desktop.width, height: 900 },
@@ -57,6 +60,7 @@ export interface WebPageInput {
 export interface RenderWebOptions {
   audit?: (page: Page) => Promise<void>;
   recording?: boolean;
+  qa?: boolean;
 }
 
 export function buildWebPage(input: WebPageInput): string {
@@ -136,6 +140,8 @@ export async function renderWeb(input: WebPageInput & { outDir: string }, option
   const browser = await chromium.launch();
   try {
     const images: string[] = [];
+    const qaPage = options.qa ? await browser.newPage() : undefined;
+    const segments: Record<string, Awaited<ReturnType<typeof writeWebSegments>>> = {};
     const snapshots = {} as Record<WebViewport, PageSnapshot>;
     for (const name of ['desktop', 'mobile'] as const) {
       const context = await browser.newContext({ viewport: WEB_VIEWPORTS[name], deviceScaleFactor: 1, reducedMotion: 'no-preference' });
@@ -145,7 +151,8 @@ export async function renderWeb(input: WebPageInput & { outDir: string }, option
       await settle(page);
       snapshots[name] = await collectSnapshot(page);
       const png = join(input.outDir, `web-${name}.png`);
-      await page.screenshot({ path: png, type: 'png', fullPage: true });
+      const buffer = await page.screenshot({ path: png, type: 'png', fullPage: true });
+      if (qaPage) segments[name] = await writeWebSegments(qaPage, buffer, input.outDir, name, WEB_VIEWPORTS[name].height);
       images.push(png);
       await context.close();
     }
@@ -168,16 +175,27 @@ export async function renderWeb(input: WebPageInput & { outDir: string }, option
         recordVideo: { dir: recordings, size },
       });
       const page = await context.newPage();
-      await page.goto(url);
-      await waitForRecordingEntrance(page);
-      await page.waitForTimeout(LEAD_IN_MS);
-      await scrollToBottom(page);
-      await page.waitForTimeout(HOLD_MS);
-      const recording = page.video()!;
-      await context.close();
-      const video = join(input.outDir, 'web-scroll.webm');
-      await recording.saveAs(video);
-      return { index, images, video, snapshots };
+      const capture = qaPage ? await startWebEntranceCapture(page) : undefined;
+      try {
+        await page.goto(url);
+        capture?.navigationFinished();
+        await waitForRecordingEntrance(page);
+        await page.waitForTimeout(LEAD_IN_MS);
+        await capture?.stop();
+        await scrollToBottom(page);
+        await page.waitForTimeout(HOLD_MS);
+        const recording = page.video()!;
+        await context.close();
+        const video = join(input.outDir, 'web-scroll.webm');
+        await recording.saveAs(video);
+        if (capture) {
+          const entrance = await capture.finish(qaPage!, input.outDir);
+          await writeFile(join(input.outDir, 'web-qa.json'), `${JSON.stringify({ segments, entrance }, null, 2)}\n`);
+        }
+        return { index, images, video, snapshots };
+      } finally {
+        await capture?.abort();
+      }
     } finally {
       await rm(recordings, { recursive: true, force: true });
     }

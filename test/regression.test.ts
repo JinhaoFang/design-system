@@ -3,11 +3,13 @@
  * works/*.json standard-sample works) it runs buildAndCheck on each sample and on the layout overview, builds the system page beside them (linked to both), and exits 1 when anything has an error, fails validation or has no samples.
  * The systems are temp copies of the fixture system: a clean one (dirty layouts removed) and the original, whose pure black / pure white layouts the overview reaches.
  * The all-carrier success case gets 120 seconds: it includes several builds and was measured at 59.395 seconds against the old 60-second limit on a two-core CI runner.
+ * The overview-error case only needs social stack/blackout layouts and two systems (dirty first). All-carrier coverage remains in the success case; no extra timeout is needed.
  */
 import { cp, mkdir, readFile, readdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, test } from 'vitest';
 import { regress } from '../src/regress.ts';
+import type { CarrierId } from '../src/carriers.ts';
 import { fixtures, tempDir } from './helpers.ts';
 import { overviewLibrary } from './overview-helpers.ts';
 
@@ -28,8 +30,8 @@ async function installSystem(systemsDir: string, id: string, options: { clean: b
   }
 }
 
-async function run(systemsDir: string) {
-  return regress({ systemsDir, outDir: await tempDir(), libraryDir: await overviewLibrary(), fontCacheDir: fixtures.fontCache, canvases: ['square'] });
+async function run(systemsDir: string, carriers?: CarrierId[]) {
+  return regress({ systemsDir, outDir: await tempDir(), libraryDir: await overviewLibrary(), fontCacheDir: fixtures.fontCache, canvases: ['square'], ...(carriers && { carriers }) });
 }
 
 describe('regression', () => {
@@ -54,13 +56,25 @@ describe('regression', () => {
 
   test('exits 1 when an overview has an error, while still checking the other systems', async () => {
     const systemsDir = await tempDir('ds-systems-');
-    await installSystem(systemsDir, 'good', { clean: true, samples: ['clean'] });
-    await installSystem(systemsDir, 'dirty', { clean: false, samples: ['clean'] });
-    const result = await run(systemsDir);
+    await installSystem(systemsDir, 'a-dirty', { clean: false, samples: ['clean'] });
+    await installSystem(systemsDir, 'z-good', { clean: true, samples: ['clean'] });
+    for (const id of ['a-dirty', 'z-good']) {
+      const layouts = join(systemsDir, id, 'layouts', 'social', 'title');
+      for (const file of await readdir(layouts)) {
+        if (!['stack.liquid', 'blackout.liquid'].includes(file)) await rm(join(layouts, file));
+      }
+    }
+    const result = await run(systemsDir, ['social']);
     expect(result.exitCode).toBe(1);
+    expect(result.systems.map((system) => system.id)).toEqual(['a-dirty', 'z-good']);
     const byId = Object.fromEntries(result.systems.map((system) => [system.id, system]));
-    expect(byId['good']!.problems).toEqual([]);
-    expect(byId['dirty']!.problems.join('\n')).toContain('排法总览');
+    expect(byId['z-good']!.problems).toEqual([]);
+    expect(byId['z-good']!.overview!.builds).toHaveLength(1);
+    expect(byId['z-good']!.systemPage!.exitCode).toBe(0);
+    expect(byId['a-dirty']!.overview!.failures).toEqual([]);
+    expect(byId['a-dirty']!.overview!.builds).toHaveLength(2);
+    expect(byId['a-dirty']!.overview!.builds.find((build) => build.layout === 'blackout')!.result.exitCode).toBe(1);
+    expect(byId['a-dirty']!.problems.join('\n')).toContain('排法总览');
   });
 
   test('exits 1 when a sample has an error', async () => {
