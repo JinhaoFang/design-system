@@ -11,7 +11,7 @@
 |---|---|---|
 | 分工 | Claude Code 当设计负责人，Codex 当工程负责人；体系本身和词典的确认归设计负责人，工具归工程负责人；用户是需求方和裁判 | `AGENTS.md`「角色」、`docs/roles/` |
 | 工单 | 只在 GitHub Issues 存一份，按 issue 号派发；执行角色标签 `role:*` 和分诊标签并存 | `docs/agents/issue-tracker.md` |
-| 执行 | 用 `run-spec`，从 video-studio 的 tag `workflow-v1` 安装（2026-10-15 起）；`implement-spec` 已移除 | `docs/workflow/README.md`、`docs/agents/run-spec.md` |
+| 执行 | 用 `run-spec`，从 video-studio 的 tag 安装，2026-10-15 起 `workflow-v1`，2026-10-29 升到 `workflow-v3`；`implement-spec` 已移除 | `docs/workflow/README.md`、`docs/agents/run-spec.md` |
 | 分支与合并 | 每个 spec 一个集成分支 `spec/<号>-<短名>`；PR 只能用 merge commit（GitHub 设置已锁定）；`integration/phase-0` 合回 `main` 后不再使用 | `docs/agents/issue-tracker.md` |
 | Codex 权限 | 完全权限 | `docs/agents/run-spec.md` |
 | 提交格式 | 类型、范围、中文摘要、正文，尾注 `Refs`、`Role` | `AGENTS.md` |

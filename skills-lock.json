@@ -11,7 +11,7 @@
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/engineering/code-review/SKILL.md",
-      "computedHash": "57cfd4ceb011f05e58a1a4f4cad3b2e03419d371f8990f4bcb32ff0d435a039f"
+      "computedHash": "c2745e2be960b82b9fddd82cf45265f42431e7b045c403f297b25f0f311e9210"
     },
     "diagnosing-bugs": {
       "source": "mattpocock/skills",
@@ -35,7 +35,7 @@
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/productivity/grilling/SKILL.md",
-      "computedHash": "ef1641a2047b71b60f1942cd35efb47d3afc9d584dff5a0b01f8c7db923aaa08"
+      "computedHash": "e40cc1d348f6d935e28f1e24474302d7368f0a400429271a43b35fe154891dc5"
     },
     "handoff": {
       "source": "mattpocock/skills",
@@ -59,7 +59,7 @@
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/engineering/research/SKILL.md",
-      "computedHash": "c8c1cba327a6f824b554cd978079a3dadd7406d73174f8fb9bfef58824691970"
+      "computedHash": "5d85b64ecceed6b3f6d5996dc8af07180be8d1ff11ef3d26eda2acff078fbd39"
     },
     "retro": {
       "source": "mattpocock/skills",
@@ -69,23 +69,23 @@
     },
     "run-spec": {
       "source": "JinhaoFang/video-studio",
-      "ref": "workflow-v1",
+      "ref": "workflow-v3",
       "sourceType": "github",
       "skillPath": ".claude/skills/run-spec/SKILL.md",
-      "computedHash": "65418bf7804b419f6c41a3f6cbb1140c4d7e470c38203ae9bd5387f877e150a2"
+      "computedHash": "eebb9b0a909030adbed6f77d4fae7e9027d8dcb6c0731c1f74cc10137f18d376"
     },
     "setup-matt-pocock-skills": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/engineering/setup-matt-pocock-skills/SKILL.md",
-      "computedHash": "1d35d0afa3ded88c9324d38db08b2cff91cd03e0e11d64786bee41385cd7b9fb"
+      "computedHash": "50d6c45174f56a4323b24978f36fcc9169fae0b3abb026587bf636e468c4954c"
     },
     "setup-run-spec": {
       "source": "JinhaoFang/video-studio",
-      "ref": "workflow-v1",
+      "ref": "workflow-v3",
       "sourceType": "github",
       "skillPath": ".claude/skills/setup-run-spec/SKILL.md",
-      "computedHash": "27f0b57a456ce60aabe1333cc98c7eccc8c9707ed9a7544442c1e9f67e4b35ef"
+      "computedHash": "3a2b2fc8b7beea854af0073489168ea1b2ac81e447b945e4cbb4aa0fdb915991"
     },
     "teach": {
       "source": "mattpocock/skills",
