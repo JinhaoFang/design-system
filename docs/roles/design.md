@@ -33,7 +33,7 @@
 
 ## 技能
 
-全部可用。只有设计负责人能看到的三个技能：`codex-dispatch`（派发给 Codex）、`dual-role-workflow`（分工方法）、`run-spec`（执行工单的步骤）。
+全部可用。只有设计负责人能看到的两个技能：`codex-dispatch`（派发给 Codex）、`run-spec`（执行工单的步骤）。
 
 ## 验收
 

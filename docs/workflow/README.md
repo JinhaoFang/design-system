@@ -37,14 +37,14 @@ spec #S
 | 技能 | 位置 | 进 git | 谁看得到 |
 |---|---|---|---|
 | 第三方开发技能（Matt 的技能） | `.agents/skills/`，`.claude/skills/` 下放指向它的软链接 | 不进。`skills-lock.json` 记录装了哪些（和 video-studio 相同的 19 个），重装时只装其中列出的技能 | Claude Code 和 Codex |
-| DispatchDock 的 `codex-dispatch`、`dual-role-workflow` | 只在 `.claude/skills/` | 不进。用 `references/DispatchDock` 的安装器重装，命令见下 | 只有 Claude Code |
+| DispatchDock 的 `codex-dispatch` | 只在 `.claude/skills/` | 不进。用 `references/DispatchDock` 的安装器重装，命令见下 | 只有 Claude Code |
 | 执行技能 `run-spec` 和它的接入技能 `setup-run-spec` | 只在 `.claude/skills/` | 不进。从 `JinhaoFang/video-studio` 安装，命令和注意事项见 `docs/agents/run-spec.md` | 只有 Claude Code |
 | 本库的产品技能（方案 7.2 节，第 1 阶段开始写） | 方案定为 `.agents/skills/`，统一加前缀 | 进 | Claude Code 和 Codex |
 
 Codex 能看到 `.agents/skills/` 下的全部技能，所以设计负责人专用的技能只放 `.claude/skills/`。DispatchDock 的安装命令（固定 v0.1.3，先在 `references/DispatchDock` 里 `git checkout v0.1.3`）：
 
 ```bash
-node references/DispatchDock/installer/install.mjs --host claude-code --claude-dir "$PWD/.claude/skills" --no-config --yes
+node references/DispatchDock/installer/install.mjs --host claude-code --claude-dir "$PWD/.claude/skills" --skill codex-dispatch --no-config --yes
 ```
 
 第三方技能在 #31 退出 git 跟踪，`run-spec` 随后也退出了跟踪。在主工作区切到还跟踪着它们的提交（`main` 上 #31 合并之前的提交，或者迁移前拉出的分支，例如 `prototype/paper-editorial-direction`），再切回来，本机的第三方技能和 `.claude/skills/` 下的软链接会全部消失：切过去时，git 用旧提交里的版本覆盖了这些被忽略的文件；切回来时，它们在新提交里不再跟踪，git 就把它们删了。切到还跟踪着 `run-spec` 的提交再切回来，`run-spec` 也会这样消失，用安装命令重装。DispatchDock 的技能不受影响。查看迁移前的历史，用 `git show`，或者另开一个 worktree 切过去，不在主工作区切换。已经被删的，从刚才切过去的那个旧提交里恢复 `skills-lock.json` 列出的 Matt 的技能：
