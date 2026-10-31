@@ -26,7 +26,7 @@ npx skills add JinhaoFang/video-studio#workflow-v3.1 --skill run-spec --skill se
 | `codexSandbox` | `"danger-full-access"` | 派发时 Codex 的权限。完全权限让 Codex 能联网、能用 `gh` 读 issue，测试也要起无头浏览器。 |
 | `dispatchScript` | `".claude/skills/codex-dispatch/codex-task.mjs"` | DispatchDock 的派发脚本，路径相对主工作区。 |
 | `codexConcurrency` | 不写（默认 `2`） | 可选。同时运行的 Codex 派发上限，`dispatch` 到上限时排队。环境变量 `RUN_SPEC_CODEX_CONCURRENCY` 优先于配置。 |
-| `prCheckCommand` | 不写（默认 `["gh", "pr", "checks", "{pr}", "--watch"]`） | 可选。`pr-check` 运行的 PR 检查命令，`{pr}` 换成 PR 号。仓库的 CI 不能用时改成本机的检查命令。 |
+| `prCheckCommand` | 不写（默认 `["gh", "pr", "checks", "{pr}", "--watch"]`） | 可选。`pr-check` 运行的 PR 检查命令，`{pr}` 换成 PR 号。CI 启动不了时不改这一项，按 `docs/workflow/README.md`「护栏」改为本机验证。 |
 
 ## 执行时要知道的其他值
 

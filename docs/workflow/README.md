@@ -61,6 +61,7 @@ git restore --source=<旧提交> --worktree -- $(node -e 'for (const s of Object
 - 提交信息：装依赖时自动启用 commit-msg 钩子；合并进行中跳过。CI 独立检查 `origin/main..HEAD` 的非合并提交，本机复现命令和用法见 `docs/cli.md`。
 - CI：开 PR、推送 `main` 和 `ticket/**`、手动触发时运行，先检查分支提交信息，再跑和 `pnpm verify` 相同的检查。工单分支只有派发时加了 `--allow-push` 才会被推上去。集成分支 `spec/**` 推送时不跑：`land` 合并每张工单前已在本机跑过同样的验证。同一个 PR 的新运行会取消还没跑完的旧运行。回归（`regress` 工作流）手动触发。
 - CI 失败时：先下载工作流保存的 `test-reports` 产物（检查报告和动效记录），看是哪条规则报的错。CI 的机器是 2 核，测试并发数按实际核数取。可以手动触发 CI 复查，但不加自动重试。
+- CI 启动不了时（用户 10-31）：GitHub Actions 的设定不动，改为本机验证。判断办法：`gh run view <运行号>` 里作业一步都没跑就失败，注解写 `The job was not started`（例如 10-29 起的账号计费问题）。在来源分支上跑 `pnpm verify` 和 `pnpm check:commits origin/main <来源分支名>`，把两条命令的结论评论到 PR，代替这次的 CI 结果。
 
 ## 图像与评审
 
