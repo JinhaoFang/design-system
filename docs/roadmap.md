@@ -24,6 +24,7 @@
 | 体系分工（spec #1 复盘） | 2026-10-13：体系的决定和定稿由设计负责人在主会话亲手做，定稿之后同类的批量实现照定稿派给 Codex；只有文字方向不算定稿 | `docs/roles/design.md` |
 | 做决定（spec #65 期间复核） | 2026-10-15：范围、费用和难回头的方向先给用户看；其余由设计负责人按推荐定，写进 spec 或工单，回复里单列；工作方式的反馈记进规则文档或本文的待定项 | `docs/roles/design.md`「工作流」 |
 | 开发护栏 | `pnpm verify` 按步骤表依次检查和测试；提交信息由 commit-msg 钩子和 CI 分支检查把关；CI 不加自动重试，集成分支推送不跑 CI | `docs/workflow/README.md`「护栏」、`docs/cli.md` |
+| 方向稿分支（spec #1） | 2026-10-31：`design/riso`、`prototype/paper-editorial-direction` 是孔版印刷、纸本编辑两份体系说明写明的来源，留在远端；`design/ind` 是精密工业的半成品，验收过的完整版本在 `b1752c4` 移除前的历史里，已删除 | `systems/riso-print/SYSTEM.md`、`systems/paper-editorial/SYSTEM.md` 的来源一行 |
 
 ## 进度
 
@@ -44,4 +45,3 @@
 - **产品技能与 worktree**：方案定的是产品技能放 `.agents/skills/` 并进 git；现在整个 `.agents` 不进 git，按目录软链接进 worktree。第 1 阶段开始写产品技能时，要改成第三方技能逐个软链接，或者第三方技能也进 git。
 - **第 0 阶段的遗留**：幻灯片 PDF 约 15MB（颗粒层打印时被栅格化）；排法之间不能共享样式；体系总览页长文的孤字警告。详见各体系 `acceptance.md`「留给以后的」。
 - **`src/` 的组织**：34 个文件平铺，要不要分组由用户裁决。
-- **spec #1 子代理留下的分支**：`.claude/worktrees/proto-paper`，本地分支 `design/ind`、`design/riso`、`prototype/paper-editorial-direction`（远端也有），`cleanup` 不认这些名字。删不删由用户定。
