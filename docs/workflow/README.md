@@ -38,7 +38,7 @@ spec #S
 |---|---|---|---|
 | 第三方开发技能（Matt 的技能） | `.agents/skills/`，`.claude/skills/` 下放指向它的软链接 | 不进。`skills-lock.json` 记录装了哪些（和 video-studio 相同的 19 个），重装时只装其中列出的技能 | Claude Code 和 Codex |
 | DispatchDock 的 `codex-dispatch` | 只在 `.claude/skills/` | 不进。用 `references/DispatchDock` 的安装器重装，命令见下 | 只有 Claude Code |
-| 执行技能 `run-spec` 和它的接入技能 `setup-run-spec` | 只在 `.claude/skills/` | 不进。从 `JinhaoFang/video-studio` 安装，命令和注意事项见 `docs/agents/run-spec.md` | 只有 Claude Code |
+| 执行技能 `run-spec` 和它的接入技能 `setup-run-spec` | 只在 `.claude/skills/` | 不进。从 `JinhaoFang/agent-workflow` 安装，版本和来源见 `docs/agents/run-spec.md` | 只有 Claude Code |
 | 本库的产品技能（方案 7.2 节，第 1 阶段开始写） | 方案定为 `.agents/skills/`，统一加前缀 | 进 | Claude Code 和 Codex |
 
 Codex 能看到 `.agents/skills/` 下的全部技能，所以设计负责人专用的技能只放 `.claude/skills/`。DispatchDock 的安装命令（固定 v0.1.3，先在 `references/DispatchDock` 里 `git checkout v0.1.3`）：
@@ -57,7 +57,7 @@ git restore --source=<旧提交> --worktree -- $(node -e 'for (const s of Object
 
 ## 护栏
 
-- `pnpm verify`：按 `scripts/verify.ts` 的步骤表依次运行，每步先打印标签，前一步失败就停止并保留退出码，完成标准以它通过为准；扩展方式见 `docs/cli.md`。测试会用无头浏览器真实渲染，全量约 2 分钟。
+- `pnpm verify`：按 `scripts/verify.ts` 的步骤表依次运行，每步先打印标签，前一步失败就停止并保留退出码；`pnpm verify --static` 跳过测试。合并前跑哪一层由工单脚本按改动路径选，配置见 `docs/agents/run-spec.md`；扩展方式见 `docs/cli.md`。测试会用无头浏览器真实渲染，全量约 2～3.5 分钟。
 - 提交信息：装依赖时自动启用 commit-msg 钩子；合并进行中跳过。CI 独立检查 `origin/main..HEAD` 的非合并提交，本机复现命令和用法见 `docs/cli.md`。
 - CI：开 PR、推送 `main` 和 `ticket/**`、手动触发时运行，先检查分支提交信息，再跑和 `pnpm verify` 相同的检查。工单分支只有派发时加了 `--allow-push` 才会被推上去。集成分支 `spec/**` 推送时不跑：`land` 合并每张工单前已在本机跑过同样的验证。同一个 PR 的新运行会取消还没跑完的旧运行。回归（`regress` 工作流）手动触发。
 - CI 失败时：先下载工作流保存的 `test-reports` 产物（检查报告和动效记录），看是哪条规则报的错。CI 的机器是 2 核，测试并发数按实际核数取。可以手动触发 CI 复查，但不加自动重试。

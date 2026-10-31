@@ -3,7 +3,7 @@
 ## 目标
 
 1. **建成设计体系库**：按方案第 8 节的四个阶段推进，0 打地基 → 1 用起来（盲选验收）→ 2 提取 → 3 扩充。阶段内容和验收标准见 `docs/面向 AI Agent 的设计体系库_v0.3.md` 第 8 节。
-2. **用双角色流程开发**：Claude Code 当设计负责人，Codex 当工程负责人，用 `run-spec` 执行 spec。这是这套做法第一次迁移到别的仓库，迁移和使用中发现的问题回报给 `JinhaoFang/video-studio`，用来写那边路线图上的迁移初始化技能。
+2. **用双角色流程开发**：Claude Code 当设计负责人，Codex 当工程负责人，用 `run-spec` 执行 spec。这是这套做法第一次迁移到别的仓库，迁移和使用中发现的问题回报给方法层仓库 `JinhaoFang/agent-workflow`（2026-10-31 之前是 `JinhaoFang/video-studio`）。
 
 ## 已定（2026-10-12）
 
@@ -11,7 +11,7 @@
 |---|---|---|
 | 分工 | Claude Code 当设计负责人，Codex 当工程负责人；体系本身和词典的确认归设计负责人，工具归工程负责人；用户是需求方和裁判 | `AGENTS.md`「角色」、`docs/roles/` |
 | 工单 | 只在 GitHub Issues 存一份，按 issue 号派发；执行角色标签 `role:*` 和分诊标签并存 | `docs/agents/issue-tracker.md` |
-| 执行 | 用 `run-spec`，从 video-studio 的 tag 安装，2026-10-15 起 `workflow-v1`，2026-10-29 升到 `workflow-v3`；`implement-spec` 已移除 | `docs/workflow/README.md`、`docs/agents/run-spec.md` |
+| 执行 | 用 `run-spec`，从 video-studio 的 tag 安装，2026-10-15 起 `workflow-v1`，2026-10-29 升到 `workflow-v3`，2026-10-31 改从 `JinhaoFang/agent-workflow` 安装 `workflow-v4`；`implement-spec` 已移除 | `docs/workflow/README.md`、`docs/agents/run-spec.md` |
 | 分支与合并 | 每个 spec 一个集成分支 `spec/<号>-<短名>`；PR 只能用 merge commit（GitHub 设置已锁定）；`integration/phase-0` 合回 `main` 后不再使用 | `docs/agents/issue-tracker.md` |
 | Codex 权限 | 完全权限 | `docs/agents/run-spec.md` |
 | 提交格式 | 类型、范围、中文摘要、正文，尾注 `Refs`、`Role` | `AGENTS.md` |
