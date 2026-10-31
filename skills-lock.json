@@ -68,11 +68,11 @@
       "computedHash": "b8d55851a2909e26c2dbb2e8563719c87b3b700559f604e4df344f8c27e21047"
     },
     "run-spec": {
-      "source": "JinhaoFang/video-studio",
-      "ref": "workflow-v3.1",
+      "source": "JinhaoFang/agent-workflow",
+      "ref": "workflow-v4",
       "sourceType": "github",
       "skillPath": ".claude/skills/run-spec/SKILL.md",
-      "computedHash": "73727e87f1c4edcff74a6566098b555873ae33532b6837bd442e0348018f0ab4"
+      "computedHash": "973b5ee758ad2f6d744915429d2251093b96b089f24a706de73812ee23ec25b1"
     },
     "setup-matt-pocock-skills": {
       "source": "mattpocock/skills",
@@ -81,11 +81,11 @@
       "computedHash": "50d6c45174f56a4323b24978f36fcc9169fae0b3abb026587bf636e468c4954c"
     },
     "setup-run-spec": {
-      "source": "JinhaoFang/video-studio",
-      "ref": "workflow-v3.1",
+      "source": "JinhaoFang/agent-workflow",
+      "ref": "workflow-v4",
       "sourceType": "github",
       "skillPath": ".claude/skills/setup-run-spec/SKILL.md",
-      "computedHash": "30064b6c62f329fd41085edb601026ad63b66145f21310f7bca52974f27ea848"
+      "computedHash": "54f578d854a405b7df71c8f446fa43e73f364b9efed3cfbe5c068b51eb1040f5"
     },
     "teach": {
       "source": "mattpocock/skills",

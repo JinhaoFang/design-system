@@ -4,5 +4,7 @@
   "symlinkDirectories": ["references", ".agents", ".cache"],
   "acceptanceRoot": "out/qa",
   "codexSandbox": "danger-full-access",
-  "dispatchScript": ".claude/skills/codex-dispatch/codex-task.mjs"
+  "dispatchScript": ".claude/skills/codex-dispatch/codex-task.mjs",
+  "staticCheckCommand": ["pnpm", "verify", "--static"],
+  "staticOnlyPaths": ["/*.md", "docs/**/*.md", "docs/reports/*.html"]
 }
