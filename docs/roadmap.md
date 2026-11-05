@@ -5,13 +5,16 @@
 1. **建成设计体系库**：按方案第 8 节的四个阶段推进，0 打地基 → 1 用起来（盲选验收）→ 2 提取 → 3 扩充。阶段内容和验收标准见 `docs/面向 AI Agent 的设计体系库_v0.3.md` 第 8 节。
 2. **用双角色流程开发**：Claude Code 当设计负责人，Codex 当工程负责人，用 `run-spec` 执行 spec。这是这套做法第一次迁移到别的仓库，迁移和使用中发现的问题回报给方法层仓库 `JinhaoFang/agent-workflow`（2026-10-31 之前是 `JinhaoFang/video-studio`）。
 
-## 已定（2026-10-12）
+## 已定（2026-11-05）
 
 | 事项 | 决定 | 写在哪 |
 |---|---|---|
 | 分工 | Claude Code 当设计负责人，Codex 当工程负责人；体系本身和词典的确认归设计负责人，工具归工程负责人；用户是需求方和裁判 | `AGENTS.md`「角色」、`docs/roles/` |
 | 工单 | 只在 GitHub Issues 存一份，按 issue 号派发；执行角色标签 `role:*` 和分诊标签并存 | `docs/agents/issue-tracker.md` |
 | 执行 | 用 `run-spec`，从 video-studio 的 tag 安装，2026-10-15 起 `workflow-v1`，2026-10-29 升到 `workflow-v3`，2026-10-31 改从 `JinhaoFang/agent-workflow` 安装 `workflow-v4`；`implement-spec` 已移除 | `docs/workflow/README.md`、`docs/agents/run-spec.md` |
+| 协作边界（11-05 用户已定） | 工单准确定位参照、定稿、契约和验收产物，实现位置由执行者决定；父 spec 正文是当前决定唯一来源；工程推送只在派发明确授权时限本工单分支；书面产物用中文、标识符用英文；本仓规则已同步 | `AGENTS.md`「共同规则」、`docs/agents/issue-tracker.md`、`docs/roles/engineering.md`；[工单 #90](https://github.com/JinhaoFang/design-system/issues/90) |
+| 独立审查（11-05 用户已定） | 由用户决定是否启动派发前独立审查，选择后按 `run-spec` 做 | `docs/roles/design.md`「工作流」、`docs/workflow/README.md`「一项工作的生命周期」 |
+| 路线图职责（11-05 用户已定） | 每个阶段收尾有变化时只更新已定与待定，当前进度看打开的 spec；保留长期下一步方向和历史阶段索引 | `docs/roles/design.md`、`docs/workflow/README.md`「路线图」 |
 | 分支与合并 | 每个 spec 一个集成分支 `spec/<号>-<短名>`；PR 只能用 merge commit（GitHub 设置已锁定）；`integration/phase-0` 合回 `main` 后不再使用 | `docs/agents/issue-tracker.md` |
 | Codex 权限 | 完全权限 | `docs/agents/run-spec.md` |
 | 提交格式 | 类型、范围、中文摘要、正文，尾注 `Refs`、`Role` | `AGENTS.md` |
@@ -41,6 +44,7 @@
 
 ## 待定
 
+- **执行技能升级**：当前实际安装仍是 `workflow-v4`。`workflow-v5` 尚未发 tag，待方法层唯一一次发布后再升级；本次只同步自有文档，不改技能和锁文件。源头见 [agent-workflow #16](https://github.com/JinhaoFang/agent-workflow/issues/16)。
 - **CI 上的截图报错**：10-13 起 CI 每次都失败，其实是一条回归用例超时，不是偶发，#72 已修。截图报错（spec #32 的 #33）在 #67 的抽帧里又出现过一次，现在网页构建的 `web-qa.json` 会记下失败发生在导航前、导航中还是入场中，再出现时据此定位；"体系总览页有 4 个错误"的根因仍未锁定。
 - **产品技能与 worktree**：方案定的是产品技能放 `.agents/skills/` 并进 git；现在整个 `.agents` 不进 git，按目录软链接进 worktree。第 1 阶段开始写产品技能时，要改成第三方技能逐个软链接，或者第三方技能也进 git。
 - **第 0 阶段的遗留**：幻灯片 PDF 约 15MB（颗粒层打印时被栅格化）；排法之间不能共享样式；体系总览页长文的孤字警告。详见各体系 `acceptance.md`「留给以后的」。
