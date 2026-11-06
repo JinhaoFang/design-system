@@ -13,5 +13,5 @@
 
 ## 协作
 
-- Claude Code 当设计负责人，Codex 当工程负责人。规则见 [AGENTS.md](AGENTS.md)，流程见[开发工作流](docs/workflow/README.md)。
+- 设计负责人是和用户对话的主会话，工程负责人由它按席位派发（框架和模型按个人配置）。规则见 [AGENTS.md](AGENTS.md)，流程见[开发工作流](docs/workflow/README.md)。
 - 参考项目克隆在 `references/`，不纳入版本控制，清单见方案「参考项目」一节。
