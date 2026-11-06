@@ -3,25 +3,25 @@
 ## 目标
 
 1. **建成设计体系库**：按方案第 8 节的四个阶段推进，0 打地基 → 1 用起来（盲选验收）→ 2 提取 → 3 扩充。阶段内容和验收标准见 `docs/面向 AI Agent 的设计体系库_v0.3.md` 第 8 节。
-2. **用双角色流程开发**：Claude Code 当设计负责人，Codex 当工程负责人，用 `run-spec` 执行 spec。这是这套做法第一次迁移到别的仓库，迁移和使用中发现的问题回报给方法层仓库 `JinhaoFang/agent-workflow`（2026-10-31 之前是 `JinhaoFang/video-studio`）。
+2. **用双角色流程开发**：设计负责人是和用户对话的主会话，工程负责人由它按席位派发，用 `run-spec` 执行 spec。这是这套做法第一次迁移到别的仓库，迁移和使用中发现的问题回报给方法层仓库 `JinhaoFang/agent-workflow`（2026-10-31 之前是 `JinhaoFang/video-studio`）。
 
 ## 已定（2026-10-12）
 
 | 事项 | 决定 | 写在哪 |
 |---|---|---|
-| 分工 | Claude Code 当设计负责人，Codex 当工程负责人；体系本身和词典的确认归设计负责人，工具归工程负责人；用户是需求方和裁判 | `AGENTS.md`「角色」、`docs/roles/` |
+| 分工 | 设计负责人是主会话，工程负责人按席位派发（框架和模型写在个人席位配置里，仓库只登记工作类型 `前端`）；体系本身和词典的确认归设计负责人，工具归工程负责人；用户是需求方和裁判 | `AGENTS.md`「角色」、`docs/roles/` |
 | 工单 | 只在 GitHub Issues 存一份，按 issue 号派发；执行角色标签 `role:*` 和分诊标签并存 | `docs/agents/issue-tracker.md` |
-| 执行 | 用 `run-spec`，从 video-studio 的 tag 安装，2026-10-15 起 `workflow-v1`，2026-10-29 升到 `workflow-v3`，2026-10-31 改从 `JinhaoFang/agent-workflow` 安装 `workflow-v4`；`implement-spec` 已移除 | `docs/workflow/README.md`、`docs/agents/run-spec.md` |
+| 执行 | 用 `run-spec`，从 video-studio 的 tag 安装，2026-10-15 起 `workflow-v1`，2026-10-29 升到 `workflow-v3`，2026-10-31 改从 `JinhaoFang/agent-workflow` 安装 `workflow-v4`，2026-11-06 升到 `workflow-v5`；`implement-spec` 已移除 | `docs/workflow/README.md`、`docs/agents/run-spec.md` |
 | 分支与合并 | 每个 spec 一个集成分支 `spec/<号>-<短名>`；PR 只能用 merge commit（GitHub 设置已锁定）；`integration/phase-0` 合回 `main` 后不再使用 | `docs/agents/issue-tracker.md` |
-| Codex 权限 | 完全权限 | `docs/agents/run-spec.md` |
+| 工程席位权限 | 完全权限 | `docs/agents/run-spec.md` |
 | 提交格式 | 类型、范围、中文摘要、正文，尾注 `Refs`、`Role` | `AGENTS.md` |
-| 技能 | Matt 的技能和 video-studio 保持一致（19 个），不进 git；DispatchDock 和 `run-spec` 只放 `.claude/skills/` | `docs/workflow/README.md`「技能放在哪里」 |
+| 技能 | Matt 的技能和 video-studio 保持一致（19 个），不进 git；`run-spec` 装在 `.claude/skills/` 和 `.agents/skills/`，派发层对执行者屏蔽；不再需要 DispatchDock | `docs/workflow/README.md`「技能放在哪里」 |
 | 命令手册 | 从 `AGENTS.md` 移到单独的文档，`AGENTS.md` 留指针（spec #1 用户故事 63 要求 agent 不必从代码推断用法，靠这个指针做到） | `docs/cli.md` |
 | 美学立场、幻灯片格式 | 品质门槛而非风格过滤；第一期交付 HTML 幻灯片 | `docs/adr/` |
 | 裁判验收（spec #1） | 用户 2026-10-12 授权：spec #1 余下工单的裁判验收由设计负责人代行，按领域判断给结论和评语，照常写进验收记录 | 本文、各工单的验收评论 |
 | 样张与种子体系（PR #55 审查） | 用户 2026-10-13 决定：每套体系的样张用自己的题材和结构，先经用户确认内容；共享的天文台内容只作测试内容；移除精密工业；代码画得假的图改用生图（个人配置在仓库根目录被忽略的 `.env`） | 方案 3.9 节、8.1 节，`docs/workflow/README.md`「图像与评审」 |
 | 体系交付范围 | 用户 2026-10-13 决定：纸本编辑之后的体系只做网页（体系正文、数值、网页排法、一件网页样张）；社交配图、幻灯片、PDF 等衍生产物和衍生脚本先不做 | 本文、spec #1 评论 |
-| 体系分工（spec #1 复盘） | 2026-10-13：体系的决定和定稿由设计负责人在主会话亲手做，定稿之后同类的批量实现照定稿派给 Codex；只有文字方向不算定稿 | `docs/roles/design.md` |
+| 体系分工（spec #1 复盘） | 2026-10-13：体系的决定和定稿由设计负责人在主会话亲手做，定稿之后同类的批量实现照定稿派出去；只有文字方向不算定稿 | `docs/roles/design.md` |
 | 做决定（spec #65 期间复核） | 2026-10-15：范围、费用和难回头的方向先给用户看；其余由设计负责人按推荐定，写进 spec 或工单，回复里单列；工作方式的反馈记进规则文档或本文的待定项 | `docs/roles/design.md`「工作流」 |
 | 开发护栏 | `pnpm verify` 按步骤表依次检查和测试；提交信息由 commit-msg 钩子和 CI 分支检查把关；CI 不加自动重试，集成分支推送不跑 CI | `docs/workflow/README.md`「护栏」、`docs/cli.md` |
 | 方向稿分支（spec #1） | 2026-10-31：`design/riso`、`prototype/paper-editorial-direction` 是孔版印刷、纸本编辑两份体系说明写明的来源，留在远端；`design/ind` 是精密工业的半成品，验收过的完整版本在 `b1752c4` 移除前的历史里，已删除 | `systems/riso-print/SYSTEM.md`、`systems/paper-editorial/SYSTEM.md` 的来源一行 |

@@ -9,21 +9,21 @@
 | 想清楚 | 用户 | `/grill-with-docs` | 术语进 `GLOSSARY.md`，难回头的决定进 `docs/adr/` |
 | 写 spec | 用户 | `/to-spec` | GitHub issue |
 | 拆工单 | 用户 | `/to-tickets` | spec 的 sub-issue，带阻塞关系；格式见 `docs/agents/issue-tracker.md` |
-| 执行与验收 | 用户在新会话里说"执行 spec #号"，设计负责人照做 | `run-spec`（内部用 `codex-dispatch`） | 集成分支上的提交、工单下的验收评论、`docs/reports/` 的汇报 |
+| 执行与验收 | 用户在新会话里说"执行 spec #号"，设计负责人照做 | `run-spec`（自带派发层，按席位选框架和模型） | 集成分支上的提交、工单下的验收评论、`docs/reports/` 的汇报 |
 | 合并 | 用户 | PR（正文用 `/pr` 的格式），只能用 merge commit | `main` |
 | 复盘 | 用户 | `/retro` | 规则文档、检查脚本、文档指针 |
 
 执行阶段的回路：
 
 ```
-GitHub                        设计负责人（Claude Code）                      工程负责人（Codex）
+GitHub                        设计负责人（主会话）                           工程负责人（按席位派发的 agent）
 spec #S
  └ 工单 #T  ─ 选出前置都已关闭的工单
    role:design      → 自己做、验收、提交
    role:engineering → 按 issue 号派发 ───────────────────────────→ 读 #T 和 #S，做完、提交（Refs: #T）、写汇报
                      ← 看汇报（TODO(design)、推断清单）、实测验收产物 ←──────────┘
    ready-for-human  → 告诉用户要做什么
- └ 合并、评论验收结论、关闭 #T；每批合并后派 Codex 审查；全部关闭后再审一次、开 PR "Closes #S"、写汇报、清理
+ └ 合并、评论验收结论、关闭 #T；每批合并后派审查席位审查；全部关闭后再审一次、开 PR "Closes #S"、写汇报、清理
 ```
 
 ## 什么放在哪里
@@ -36,18 +36,13 @@ spec #S
 
 | 技能 | 位置 | 进 git | 谁看得到 |
 |---|---|---|---|
-| 第三方开发技能（Matt 的技能） | `.agents/skills/`，`.claude/skills/` 下放指向它的软链接 | 不进。`skills-lock.json` 记录装了哪些（和 video-studio 相同的 19 个），重装时只装其中列出的技能 | Claude Code 和 Codex |
-| DispatchDock 的 `codex-dispatch` | 只在 `.claude/skills/` | 不进。用 `references/DispatchDock` 的安装器重装，命令见下 | 只有 Claude Code |
-| 执行技能 `run-spec` 和它的接入技能 `setup-run-spec` | 只在 `.claude/skills/` | 不进。从 `JinhaoFang/agent-workflow` 安装，版本和来源见 `docs/agents/run-spec.md` | 只有 Claude Code |
+| 第三方开发技能（Matt 的技能） | `.agents/skills/`，`.claude/skills/` 下放指向它的软链接 | 不进。`skills-lock.json` 记录装了哪些（和 video-studio 相同的 19 个），重装时只装其中列出的技能 | 主会话和派出去的 agent |
+| 执行技能 `run-spec` 和它的接入技能 `setup-run-spec` | `.claude/skills/` 和 `.agents/skills/` | 不进。从 `JinhaoFang/agent-workflow` 安装，版本和来源见 `docs/agents/run-spec.md` | 只有设计负责人；派发层按名称对派出去的 agent 屏蔽 |
 | 本库的产品技能（方案 7.2 节，第 1 阶段开始写） | 方案定为 `.agents/skills/`，统一加前缀 | 进 | Claude Code 和 Codex |
 
-Codex 能看到 `.agents/skills/` 下的全部技能，所以设计负责人专用的技能只放 `.claude/skills/`。DispatchDock 的安装命令（固定 v0.1.3，先在 `references/DispatchDock` 里 `git checkout v0.1.3`）：
+设计负责人专用的技能不靠目录隔离：主会话可能在 Claude Code、Codex 或 pi 里，`run-spec` 两处都装；派出去的 agent 由派发层按名称屏蔽它们。派发层随 `run-spec` 自带，不再需要 DispatchDock。
 
-```bash
-node references/DispatchDock/installer/install.mjs --host claude-code --claude-dir "$PWD/.claude/skills" --skill codex-dispatch --no-config --yes
-```
-
-第三方技能在 #31 退出 git 跟踪，`run-spec` 随后也退出了跟踪。在主工作区切到还跟踪着它们的提交（`main` 上 #31 合并之前的提交，或者迁移前拉出的分支，例如 `prototype/paper-editorial-direction`），再切回来，本机的第三方技能和 `.claude/skills/` 下的软链接会全部消失：切过去时，git 用旧提交里的版本覆盖了这些被忽略的文件；切回来时，它们在新提交里不再跟踪，git 就把它们删了。切到还跟踪着 `run-spec` 的提交再切回来，`run-spec` 也会这样消失，用安装命令重装。DispatchDock 的技能不受影响。查看迁移前的历史，用 `git show`，或者另开一个 worktree 切过去，不在主工作区切换。已经被删的，从刚才切过去的那个旧提交里恢复 `skills-lock.json` 列出的 Matt 的技能：
+第三方技能在 #31 退出 git 跟踪，`run-spec` 随后也退出了跟踪。在主工作区切到还跟踪着它们的提交（`main` 上 #31 合并之前的提交，或者迁移前拉出的分支，例如 `prototype/paper-editorial-direction`），再切回来，本机的第三方技能和 `.claude/skills/` 下的软链接会全部消失：切过去时，git 用旧提交里的版本覆盖了这些被忽略的文件；切回来时，它们在新提交里不再跟踪，git 就把它们删了。切到还跟踪着 `run-spec` 的提交再切回来，`run-spec` 也会这样消失，用安装命令重装。查看迁移前的历史，用 `git show`，或者另开一个 worktree 切过去，不在主工作区切换。已经被删的，从刚才切过去的那个旧提交里恢复 `skills-lock.json` 列出的 Matt 的技能：
 
 ```bash
 git restore --source=<旧提交> --worktree -- $(node -e 'for (const s of Object.entries(require("./skills-lock.json").skills).filter(([, v]) => v.source === "mattpocock/skills").map(([k]) => k)) console.log(`.agents/skills/${s} .claude/skills/${s}`)')
@@ -81,5 +76,5 @@ git restore --source=<旧提交> --worktree -- $(node -e 'for (const s of Object
 
 ## 注意
 
-- Codex 运行期间不要关掉 Claude Code 会话。只用技能时没有托管模式，关掉会话可能连带中断 Codex。
+- 派发运行期间不要关掉设计负责人的会话：派发进程由它持有，关掉会话可能连带中断执行者。
 - 派发、合并、验收、审查、收尾的具体步骤只写在执行技能 `run-spec` 里，本仓库的值见 `docs/agents/run-spec.md`。

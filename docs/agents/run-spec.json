@@ -4,7 +4,7 @@
   "symlinkDirectories": ["references", ".agents", ".cache"],
   "acceptanceRoot": "out/qa",
   "codexSandbox": "danger-full-access",
-  "dispatchScript": ".claude/skills/codex-dispatch/codex-task.mjs",
+  "workTypes": { "前端": "预览界面、体系总览页、样张页面这类页面实现" },
   "staticCheckCommand": ["pnpm", "verify", "--static"],
   "staticOnlyPaths": ["/*.md", "docs/**/*.md", "docs/reports/*.html"]
 }

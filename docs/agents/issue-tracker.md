@@ -18,7 +18,7 @@ Infer the repo from `git remote -v`; `gh` does this automatically when run insid
 
 Spec 是一个 issue，它拆出的工单是它的 sub-issue，工单之间用原生的阻塞关系连接。除了 `to-tickets` 模板里的内容，每个工单还要有：
 
-- **执行角色标签**：三选一。`role:engineering` 派给 Codex，`role:design` 由设计负责人自己做，`ready-for-human` 只能由用户本人完成。判断标准见 `docs/roles/design.md`。
+- **执行角色标签**：三选一。`role:engineering` 按席位派给工程负责人，`role:design` 由设计负责人自己做，`ready-for-human` 只能由用户本人完成。判断标准见 `docs/roles/design.md`。
 - 正文多出三节：
   - `## 测试接缝`：从哪一层测，用 spec 里和用户确认过的接缝；不需要新测试就写"无"。
   - `## 验收产物`：交付时给设计负责人看的东西，例如命令输出、关键帧、对比图、响度报告。
