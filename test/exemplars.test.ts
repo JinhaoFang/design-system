@@ -122,6 +122,32 @@ describe('validateExemplars', () => {
     expect(issues.some((issue) => issue.includes('h-eleven') && issue.includes('media'))).toBe(true);
   });
 
+  test('accepts approved external links without media files and lists no media path', async () => {
+    const record = base('h-link');
+    record.media = { kind: 'screenshot', status: 'link-only' };
+    record.approval = { status: 'approved', date: '2026-11-08' };
+    const library = await makeLibrary([record]);
+    expect(await validateExemplars(library)).toEqual({ count: 1, issues: [] });
+    expect((await listExemplars(library))[0]?.mediaFile).toBeNull();
+  });
+
+  test.each(['copy', 'original'])('rejects link-only media on %s exemplars', async (sourceType) => {
+    const record = base('h-not-external');
+    record.sourceType = sourceType;
+    record.media = { kind: 'screenshot', status: 'link-only' };
+    const { issues } = await validateExemplars(await makeLibrary([record]));
+    expect(issues.some((issue) => issue.includes('media.status'))).toBe(true);
+  });
+
+  test('requires a source link and forbids a media file for link-only exemplars', async () => {
+    const record = base('h-invalid-link');
+    record.media.status = 'link-only';
+    delete record.sourceUrl;
+    const { issues } = await validateExemplars(await makeLibrary([record]));
+    expect(issues.some((issue) => issue.includes('sourceUrl'))).toBe(true);
+    expect(issues.some((issue) => issue.includes('media.file'))).toBe(true);
+  });
+
   test('requires an ISO date for approved and rejected, and none for candidate', async () => {
     const approvedNoDate = base('i-twelve');
     approvedNoDate.approval = { status: 'approved' };
