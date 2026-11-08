@@ -65,10 +65,13 @@ async function checkRecord(root: string, dirName: string, record: any): Promise<
       } else if (!(await isFile(join(root, dirName, media.file)))) {
         problem('media.file', `文件不存在：${media.file}`);
       }
+    } else if (media.status === 'link-only') {
+      if (record.sourceType !== 'external') problem('media.status', 'link-only 仅用于外部范例');
+      if (media.file !== undefined) problem('media.file', '仅链接范例不能声明媒体文件');
     } else if (media.status === 'pending') {
       if (record.approval?.status === 'approved') problem('media', '已批准的范例不能是待补状态');
     } else {
-      problem('media.status', '必须是 present / pending');
+      problem('media.status', '必须是 present / pending / link-only');
     }
   }
 

@@ -407,6 +407,8 @@
 - `media.kind` 取 `screenshot` / `recording`。
 - `media.status` 为 `present` 时 `file` 必须存在。
 - `media.status` 为 `pending` 表示待补，已批准的范例不能是待补。
+- `media.status` 为 `link-only` 表示公开仓库只保留链接和标注，仅用于 `external` 范例，不能声明 `media.file`；来源链接仍必填，可以批准。
+- 外部范例的截图和录屏留在采集者本机；此前已入库的媒体按路线图中的裁决保留。
 - `annotation.highlights` 记录出色之处。
 - `annotation.reasons` 记录原因。
 - `annotation.scenes` 记录适合的场景。
@@ -414,6 +416,7 @@
 - `annotation.tonality` 记录调性位置。
 - `approval.status` 取 `candidate` / `approved` / `rejected`。
 - 已批准和已拒绝必须带 `approval.date`，格式 `YYYY-MM-DD`。
+- 已拒绝条目保留裁决记录，不作为已批准参考或后续转化对象；裁判未提供具体理由时不推断补写。
 - 候选不带 `date`。
 
 ### 调性与确认权限
