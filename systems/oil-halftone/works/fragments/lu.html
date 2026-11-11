@@ -1,0 +1,56 @@
+<style>
+:scope { position:relative; box-sizing:border-box; isolation:isolate; padding:var(--ds-space-9) var(--ds-space-8); background:var(--ds-color-paper); color:var(--ds-color-ink); font-family:var(--ds-font-body); font-size:var(--ds-type-body); line-height:1.75; }
+:scope * { box-sizing:border-box; }
+h1,h2,h3,p,ul,ol,li,figure,blockquote,dl,dd,dt { margin:0; padding:0; }
+ul,ol { list-style:none; }
+p,blockquote,figcaption,li { text-wrap:pretty; }
+a { color:inherit; text-underline-offset:.3em; text-decoration-thickness:1px; }
+a:focus-visible { outline:2px solid var(--ds-color-teal); outline-offset:var(--ds-space-1); border-radius:var(--ds-radius-card); }
+.wrap { max-width:1240px; margin:0 auto; }
+.serif { font-family:var(--ds-font-serif); font-weight:300; letter-spacing:-.03em; line-height:1.2; text-wrap:balance; }
+.t-display { font-size:var(--ds-type-display); line-height:1.08; }
+.t-title { font-size:var(--ds-type-title); line-height:1.12; }
+.t-head { font-size:var(--ds-type-head); }
+.t-sub { font-size:var(--ds-type-sub); line-height:1.45; }
+.eyebrow { font-size:var(--ds-type-note); color:var(--ds-color-ink-2); letter-spacing:.06em; }
+.lead { font-size:var(--ds-type-lead); color:var(--ds-color-ink-2); max-width:30em; line-height:1.7; }
+.body { max-width:36em; }
+.note { font-size:var(--ds-type-note); color:var(--ds-color-ink-2); }
+.num { font-family:var(--ds-font-num); font-variant-numeric:tabular-nums lining-nums; }
+.stack { display:grid; gap:var(--ds-space-5); align-content:start; }
+.split { display:grid; grid-template-columns:minmax(0,5fr) minmax(0,7fr); gap:var(--ds-space-8); align-items:center; }
+.paint { margin:0; }
+.bleed-r { width:calc(100% + var(--ds-space-8)); max-width:none; }
+.bleed-l { width:calc(100% + var(--ds-space-8)); max-width:none; justify-self:end; }
+.paint img { display:block; width:100%; height:auto; mix-blend-mode:multiply; -webkit-mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent),linear-gradient(to bottom,transparent,#000 6%,#000 94%,transparent); -webkit-mask-composite:source-in; mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent),linear-gradient(to bottom,transparent,#000 6%,#000 94%,transparent); mask-composite:intersect; }
+.rule-top { border-top:1px solid var(--ds-color-rule); padding-top:var(--ds-space-5); }
+.actions { display:flex; flex-wrap:wrap; gap:var(--ds-space-3); align-items:center; }
+.btn { position:relative; display:inline-flex; align-items:center; justify-content:center; min-height:calc(var(--ds-space-6) + var(--ds-space-3)); padding:0 var(--ds-space-5); border-radius:var(--ds-radius-pill); overflow:hidden; isolation:isolate; text-decoration:none; font-size:var(--ds-type-body); line-height:1; white-space:nowrap; }
+.btn-solid { background:var(--ds-color-ink); color:var(--ds-color-paper); }
+.btn-line { border:1px solid var(--ds-color-ink); color:var(--ds-color-ink); }
+.btn-bloom { position:absolute; left:50%; top:50%; z-index:-1; width:calc(100% + var(--ds-space-3)); aspect-ratio:1; border-radius:var(--ds-radius-pill); background:var(--ds-color-celadon); opacity:0; transform:translate(-50%,-50%) scale(.02); transition:transform var(--ds-duration-bloom) var(--ds-easing-bloom), opacity var(--ds-duration-bloom) var(--ds-easing-bloom); pointer-events:none; }
+.btn-roll { display:grid; overflow:hidden; padding:var(--ds-space-1) 0; }
+.btn-t { grid-area:1 / 1; transition:transform var(--ds-duration-roll) var(--ds-easing-roll), opacity var(--ds-duration-roll) var(--ds-easing-roll); }
+.btn-t2 { color:var(--ds-color-ink); transform:translateY(160%); opacity:0; visibility:hidden; }
+.btn:hover .btn-bloom, .btn:focus-visible .btn-bloom { opacity:1; transform:translate(-50%,-50%) scale(1); }
+.btn:hover .btn-t1, .btn:focus-visible .btn-t1 { transform:translateY(-160%); }
+.btn:hover .btn-t2, .btn:focus-visible .btn-t2 { transform:translateY(0); opacity:1; visibility:visible; }
+.btn:focus-visible { outline:2px solid var(--ds-color-teal); outline-offset:3px; border-radius:var(--ds-radius-pill); }
+@media (max-width:860px) {
+ :scope { padding:var(--ds-space-7) var(--ds-space-5); }
+ .bleed-r, .bleed-l { width:calc(100% + var(--ds-space-6)); justify-self:center; }
+ .split { grid-template-columns:1fr; gap:var(--ds-space-6); }
+ .t-display { font-size:var(--ds-type-title); }
+ .t-title { font-size:var(--ds-type-head); }
+ .t-head { font-size:var(--ds-type-sub); }
+ .lead { font-size:var(--ds-type-body); }
+}
+@media (prefers-reduced-motion:reduce) {
+ .btn-t, .btn-bloom { transition:opacity var(--ds-duration-snap) var(--ds-easing-settle); }
+ .btn-bloom { transform:translate(-50%,-50%) scale(1); }
+ .btn-t2 { transform:none; opacity:0; }
+ .btn:hover .btn-t1, .btn:focus-visible .btn-t1 { transform:none; opacity:0; }
+ .btn:hover .btn-t2, .btn:focus-visible .btn-t2 { opacity:1; }
+}
+.step { font-size:var(--ds-type-note); color:var(--ds-color-teal); letter-spacing:.08em; }.field { display:grid; grid-template-columns:minmax(0,3fr) minmax(0,5fr) minmax(0,3fr); grid-template-areas:"v1 mid v2" "v3 mid v4"; gap:var(--ds-space-6) var(--ds-space-7); align-items:center; }.mid { grid-area:mid; text-align:center; justify-items:center; }.mid .body { text-align:left; }.vig img { display:block; width:100%; height:auto; mix-blend-mode:multiply; -webkit-mask-image:radial-gradient(closest-side,#000 82%,transparent); mask-image:radial-gradient(closest-side,#000 82%,transparent); }.vig figcaption { margin-top:var(--ds-space-2); }.v1 { grid-area:v1; }.v2 { grid-area:v2; margin-top:var(--ds-space-8); }.v3 { grid-area:v3; margin-left:var(--ds-space-7); }.v4 { grid-area:v4; margin-right:var(--ds-space-6); }
+@media(max-width:860px){.field{grid-template-columns:1fr 1fr;grid-template-areas:"mid mid" "v1 v2" "v3 v4";}.v2,.v3,.v4{margin:0;}}</style><div class="wrap"><div class="field" id="lu" data-ds-stagger="float"><figure class="vig v1" data-ds-enter="left" data-ds-order="0" data-ds-step="settle" data-ds-ease="drift" data-ds-distance="6"><img src="images/speaker-boatman.webp" alt="戴草帽的老船工坐在船头笑着讲话，身边放着录音笔"><figcaption class="note">珠江口 · 船工 · 粤语</figcaption></figure><figure class="vig v2" data-ds-enter="right" data-ds-order="1" data-ds-step="settle" data-ds-ease="drift" data-ds-distance="6"><img src="images/speaker-embroiderer.webp" alt="银发绣娘坐在绣架前抬头说话，手机靠在绣架上录音"><figcaption class="note">苏州 · 绣娘 · 苏州话</figcaption></figure><div class="mid stack"><p class="step"><span class="num">一</span> · 录</p><h2 class="serif t-head" data-ds-enter="rise" data-ds-order="0" data-ds-step="drift" data-ds-ease="settle" data-ds-distance="3">去茶楼、码头<br>和村口</h2><p class="body" data-ds-enter="rise" data-ds-order="1" data-ds-step="drift" data-ds-ease="settle" data-ds-distance="3">志愿者带一部手机，坐下来听老人讲。不念稿，也不要标准发音：讲他自己的事，用他自己的话。一次录二十分钟，讲述者先听一遍回放，同意了才上传。</p></div><figure class="vig v3" data-ds-enter="left" data-ds-order="2" data-ds-step="settle" data-ds-ease="drift" data-ds-distance="6"><img src="images/speaker-fisher.webp" alt="老渔民在码头木箱上补网，箱子上放着录音笔"><figcaption class="note">泉州 · 渔民 · 闽南语</figcaption></figure><figure class="vig v4" data-ds-enter="right" data-ds-order="3" data-ds-step="settle" data-ds-ease="drift" data-ds-distance="6"><img src="images/speaker-singer.webp" alt="老妇人在茶园里拢手唱山歌，志愿者递过话筒"><figcaption class="note">梅州 · 山歌手 · 客家话</figcaption></figure></div></div>

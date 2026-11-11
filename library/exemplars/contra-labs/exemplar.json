@@ -5,7 +5,9 @@
   "sourceUrl": "https://contralabs.com/",
   "copyright": "Contra Labs（Contra 旗下）；站内油画风格插图的作者未注明",
   "carrier": "web",
-  "systems": [],
+  "systems": [
+    "oil-halftone"
+  ],
   "capturedOn": "2026-11-03",
   "media": {
     "kind": "recording",
