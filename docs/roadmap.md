@@ -29,7 +29,7 @@
 | 开发护栏 | `pnpm verify` 按步骤表依次检查和测试；提交信息由 commit-msg 钩子和 CI 分支检查把关；CI 不加自动重试，集成分支推送不跑 CI | `docs/workflow/README.md`「护栏」、`docs/cli.md` |
 | 方向稿分支（spec #1） | 2026-10-31：`design/riso`、`prototype/paper-editorial-direction` 是孔版印刷、纸本编辑两份体系说明写明的来源，留在远端；`design/ind` 是精密工业的半成品，验收过的完整版本在 `b1752c4` 移除前的历史里，已删除 | `systems/riso-print/SYSTEM.md`、`systems/paper-editorial/SYSTEM.md` 的来源一行 |
 | 公开仓库里的范例截图 | 用户 2026-11-03 决定：仓库已公开，此前入库的 9 条范例截图留着，不清理；之后新增的外部范例按方案 3.8 节只进链接和标注，截图和录屏留在采集者本机（PR #89 起） | 本文、方案 3.8 节 |
-| 应用界面阶段（11-11 用户提出，位置和定位交设计负责人定） | 应用界面不再是非目标，作为第 2 阶段，排在用起来之后、提取之前；给成熟组件库套体系，不自建组件库：参考实现 shadcn/ui（底层 Base UI），HeroUI v3 作第二个适配，Detent 这类注册源只作可选组件来源 | [ADR-0003](adr/0003-app-ui-via-mature-component-libraries.md)、方案第 8 节与 8.2 节 |
+| 应用界面阶段（11-11 用户提出，位置和定位交设计负责人定） | 应用界面不再是非目标，作为第 2 阶段，排在用起来之后、提取之前；给成熟组件库套体系，不自建组件库；具体用哪些库（组件、动画、交互等各方面）进入该阶段时再调研和确认（用户 11-11） | [ADR-0003](adr/0003-app-ui-via-mature-component-libraries.md)、方案第 8 节与 8.2 节 |
 | PR #89 范例裁决与后续转化 | 用户 2026-11-08 批准 POLA 母亲节、Contra Labs，拒绝 QClay synex；拒绝条目保留裁决记录。先合并范例收录，再单独明确两个已批准案例的转化目标、题材和交付范围，经确认后实现和验收 | 各范例 `approval`、本文、PR #89 |
 
 ## 进度
