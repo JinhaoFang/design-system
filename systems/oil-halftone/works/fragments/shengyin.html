@@ -1,0 +1,58 @@
+<style>
+:scope { position:relative; box-sizing:border-box; isolation:isolate; padding:var(--ds-space-9) var(--ds-space-8); background:var(--ds-color-paper); color:var(--ds-color-ink); font-family:var(--ds-font-body); font-size:var(--ds-type-body); line-height:1.75; }
+:scope * { box-sizing:border-box; }
+h1,h2,h3,p,ul,ol,li,figure,blockquote,dl,dd,dt { margin:0; padding:0; }
+ul,ol { list-style:none; }
+p,blockquote,figcaption,li { text-wrap:pretty; }
+a { color:inherit; text-underline-offset:.3em; text-decoration-thickness:1px; }
+a:focus-visible { outline:2px solid var(--ds-color-teal); outline-offset:var(--ds-space-1); border-radius:var(--ds-radius-card); }
+.wrap { max-width:1240px; margin:0 auto; }
+.serif { font-family:var(--ds-font-serif); font-weight:300; letter-spacing:-.03em; line-height:1.2; text-wrap:balance; }
+.t-display { font-size:var(--ds-type-display); line-height:1.08; }
+.t-title { font-size:var(--ds-type-title); line-height:1.12; }
+.t-head { font-size:var(--ds-type-head); }
+.t-sub { font-size:var(--ds-type-sub); line-height:1.45; }
+.eyebrow { font-size:var(--ds-type-note); color:var(--ds-color-ink-2); letter-spacing:.06em; }
+.lead { font-size:var(--ds-type-lead); color:var(--ds-color-ink-2); max-width:30em; line-height:1.7; }
+.body { max-width:36em; }
+.note { font-size:var(--ds-type-note); color:var(--ds-color-ink-2); }
+.num { font-family:var(--ds-font-num); font-variant-numeric:tabular-nums lining-nums; }
+.stack { display:grid; gap:var(--ds-space-5); align-content:start; }
+.split { display:grid; grid-template-columns:minmax(0,5fr) minmax(0,7fr); gap:var(--ds-space-8); align-items:center; }
+.paint { margin:0; }
+.bleed-r { width:calc(100% + var(--ds-space-8)); max-width:none; }
+.bleed-l { width:calc(100% + var(--ds-space-8)); max-width:none; justify-self:end; }
+.paint img { display:block; width:100%; height:auto; mix-blend-mode:multiply; -webkit-mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent),linear-gradient(to bottom,transparent,#000 6%,#000 94%,transparent); -webkit-mask-composite:source-in; mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent),linear-gradient(to bottom,transparent,#000 6%,#000 94%,transparent); mask-composite:intersect; }
+.rule-top { border-top:1px solid var(--ds-color-rule); padding-top:var(--ds-space-5); }
+.actions { display:flex; flex-wrap:wrap; gap:var(--ds-space-3); align-items:center; }
+.btn { position:relative; display:inline-flex; align-items:center; justify-content:center; min-height:calc(var(--ds-space-6) + var(--ds-space-3)); padding:0 var(--ds-space-5); border-radius:var(--ds-radius-pill); overflow:hidden; isolation:isolate; text-decoration:none; font-size:var(--ds-type-body); line-height:1; white-space:nowrap; }
+.btn-solid { background:var(--ds-color-ink); color:var(--ds-color-paper); }
+.btn-line { border:1px solid var(--ds-color-ink); color:var(--ds-color-ink); }
+.btn-bloom { position:absolute; left:50%; top:50%; z-index:-1; width:calc(100% + var(--ds-space-3)); aspect-ratio:1; border-radius:var(--ds-radius-pill); background:var(--ds-color-celadon); opacity:0; transform:translate(-50%,-50%) scale(.02); transition:transform var(--ds-duration-bloom) var(--ds-easing-bloom), opacity var(--ds-duration-bloom) var(--ds-easing-bloom); pointer-events:none; }
+.btn-roll { display:grid; overflow:hidden; padding:var(--ds-space-1) 0; }
+.btn-t { grid-area:1 / 1; transition:transform var(--ds-duration-roll) var(--ds-easing-roll), opacity var(--ds-duration-roll) var(--ds-easing-roll); }
+.btn-t2 { color:var(--ds-color-ink); transform:translateY(160%); opacity:0; visibility:hidden; }
+.btn:hover .btn-bloom, .btn:focus-visible .btn-bloom { opacity:1; transform:translate(-50%,-50%) scale(1); }
+.btn:hover .btn-t1, .btn:focus-visible .btn-t1 { transform:translateY(-160%); }
+.btn:hover .btn-t2, .btn:focus-visible .btn-t2 { transform:translateY(0); opacity:1; visibility:visible; }
+.btn:focus-visible { outline:2px solid var(--ds-color-teal); outline-offset:3px; border-radius:var(--ds-radius-pill); }
+@media (max-width:860px) {
+ :scope { padding:var(--ds-space-7) var(--ds-space-5); }
+ .bleed-r, .bleed-l { width:calc(100% + var(--ds-space-6)); justify-self:center; }
+ .split { grid-template-columns:1fr; gap:var(--ds-space-6); }
+ .t-display { font-size:var(--ds-type-title); }
+ .t-title { font-size:var(--ds-type-head); }
+ .t-head { font-size:var(--ds-type-sub); }
+ .lead { font-size:var(--ds-type-body); }
+}
+@media (prefers-reduced-motion:reduce) {
+ .btn-t, .btn-bloom { transition:opacity var(--ds-duration-snap) var(--ds-easing-settle); }
+ .btn-bloom { transform:translate(-50%,-50%) scale(1); }
+ .btn-t2 { transform:none; opacity:0; }
+ .btn:hover .btn-t1, .btn:focus-visible .btn-t1 { transform:none; opacity:0; }
+ .btn:hover .btn-t2, .btn:focus-visible .btn-t2 { opacity:1; }
+}
+:scope { background:var(--ds-color-teal); color:var(--ds-color-paper); }.rights { display:grid; grid-template-columns:minmax(0,6fr) minmax(0,5fr); gap:var(--ds-space-8); align-items:center; }.list { display:grid; gap:0; border-top:1px solid var(--ds-color-teal-deep); }.list li { display:grid; grid-template-columns:var(--ds-space-6) minmax(0,1fr); padding:var(--ds-space-4) 0; border-bottom:1px solid var(--ds-color-teal-deep); }.list .num { color:var(--ds-color-sage); }.hands { margin:0; }.hands img { display:block; width:100%; height:auto; border-radius:var(--ds-radius-panel); }
+.cards { display:grid; grid-template-columns:minmax(0,5fr) minmax(0,4fr) minmax(0,4fr) minmax(0,3fr); gap:var(--ds-space-3); margin-top:var(--ds-space-8); }.card { background:var(--ds-color-paper); color:var(--ds-color-ink); border-radius:var(--ds-radius-card); padding:var(--ds-space-5); display:grid; gap:var(--ds-space-2); }.card dt { font-size:var(--ds-type-head); line-height:1; letter-spacing:-.02em; }.card dd { font-size:var(--ds-type-note); color:var(--ds-color-ink-2); }.fine { font-size:var(--ds-type-caption); margin-top:var(--ds-space-3); }
+@media(max-width:860px){.rights{grid-template-columns:1fr;}.cards{grid-template-columns:1fr 1fr;}}</style><div class="wrap"><div class="rights" id="shengyin"><div class="stack"><h2 class="serif t-title" data-ds-enter="rise" data-ds-order="0" data-ds-step="drift" data-ds-ease="settle" data-ds-distance="3">声音属于讲述者</h2><ol class="list" data-ds-stagger="line"><li data-ds-enter="rise" data-ds-order="0" data-ds-step="drift" data-ds-ease="settle" data-ds-distance="3"><span class="num">1</span>录之前，先讲清楚录来做什么、给谁用</li><li data-ds-enter="rise" data-ds-order="1" data-ds-step="drift" data-ds-ease="settle" data-ds-distance="3"><span class="num">2</span>讲述者本人签字授权；不识字的，由家人读给他听再按手印</li><li data-ds-enter="rise" data-ds-order="2" data-ds-step="drift" data-ds-ease="settle" data-ds-distance="3"><span class="num">3</span>想收回，发一条消息，七天内从语音库和训练集里删除</li><li data-ds-enter="rise" data-ds-order="3" data-ds-step="drift" data-ds-ease="settle" data-ds-distance="3"><span class="num">4</span>研究者和模型只能用授权过的部分</li></ol></div><figure class="hands" data-ds-enter="right" data-ds-order="1" data-ds-step="settle" data-ds-ease="drift" data-ds-distance="6"><img src="images/shou.webp" alt="一只戴玉镯的苍老的手和一只年轻的手，在深青色背景前递着同一部手机"></figure></div>
+<dl class="cards" data-ds-stagger="line"><div class="card" data-ds-enter="rise" data-ds-order="0" data-ds-step="drift" data-ds-ease="settle" data-ds-distance="3"><dt class="num">9,600</dt><dd>位讲述者签了授权书</dd></div><div class="card" data-ds-enter="rise" data-ds-order="1" data-ds-step="drift" data-ds-ease="settle" data-ds-distance="3"><dt class="num">18,400</dt><dd>小时录音</dd></div><div class="card" data-ds-enter="rise" data-ds-order="2" data-ds-step="drift" data-ds-ease="settle" data-ds-distance="3"><dt class="num">2,300</dt><dd>名录音志愿者</dd></div><div class="card" data-ds-enter="rise" data-ds-order="3" data-ds-step="drift" data-ds-ease="settle" data-ds-distance="3"><dt class="num">7 天</dt><dd>内处理撤回申请</dd></div></dl><p class="fine">数字为虚构示例。</p></div>

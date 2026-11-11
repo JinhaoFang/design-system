@@ -1,0 +1,33 @@
+<style>
+:scope { position:relative; box-sizing:border-box; isolation:isolate; padding:var(--ds-space-10) var(--ds-space-8); background:var(--ds-color-paper); color:var(--ds-color-ink); font-family:var(--ds-font-body); font-size:var(--ds-type-body); line-height:1.9; }
+:scope * { box-sizing:border-box; }
+h1,h2,h3,p,ul,ol,li,figure,blockquote,dl,dd,dt { margin:0; padding:0; font-weight:400; }
+ul,ol { list-style:none; }
+p,li,blockquote,figcaption { text-wrap:pretty; }
+a { color:inherit; text-underline-offset:.3em; text-decoration-thickness:1px; }
+a:focus-visible { outline:2px solid var(--ds-color-ink); outline-offset:var(--ds-space-1); }
+.wrap { max-width:1200px; margin:0 auto; }
+.t-head { font-size:var(--ds-type-head); line-height:1.45; text-wrap:balance; }
+.t-sub { font-size:var(--ds-type-sub); line-height:1.6; text-wrap:balance; }
+.lead { font-size:var(--ds-type-lead); line-height:2; max-width:26em; }
+.note { font-size:var(--ds-type-note); color:var(--ds-color-ink-2); }
+.num { font-family:var(--ds-font-num); font-variant-numeric:tabular-nums lining-nums; }
+.stack { display:grid; gap:var(--ds-space-5); align-content:start; }
+.letter { display:grid; gap:var(--ds-space-2); max-width:28em; font-size:var(--ds-type-lead); line-height:2.2; }
+.s { position:relative; width:fit-content; max-width:100%; overflow:hidden; }
+.veil { position:absolute; inset:0; background:var(--ds-color-paper-veil); }
+.field { position:relative; }
+.lf { position:absolute; display:block; aspect-ratio:120 / 124; }
+.lf svg { display:block; width:100%; height:auto; overflow:visible; }
+.btn { position:relative; display:inline-flex; align-items:center; min-height:calc(var(--ds-space-6) + var(--ds-space-3)); padding:0 var(--ds-space-6); border-radius:var(--ds-radius-pill); background:var(--ds-color-ink); color:var(--ds-color-paper); text-decoration:none; transition:transform var(--ds-duration-lift) var(--ds-easing-lift); }
+.btn::after { content:""; position:absolute; inset:0; border-radius:inherit; box-shadow:var(--ds-shadow-lift); opacity:0; transition:opacity var(--ds-duration-lift) var(--ds-easing-lift); }
+.btn:hover, .btn:focus-visible { transform:translateY(calc(var(--ds-space-1) * -1)); }
+.btn:hover::after, .btn:focus-visible::after { opacity:1; }
+.btn:focus-visible { outline:2px solid var(--ds-color-ink); outline-offset:3px; }
+@media (max-width:860px) {
+ :scope { padding:var(--ds-space-8) var(--ds-space-5); }
+ .t-head { font-size:var(--ds-type-sub); }
+ .letter, .lead { font-size:var(--ds-type-body); }
+}
+@media (prefers-reduced-motion:reduce) { .btn, .btn::after { transition:none; } .btn:hover, .btn:focus-visible { transform:none; } }
+.intro { display:grid; gap:var(--ds-space-4); max-width:30em; margin-bottom:var(--ds-space-7); }.tags { display:grid; grid-template-columns:1fr 1fr; gap:var(--ds-space-5) var(--ds-space-8); }.tag { display:grid; grid-template-columns:var(--ds-space-6) minmax(0,1fr); gap:var(--ds-space-4); align-items:center; }.tag:nth-child(even) { margin-top:var(--ds-space-6); }.dot { width:var(--ds-space-6); height:var(--ds-space-6); border-radius:var(--ds-radius-pill) 0; background:var(--ds-color-sprout); }.dot-2 { background:var(--ds-color-vermilion); }.dot-3 { background:var(--ds-color-cobalt); }.dot-4 { background:var(--ds-color-mustard); }.dot-5 { background:var(--ds-color-pine); }.dot-6 { background:var(--ds-color-persimmon); }.label { display:grid; gap:var(--ds-space-1); background:var(--ds-color-paper-deep); padding:var(--ds-space-3) var(--ds-space-6) var(--ds-space-3) var(--ds-space-4); clip-path:polygon(0 0,100% 0,calc(100% - var(--ds-space-4)) 50%,100% 100%,0 100%); }.name { font-size:var(--ds-type-lead); }.what { font-size:var(--ds-type-note); color:var(--ds-color-ink-2); }@media(max-width:860px){.tags{grid-template-columns:1fr;}.tag:nth-child(even){margin-top:0;}}</style><div class="wrap"><div class="intro"><h2 class="t-sub" data-ds-enter="rise" data-ds-order="0" data-ds-step="settle" data-ds-ease="settle" data-ds-distance="3">{{ slots.heading }}</h2><p class="lead" data-ds-enter="rise" data-ds-order="1" data-ds-step="settle" data-ds-ease="settle" data-ds-distance="3">{{ slots.lead }}</p></div><ul class="tags" data-ds-stagger="leaf">{% for item in slots.itemTitles %}<li class="tag" data-ds-enter="fall" data-ds-order="{{ forloop.index0 }}" data-ds-step="drift" data-ds-ease="drift" data-ds-distance="6"><span class="dot dot-{{ forloop.index }}" aria-hidden="true"></span><span class="label"><span class="name">{{ item }}</span><span class="what">{{ slots.itemBodies[forloop.index0] }}</span></span></li>{% endfor %}</ul></div>

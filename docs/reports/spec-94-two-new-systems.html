@@ -1,0 +1,500 @@
+<!doctype html>
+<!--
+spec 汇报模板（workflow-v5 候选）：单文件，浏览器直接打开，可断网使用。用法和每节的数据见同目录 report.md。
+只替换文件末尾 data-slot="data" 的 JSON：{"report": 设计负责人填写的部分, "scorecard": tickets.ts scorecard --out 的原样输出}。
+节次按六点：做了什么和效果、目标与证明、要你做的、证据、代价与时间、风险与遗留；流程发现和数据口径折叠在最后。
+时间线、时间去向、验证卡片和用量都只读 scorecard；缺数显示"未记录"和 reason，不按零画。超过 45 分钟的空档压成竖纹。
+图按容器宽度绘制，窗口变宽变窄时重画；配色是 dataviz 默认色板的浅色、深色两套，状态色只用于状态。
+脚本在一个块作用域里，不新增全局名字。示例数据是 video-studio spec #94（评分表由 agent-workflow #9 重建）。
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>spec 汇报</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,.10); --wash: rgba(11,11,11,.04);
+  --claude: #8054bd; --pi: #0b7f9c;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4;
+  --good: #0ca30c; --warning: #fab219; --serious: #ec835a; --critical: #d03b3b; --goodtext: #006300;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10); --wash: rgba(255,255,255,.05);
+    --claude: #b18cde; --pi: #4cbfdc;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --goodtext: #0ca30c;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.6 system-ui, -apple-system, "Segoe UI", "PingFang SC", "Noto Sans CJK SC", sans-serif; }
+main { max-width: 1080px; margin: 0 auto; padding: 24px 20px 64px; }
+header { margin-bottom: 8px; }
+h1 { font-size: 24px; line-height: 1.3; margin: 4px 0 8px; }
+h2 { font-size: 18px; margin: 0 0 12px; }
+h3 { font-size: 15px; margin: 0 0 6px; }
+p { margin: 0 0 8px; }
+a { color: var(--s1); }
+.meta, .muted { color: var(--muted); font-size: 13px; }
+.lead { font-size: 16px; color: var(--ink2); }
+section { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin: 14px 0; }
+.banner { display: block; margin: 12px 0 4px; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--serious); color: var(--ink); text-decoration: none; background: var(--wash); }
+.banner b { color: var(--ink); }
+.banner[hidden] { display: none; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.tile { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+.tile .v { font-size: 24px; font-weight: 600; line-height: 1.2; }
+.tile .k { color: var(--ink2); font-size: 13px; }
+.tile .n { color: var(--muted); font-size: 12px; }
+ul.plain, ol.plain { margin: 0; padding-left: 20px; }
+ul.plain li, ol.plain li { margin: 4px 0; }
+.card { border-top: 1px solid var(--grid); padding: 12px 0; }
+.card:first-child { border-top: 0; padding-top: 0; }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.status { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.status i { font-style: normal; display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; color: #fff; font-size: 11px; }
+.st-good i { background: var(--good); } .st-warning i { background: var(--warning); color: #0b0b0b; }
+.st-serious i { background: var(--serious); } .st-critical i { background: var(--critical); } .st-info i { background: var(--muted); }
+pre { margin: 6px 0 0; padding: 8px 10px; background: var(--wash); border-radius: 6px; font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; word-break: break-all; max-height: 220px; overflow: auto; }
+img.thumb { max-width: 100%; max-height: 220px; border: 1px solid var(--border); border-radius: 6px; display: block; margin-top: 6px; }
+.ev { margin-top: 6px; font-size: 13px; color: var(--ink2); }
+.ev .num { font-size: 18px; color: var(--ink); font-weight: 600; }
+svg { display: block; width: 100%; height: auto; overflow: visible; }
+svg text { fill: var(--ink2); font-size: 12px; font-family: inherit; }
+svg .axis { stroke: var(--axis); stroke-width: 1; }
+svg .gridl { stroke: var(--grid); stroke-width: 1; }
+svg .lane { fill: var(--wash); }
+.chart { margin: 10px 0 18px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--ink2); margin: 6px 0; }
+.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; background: var(--c); vertical-align: -1px; }
+details { margin-top: 10px; }
+summary { cursor: pointer; color: var(--ink2); font-size: 14px; }
+.tw { overflow-x: auto; margin-top: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { color: var(--muted); font-weight: 500; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.tip { position: fixed; z-index: 10; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.15); max-width: 280px; white-space: pre-line; }
+.empty { color: var(--muted); font-size: 14px; }
+.dispatch-chart { margin: 10px 0 18px; }
+.dispatch-item { padding: 10px 0; border-top: 1px solid var(--grid); min-width: 0; }
+.dispatch-item:first-child { border-top: 0; }
+.dispatch-heading { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; font-size: 13px; margin-bottom: 5px; }
+.dispatch-heading b { overflow-wrap: anywhere; }
+.dispatch-line { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 310px); gap: 12px; align-items: center; }
+.dispatch-track { height: 10px; background: var(--wash); border-radius: 3px; overflow: hidden; }
+.dispatch-fill { height: 100%; background: var(--dispatch-color); border-radius: 3px; }
+.dispatch-unknown { background: transparent; border: 1px dashed var(--axis); }
+.dispatch-meta { font-size: 12px; color: var(--ink2); overflow-wrap: anywhere; }
+.dispatch-reason { font-size: 12px; color: var(--ink2); margin-top: 4px; overflow-wrap: anywhere; }
+.dispatch-exit { color: var(--critical); font-weight: 600; }
+footer { color: var(--muted); font-size: 12px; margin-top: 18px; }
+@media (max-width: 640px) {
+  main { padding: 16px 12px 48px; }
+  section { padding: 14px 12px; }
+  .row { grid-template-columns: 1fr; }
+  .dispatch-line { grid-template-columns: minmax(0, 1fr); gap: 5px; }
+  h1 { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="meta" data-slot="meta"></p>
+    <h1 data-slot="title"></h1>
+    <p class="lead" data-slot="result"></p>
+    <a class="banner" href="#asks" data-slot="banner" hidden></a>
+  </header>
+
+  <section id="done">
+    <h2>1. 做了什么，效果如何</h2>
+    <div class="tiles" data-slot="done-tiles"></div>
+    <div data-slot="delivered"></div>
+  </section>
+
+  <section id="goals">
+    <h2>2. 目标与证明</h2>
+    <p class="muted">按 spec 问题陈述里的现状，用同一口径重测。灰点是改前，蓝点是改后，竖线是目标。</p>
+    <div data-slot="goals"></div>
+  </section>
+
+  <section id="asks">
+    <h2>3. 要你做的</h2>
+    <div data-slot="asks"></div>
+  </section>
+
+  <section id="evidence">
+    <h2>4. 证据</h2>
+    <p class="muted">可以抽查的实测值、命令输出和截图，链接只作补充。</p>
+    <div data-slot="evidence"></div>
+  </section>
+
+  <section id="cost">
+    <h2>5. 代价与时间</h2>
+    <h3>时间线</h3>
+    <p class="muted">按资源分泳道；超过 45 分钟没有活动的空档压缩成一道竖纹。</p>
+    <div class="legend" data-slot="lane-legend"></div>
+    <div class="chart" data-slot="timeline"></div>
+    <h3>时间去向</h3>
+    <div class="chart" data-slot="time-bars"></div>
+    <h3>验证与合并</h3>
+    <div class="tiles" data-slot="verify-tiles"></div>
+    <h3>用量</h3>
+    <p class="muted">输入含缓存读取；条长是输入 token。</p>
+    <div class="chart" data-slot="usage-bars"></div>
+    <p class="muted" data-slot="usage-note"></p>
+    <h3>逐次派发</h3>
+    <p class="muted">每条是一次派发，条长按分钟使用同一刻度，颜色按框架。未知时不画时长，显示原因；悬停或聚焦可查看完整字段。</p>
+    <div class="dispatch-chart" data-slot="dispatch-bars" role="group" aria-label="逐次派发的分钟与用量"></div>
+    <details><summary>派发表格（查找）</summary><div data-slot="dispatch-table"></div></details>
+    <details><summary>验证明细</summary><div data-slot="verify-table"></div></details>
+  </section>
+
+  <section id="risks">
+    <h2>6. 风险与遗留</h2>
+    <div data-slot="risks"></div>
+  </section>
+
+  <details>
+    <summary>流程发现与数据口径</summary>
+    <div data-slot="findings"></div>
+    <div data-slot="notes"></div>
+  </details>
+
+  <footer data-slot="footer"></footer>
+</main>
+<div class="tip" data-slot="tip" hidden></div>
+
+<script type="application/json" data-slot="data">{"scorecard": {"version": 2, "spec": 94, "mainFrameworks": ["claude"], "dispatchLanes": {"value": null, "reason": "未记录：缺少派发记录"}, "cutoffAt": "2026-11-11T05:44:50.012Z", "collectedAt": "2026-11-11T05:44:53.855Z", "verification": {"value": {"runs": [{"layer": "full", "target": {"kind": "main"}, "caller": "verify", "branch": "spec/94-two-new-systems", "start": "2026-11-11T04:04:03.220Z", "end": "2026-11-11T04:07:16.131Z", "queuedMinutes": 0, "minutes": 3.2151833333333335, "exitCode": 0}, {"layer": "full", "target": {"kind": "main"}, "caller": "verify", "branch": "spec/94-two-new-systems", "start": "2026-11-11T04:47:12.042Z", "end": "2026-11-11T04:50:17.120Z", "queuedMinutes": 0, "minutes": 3.084633333333333, "exitCode": 0}], "fullCount": 2, "fullMinutes": 6.299816666666667, "staticCount": 0}, "reason": null}, "merges": {"value": {"landCount": 0, "fullVerificationFailures": 0, "stops": {"rebaseConflict": 0, "installFailure": 0, "verificationFailure": 0, "pushFailure": 0, "other": 0}}, "reason": null}, "dispatches": {"value": null, "reason": "未记录：缺少本 spec 派发记录"}, "time": {"dispatchSlots": {"value": null, "reason": "派发起止记录缺失或有尚未结束的派发"}, "verification": {"value": {"spans": [{"start": "2026-11-11T04:04:03.220Z", "end": "2026-11-11T04:07:16.131Z"}, {"start": "2026-11-11T04:47:12.042Z", "end": "2026-11-11T04:50:17.120Z"}], "minutes": 6.299816666666667}, "reason": null}, "queue": {"value": {"spans": [], "minutes": 0}, "reason": null}, "designLead": {"value": {"spans": [{"start": "2026-11-11T03:05:44.332Z", "end": "2026-11-11T03:06:55.230Z"}, {"start": "2026-11-11T03:24:44.595Z", "end": "2026-11-11T03:38:59.465Z"}, {"start": "2026-11-11T03:56:29.703Z", "end": "2026-11-11T04:59:11.601Z"}, {"start": "2026-11-11T05:43:39.362Z", "end": "2026-11-11T05:44:50.012Z"}], "minutes": 79.30526666666667}, "reason": null}, "waitingUser": {"value": {"spans": [{"start": "2026-11-11T03:06:55.230Z", "end": "2026-11-11T03:24:44.595Z"}, {"start": "2026-11-11T03:38:59.465Z", "end": "2026-11-11T03:56:29.703Z"}, {"start": "2026-11-11T04:59:11.601Z", "end": "2026-11-11T05:43:39.362Z"}], "minutes": 79.7894}, "reason": null}}, "overhead": {"value": null, "reason": "未记录：缺少派发记录和 Codex 会话"}, "userInterventions": {"value": 5, "reason": null}, "failures": {"dispatchWithoutReport": {"value": null, "reason": "未记录：缺少派发记录"}, "landStops": {"value": 0, "reason": null}, "verificationLaunch": {"value": 0, "reason": null}}, "usage": {"dispatches": {"value": null, "reason": "未记录：缺少派发用量分组"}, "mainSession": {"value": {"inputTokens": 49590110, "cachedInputTokens": 49158030, "outputTokens": 220725}, "reason": null}, "independentReview": {"value": null, "reason": "未记录独立审查或 JSON 用量不完整"}, "subagents": {"value": null, "reason": "未记录可关联的子代理完整用量"}, "subagentNotifications": {"value": null, "reason": "未提供 Claude 会话或任务通知没有 subagent_tokens"}}, "missing": [{"field": "dispatchLanes", "reason": "未记录：缺少派发记录"}, {"field": "dispatches", "reason": "未记录：缺少本 spec 派发记录"}, {"field": "time.dispatchSlots", "reason": "派发起止记录缺失或有尚未结束的派发"}, {"field": "overhead", "reason": "未记录：缺少派发记录和 Codex 会话"}, {"field": "failures.dispatchWithoutReport", "reason": "未记录：缺少派发记录"}, {"field": "usage.dispatches", "reason": "未记录：缺少派发用量分组"}, {"field": "usage.independentReview", "reason": "未记录独立审查或 JSON 用量不完整"}, {"field": "usage.subagents", "reason": "未记录可关联的子代理完整用量"}, {"field": "usage.subagentNotifications", "reason": "未提供 Claude 会话或任务通知没有 subagent_tokens"}]}, "report": {"spec": 94, "title": "两套新种子体系：油画网点、色纸剪贴（网页）", "date": "2026-11-11", "timezone": "Asia/Shanghai", "repo": "JinhaoFang/design-system", "pr": {"number": 98, "state": "用户已核收，合并中"}, "result": "两条已批准的外部范例转化成两套新种子体系，各带一件体系样张；用户 11-11 核收通过。同一 PR 把应用界面纳入第 2 阶段（ADR-0003）。四套体系回归全部通过，pnpm verify 通过。", "delivered": [{"what": "油画网点（来自 Contra Labs）与体系样张「乡音库」", "tickets": [95], "meaning": "「人文气质的科技机构」这类简报有了对应体系：古典油画里只有现代设备印成网点，一句粤语从茶楼出发、最后回到老人的手机上。"}, {"what": "色纸剪贴（来自 POLA）与体系样张「栖桐植物园百年」", "tickets": [96], "meaning": "「要被认真读完的长信、致谢」有了对应体系：代码画的手剪叶子聚、散、再聚成树，信逐句点亮，未点亮的句子也满足 AA。"}, {"what": "应用界面纳入第 2 阶段（ADR-0003）", "tickets": [], "meaning": "不自建组件库，给成熟组件库套体系；具体用哪些库（组件、动画、交互等）进入该阶段时再调研。提取、扩充顺延为第 3、第 4 阶段。"}], "goals": [{"name": "已批准范例转化为体系", "unit": "套", "before": 0, "after": 2, "target": 2, "status": "good", "statusText": "达成", "method": "范例 contra-labs、pola-mothers-day 的 systems 字段分别指向 oil-halftone、cut-paper；validate-system 两套都通过", "evidence": {"output": "体系「油画网点」（oil-halftone）校验通过。\n体系「色纸剪贴」（cut-paper）校验通过。", "link": "https://github.com/JinhaoFang/design-system/pull/98", "linkText": "PR #98"}}, {"name": "种子体系覆盖的调性位置", "unit": "套", "before": 2, "after": 4, "target": null, "status": "info", "statusText": "记录", "method": "方案问题陈述只说现有两套接不住两类简报，没有可度量现状；以体系数和用户核收为准", "evidence": {"output": "纸本编辑 2·2·4·2·2；孔版印刷 4·4·4·2·4；油画网点 3·2·3·3·3；色纸剪贴 4·2·4·2·3", "link": "https://github.com/JinhaoFang/design-system/issues/97", "linkText": "用户核收 #97"}}], "asks": [], "evidence": [{"claim": "四套体系回归通过", "value": "4 / 4", "output": "通过  cut-paper / oil-halftone / paper-editorial / riso-print\n4 套体系，0 套有问题。", "link": "https://github.com/JinhaoFang/design-system/pull/98", "linkText": "PR #98"}, {"claim": "两件体系样张零错误零警告", "value": "0 / 0", "output": "乡音库：0 个错误，0 个警告\n栖桐植物园百年：0 个错误，0 个警告\n排法总览各 1 个警告（流程步骤被判为等大卡片，接受）", "link": "https://github.com/JinhaoFang/design-system/issues/95#issuecomment-6787456965", "linkText": "#95 验收"}, {"claim": "乡音库首屏", "value": "油画 + 网点手机", "image": "data:image/webp;base64,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", "link": "https://github.com/JinhaoFang/design-system/issues/95#issuecomment-6787456965", "linkText": "#95 验收"}, {"claim": "栖桐植物园百年首屏", "value": "44 片剪纸叶子", "image": "data:image/webp;base64,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", "link": "https://github.com/JinhaoFang/design-system/issues/96#issuecomment-6787459576", "linkText": "#96 验收"}], "risks": [{"level": "warning", "what": "入场只能进入视口时触发，不能随滚动逐帧联动", "impact": "画作飘入、叶子散开聚拢、逐句点亮都是分段触发，揭开时机对不准正在读的那一行。", "next": "用户 11-11 决定暂不优化，记在路线图「已定」。"}, {"level": "good", "what": "两件样张尚未入范例库", "impact": "体系可用；范例库少两件原创范例。", "next": "路线图下一步：作为「原创」范例提交候选，由裁判批准。"}], "findings": ["汇报模板（workflow-v5）的 .banner 写了 display: block，盖过了 hidden，没有要用户做的事时页首仍显示一条空提示条；本份汇报加了一行 .banner[hidden] 修正，模板本身在方法层仓库 agent-workflow 修。", "工单全部是设计工单，没有派发，所以评分表的派发、用时槽位为空；检查器在做体系时暴露的问题（无色相的灰、ruby 标点被判行首禁则、隐藏翻滚文字的对比度）都在体系里绕开，没有改工具。"], "notes": [{"item": "过程数据", "note": "只来自评分表；本 spec 没有派发记录，派发相关的数字显示「未记录」。"}, {"item": "生图", "note": "本 spec 共生成 16 张成品图和 10 张候选预览，候选预览不进 git。"}]}}</script>
+<script>
+{
+  const $ = (slot) => document.querySelector(`[data-slot="${slot}"]`);
+  const el = (tag, attrs = {}, ...kids) => {
+    const node = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (v === null || v === undefined || v === false) continue;
+      if (k === "text") node.textContent = v;
+      else if (k === "style") node.style.cssText = v;
+      else node.setAttribute(k, v === true ? "" : v);
+    }
+    for (const kid of kids.flat()) if (kid !== null && kid !== undefined) node.append(kid);
+    return node;
+  };
+  const NS = "http://www.w3.org/2000/svg";
+  const svgEl = (tag, attrs = {}, text) => {
+    const node = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) if (v !== null && v !== undefined) node.setAttribute(k, v);
+    if (text !== undefined) node.textContent = text;
+    return node;
+  };
+  const put = (slot, ...content) => $(slot).append(...content.flat(2).filter((c) => c !== null && c !== undefined));
+  const DATA = JSON.parse($("data").textContent);
+  const R = DATA.report;
+  const S = DATA.scorecard;
+  const val = (field) => (field && typeof field === "object" && "value" in field ? field.value : field);
+  const why = (field) => (field && typeof field === "object" && field.reason ? field.reason.replace(/^未记录[：:]\s*/, "") : "缺数");
+  const tz = R.timezone || undefined;
+  const fmtNum = (n, digits = 0) => (n === null || n === undefined ? "未知" : Number(n).toLocaleString("zh-CN", { maximumFractionDigits: digits }));
+  const fmtMin = (m) => {
+    if (m === null || m === undefined) return "未知";
+    if (m < 60) return `${fmtNum(m, 1)} 分钟`;
+    return `${Math.floor(m / 60)} 小时 ${Math.round(m % 60)} 分`;
+  };
+  const fmtTok = (n) => (n === null || n === undefined ? "未知" : n >= 1e4 ? `${fmtNum(n / 1e4, n >= 1e6 ? 0 : 1)} 万` : fmtNum(n));
+  const fmtTime = (iso) => (iso ? new Date(iso).toLocaleString("zh-CN", { timeZone: tz, month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }) : "未知");
+  const fmtClock = (ms) => new Date(ms).toLocaleTimeString("zh-CN", { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false });
+  const link = (text, href) => (href ? el("a", { href, text }) : document.createTextNode(text));
+  const issue = (n) => link(`#${n}`, R.repo ? `https://github.com/${R.repo}/issues/${n}` : null);
+  const status = (level, text) => {
+    const icon = { good: "✓", warning: "!", serious: "!", critical: "✕", info: "i" }[level] || "·";
+    return el("span", { class: `status st-${level}` }, el("i", { text: icon }), text);
+  };
+  const evidenceBlock = (ev) => {
+    if (!ev) return null;
+    const box = el("div", { class: "ev" });
+    if (ev.value) box.append(el("div", { class: "num", text: ev.value }));
+    if (ev.output) box.append(el("pre", { text: ev.output }));
+    if (ev.image) box.append(el("img", { class: "thumb", src: ev.image, alt: ev.imageAlt || "截图" }));
+    if (ev.link) box.append(el("div", {}, link(ev.linkText || "原始记录", ev.link)));
+    return box;
+  };
+  const tip = $("tip");
+  const showTip = (target, x, y) => {
+    if (!target) { tip.hidden = true; return; }
+    tip.textContent = target.getAttribute("data-tip");
+    tip.hidden = false;
+    tip.style.left = `${Math.max(8, Math.min(x + 12, window.innerWidth - tip.offsetWidth - 8))}px`;
+    tip.style.top = `${Math.max(8, Math.min(y + 12, window.innerHeight - tip.offsetHeight - 8))}px`;
+  };
+  document.addEventListener("pointermove", (event) => showTip(event.target.closest && event.target.closest("[data-tip]"), event.clientX, event.clientY));
+  document.addEventListener("focusin", (event) => {
+    const target = event.target.closest && event.target.closest("[data-tip]");
+    if (target) { const box = target.getBoundingClientRect(); showTip(target, box.left, box.top); }
+  });
+  document.addEventListener("focusout", () => { tip.hidden = true; });
+
+  document.title = `spec #${R.spec} 汇报：${R.title}`;
+  $("meta").textContent = [R.date, `spec #${R.spec}`, R.pr ? `PR #${R.pr.number}（${R.pr.state}）` : null].filter(Boolean).join(" · ");
+  $("title").textContent = R.title;
+  $("result").textContent = R.result;
+  const asks = R.asks || [];
+  if (asks.length) {
+    const banner = $("banner");
+    banner.hidden = false;
+    banner.append(el("b", { text: `有 ${asks.length} 件事要你做` }), "：", asks.map((a) => a.what).join("；"), " → 第 3 节");
+  }
+
+  const goals = R.goals || [];
+  const judged = goals.filter((g) => g.status !== "info");
+  const met = judged.filter((g) => g.status === "good").length;
+  const dispatches = val(S && S.dispatches) || [];
+  const tickets = new Set(dispatches.map((d) => d.ticket).filter((t) => t !== null && t !== undefined));
+  const spanStarts = [];
+  const spanEnds = [];
+  if (S) for (const lane of Object.values(S.time || {})) for (const s of (val(lane) || {}).spans || []) { spanStarts.push(Date.parse(s.start)); spanEnds.push(Date.parse(s.end)); }
+  const wall = spanStarts.length ? (Math.max(...spanEnds) - Math.min(...spanStarts)) / 60000 : null;
+  const tile = (v, k, n) => el("div", { class: "tile" }, el("div", { class: "v", text: v }), el("div", { class: "k", text: k }), n ? el("div", { class: "n", text: n }) : null);
+  put("done-tiles", 
+    tile(judged.length ? `${met}/${judged.length}` : "—", "目标达成", [judged.length - met ? `${judged.length - met} 项未完全达成` : null, goals.length - judged.length ? `另 ${goals.length - judged.length} 项只报告` : null].filter(Boolean).join("，") || null),
+    tile(String((R.delivered || []).length), "交付", S ? `派发工单 ${tickets.size} 张` : null),
+    tile(fmtMin(wall), "从开工到数据截点", S ? `截点 ${fmtTime(S.cutoffAt)}` : null),
+  );
+  const delivered = R.delivered || [];
+  put("delivered", delivered.length
+    ? el("div", { class: "tw" }, el("table", {}, el("thead", {}, el("tr", {}, el("th", { text: "交付" }), el("th", { text: "工单" }), el("th", { text: "对你的意义" }))),
+        el("tbody", {}, delivered.map((d) => el("tr", {}, el("td", { text: d.what }), el("td", {}, (d.tickets || []).flatMap((t, i) => (i ? [" ", issue(t)] : [issue(t)]))), el("td", { text: d.meaning }))))))
+    : el("p", { class: "empty", text: "无" }));
+
+  const dumbbell = (g, W) => {
+    const nums = [g.before, g.after, g.target].filter((n) => typeof n === "number");
+    if (nums.length < 2) return null;
+    const max = Math.max(...nums) * 1.08 || 1;
+    const H = 46, L = 6, Rr = 6, x = (n) => L + (n / max) * (W - L - Rr);
+    const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `${g.name}：改前 ${g.before}，改后 ${g.after}` });
+    svg.append(svgEl("line", { class: "axis", x1: L, x2: W - Rr, y1: 30, y2: 30 }));
+    if (typeof g.before === "number" && typeof g.after === "number") svg.append(svgEl("line", { x1: x(g.before), x2: x(g.after), y1: 18, y2: 18, stroke: "var(--axis)", "stroke-width": 2 }));
+    if (typeof g.target === "number") svg.append(svgEl("line", { x1: x(g.target), x2: x(g.target), y1: 8, y2: 28, stroke: "var(--ink2)", "stroke-width": 2 }));
+    const dot = (n, fill, label, anchorUp) => {
+      const group = svgEl("g", { "data-tip": `${label} ${fmtNum(n, 2)} ${g.unit || ""}` });
+      group.append(svgEl("circle", { cx: x(n), cy: 18, r: 10, fill: "transparent" }), svgEl("circle", { cx: x(n), cy: 18, r: 5, fill, stroke: "var(--surface)", "stroke-width": 2 }));
+      const px = x(n), anchor = px < 40 ? "start" : px > W - 40 ? "end" : "middle";
+      group.append(svgEl("text", { x: anchor === "start" ? Math.max(px - 4, 0) : anchor === "end" ? Math.min(px + 4, W) : px, y: anchorUp ? 8 : 44, "text-anchor": anchor }, `${label} ${fmtNum(n, 2)}`));
+      return group;
+    };
+    if (typeof g.before === "number") svg.append(dot(g.before, "var(--muted)", "改前", true));
+    if (typeof g.after === "number") svg.append(dot(g.after, "var(--s1)", "改后", false));
+    return svg;
+  };
+  const delta = (g) => (typeof g.before === "number" && typeof g.after === "number" && g.before ? `改后比改前 ${g.after >= g.before ? "+" : ""}${fmtNum((100 * (g.after - g.before)) / g.before, 1)}%` : null);
+  const drawGoals = () => {
+  const gw = Math.max(240, Math.floor(($("goals").clientWidth - 16) / (innerWidth > 640 ? 2 : 1)));
+  $("goals").replaceChildren();
+  put("goals", goals.length ? goals.map((g) => el("div", { class: "card" },
+    el("div", { class: "row" },
+      el("div", {},
+        el("h3", {}, g.name, " ", status(g.status || "warning", g.statusText || "")),
+        g.unit ? el("div", { class: "muted", text: `单位：${g.unit}${typeof g.target === "number" ? `；目标 ${fmtNum(g.target, 2)}` : ""}` }) : null,
+        dumbbell(g, gw),
+        typeof g.before !== "number" || typeof g.after !== "number" ? el("div", { class: "pair" }, el("span", { class: "muted", text: "改前 " }), String(g.before ?? "未知"), el("br"), el("span", { class: "muted", text: "改后 " }), String(g.after ?? "未知")) : null,
+        delta(g) ? el("div", { text: delta(g) }) : null,
+        g.method ? el("div", { class: "muted", text: `怎么测：${g.method}` }) : null),
+      el("div", {}, evidenceBlock(g.evidence), (g.links || []).length ? el("div", { class: "ev" }, g.links.flatMap((l, i) => (i ? [" · ", link(l.text, l.href)] : [link(l.text, l.href)]))) : null))))
+    : el("p", { class: "empty", text: "问题陈述没有可度量的现状；判断方法写在第 1 节。" }));
+  };
+
+  put("asks", asks.length ? el("ol", { class: "plain" }, asks.map((a) => el("li", {},
+    el("b", { text: `【${a.kind}】${a.what}` }),
+    a.why ? el("div", { class: "muted", text: a.why }) : null,
+    (a.options || []).length ? el("div", { text: `选项：${a.options.join(" / ")}` }) : null,
+    a.recommend ? el("div", { text: `推荐：${a.recommend}` }) : null)))
+    : el("p", { class: "empty", text: "这次没有要你做的事。" }));
+
+  const evidence = R.evidence || [];
+  put("evidence", evidence.length ? evidence.map((e) => el("div", { class: "card" }, el("div", { class: "row" }, el("div", {}, el("b", { text: e.claim })), evidenceBlock(e))))
+    : el("p", { class: "empty", text: "无" }));
+
+  const framework = (d) => d.framework || d.agent || "codex";
+  const frameworkName = (key) => ({ codex: "Codex", claude: "Claude", pi: "pi" }[key] || key);
+  const frameworkColor = (key) => ({ codex: "var(--s1)", claude: "var(--claude)", pi: "var(--pi)" }[key] || "var(--muted)");
+  const seatName = (key) => ({ engineering: "工程", review: "审查", research: "辅助", "spec-review": "独立审查", watch: "巡检" }[key] || key || "席位未记录");
+  const dispatchLanes = val(S && S.dispatchLanes) || [{ framework: "codex", time: S && (S.time.dispatchSlots || S.time.codexSlots) }];
+  const LANES = [
+    ...dispatchLanes.map((l) => [l.framework, frameworkName(l.framework), frameworkColor(l.framework), l.time]),
+    ...[["verification", "验证", "var(--s2)"], ["queue", "排队", "var(--s3)"], ["designLead", "设计负责人", "var(--s4)"], ["waitingUser", "等用户", "var(--s5)"]].map(([key, name, color]) => [key, name, color, S && S.time[key]]),
+  ];
+  put("lane-legend", LANES.map(([, name, c]) => el("span", { style: `--c:${c}`, text: name })));
+  const dispatchMinutes = (d) => {
+    const value = val(d.minutes);
+    return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null;
+  };
+  const longestDispatch = Math.max(1, ...dispatches.map((d) => dispatchMinutes(d) ?? 0));
+  put("dispatch-bars", dispatches.length ? dispatches.map((d) => {
+    const minutes = dispatchMinutes(d), usage = val(d.usage), category = val(d.category), exit = val(d.exitCode);
+    const input = usage && typeof usage.inputTokens === "number" ? usage.inputTokens : null;
+    const details = [
+      d.record || "记录名未记录", d.ticket ? `工单 #${d.ticket}` : "无工单号",
+      `框架：${frameworkName(framework(d))}；席位：${d.seat || "未记录"}；工作类型：${d.workType || "default"}`,
+      `模型：${d.actualModel || d.model || "未记录"}；强度：${d.actualEffort || d.effort || "未记录"}`,
+      `类别：${category ?? "未记录"}`, `开始：${fmtTime(val(d.start))}`, `结束：${fmtTime(val(d.end))}`,
+      minutes === null ? `时长未记录：${why(d.minutes)}` : `时长：${fmtMin(minutes)}`,
+      `退出码：${exit ?? "未记录"}`, input === null ? `输入未记录：${why(d.usage)}` : `输入：${fmtNum(input)} token`,
+      usage ? `缓存输入：${fmtTok(usage.cachedInputTokens)}；输出：${fmtTok(usage.outputTokens)}` : null,
+    ].filter(Boolean).join("\n");
+    const track = el("div", { class: `dispatch-track${minutes === null ? " dispatch-unknown" : ""}`, "aria-hidden": "true" });
+    if (minutes !== null) track.append(el("div", { class: "dispatch-fill", style: `width:${(100 * minutes) / longestDispatch}%` }));
+    const meta = el("div", { class: "dispatch-meta" }, `${frameworkName(framework(d))} · ${category ?? "类别未记录"}${d.seat && seatName(d.seat) !== category ? ` · ${seatName(d.seat)}` : ""}${d.workType && d.workType !== "default" ? ` · ${d.workType}` : ""}`);
+    if (exit !== null && exit !== undefined && exit !== 0) meta.append(" · ", el("span", { class: "dispatch-exit", text: `退出 ${exit}` }));
+    else if (exit === null || exit === undefined) meta.append(" · 退出码未记录");
+    meta.append(input === null ? " · 输入未记录" : ` · 输入 ${fmtTok(input)}`);
+    return el("div", { class: "dispatch-item", style: `--dispatch-color:${frameworkColor(framework(d))}`, tabindex: "0", role: "group", "aria-label": details, "data-tip": details },
+      el("div", { class: "dispatch-heading" }, el("b", { text: d.record || "记录名未记录" }), el("span", { text: minutes === null ? "时长未记录" : fmtMin(minutes) })),
+      el("div", { class: "dispatch-line" }, track, meta),
+      minutes === null ? el("div", { class: "dispatch-reason", text: `未记录：${why(d.minutes)}` }) : null);
+  }) : el("p", { class: "empty", text: "没有派发记录。" }));
+  const timeline = () => {
+    if (!S) return el("p", { class: "empty", text: "没有评分表数据。" });
+    const lanes = LANES.map(([key, name, color, field]) => ({ key, name, color, field, spans: ((val(field) || {}).spans || []).map((s) => [Date.parse(s.start), Date.parse(s.end)]) }));
+    const all = lanes.flatMap((l) => l.spans).sort((a, b) => a[0] - b[0]);
+    if (!all.length) return el("p", { class: "empty", text: "评分表里没有时段。" });
+    const GAP = 45 * 60000;
+    const segs = [];
+    for (const [a, b] of all) {
+      const last = segs[segs.length - 1];
+      if (last && a - last[1] <= GAP) last[1] = Math.max(last[1], b);
+      else segs.push([a, b]);
+    }
+    const W = Math.max(240, $("timeline").clientWidth), LW = W < 600 ? 64 : 92, GW = 14, ROW = 26, TOP = 6, PAD = 4;
+    const active = segs.reduce((n, [a, b]) => n + (b - a), 0) || 1;
+    const usable = W - LW - GW * (segs.length - 1) - PAD;
+    const offsets = [];
+    let cursor = LW;
+    for (const [a, b] of segs) { offsets.push(cursor); cursor += ((b - a) / active) * usable + GW; }
+    const x = (t) => {
+      for (let i = 0; i < segs.length; i++) if (t <= segs[i][1] || i === segs.length - 1) return offsets[i] + ((Math.max(t, segs[i][0]) - segs[i][0]) / active) * usable;
+      return W;
+    };
+    const H = TOP + lanes.length * ROW + 24;
+    const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "按资源分泳道的时间线" });
+    lanes.forEach((lane, i) => {
+      const y = TOP + i * ROW;
+      svg.append(svgEl("rect", { class: "lane", x: LW, y, width: W - LW - PAD, height: ROW - 6, rx: 3 }));
+      svg.append(svgEl("text", { x: LW - 8, y: y + 14, "text-anchor": "end" }, lane.name));
+      if (val(lane.field) === null) svg.append(svgEl("text", { x: LW + 8, y: y + 14 }, W < 600 ? "未记录" : `未记录：${why(lane.field)}`));
+      for (const [a, b] of lane.spans) {
+        const x1 = x(a), w = Math.max(x(b) - x1, 2);
+        const g = svgEl("g", { "data-tip": `${lane.name}\n${fmtClock(a)}–${fmtClock(b)}（${fmtMin((b - a) / 60000)}）` });
+        g.append(svgEl("rect", { x: x1 - 2, y, width: w + 4, height: ROW - 6, fill: "transparent" }), svgEl("rect", { x: x1, y: y + 3, width: w, height: ROW - 12, rx: 2, fill: lane.color }));
+        svg.append(g);
+      }
+    });
+    const base = TOP + lanes.length * ROW;
+    segs.forEach(([a, b], i) => {
+      if (i) {
+        const gx = offsets[i] - GW / 2;
+        svg.append(svgEl("line", { x1: gx - 2, x2: gx - 2, y1: TOP, y2: base - 6, stroke: "var(--axis)" }), svgEl("line", { x1: gx + 2, x2: gx + 2, y1: TOP, y2: base - 6, stroke: "var(--axis)" }));
+        svg.append(svgEl("g", { "data-tip": `空档 ${fmtMin((a - segs[i - 1][1]) / 60000)}` }, svgEl("rect", { x: gx - 7, y: TOP, width: 14, height: base - TOP, fill: "transparent" })));
+      }
+      const px = x(b) - x(a);
+      const step = [15, 30, 60, 120, 240, 480, 960].map((m) => m * 60000).find((s) => (s / Math.max(b - a, 1)) * px >= 70);
+      if (!step) return;
+      for (let t = Math.ceil(a / step) * step; t <= b; t += step) {
+        svg.append(svgEl("line", { class: "gridl", x1: x(t), x2: x(t), y1: base - 4, y2: base }));
+        svg.append(svgEl("text", { x: x(t), y: base + 14, "text-anchor": "middle" }, fmtClock(t)));
+      }
+    });
+    return svg;
+  };
+
+  const hbars = (rows, unitFmt, ariaLabel, W) => {
+    const max = Math.max(1, ...rows.map((r) => r.value || 0));
+    const narrow = W < 600, LW = narrow ? 98 : 150, VW = narrow ? 95 : 280, ROW = 26;
+    const svg = svgEl("svg", { viewBox: `0 0 ${W} ${rows.length * ROW + 4}`, role: "img", "aria-label": ariaLabel });
+    rows.forEach((r, i) => {
+      const y = i * ROW;
+      svg.append(svgEl("text", { x: LW - 8, y: y + 16, "text-anchor": "end" }, r.label));
+      if (r.value === null || r.value === undefined) { svg.append(svgEl("text", { x: LW, y: y + 16 }, narrow ? "未记录" : `未记录：${r.reason || "缺数"}`)); return; }
+      const w = r.value > 0 ? Math.max(((W - LW - VW) * r.value) / max, 2) : 0;
+      const g = svgEl("g", { "data-tip": r.tip || `${r.label}：${r.text || unitFmt(r.value)}` });
+      g.append(svgEl("rect", { x: LW, y, width: W - LW - VW, height: ROW - 4, fill: "transparent" }), svgEl("rect", { x: LW, y: y + 5, width: w, height: ROW - 14, rx: 2, fill: r.color || "var(--s1)" }));
+      g.append(svgEl("text", { x: LW + w + 8, y: y + 16 }, (narrow ? r.short : r.text) || unitFmt(r.value)));
+      svg.append(g);
+    });
+    return svg;
+  };
+
+  const ver = val(S && S.verification);
+  const merges = val(S && S.merges);
+  const failures = S ? Object.values(S.failures || {}).map(val) : [];
+  const failureSum = failures.every((n) => typeof n === "number") ? failures.reduce((a, b) => a + b, 0) : null;
+  const overhead = (val(S && S.overhead) || []).map((o) => val(o.minutes)).filter((n) => typeof n === "number").sort((a, b) => a - b);
+  const median = overhead.length ? overhead[Math.floor(overhead.length / 2)] : null;
+  put("verify-tiles", 
+    tile(ver ? `${ver.fullCount} 次` : "未记录", "完整验证", ver ? `共 ${fmtMin(ver.fullMinutes)}` : why(S && S.verification)),
+    tile(ver ? `${ver.staticCount} 次` : "未记录", "静态检查"),
+    tile(merges ? `${merges.landCount} 次` : "未记录", "合并（land）", merges ? `完整验证失败 ${merges.fullVerificationFailures} 次` : null),
+    tile(failureSum === null ? "未知" : `${failureSum} 次`, "流程故障", "派发无汇报、land 停下、验证启动失败"),
+    tile(val(S && S.userInterventions) === null || !S ? "未知" : `${val(S.userInterventions)} 次`, "用户介入"),
+    tile(median === null ? "未知" : fmtMin(median), "开工开销（中位）", "派发到第一次改文件"),
+  );
+  if (S) {
+    const n = val(S.usage.subagentNotifications);
+    put("usage-note", n === null ? `任务通知里的子代理 token：未记录（${why(S.usage.subagentNotifications)}）。` : `任务通知报的子代理 token 合计 ${fmtTok(n)}，可和上面子代理一行互相核对。`);
+  }
+
+  const groupedUsage = val(S && S.usage.dispatches);
+  const USAGE = [
+    ...(S && S.version >= 2 ? groupedUsage ? groupedUsage.map((g) => [`${seatName(g.seat)}/${frameworkName(g.framework)}`, g.usage, frameworkColor(g.framework)]) : [["派发用量", S.usage.dispatches, "var(--muted)"]] : [["Codex 派发", S && S.usage.codexDispatch, frameworkColor("codex")], ["Codex 审查", S && S.usage.codexReview, frameworkColor("codex")]]),
+    ...[["mainSession", "主会话"], ["independentReview", "独立审查"], ["subagents", "子代理"]].map(([key, name]) => [name, S && S.usage[key], "var(--muted)"]),
+  ];
+  const drawCharts = () => {
+    drawGoals();
+    for (const slot of ["timeline", "time-bars", "usage-bars"]) $(slot).replaceChildren();
+    put("timeline", timeline());
+    const bw = Math.max(240, $("time-bars").clientWidth);
+    put("time-bars", S ? hbars(LANES.map(([, name, color, field]) => ({ label: name, color, value: (val(field) || {}).minutes ?? null, reason: why(field) })), fmtMin, "各类时间的分钟数", bw) : el("p", { class: "empty", text: "没有评分表数据。" }));
+    put("usage-bars", S ? hbars(USAGE.map(([label, field, color]) => {
+      const u = val(field);
+      return { label, color, value: u ? u.inputTokens : null, reason: why(field), short: u ? `输入 ${fmtTok(u.inputTokens)}` : null,
+        text: u ? `输入 ${fmtTok(u.inputTokens)}（缓存 ${Math.round((100 * u.cachedInputTokens) / (u.inputTokens || 1))}%）· 输出 ${fmtTok(u.outputTokens)}` : null };
+    }), fmtTok, "各来源的输入 token", bw) : el("p", { class: "empty", text: "没有评分表数据。" }));
+  };
+  drawCharts();
+  const resize = { timer: 0, width: innerWidth };
+  addEventListener("resize", () => {
+    if (innerWidth === resize.width) return;
+    resize.width = innerWidth;
+    clearTimeout(resize.timer);
+    resize.timer = setTimeout(drawCharts, 150);
+  });
+
+  const table = (head, rows) => el("div", { class: "tw" }, el("table", {}, el("thead", {}, el("tr", {}, head.map(([t, num]) => el("th", { class: num ? "num" : null, text: t })))),
+    el("tbody", {}, rows.map((r) => el("tr", {}, r.map((c, i) => el("td", { class: head[i][1] ? "num" : null }, c)))))));
+  put("dispatch-table", dispatches.length ? table([["记录"], ["工单"], ["席位 / 类型"], ["框架 / 模型 / 强度"], ["类别"], ["开始"], ["分钟", 1], ["退出码", 1], ["输入", 1], ["输出", 1]],
+    dispatches.map((d) => { const u = val(d.usage); return [d.record || "", d.ticket ? issue(d.ticket) : "", `${d.seat || "未记录"} / ${d.workType || "default"}`, `${frameworkName(framework(d))} / ${d.actualModel || d.model || "未记录"} / ${d.actualEffort || d.effort || "未记录"}`, val(d.category) ?? "未知", fmtTime(val(d.start)), fmtNum(val(d.minutes), 1), String(val(d.exitCode) ?? "未知"), fmtTok(u && u.inputTokens), fmtTok(u && u.outputTokens)]; }))
+    : el("p", { class: "empty", text: "无" }));
+  const runs = (ver && ver.runs) || [];
+  put("verify-table", runs.length ? table([["层"], ["对象"], ["调用方"], ["开始"], ["排队", 1], ["运行", 1], ["退出码", 1]],
+    runs.map((r) => [r.layer === "full" ? "完整" : "静态", r.target.kind === "main" ? "主工作区" : `${r.target.kind === "pr" ? "PR" : "工单"} #${r.target.number}`, r.caller, fmtTime(r.start), fmtNum(r.queuedMinutes, 1), fmtNum(r.minutes, 1), String(r.exitCode)]))
+    : el("p", { class: "empty", text: "无" }));
+
+  const risks = R.risks || [];
+  const LEVEL = { critical: "高", serious: "中", warning: "低", good: "已处理" };
+  put("risks", risks.length ? risks.map((r) => el("div", { class: "card" },
+    el("h3", {}, status(r.level || "warning", LEVEL[r.level] || ""), " ", r.what),
+    r.impact ? el("div", { text: `影响：${r.impact}` }) : null,
+    r.next ? el("div", { class: "muted", text: `去向：${r.next}` }) : null))
+    : el("p", { class: "empty", text: "无" }));
+
+  put("findings", el("h3", { text: "流程发现" }), (R.findings || []).length ? el("ul", { class: "plain" }, R.findings.map((f) => el("li", { text: f }))) : el("p", { class: "empty", text: "无" }));
+  const notes = [...(R.notes || []).map((n) => [n.item, n.note]), ...((S && S.missing) || []).map((m) => [`评分表缺数：${m.field}`, m.reason])];
+  put("notes", el("h3", { text: "数据口径与缺项" }), notes.length ? table([["项"], ["说明"]], notes) : el("p", { class: "empty", text: "无" }));
+  $("footer").textContent = S ? `过程数据来自评分表（tickets.ts scorecard ${R.spec}），截点 ${fmtTime(S.cutoffAt)}，采集 ${fmtTime(S.collectedAt)}。目标、证据、决定和风险由设计负责人填写。` : "没有评分表数据。";
+}
+</script>
+</body>
+</html>

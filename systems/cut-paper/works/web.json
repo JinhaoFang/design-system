@@ -1,0 +1,14 @@
+{
+  "system": "cut-paper",
+  "carrier": "web",
+  "concept": "一百年，每一片叶子都不一样：同一组剪纸叶子在首屏聚成一束，读信时散开，挂成八张志愿者的叶签，又飘落下去，最后聚成一棵树，请读者来种园子第二个一百年的第一棵树。",
+  "sequence": [
+    { "custom": { "file": "fragments/kaichang.html" }, "serves": "首屏：几十片形状、颜色各不相同的剪纸叶子聚成一束，下面只有一行字。" },
+    { "custom": { "file": "fragments/xin-shang.html" }, "serves": "信的上半封：每句一行，读到哪句揭开哪句；叶子从叶束上散开，在右侧往下飘。" },
+    { "custom": { "file": "fragments/yeqian.html" }, "serves": "叶签墙：八片叶子各挂一张志愿者的叶签，旁边是剪去了它们的那张色纸，正形与负形并排。" },
+    { "custom": { "file": "fragments/xin-xia.html" }, "serves": "信的下半封：园子三次差点没了；叶子在左侧继续飘落，园长落款。" },
+    { "unit": "evidence", "layout": "jianzi", "content": { "heading": "一百年，几个数字", "stats": ["100", "4,812", "1,936", "61,000"], "statLabels": ["年", "位志愿者来过", "种植物在园里生长", "棵树是志愿者种的"], "quote": "我种的第一棵银杏，今年结果了。", "quoteBy": "周素芬，1987 年起在园里做志愿者" } },
+    { "custom": { "file": "fragments/zhongshu.html" }, "serves": "全页唯一的高光：所有叶子聚成一棵树，树下是植树节的邀请。" },
+    { "unit": "footer", "layout": "diye", "content": { "brand": "栖桐植物园", "links": ["百年信", "叶签", "植树节", "入园须知"], "legal": "栖桐植物园、文中人物和数字均为虚构，用于展示色纸剪贴体系。" } }
+  ]
+}
