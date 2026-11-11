@@ -157,7 +157,7 @@ license: CC0-1.0
 
 ### 编排规则
 
-- **规则**：文字入场用 `rise` + `drift`，位移 `space-3`；画作用 `left` / `right` / `fall` + `settle` + `drift`，位移 `space-5` 到 `space-7`，像从画廊墙边飘进来。同组错峰 `line`（80ms），散落的小画用 `float`（240ms）。透明度统一 `drift` + `settle`（数值文件 `entrance.opacity`）。
+- **规则**：文字入场用 `rise` + `drift`，位移 `space-3`；画作用 `left`、`right` 或 `fall`，配 `settle` 时长和 `drift` 缓动，位移 `space-5` 到 `space-7`，像从画廊墙边飘进来。同组错峰 `line`（80ms），散落的小画用 `float`（240ms）。透明度统一 `drift` + `settle`（数值文件 `entrance.opacity`）。
 - **理由**：字要先读到，画随后到位；小画逐张飘入，读者的视线跟着它们绕一圈。
 - **适用边界**：只动 transform 和 opacity。减少动态效果时取消位移、错峰与额外等待，只淡入。
 
