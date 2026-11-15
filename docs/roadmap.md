@@ -11,7 +11,7 @@
 |---|---|---|
 | 分工 | 设计负责人是主会话，工程负责人按席位派发（框架和模型写在个人席位配置里，仓库只登记工作类型 `前端`）；体系本身和词典的确认归设计负责人，工具归工程负责人；用户是需求方和裁判 | `AGENTS.md`「角色」、`docs/roles/` |
 | 工单 | 只在 GitHub Issues 存一份，按 issue 号派发；执行角色标签 `role:*` 和分诊标签并存 | `docs/agents/issue-tracker.md` |
-| 执行 | 用 `run-spec`，从 video-studio 的 tag 安装，2026-10-15 起 `workflow-v1`，2026-10-29 升到 `workflow-v3`，2026-10-31 改从 `JinhaoFang/agent-workflow` 安装 `workflow-v4`，2026-11-06 升到 `workflow-v5`；`implement-spec` 已移除 | `docs/workflow/README.md`、`docs/agents/run-spec.md` |
+| 执行 | 用 `run-spec`，从 video-studio 的 tag 安装，2026-10-15 起 `workflow-v1`，2026-10-29 升到 `workflow-v3`，2026-10-31 改从 `JinhaoFang/agent-workflow` 安装 `workflow-v4`，2026-11-06 升到 `workflow-v5`，2026-11-15 升到 `workflow-v6`；`implement-spec` 已移除 | `docs/workflow/README.md`、`docs/agents/run-spec.md` |
 | 协作边界（11-05 用户已定） | 工单准确定位参照、定稿、契约和验收产物，实现位置由执行者决定；父 spec 正文是当前决定唯一来源；工程推送只在派发明确授权时限本工单分支；书面产物用中文、标识符用英文；本仓规则已同步 | `AGENTS.md`「共同规则」、`docs/agents/issue-tracker.md`、`docs/roles/engineering.md`；[工单 #90](https://github.com/JinhaoFang/design-system/issues/90) |
 | 独立审查（11-05 用户已定） | 由用户决定是否启动派发前独立审查，选择后按 `run-spec` 做 | `docs/roles/design.md`「工作流」、`docs/workflow/README.md`「一项工作的生命周期」 |
 | 路线图职责（11-05 用户已定） | 每个阶段收尾有变化时只更新已定与待定，当前进度看打开的 spec；保留长期下一步方向和历史阶段索引 | `docs/roles/design.md`、`docs/workflow/README.md`「路线图」 |
