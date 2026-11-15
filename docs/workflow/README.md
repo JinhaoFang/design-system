@@ -41,7 +41,7 @@ spec #S
 | 执行技能 `run-spec` 和它的接入技能 `setup-run-spec` | `.claude/skills/` 和 `.agents/skills/` | 不进。从 `JinhaoFang/agent-workflow` 安装，版本和来源见 `docs/agents/run-spec.md` | 只有设计负责人；派发层按名称对派出去的 agent 屏蔽 |
 | 本库的产品技能（方案 7.2 节，第 1 阶段开始写） | 方案定为 `.agents/skills/`，统一加前缀 | 进 | Claude Code 和 Codex |
 
-设计负责人专用的技能不靠目录隔离：主会话可能在 Claude Code、Codex 或 pi 里，`run-spec` 两处都装；派出去的 agent 由派发层按名称屏蔽它们。派发层随 `run-spec` 自带，不再需要 DispatchDock。
+设计负责人专用的技能不靠目录隔离：主会话可能在 Claude Code、Codex、pi 或 agy 里，`run-spec` 两处都装；派出去的 agent 由派发层按名称屏蔽它们。派发层随 `run-spec` 自带，不再需要 DispatchDock。
 
 第三方技能在 #31 退出 git 跟踪，`run-spec` 随后也退出了跟踪。在主工作区切到还跟踪着它们的提交（`main` 上 #31 合并之前的提交，或者迁移前拉出的分支，例如 `prototype/paper-editorial-direction`），再切回来，本机的第三方技能和 `.claude/skills/` 下的软链接会全部消失：切过去时，git 用旧提交里的版本覆盖了这些被忽略的文件；切回来时，它们在新提交里不再跟踪，git 就把它们删了。切到还跟踪着 `run-spec` 的提交再切回来，`run-spec` 也会这样消失，用安装命令重装。查看迁移前的历史，用 `git show`，或者另开一个 worktree 切过去，不在主工作区切换。已经被删的，从刚才切过去的那个旧提交里恢复 `skills-lock.json` 列出的 Matt 的技能：
 

@@ -5,7 +5,7 @@
 - `docs/agents/run-spec.json`：工单脚本要读的值；
 - 本文：配置项的含义，以及脚本用不到、但设计负责人执行时要知道的值。
 
-`run-spec` 和 `setup-run-spec` 从 `JinhaoFang/agent-workflow` 的版本 tag 安装，不进 git，当前是 `workflow-v5`，记在 `skills-lock.json`。安装命令、升级步骤和注意事项见那边的 README；每台跑执行会话的机器各自安装。
+`run-spec` 和 `setup-run-spec` 从 `JinhaoFang/agent-workflow` 的版本 tag 安装，不进 git，当前是 `workflow-v6`，记在 `skills-lock.json`。安装命令、升级步骤和注意事项见那边的 README；每台跑执行会话的机器各自安装。
 
 ## 脚本读取的配置
 
@@ -27,7 +27,7 @@
 ## 执行时要知道的其他值
 
 - **独占资源**：无。
-- **汇报目录**：`docs/reports/`，写法按 `run-spec` 的 `report.md`。版式沿用第一份 `spec-32-dev-guardrails.html`。
+- **汇报目录**：`docs/reports/`。新汇报使用 `run-spec` 的 `report-template.html`（可收起的目录加页签），按 `report.md` 填写；已有汇报保留原快照，仍可用 `report-check` 检查。
 - **验证用时**：`pnpm verify` 在本机约 2～3.5 分钟（测试会起无头浏览器；10-31 实测 3 分 20 秒），`pnpm verify --static` 约 2 秒。并行验证：两套同时跑经过实测是安全的（spec #32 的 #33）；三张工单并行时各自的验证也都通过了，但没有专门压测三套同时跑。CI 的机器是 2 核，测试约 5 分钟。
 - **派发实测用时**（spec #32）：工具类工单 10～18 分钟，输入 100 万～270 万 tokens（九成以上命中缓存）；要在 CI 上反复运行找原因的排查工单约 40 分钟、870 万 tokens；按批审查约 5 分钟。`land` 的验证每次约 2 分钟。
 - **常见的共享登记处**：`src/checker/rules/index.ts` 的 `ALL_RULES`、`src/cli-commands.json` 的 `ds` 子命令表、`package.json` 的脚本、`scripts/verify.ts` 的 `STEPS`、CI 工作流、`docs/cli.md`。并行的工单都要往里加一项时，派发的补充说明写"只加自己那一项"。
