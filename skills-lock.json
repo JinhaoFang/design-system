@@ -69,10 +69,10 @@
     },
     "run-spec": {
       "source": "JinhaoFang/agent-workflow",
-      "ref": "workflow-v6",
+      "ref": "workflow-v7",
       "sourceType": "github",
       "skillPath": ".claude/skills/run-spec/SKILL.md",
-      "computedHash": "fe6949cdd16b4c4e4e044a1de1b89cf7266d2f6c5fffc06c3fd5976225366d30"
+      "computedHash": "f3a136339188841310c829a8a347f6bb3d31e31cddcdcf18725f0db60451d736"
     },
     "setup-matt-pocock-skills": {
       "source": "mattpocock/skills",
@@ -82,10 +82,10 @@
     },
     "setup-run-spec": {
       "source": "JinhaoFang/agent-workflow",
-      "ref": "workflow-v6",
+      "ref": "workflow-v7",
       "sourceType": "github",
       "skillPath": ".claude/skills/setup-run-spec/SKILL.md",
-      "computedHash": "6924747851a8e85db7b80faaa43b87d8bd328f95cce2b9d1dd6d501ae9a6a3be"
+      "computedHash": "857bdf1a884b291a31b5f92a2fca4ff5f0f53f8d5e7e456758f526108ac57220"
     },
     "teach": {
       "source": "mattpocock/skills",

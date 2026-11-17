@@ -5,7 +5,7 @@
 - `docs/agents/run-spec.json`：工单脚本要读的值；
 - 本文：配置项的含义，以及脚本用不到、但设计负责人执行时要知道的值。
 
-`run-spec` 和 `setup-run-spec` 从 `JinhaoFang/agent-workflow` 的版本 tag 安装，不进 git，当前是 `workflow-v6`，记在 `skills-lock.json`。安装命令、升级步骤和注意事项见那边的 README；每台跑执行会话的机器各自安装。
+`run-spec` 和 `setup-run-spec` 从 `JinhaoFang/agent-workflow` 的版本 tag 安装，不进 git，当前是 `workflow-v7`，记在 `skills-lock.json`。安装命令、升级步骤和注意事项见那边的 README；每台跑执行会话的机器各自安装。
 
 ## 脚本读取的配置
 
